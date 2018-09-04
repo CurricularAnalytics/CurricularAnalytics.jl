@@ -69,11 +69,12 @@
         df = ones(c.num_courses)
         for v in vertices(c.graph)
             if length(neighbors(c.graph, v)) != 0   # not a standalone course
-                for path in enumerate_paths(dijkstra_shortest_paths(c.graph, v, allpaths=true))
-                    for v in path
+                # enumerate all of the longest paths from v (these are shortest paths in -G)
+                for path in enumerate_paths(dijkstra_shortest_paths(g, v, -weights(g), allpaths=true))
+                    for vtx in path
                         path_length = length(path)  # path_length in terms of # of nodes, not edges
-                        if path_length > df[v]
-                            df[v] = path_length
+                        if path_length > df[vtx]
+                            df[vtx] = path_length
                         end
                     end
                 end

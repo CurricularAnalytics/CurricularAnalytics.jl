@@ -1,5 +1,5 @@
 
-using LightGraphs
+using LightGraphs, SimpleWeightedGraphs
 
 # Depth-first search, returns edge classification using EdgeClass
 function dfs(g::AbstractGraph{T}) where T
@@ -45,7 +45,9 @@ end
 # The set of all vertices in the graph reachable from vertex s
 function reachable_from(g::AbstractGraph{T}, s::Int, vlist::Array=Array{Int64,1}()) where T
     for v in neighbors(g, s)
-        push!(vlist, v)
+        if findfirst(vlist, v) == 0  # v is not in vlist
+            push!(vlist, v)
+        end
         reachable_from(g, v, vlist)
     end
     return vlist
@@ -92,16 +94,16 @@ function reach_subgraph(g::AbstractGraph{T}, s::Int) where T
     induced_subgraph(g, vertices)
 end
 
-# The longest path from vertx v to any other vertex in a DAG G
+# The longest path from vertx s to any other vertex in a DAG G
 # Note: in a DAG, longest path in G = shortest path in -G
 function longest_path(g::AbstractGraph{T}, s::Int) where T
     if is_cyclic(g)
-        error("longest_path(): input graph must be a DAG")
+        error("longest_path(): input graph has cycles")
     end
     lp = Array{Edge}[]
     max = 0
-    for v in vertices(g)
-        path = a_star(g,s,v,-adjacency_matrix(g))  # shortest path from s to v in -G
+    # shortest path from s to all vertices in -G
+    for path in enumerate_paths(dijkstra_shortest_paths(g, s, -weights(g), allpaths=true))
         if length(path) > max
             lp = path
             max = length(path)
