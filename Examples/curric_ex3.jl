@@ -66,7 +66,7 @@ c[49] = Course("Elective Lab", 1)
 # term 1
 add_requisite!(c[2],c[8],pre)
 add_requisite!(c[3],c[9],pre)
-add_requisite!(c[4],c[3],pre)
+add_requisite!(c[4],c[3],co)
 add_requisite!(c[4],c[9],pre)
 add_requisite!(c[4],c[10],pre)
 add_requisite!(c[5],c[6],co)

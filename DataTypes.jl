@@ -45,12 +45,13 @@ end
 ##############################################################
 # Course data type
 mutable struct Course
-    id::Int                             # Unique id for course w/in a curriculum -- this id is only
-                                        # set when the cousrse is added to a curriculum
+    id::Int                             # Unique course id
+    vertex_id::Int                      # The vertex id of the course w/in a curriculum graph -- this id is
+                                        # only set when the cousrse is added to a curriculum
     name::AbstractString                # Name of the course, e.g., Introduction to Psychology
     credit_hours::Int                   # Number of credit hours associated with course. For the
                                         # purpose of analytics, variable credits are not supported
-    prefix::AbstractString              # Typcially a department prefix, e.g., Psychology
+    prefix::AbstractString              # Typcially a department prefix, e.g., PSY
     num::AbstractString                 # Course number, e.g., 101, or 302L
     institution::AbstractString         # Institution offering the course
     canonical_name::AbstractString      # Standard name used to denote the course in the
@@ -131,16 +132,16 @@ end
 function create_graph!(curriculum::Curriculum)
     for (i, c) in enumerate(curriculum.courses)
         if add_vertex!(curriculum.graph)
-            c.id = i  # vertex id == course id, assumes vertex ids start at 1
-                      # and are incremented by 1 as vertices are created.
-                      # This seems to be the case with LightGraphs
+            c.vertex_id = i # graph vertex id == course vertex_id, assumes LightGraph
+                            # vertex ids start at 1 and are incremented by 1 as
+                            # vertices are created.
         else
             error("vertex could not be created")
         end
     end
     for c in curriculum.courses
         for r in collect(keys(c.requisites))
-            if add_edge!(curriculum.graph, r.id, c.id)
+            if add_edge!(curriculum.graph, r.vertex_id, c.vertex_id)
             else
                 error("edge could not be created")
             end
@@ -151,9 +152,9 @@ end
 function requisite_type(curriculum::Curriculum, src_course_id::Int, dst_course_id::Int)
     src = 0; dst = 0
     for c in curriculum.courses
-        if c.id == src_course_id
+        if c.vertex_id == src_course_id
             src = c
-        elseif c.id == dst_course_id
+        elseif c.vertex_id == dst_course_id
             dst = c
         end
     end

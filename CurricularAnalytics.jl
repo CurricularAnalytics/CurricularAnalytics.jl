@@ -1,7 +1,7 @@
 #module CurricularAnalytics
 
     # Dependencies
-    using LightGraphs, JSON
+    using LightGraphs, SimpleWeightedGraphs, JSON
 
     # Imports
     include("DataTypes.jl")
@@ -66,9 +66,10 @@
 
     # Compute the delay factor of a curriculum
     function delay_factor(c::Curriculum)
+        g = c.graph
         df = ones(c.num_courses)
-        for v in vertices(c.graph)
-            if length(neighbors(c.graph, v)) != 0   # not a standalone course
+        for v in vertices(g)
+            if length(neighbors(g, v)) != 0   # not a standalone course
                 # enumerate all of the longest paths from v (these are shortest paths in -G)
                 for path in enumerate_paths(dijkstra_shortest_paths(g, v, -weights(g), allpaths=true))
                     for vtx in path
@@ -81,7 +82,7 @@
             end
         end
         c.metrics["delay factor"] = 0
-        for v in vertices(c.graph)
+        for v in vertices(g)
             c.courses[v].metrics["delay factor"] = df[v]
             c.metrics["delay factor"] += c.courses[v].metrics["delay factor"]
         end
@@ -90,14 +91,13 @@
 
     # Compute the centrality of a course
     function centrality(c::Curriculum, course::Int)
-        cent = 0
-        g = c.graph
+        cent = 0; g = c.graph
         if isempty(inneighbors(g, course)) || isempty(outneighbors(g, course))
             return cent # if course is a sink or source, centrality = 0
         else
             for v in collect(Iterators.flatten((1:course-1,course+1:c.num_courses)))  # exclude course from the iterator
-                for path in enumerate_paths(dijkstra_shortest_paths(g, v, allpaths=true))
-                    if (length(path) > 2) && (isempty(inneighbors(g, c.courses[path[1]].id))) && (path[1] != course) && (isempty(outneighbors(g, c.courses[path[end]].id))) && (path[end] != course)
+                for path in enumerate_paths(dijkstra_shortest_paths(g, v, -weights(g), allpaths=true))
+                    if (length(path) > 2) && (isempty(inneighbors(g, c.courses[path[1]].vertex_id))) && (path[1] != course) && (isempty(outneighbors(g, c.courses[path[end]].vertex_id))) && (path[end] != course)
                         cent += length(path)
                     end
                 end
