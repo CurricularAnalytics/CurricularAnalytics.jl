@@ -1,7 +1,7 @@
 #module CurricularAnalytics
 
     # Dependencies
-    using LightGraphs, SimpleWeightedGraphs, JSON
+    using LightGraphs, SimpleWeightedGraphs, JSON, DataStructures
 
     # Imports
     include("DataTypes.jl")
@@ -14,31 +14,82 @@
     # end Exports
 
 
-    # Report if the input graph has cycles or forward edges
-    function isvalid_curriculum(c::Curriculum)
+    # check if a curriculum graph has requisite cycles or extraneous requsities
+    # print error_msg using String(take!(error_msg))
+    function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
         g = c.graph
         validity = true
-        error_msg = IOBuffer()
+        # first check for cycles
         cycles = simplecycles(g)
         if size(cycles,1) != 0
             validity = false
-            print(error_msg, "\nCurriculum contains the following prerequisite cycles:\n")
-            for c in cycles
-                print(error_msg, "  $c\n")
-            end
-        end
-        n=0
-        edge_type = dfs(g)
-        for e in edges(g)
-            if edge_type[e] == forward_edge
-                if n == 0
-                  print(error_msg, "\nCurriculum contains the following extraneous prerequisites:\n")
-                  n += 1
+            print(error_msg, "\nCurriculum $(c.name) contains the following requisite cycles:\n")
+            for cyc in cycles
+                print(error_msg, "(")
+                for (i,v) in enumerate(cyc)
+                    if i != length(cyc)
+                        print(error_msg, "$(c.courses[v].name), ")
+                    else
+                        print(error_msg, "$(c.courses[v].name))\n")
+                    end
                 end
-                print(error_msg, "  $(e)\n")
+            end
+        else # no cycles, can now check for extraneous requisites
+            extran_errors = IOBuffer()
+            if extraneous_requisites(c, extran_errors)
+                validity = false
+                print(error_msg, "\nCurriculum $(c.name) contains the following extraneous requisites:\n")
+                print(error_msg, String(extran_errors))
             end
         end
-        return validity, String(take!(error_msg))
+        return validity
+    end
+
+    function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
+        if is_cyclic(c.graph)
+            error("extraneous requisities cannot be found in a curriculum graph that contains cycles")
+        end
+        g = c.graph
+        que = Queue(Int)
+        components = weakly_connected_components(g)
+        extraneous = false
+        for wcc in components
+            if length(wcc) > 1  # only conider curriculum graph components with more than one vertex
+                for u in wcc
+                    nb = neighbors(g,u)
+                    for n in nb
+                        enqueue!(que, n)
+                    end
+                    while !isempty(que)
+                        x = dequeue!(que)
+                        nnb = neighbors(g,x)
+                        for n in nnb
+                            enqueue!(que, n)
+                        end
+                        for v in neighbors(g, x)
+                            if has_edge(g, u, v)  # possible reducdant requsisite
+                                # Todo: If this edge is a co-requistie it is an error, as it would be impossible to satsify.
+                                #       This needs to be checked here.
+                                remove = true
+                                for n in nb  # check for co- or strict_co requisites
+                                    if has_path(c.graph, n, v) # is there a path from n to v?
+                                        req_type = c.courses[n].requisites[c.courses[u]] # the requisite relationship between u and n
+                                        if (req_type == co) || (req_type == strict_co)  # is u a co or strict_co requisite for n?
+                                            remove = false # a co or strict_co relationshipo is involved, must keep (u, v)
+                                        end
+                                    end
+                                end
+                                if remove == true
+                                    print(error_msg, "Course $(c.courses[v].name) has redundant requisite: $(c.courses[u].name)")
+                                    extraneous = true
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        return extraneous
     end
 
     # Compute the blocking factor of a course
@@ -90,14 +141,16 @@
     end
 
     # Compute the centrality of a course
-    function centrality(c::Curriculum, course::Int)
+    function centrality_old(c::Curriculum, course::Int)
         cent = 0; g = c.graph
         if isempty(inneighbors(g, course)) || isempty(outneighbors(g, course))
             return cent # if course is a sink or source, centrality = 0
         else
             for v in collect(Iterators.flatten((1:course-1,course+1:c.num_courses)))  # exclude course from the iterator
-                for path in enumerate_paths(dijkstra_shortest_paths(g, v, -weights(g), allpaths=true))
-                    if (length(path) > 2) && (isempty(inneighbors(g, c.courses[path[1]].vertex_id))) && (path[1] != course) && (isempty(outneighbors(g, c.courses[path[end]].vertex_id))) && (path[end] != course)
+                for path in enumerate_paths(dijkstra_shortest_paths(g, v, -weights(g), allpaths=true))  # all long paths starting with v
+                    # conditions: path length is greater than 2, target course must be in the pather, the first vertex in the path must be a source, the last vertex in the path must be a sink, the target vertex cannot be the first or last vertex in the path
+                    # only vertices satisfying these conditions can have a non-zero centrality measure
+                    if (length(path) > 2) && (in(course,path)) && (isempty(inneighbors(g, c.courses[path[1]].vertex_id))) && (isempty(outneighbors(g, c.courses[path[end]].vertex_id))) && (path[1] != course) &&  (path[end] != course)
                         cent += length(path)
                     end
                 end
@@ -106,13 +159,27 @@
         return c.courses[course].metrics["centrality"] = cent
     end
 
+    # Compute the centrality of a course
+    function centrality(c::Curriculum, course::Int)
+        cent = 0; g = c.graph
+        for path in long_paths(g)  # all long paths in g
+            # conditions: path length is greater than 2, target course must be in the path, the target vertex cannot be the first or last vertex in the path
+            if (in(course,path) && length(path) > 2 && path[1] != course && path[end] != course)
+                cent += length(path)
+            end
+        end
+        return c.courses[course].metrics["centrality"] = cent
+    end
+
     # Compute the total centrality of all courses in a curriculum
     function centrality(c::Curriculum)
         cent = 0
-        for v in vertices(c.graph)
-            cent += centrality(c, v)
+        cf = Array{Int,1}(c.num_courses)
+        for (i, v) in enumerate(vertices(c.graph))
+            cf[i] = centrality(c, v)
+            cent += cf[i]
         end
-        return c.metrics["centrality"] = cent
+        return c.metrics["centrality"] = cent, cf
     end
 
     # Compute the complexity of a course
@@ -141,5 +208,6 @@
         c.metrics["complexity"] = curric_complexity
         return curric_complexity
     end
+
 
 #end

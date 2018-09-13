@@ -1,4 +1,4 @@
-# Curric1: 6-vertex test curriculum - valid
+# Curric1: 7-vertex test curriculum - valid
 #
 #    A --------* C --------* E
 #    |           |

@@ -81,7 +81,6 @@ add_requisite!(c[10],c[11],co)
 add_requisite!(c[11],c[17],pre)
 add_requisite!(c[11],c[12],co)
 # term 3
-add_requisite!(c[14],c[19],pre)
 add_requisite!(c[14],c[20],pre)
 add_requisite!(c[14],c[15],co)
 add_requisite!(c[15],c[19],pre)
@@ -116,4 +115,12 @@ add_requisite!(c[35],c[38],pre)
 add_requisite!(c[37],c[38],co)
 add_requisite!(c[38],c[44],pre)
 
-curric = Curriculum("University of Houston EE Curriculum", c)
+curric = Curriculum("University of Houston EE Program", c)
+
+errors = IOBuffer()
+if isvalid_curriculum(curric, errors)
+    println("Curriculum $(curric.name) is valid")
+else
+    println("Curriculum $(curric.name) is not valid:")
+    print(String(take!(errors)))
+end

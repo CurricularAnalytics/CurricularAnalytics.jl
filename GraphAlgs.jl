@@ -1,5 +1,5 @@
 
-using LightGraphs, SimpleWeightedGraphs
+using LightGraphs, SimpleWeightedGraphs, DataStructures
 
 # Depth-first search, returns edge classification using EdgeClass
 function dfs(g::AbstractGraph{T}) where T
@@ -13,8 +13,7 @@ function dfs(g::AbstractGraph{T}) where T
             # nested function definition, shares variable space w/ outer function
             function dfs_visit(s)
                 d[s] = time += 1  # discovered
-                for n in
-                    neighbors(g, s)
+                for n in neighbors(g, s)
                     if d[n] == 0 # encounted a undiscovered vertex
                         edge_type[Edge(s,n)] = tree_edge
                         dfs_visit(n)
@@ -33,8 +32,13 @@ function dfs(g::AbstractGraph{T}) where T
             dfs_visit(s)  # call the nested function
         end
     end
-    return edge_type
+    return edge_type, d, f
 end # end dfs
+
+function topological_sort(g::AbstractGraph{T}) where T
+    edges_type, d, f = dfs(g)
+    return sortperm(f, rev=true)
+end
 
 # transpose of DAG
 function gad(g::AbstractGraph{T}) where T
@@ -94,8 +98,9 @@ function reach_subgraph(g::AbstractGraph{T}, s::Int) where T
     induced_subgraph(g, vertices)
 end
 
-# The longest path from vertx s to any other vertex in a DAG G
-# Note: in a DAG, longest path in G = shortest path in -G
+# The longest path from vertx s to any other vertex in a DAG G (not necessarily unique,
+# i.e., there can be more than one longest path between two vertices)
+# Note: in a DAG G, longest paths in G = shortest paths in -G
 function longest_path(g::AbstractGraph{T}, s::Int) where T
     if is_cyclic(g)
         error("longest_path(): input graph has cycles")
@@ -110,4 +115,40 @@ function longest_path(g::AbstractGraph{T}, s::Int) where T
         end
     end
     return lp
+end
+
+# Enumerate all unique long paths in a DAG G, where a long path must include a
+# source vertex (in-degree zero) and a different sink vertex (out-degree zero),
+# i.e., must include at least two vertices
+function long_paths(g::AbstractGraph{T}) where T
+    if is_cyclic(g)
+        error("long_paths(): input graph has cycles")
+    end
+    que = Queue(Array)
+    paths = Array[]
+    sinks = Int[]
+    for v in vertices(g)
+        if (length(outneighbors(g,v)) == 0) && (length(inneighbors(g,v)) > 0) # consider only sink vertices with an in-degree
+            push!(sinks, v)
+        end
+    end
+    for v in sinks
+        enqueue!(que, [v])
+        while !isempty(que) # work backwards from sink v to all sources reachable to v in BFS fashion
+            x = dequeue!(que)
+            for (i, u) in enumerate(inneighbors(g, x[1]))
+                if i == 1
+                    insert!(x, 1, u)  # prepend vertx u to array x, first neighbor
+                else
+                    x[1] = u # put new neighor at the head of array
+                end
+                if length(inneighbors(g, u)) == 0  # reached a source vertex, done with path
+                    push!(paths, x)
+                else
+                    enqueue!(que, copy(x))
+                end
+            end
+        end
+    end
+    return paths
 end
