@@ -9,8 +9,7 @@
 #
 #
 
-include("CurricularAnalytics.jl")
-include("DegreePlanAnalytics.jl")
+using CurricularAnalytics
 
 a = Course("A", 3)
 b = Course("B", 3)

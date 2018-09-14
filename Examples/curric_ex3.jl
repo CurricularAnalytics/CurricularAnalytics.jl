@@ -1,7 +1,6 @@
 ## Curriculum assoicated with the University of Houston EE program in 2016
 
-include("CurricularAnalytics.jl")
-include("DegreePlanAnalytics.jl")
+using CurricularAnalytics
 
 # create the courses
 c = Array{Course}(49)
@@ -120,6 +119,10 @@ curric = Curriculum("University of Houston EE Program", c)
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
     println("Curriculum $(curric.name) is valid")
+    println("  delay factor = $(delay_factor(curric))")
+    println("  blocking factor = $(blocking_factor(curric))")
+    println("  centrality factor = $(centrality(curric))")
+    println("  curricular complexity = $(complexity(curric))")
 else
     println("Curriculum $(curric.name) is not valid:")
     print(String(take!(errors)))

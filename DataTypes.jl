@@ -1,4 +1,4 @@
-using LightGraphs
+# file: DataTypes.jl
 
 # Enumerated types
 @enum Degree AA AS AAS BA BS

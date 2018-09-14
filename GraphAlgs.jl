@@ -1,5 +1,5 @@
 
-using LightGraphs, SimpleWeightedGraphs, DataStructures
+# File: GraphAlgs.jl
 
 # Depth-first search, returns edge classification using EdgeClass
 function dfs(g::AbstractGraph{T}) where T
@@ -68,7 +68,6 @@ end
 # julia> sg, vmap = reachable_from_subgraph(g,v)
 #   Returns the subgraph of `g` induced by the vertices reachable from `v`
 #   as a LightGraph object stored in sg
-
 function reachable_from_subgraph(g::AbstractGraph{T}, s::Int) where T
     vertices = reachable_from(g, s)
     push!(vertices, s)  # add the source vertex to the reachable set
@@ -119,7 +118,7 @@ end
 
 # Enumerate all unique long paths in a DAG G, where a long path must include a
 # source vertex (in-degree zero) and a different sink vertex (out-degree zero),
-# i.e., must include at least two vertices
+# i.e., must be a path containing at least two vertices
 function long_paths(g::AbstractGraph{T}) where T
     if is_cyclic(g)
         error("long_paths(): input graph has cycles")
@@ -140,7 +139,7 @@ function long_paths(g::AbstractGraph{T}) where T
                 if i == 1
                     insert!(x, 1, u)  # prepend vertx u to array x, first neighbor
                 else
-                    x[1] = u # put new neighor at the head of array
+                    x[1] = u # put new neighbor at the head of array, replacing an in-neighbor
                 end
                 if length(inneighbors(g, u)) == 0  # reached a source vertex, done with path
                     push!(paths, x)

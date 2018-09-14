@@ -12,7 +12,7 @@
 # centrality C = 7
 # centrality D = 8
 
-include("CurricularAnalytics.jl")
+using CurricularAnalytics
 
 a = Course("A", 3)
 b = Course("B", 1)
@@ -62,4 +62,4 @@ println("Analytics for $(curric2.name):")
 println(" Centrality of course $(curric1.courses[2].name) = $(centrality(curric1,2))")
 println(" Centrality of course $(curric2.courses[3].name) = $(centrality(curric2,3))")
 println(" Centrality of course $(curric2.courses[4].name) = $(centrality(curric2,4))")
-println(" Centrality of course $(curric1.courses[7].name) = $(centrality(curric1,7))")
+println(" Centrality of course $(curric2.courses[7].name) = $(centrality(curric2,7))")
