@@ -72,7 +72,7 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                             remove = true
                             for n in nb  # check for co- or strict_co requisites
                                 if has_path(c.graph, n, v) # is there a path from n to v?
-                                    req_type = c.courses[n].requisites[c.courses[u]] # the requisite relationship between u and n
+                                    req_type = c.courses[n].requisites[c.courses[u].id] # the requisite relationship between u and n
                                     if (req_type == co) || (req_type == strict_co)  # is u a co or strict_co requisite for n?
                                         remove = false # a co or strict_co relationshipo is involved, must keep (u, v)
                                     end
