@@ -6,12 +6,13 @@ using DataStructures
 
 include("DataTypes.jl")
 include("GraphAlgs.jl")
+include("JsonHandler.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
         EdgeClass, LearningOutcome, Course, add_requisite!, Curriculum, total_credits,
         create_graph!, requisite_type, Term, DegreePlan, dfs, longest_path,
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
-        complexity, isvalid_degree_plan, print_plan
+        complexity, isvalid_degree_plan, print_plan, export_degreeplan
 
 # check if a curriculum graph has requisite cycles or extraneous requsities
 # print error_msg using String(take!(error_msg))
