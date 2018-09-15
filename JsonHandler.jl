@@ -56,4 +56,5 @@ function export_degreeplan(plan::DegreePlan)
         push!(curric["curriculum"]["curriculum_terms"], current_term)
     end
     JSON.print(io, curric, 1)
+    close(io)
 end
