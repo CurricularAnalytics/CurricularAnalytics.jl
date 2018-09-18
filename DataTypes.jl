@@ -35,7 +35,7 @@ function add_requisite!(requisite_lo::LearningOutcome, lo::LearningOutcome, requ
     lo.requisites[requisite_lo] = requisite_type
 end
 
-function add_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome, requisite_type::Array{Requisite})
+function add_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome,                   requisite_type::Array{Requisite})
     @assert length(requisite_lo) == length(requisite_type)
     for i = 1:length(requisite_lo)
         lo.requisites[lo[i]] = requisite_type[i]
@@ -103,8 +103,8 @@ mutable struct Curriculum
     metrics::Dict{String, Any}      # Curriculum-related metrics
 
     # Constructor
-    function Curriculum(name::AbstractString, courses::Array{Course}; degree_type::Degree=BS, system_type::System=semester,
-                        institution::AbstractString="", CIP::AbstractString="")
+    function Curriculum(name::AbstractString, courses::Array{Course}; degree_type::Degree=BS,
+           system_type::System=semester, institution::AbstractString="", CIP::AbstractString="")
         this = new()
         this.name = name
         this.degree_type = degree_type
@@ -177,7 +177,7 @@ mutable struct Term
     function Term(courses::Array{Course})
         this = new()
         this.num_courses = length(courses)
-        this.courses = Array{Course}(this.num_courses)
+        this.courses = Array{Course}(undef, this.num_courses)
         this.credit_hours = 0
         for i = 1:this.num_courses
             this.courses[i] = courses[i]
@@ -200,20 +200,20 @@ mutable struct DegreePlan
     credit_hours::Int                   # Total number of credit hours in the degree plan
 
     # Constructor
-    function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term},
-                        additional_courses::Array{Course}=Array{Course}())
+    function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term,1},
+                        additional_courses::Array{Course,1}=Array{Course,1}())
         this = new()
         this.name = name
         this.curriculum = curriculum
         this.num_terms = length(terms)
-        this.terms = Array{Term}(this.num_terms)
+        this.terms = Array{Term}(undef, this.num_terms)
         this.credit_hours = 0
         for i = 1:this.num_terms
             this.terms[i] = terms[i]
             this.credit_hours += terms[i].credit_hours
         end
         if isassigned(additional_courses)
-            this.additional_courses = Array{Course}(length(additional_courses))
+            this.additional_courses = Array{Course}(undef, length(additional_courses))
             for i = 1:length(additional_courses)
                 this.additional_courses[i] = additional_courses[i]
             end

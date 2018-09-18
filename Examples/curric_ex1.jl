@@ -36,7 +36,7 @@ println("  delay factor = $(curric.metrics["delay factor"])")
 println("  curricular centrality = $(curric.metrics["centrality"])")
 println("  curricular complexity = $(curric.metrics["complexity"])")
 
-terms = Array{Term}(4)
+terms = Array{Term}(undef, 4)
 terms[1] = Term([a,b])
 terms[2] = Term([c,d])
 terms[3] = Term([e,f])
