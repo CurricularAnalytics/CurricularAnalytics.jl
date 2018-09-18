@@ -3,6 +3,7 @@ module CurricularAnalytics
 # Dependencies
 using LightGraphs
 using DataStructures
+using Printf
 
 include("DataTypes.jl")
 include("GraphAlgs.jl")
@@ -211,9 +212,9 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
         end
         diff = c1.metrics[k][1] - c2.metrics[k][1]
         if diff > 0
-            write(report, "C1 is $diff units ($(100*diff/c2.metrics[k][1])%) larger than C2\n")
+            @printf(report, "C1 is %.1f units (%.0f%c) larger than C2\n", diff, 100*diff/c2.metrics[k][1], '%')
         elseif diff < 0
-            write(report, "C1 is $(-diff) units ($(100*(-diff)/c2.metrics[k][1])%) smaller than C2\n")
+            @printf(report, "C1 is %.1f units (%.0f%c) smaller than C2\n", -diff, 100*(-diff)/c2.metrics[k][1], '%')
         else
             write(report, "C1 and C2 have the same curricular $k\n")
         end

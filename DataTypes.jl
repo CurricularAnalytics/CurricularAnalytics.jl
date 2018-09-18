@@ -91,6 +91,7 @@ end
 # Curriculum data type
 # The required curriculum associated with a degree program
 mutable struct Curriculum
+    id::Int                             # Unique curriculum ID
     name::AbstractString                # Name of the curriculum (can be used as an identifier)
     institution::AbstractString         # Institution offering the curriculum
     degree_type::Degree                 # Type of degree_type
