@@ -3,7 +3,7 @@
 using CurricularAnalytics
 
 # create the courses
-c = Array{Course}(49)
+c = Array{Course}(undef, 49)
 # term 1
 c[1] = Course("HIST 1377", 3)
 c[2] = Course("ENGL 1303", 3)

@@ -49,7 +49,7 @@ end
 # The set of all vertices in the graph reachable from vertex s
 function reachable_from(g::AbstractGraph{T}, s::Int, vlist::Array=Array{Int64,1}()) where T
     for v in neighbors(g, s)
-        if findfirst(vlist, v) == 0  # v is not in vlist
+        if findfirst(isequal(v), vlist) == 0  # v is not in vlist
             push!(vlist, v)
         end
         reachable_from(g, v, vlist)

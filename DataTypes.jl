@@ -195,7 +195,7 @@ mutable struct Term
     function Term(courses::Array{Course})
         this = new()
         this.num_courses = length(courses)
-        this.courses = Array{Course}(this.num_courses)
+        this.courses = Array{Course}(undef, this.num_courses)
         this.credit_hours = 0
         for i = 1:this.num_courses
             this.courses[i] = courses[i]
@@ -219,19 +219,19 @@ mutable struct DegreePlan
 
     # Constructor
     function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term},
-                        additional_courses::Array{Course}=Array{Course}())
+                        additional_courses::Array{Course}=Array{Course}(undef))
         this = new()
         this.name = name
         this.curriculum = curriculum
         this.num_terms = length(terms)
-        this.terms = Array{Term}(this.num_terms)
+        this.terms = Array{Term}(undef, this.num_terms)
         this.credit_hours = 0
         for i = 1:this.num_terms
             this.terms[i] = terms[i]
             this.credit_hours += terms[i].credit_hours
         end
         if isassigned(additional_courses)
-            this.additional_courses = Array{Course}(length(additional_courses))
+            this.additional_courses = Array{Course}(undef, length(additional_courses))
             for i = 1:length(additional_courses)
                 this.additional_courses[i] = additional_courses[i]
             end

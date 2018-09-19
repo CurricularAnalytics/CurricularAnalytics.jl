@@ -102,7 +102,7 @@ end
 # Compute the blocking factor of a curriculum
 function blocking_factor(c::Curriculum)
     b = 0
-    bf = Array{Int,1}(c.num_courses)
+    bf = Array{Int,1}(undef, c.num_courses)
     for (i, v) in enumerate(vertices(c.graph))
         bf[i] = blocking_factor(c, v)
         b += bf[i]
@@ -158,7 +158,7 @@ end
 # Compute the total centrality of all courses in a curriculum
 function centrality(c::Curriculum)
     cent = 0
-    cf = Array{Int,1}(c.num_courses)
+    cf = Array{Int,1}(undef, c.num_courses)
     for (i, v) in enumerate(vertices(c.graph))
         cf[i] = centrality(c, v)
         cent += cf[i]
@@ -176,7 +176,7 @@ end
 
 # Compute the complexity of a curriculum
 function complexity(c::Curriculum)
-    course_complexity = Array{Number}(c.num_courses)
+    course_complexity = Array{Number}(undef, c.num_courses)
     curric_complexity = 0
     if !haskey(c.metrics, "delay factor")
         delay_factor(c)
