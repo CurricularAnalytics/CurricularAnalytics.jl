@@ -35,7 +35,8 @@ function add_requisite!(requisite_lo::LearningOutcome, lo::LearningOutcome, requ
     lo.requisites[requisite_lo] = requisite_type
 end
 
-function add_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome,                   requisite_type::Array{Requisite})
+function add_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome, 
+                      requisite_type::Array{Requisite})
     @assert length(requisite_lo) == length(requisite_type)
     for i = 1:length(requisite_lo)
         lo.requisites[lo[i]] = requisite_type[i]
@@ -45,12 +46,12 @@ end
 ##############################################################
 # Course data type
 mutable struct Course
-    id::Int                             # Unique course id
-    vertex_id::Int                      # The vertex id of the course w/in a curriculum graph -- this id is
-                                        # only set when the cousrse is added to a curriculum
+    id::UInt                            # Unique course id
+    vertex_id::Dict{UInt, Int}          # The vertex id of the course w/in a curriculum graph, stored as 
+                                        #  (curriculum_id, vertex_id)
     name::AbstractString                # Name of the course, e.g., Introduction to Psychology
     credit_hours::Int                   # Number of credit hours associated with course. For the
-                                        # purpose of analytics, variable credits are not supported
+                                        #  purpose of analytics, variable credits are not supported
     prefix::AbstractString              # Typcially a department prefix, e.g., PSY
     num::AbstractString                 # Course number, e.g., 101, or 302L
     institution::AbstractString         # Institution offering the course
@@ -69,9 +70,11 @@ mutable struct Course
         this.prefix = prefix
         this.num = num
         this.institution = institution
+        this.id = hash(this.name * this.prefix * this.num * this.institution)
         this.canonical_name = canonical_name
         this.requisites = Dict{Course, Requisite}()
         this.metrics = Dict{String, Any}()
+        this.vertex_id = Dict{Int, Int}()
         return this
     end
 end
@@ -91,7 +94,7 @@ end
 # Curriculum data type
 # The required curriculum associated with a degree program
 mutable struct Curriculum
-    id::Int                             # Unique curriculum ID
+    id::UInt                            # Unique curriculum ID
     name::AbstractString                # Name of the curriculum (can be used as an identifier)
     institution::AbstractString         # Institution offering the curriculum
     degree_type::Degree                 # Type of degree_type
@@ -111,6 +114,8 @@ mutable struct Curriculum
         this.degree_type = degree_type
         this.system_type = system_type
         this.institution = institution
+        this.id = hash(this.name * this.institution * string(this.degree_type))
+        println("curriculum id = $(this.id)\n")
         this.CIP = CIP
         this.courses = courses
         this.num_courses = length(this.courses)
@@ -133,16 +138,17 @@ end
 function create_graph!(curriculum::Curriculum)
     for (i, c) in enumerate(curriculum.courses)
         if add_vertex!(curriculum.graph)
-            c.vertex_id = i # graph vertex id == course vertex_id, assumes LightGraph
-                            # vertex ids start at 1 and are incremented by 1 as
-                            # vertices are created.
+            println("  storing course $(c.name) as vertex $i in curriculum $(curriculum.id)\n")     
+            c.vertex_id[curriculum.id] = i    # The vertex id of a course w/in the curriculum
+                                              # Lightgraphs orders graph vertices sequentially
+                                              # TODO: make sure course is not alerady in the curriculum   
         else
             error("vertex could not be created")
         end
     end
     for c in curriculum.courses
         for r in collect(keys(c.requisites))
-            if add_edge!(curriculum.graph, r.vertex_id, c.vertex_id)
+            if add_edge!(curriculum.graph, r.vertex_id[curriculum.id], c.vertex_id[curriculum.id])
             else
                 error("edge could not be created")
             end
