@@ -5,7 +5,7 @@
 #    |*       /  |
 #    B ------/   D
 #
-#
+#    Course A is an extraneous prerequisite for course C
 
 using CurricularAnalytics
 

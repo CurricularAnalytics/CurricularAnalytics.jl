@@ -35,7 +35,7 @@ function add_requisite!(requisite_lo::LearningOutcome, lo::LearningOutcome, requ
     lo.requisites[requisite_lo] = requisite_type
 end
 
-function add_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome, requisite_type::Array{Requisite})
+function add_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome,                   requisite_type::Array{Requisite})
     @assert length(requisite_lo) == length(requisite_type)
     for i = 1:length(requisite_lo)
         lo.requisites[lo[i]] = requisite_type[i]
@@ -100,6 +100,7 @@ end
 # Curriculum data type
 # The required curriculum associated with a degree program
 mutable struct Curriculum
+    id::Int                             # Unique curriculum ID
     name::AbstractString                # Name of the curriculum (can be used as an identifier)
     institution::AbstractString         # Institution offering the curriculum
     degree_type::Degree                 # Type of degree_type
@@ -112,8 +113,8 @@ mutable struct Curriculum
     metrics::Dict{String, Any}      # Curriculum-related metrics
 
     # Constructor
-    function Curriculum(name::AbstractString, courses::Array{Course}; degree_type::Degree=BS, system_type::System=semester,
-                        institution::AbstractString="", CIP::AbstractString="")
+    function Curriculum(name::AbstractString, courses::Array{Course}; degree_type::Degree=BS,
+           system_type::System=semester, institution::AbstractString="", CIP::AbstractString="")
         this = new()
         this.name = name
         this.degree_type = degree_type
@@ -218,8 +219,8 @@ mutable struct DegreePlan
     credit_hours::Int                   # Total number of credit hours in the degree plan
 
     # Constructor
-    function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term},
-                        additional_courses::Array{Course}=Array{Course}(undef))
+    function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term,1},
+                        additional_courses::Array{Course,1}=Array{Course,1}())
         this = new()
         this.name = name
         this.curriculum = curriculum
