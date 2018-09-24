@@ -45,12 +45,9 @@ end
 
 ##############################################################
 # Course data type
-
-# Global current_id for course ids
-current_id = 1
 mutable struct Course
-    id::UInt                            # Unique course id
-    vertex_id::Dict{UInt, Int}          # The vertex id of the course w/in a curriculum graph, stored as 
+    id::Int                            # Unique course id
+    vertex_id::Dict{Int, Int}          # The vertex id of the course w/in a curriculum graph, stored as 
                                         #  (curriculum_id, vertex_id)
     name::AbstractString                # Name of the course, e.g., Introduction to Psychology
     credit_hours::Int                   # Number of credit hours associated with course. For the
@@ -68,18 +65,13 @@ mutable struct Course
     function Course(name::AbstractString, credit_hours::Int; prefix::AbstractString="",
                     num::AbstractString="", institution::AbstractString="", canonical_name::AbstractString="")
         this = new()
-        # Course id is equal to current id
-        this.id = current_id
-        # Increment current id
-        global current_id = current_id + 1
         this.name = name
         this.credit_hours = credit_hours
         this.prefix = prefix
         this.num = num
         this.institution = institution
-        this.id = hash(this.name * this.prefix * this.num * this.institution)
+        this.id = abs(signed(hash(this.name * this.prefix * this.num * this.institution)))
         this.canonical_name = canonical_name
-        # Change this to be Int, Requisite
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
         this.vertex_id = Dict{Int, Int}()
@@ -88,7 +80,6 @@ mutable struct Course
 end
 
 function add_requisite!(requisite_course::Course, course::Course, requisite_type::Requisite)
-    # This is now done by ID rather than using the course object as the key
     course.requisites[requisite_course.id] = requisite_type
 end
 
@@ -103,7 +94,7 @@ end
 # Curriculum data type
 # The required curriculum associated with a degree program
 mutable struct Curriculum
-    id::UInt                            # Unique curriculum ID
+    id::Int                            # Unique curriculum ID
     name::AbstractString                # Name of the curriculum (can be used as an identifier)
     institution::AbstractString         # Institution offering the curriculum
     degree_type::Degree                 # Type of degree_type
@@ -123,7 +114,7 @@ mutable struct Curriculum
         this.degree_type = degree_type
         this.system_type = system_type
         this.institution = institution
-        this.id = hash(this.name * this.institution * string(this.degree_type))
+        this.id = abs(signed(hash(this.name * this.institution * string(this.degree_type))))
         println("curriculum id = $(this.id)\n")
         this.CIP = CIP
         this.courses = courses
@@ -136,10 +127,10 @@ mutable struct Curriculum
     end
 end
 
-function map_vertex_ids(courses::Array{Course})
+function map_vertex_ids(curriculum::Curriculum)
     mapped_ids = Dict{Int, Int}()
-    for c in courses
-        mapped_ids[c.id] = c.vertex_id
+    for c in curriculum.courses
+        mapped_ids[c.id] = c.vertex_id[curriculum.id]
     end
     return mapped_ids
 end
@@ -163,10 +154,10 @@ function create_graph!(curriculum::Curriculum)
             error("vertex could not be created")
         end
     end
-    mapped_vertex_ids = map_vertex_ids(curriculum.courses)
+    mapped_vertex_ids = map_vertex_ids(curriculum)
     for c in curriculum.courses
         for r in collect(keys(c.requisites))
-            if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id)
+            if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id])
             else
                 error("edge could not be created")
             end
