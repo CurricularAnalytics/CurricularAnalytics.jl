@@ -14,7 +14,7 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         EdgeClass, LearningOutcome, Course, add_requisite!, Curriculum, total_credits,
         create_graph!, requisite_type, Term, DegreePlan, dfs, longest_path, long_paths,
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
-        complexity, compare_curricula, isvalid_degree_plan, print_plan
+        complexity, compare_curricula, isvalid_degree_plan, print_plan, export_degreeplan, visualize
 
 # check if a curriculum graph has requisite cycles or extraneous requsities
 # print error_msg using println(String(take!(error_msg))), where error_msg is the buffer returned by this function
