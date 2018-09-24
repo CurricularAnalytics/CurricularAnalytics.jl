@@ -50,6 +50,8 @@ end
 # Additional changed callback may be provided which will envoke whenever the curriculum is 
 # modified through the interfaces.
 function visualize(plan::DegreePlan; window=Window(), changed=nothing)
+    export_degreeplan(plan)
+
     w = window
 
     # Data
