@@ -237,5 +237,6 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
 end
 
 include("./DegreePlanAnalytics.jl")
+include("./Visualization.jl")
 
 end # module
