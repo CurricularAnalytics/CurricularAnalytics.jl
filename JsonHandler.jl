@@ -41,7 +41,7 @@ function export_degreeplan(plan::DegreePlan)
         for course in plan.terms[i].courses
             current_course = Dict{String, Any}()
             current_course["id"] = course.id
-            current_course["name"] = course.prefix * " " * course.num
+            current_course["name"] = course.prefix != "" ? course.prefix * " " * course.num : course.name
             current_course["credits"] = course.credit_hours
             current_course["curriculum_requisites"] = Dict{String, Any}[]
             for req in collect(keys(course.requisites))
