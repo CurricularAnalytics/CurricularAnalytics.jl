@@ -63,11 +63,10 @@ function export_degree_plan(plan::DegreePlan)
 end
 
 function import_degree_plan()
-    # Create empty dictionary to hold the imported data
-    degree_plan = Dict()
-    # read in JSon from curriculum-data.json
+    # read in JSON from curriculum-data.json
     open("curriculum-data.json", "r") do f
-        global degree_plan
+        # Create empty dictionary to hold the imported data
+        global degree_plan = Dict()
         filetxt = read(f, String)  # file information to string
         degree_plan=JSON.parse(filetxt)  # parse and transform data
     end
