@@ -30,9 +30,9 @@ end
 
 function export_degree_plan(plan::DegreePlan)
     io = open("curriculum-data.json", "w")
-    curric = Dict{String, Any}()
-    curric["curriculum"] = Dict{String, Any}()
-    curric["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
+    degreeplan = Dict{String, Any}()
+    degreeplan["curriculum"] = Dict{String, Any}()
+    degreeplan["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
     for i = 1:plan.num_terms
         current_term = Dict{String, Any}()
         current_term["id"] = i
@@ -41,7 +41,10 @@ function export_degree_plan(plan::DegreePlan)
         for course in plan.terms[i].courses
             current_course = Dict{String, Any}()
             current_course["id"] = course.id
+            # Name should be changed to export the actual course name
             current_course["name"] = course.prefix != "" ? course.prefix * " " * course.num : course.name
+            # The prefix and number should be exported as seperate fields here
+            # This is so it can be correctly imported later
             current_course["credits"] = course.credit_hours
             current_course["curriculum_requisites"] = Dict{String, Any}[]
             for req in collect(keys(course.requisites))
@@ -53,8 +56,36 @@ function export_degree_plan(plan::DegreePlan)
             end
             push!(current_term["curriculum_items"], current_course)
         end
-        push!(curric["curriculum"]["curriculum_terms"], current_term)
+        push!(degreeplan["curriculum"]["curriculum_terms"], current_term)
     end
-    JSON.print(io, curric, 1)
+    JSON.print(io, degreeplan, 1)
     close(io)
+end
+
+function import_degree_plan()
+    # Create empty dictionary to hold the imported data
+    degree_plan = Dict()
+    # read in JSon from curriculum-data.json
+    open("curriculum-data.json", "r") do f
+        global degree_plan
+        filetxt = read(f, String)  # file information to string
+        degree_plan=JSON.parse(filetxt)  # parse and transform data
+    end
+    # Create an array "terms" with elements equal to the number of terms from the file
+    num_terms = length(degree_plan["curriculum"]["curriculum_terms"])
+    terms = Array{Term}(undef, num_terms)
+    # For every term
+    for i = 1:num_terms
+        # Grab the current term
+        current_term = degree_plan["curriculum"]["curriculum_terms"][i]
+        # Create an array of course objects with length equal to the number of courses
+        courses = Array{Course}(undef, 0)
+        # For each course in the current term
+        for course in current_term["curriculum_items"]
+            # Create Course object for each course in the current term
+            current_course = Course(course["name"], course["credits"])
+            # Push each Course object to the array of courses
+            push!(courses, current_course)
+        end
+    end
 end
