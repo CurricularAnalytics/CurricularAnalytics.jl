@@ -42,9 +42,10 @@ function export_degree_plan(plan::DegreePlan)
             current_course = Dict{String, Any}()
             current_course["id"] = course.id
             # Name should be changed to export the actual course name
-            current_course["name"] = course.prefix != "" ? course.prefix * " " * course.num : course.name
+            current_course["nameSub"] = course.name
             # The prefix and number should be exported as seperate fields here
             # This is so it can be correctly imported later
+            current_course["name"] =  course.prefix * " " * course.num
             current_course["credits"] = course.credit_hours
             current_course["curriculum_requisites"] = Dict{String, Any}[]
             for req in collect(keys(course.requisites))
