@@ -19,18 +19,24 @@ function LinearApproach()
     println("Number of Credit Hours : $(getvalue(y))")
 end
 
-function KnapsackApproach()
+function KnapsackApproach(plan::DegreePlan, max_credit_hours::Int)
     # Min problem
     m = Model(solver=CbcSolver())
 
     @variable(m, x[1:8], Bin)
 
-    semester = [ 1, 2, 3, 4, 5, 6, 7, 8 ]
-    credit_hours = [ 12, 16, 16, 14, 12, 15 ,15, 18  ]
-    capacity = 16
+    capacty = max_credit_hours
+
+    terms = Array{Int}(undef, 0)
+    credit_hours = Array{Int}(undef, 0)
+
+    for i = 1:plan.num_terms
+        push!(terms, i)
+        push!(credit_hours, plan.terms[i].credit_hours)
+    end
 
     # Objective: minimize semester duration
-    @objective(m, Min, dot(semester, x))
+    @objective(m, Min, dot(terms, x))
 
     # Constraint: credit hours in a semester have to be less than students max
     @constraint(m, dot(credit_hours, x) <= capacity)
@@ -42,6 +48,6 @@ function KnapsackApproach()
     println("Solution is:")
     for i = 1:8
         print("x[$i] = ", getvalue(x[i]))
-        println(", p[$i]/w[$i] = ", semester[i]/credit_hours[i])
+        println(", p[$i]/w[$i] = ", terms[i]/credit_hours[i])
     end
 end
