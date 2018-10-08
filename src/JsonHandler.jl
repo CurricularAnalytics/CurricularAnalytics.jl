@@ -87,5 +87,7 @@ function import_degree_plan()
             # Push each Course object to the array of courses
             push!(courses, current_course)
         end
+        # Set the current term to be a Term object
+        terms[i] = Term(courses)
     end
 end
