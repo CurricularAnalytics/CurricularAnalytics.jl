@@ -75,6 +75,7 @@ function import_degree_plan()
     # Create an array "terms" with elements equal to the number of terms from the file
     num_terms = length(degree_plan["curriculum"]["curriculum_terms"])
     terms = Array{Term}(undef, num_terms)
+    courses_dict = Dict{Int, Course}()
     # For every term
     for i = 1:num_terms
         # Grab the current term
@@ -87,6 +88,21 @@ function import_degree_plan()
             current_course = Course(course["name"], course["credits"])
             # Push each Course object to the array of courses
             push!(courses, current_course)
+            courses_dict[course["id"]] = current_course
+        end
+
+        # For each course object create its requisites
+        for course in current_term["curriculum_items"]
+            # If the course has requisites
+            if !isempty(course["curriculum_requisites"])
+                # For each requisite of the course
+                for req in course["curriculum_requisites"]
+                    # Create the requisite relationship
+                    source = courses_dict[req["source_id"]]
+                    target = courses_dict[req["target_id"]]
+                    add_requisite!(source, target, string_to_requisite(req["type"]))
+                end
+            end
         end
         # Set the current term to be a Term object
         terms[i] = Term(courses)
