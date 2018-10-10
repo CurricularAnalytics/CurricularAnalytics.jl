@@ -1,0 +1,27 @@
+variables:
+  S3_BUCKET_NAME: "curricula-api-client"
+
+vue build:
+  image: node:8.11.3
+  stage: build
+  script:
+    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+    - yarn install
+    - yarn build
+  artifacts:
+    paths:
+      - dist
+  only:
+    - master
+  
+deploy to production:
+  environment: production
+  image: python:latest
+  stage: deploy
+  dependencies:
+    - vue build
+  script:
+    - pip install awscli
+    - aws s3 cp dist s3://$S3_BUCKET_NAME/ --recursive
+  only:
+    - master

@@ -1,0 +1,23 @@
+
+In order to make visualize() work, need to execute the following from within the Julia shell:
+Blink.AtomShell.install()
+
+
+-- Git related -- 
+Create the branch on your local machine and switch in this branch:
+$ git checkout -b [name_of_your_new_branch]
+
+Change working branch:
+$ git checkout [name_of_your_new_branch]
+
+Push the branch on github :
+$ git push origin [name_of_your_new_branch]
+
+When you want to commit something in your branch, be sure to be in your branch. Add -u parameter to set upstream.
+
+You can see all branches created by using:
+$ git branch
+
+Update current HEAD branch with latest changes on remote server -- this will pull from the development branch on remote server:
+$ git pull origin development
+
