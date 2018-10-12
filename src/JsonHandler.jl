@@ -75,6 +75,7 @@ function import_degree_plan()
     # Create an array "terms" with elements equal to the number of terms from the file
     num_terms = length(degree_plan["curriculum"]["curriculum_terms"])
     terms = Array{Term}(undef, num_terms)
+    all_courses = Array{Course}(undef, 0)
     courses_dict = Dict{Int, Course}()
     # For every term
     for i = 1:num_terms
@@ -85,9 +86,10 @@ function import_degree_plan()
         # For each course in the current term
         for course in current_term["curriculum_items"]
             # Create Course object for each course in the current term
-            current_course = Course(course["name"], course["credits"])
+            current_course = Course(course["nameSub"], course["credits"], course["prefix"], course["num"])
             # Push each Course object to the array of courses
             push!(courses, current_course)
+            push!(all_courses, current_course)
             courses_dict[course["id"]] = current_course
         end
 
@@ -107,4 +109,6 @@ function import_degree_plan()
         # Set the current term to be a Term object
         terms[i] = Term(courses)
     end
+    curric = Curriculum("Underwater Basket Weaving", all_courses)
+    return DegreePlan("MyPlan", curric, terms)
 end
