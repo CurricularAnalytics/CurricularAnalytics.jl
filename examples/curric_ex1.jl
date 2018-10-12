@@ -11,14 +11,14 @@
 
 using CurricularAnalytics
 
-a = Course("Calculus 1", 3, prefix="MA", num="113")
-b = Course("Programming Into", 3, prefix="CS", num="115")
-c = Course("Digital Logic", 3, prefix="CS", num="270")
-d = Course("Calculus 2", 1, prefix="MA", num="114")
-e = Course("C++ Programming", 3, prefix="CS", num="300")
-f = Course("Data Systems", 3, prefix="CS", num="214")
-g = Course("Intro to Engineering", 3, prefix="EGR", num="101")
-h = Course("Physics 1", 3, prefix="PHY", num="231")
+a = Course("Calculus 1", 3, "MA", "113")
+b = Course("Programming Into", 3, "CS", "115")
+c = Course("Digital Logic", 3, "CS", "270")
+d = Course("Calculus 2", 1, "MA", "114")
+e = Course("C++ Programming", 3, "CS", "300")
+f = Course("Data Systems", 3, "CS", "214")
+g = Course("Intro to Engineering", 3, "EGR", "101")
+h = Course("Physics 1", 3, "PHY", "231")
 
 add_requisite!(a,c,pre)
 add_requisite!(b,c,pre)

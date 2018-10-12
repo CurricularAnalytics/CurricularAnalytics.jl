@@ -62,7 +62,7 @@ mutable struct Course
     metrics::Dict{String, Any}          # Course-related metrics
 
     # Constructor
-    function Course(name::AbstractString, credit_hours::Int; prefix::AbstractString="",
+    function Course(name::AbstractString, credit_hours::Int, prefix::AbstractString="",
                     num::AbstractString="", institution::AbstractString="", canonical_name::AbstractString="")
         this = new()
         this.name = name
