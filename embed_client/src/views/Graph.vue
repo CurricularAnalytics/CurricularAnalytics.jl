@@ -4,6 +4,7 @@
       v-if="curriculum"
       :curriculum="curriculum"
       v-bind="options"
+      hideBlocking
       ref="curriculum"
     ></curriculum>
   </div>
