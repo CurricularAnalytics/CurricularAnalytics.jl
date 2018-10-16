@@ -49,10 +49,15 @@ function export_degree_plan(plan::DegreePlan)
             current_course["num"] = course.num
             current_course["credits"] = course.credit_hours
             current_course["curriculum_requisites"] = Dict{String, Any}[]
+            current_course["metrics"] = course.metrics
             for req in collect(keys(course.requisites))
                 current_req = Dict{String, Any}()
                 current_req["source_id"] = req
                 current_req["target_id"] = course.id
+                # This should parse the julia prereq type to the required type for the plugin
+                # pre -> prereq
+                # co -> coreq
+                # strict_co -> strict-coreq
                 current_req["type"] = course.requisites[req]
                 push!(current_course["curriculum_requisites"], current_req)
             end
@@ -64,9 +69,9 @@ function export_degree_plan(plan::DegreePlan)
     close(io)
 end
 
-function import_degree_plan()
+function import_degree_plan(file_path::String)
     # read in JSON from curriculum-data.json
-    open("curriculum-data.json", "r") do f
+    open(file_path, "r") do f
         # Create empty dictionary to hold the imported data
         global degree_plan = Dict()
         filetxt = read(f, String)  # file information to string
@@ -86,7 +91,7 @@ function import_degree_plan()
         # For each course in the current term
         for course in current_term["curriculum_items"]
             # Create Course object for each course in the current term
-            current_course = Course(course["nameSub"], course["credits"], course["prefix"], course["num"])
+            current_course = Course(course["nameSub"], course["credits"], prefix = course["prefix"], num = course["num"])
             # Push each Course object to the array of courses
             push!(courses, current_course)
             push!(all_courses, current_course)
