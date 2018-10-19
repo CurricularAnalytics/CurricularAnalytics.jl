@@ -49,13 +49,13 @@ end
 # prop can be passed in to specify the render where the visualization should be rendered.
 # Additional changed callback may be provided which will envoke whenever the curriculum is 
 # modified through the interfaces.
-function visualize(plan::DegreePlan; window=Window(), changed=nothing)
-    export_degree_plan(plan)
+function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name="recent-visualization.json")
+    export_degree_plan(plan, file_name)
 
     w = window
 
     # Data
-    data = JSON.parse(open("./curriculum-data.json"))
+    data = JSON.parse(open("./" * file_name))
 
     # Setup data observation to check for changes being made to curriculum
     s = Scope()
