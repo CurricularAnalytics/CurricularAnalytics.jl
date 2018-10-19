@@ -28,8 +28,8 @@ function json_to_course(jsonString::String)
                 parsedJson["canonical_name"], parse_requisites(parsedJson), parsedJson["metrics"])
 end
 
-function export_degree_plan(plan::DegreePlan)
-    io = open("curriculum-data.json", "w")
+function export_degree_plan(plan::DegreePlan, file_path::String)
+    io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
     degreeplan["curriculum"] = Dict{String, Any}()
     degreeplan["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
