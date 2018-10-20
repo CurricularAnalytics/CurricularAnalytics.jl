@@ -18,10 +18,6 @@ function parse_requisites(c::Dict{String, Any})
     return reqs
 end
 
-function course_to_json(c::Course)
-    JSON.json(c)
-end
-
 function export_degree_plan(plan::DegreePlan, file_path::String)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
