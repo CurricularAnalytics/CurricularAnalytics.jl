@@ -11,8 +11,27 @@
 </template>
 
 <script>
-  import { Curriculum, buildCurriculum } from '@unm-idi/vue-curricula'
+  import { Curriculum, buildCurriculum, BaseItem } from '@unm-idi/vue-curricula'
 
+  const CustomItem = BaseItem.extend({
+    computed: {
+      content () {
+        let output = ""
+        for (var metric in this.original.metrics) {
+          output += `${metric}: ${this.original.metrics[metric]}<br />`
+        }
+        return output
+      },
+
+      complexity () {
+        if (this.original.metrics.complexity) {
+          return this.original.metrics.complexity
+        } else {
+          return 0
+        }
+      }
+    }
+  })
   export default {
     data () {
       return {
@@ -56,7 +75,7 @@
 
           // Build Curriculum if Provided
           let curriculum = data.curriculum
-          if (curriculum) this.curriculum = buildCurriculum(curriculum, {format: this.format})
+          if (curriculum) this.curriculum = buildCurriculum(curriculum, {format: this.format, Item: CustomItem})
         }
       }
     },
