@@ -10,14 +10,6 @@ function string_to_requisite(req::String)
     end
 end 
 
-function parse_requisites(c::Dict{String, Any})
-    reqs = Dict{Int, Requisite}()
-    for r in collect(keys(c["requisites"]))
-        reqs[parse(Int64, r)] = string_to_requisite(c["requisites"][r])
-    end
-    return reqs
-end
-
 function export_degree_plan(plan::DegreePlan, file_path::String)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
