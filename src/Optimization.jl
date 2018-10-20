@@ -1,5 +1,4 @@
 using JuMP
-using Cbc
 
 function LinearApproach()
     lpModel = Model(solver = CbcSolver(seconds = 3600))
