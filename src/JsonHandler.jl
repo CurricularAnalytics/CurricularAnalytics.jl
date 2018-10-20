@@ -22,12 +22,6 @@ function course_to_json(c::Course)
     JSON.json(c)
 end
 
-function json_to_course(jsonString::String)
-    parsedJson = JSON.parse(jsonString)
-    return Course(parsedJson["id"], parsedJson["name"], parsedJson["credit_hours"], parsedJson["prefix"], parsedJson["num"], parsedJson["institution"], 
-                parsedJson["canonical_name"], parse_requisites(parsedJson), parsedJson["metrics"])
-end
-
 function export_degree_plan(plan::DegreePlan, file_path::String)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
@@ -43,8 +37,7 @@ function export_degree_plan(plan::DegreePlan, file_path::String)
             current_course["id"] = course.id
             current_course["nameSub"] = course.name
             current_course["name"] =  course.prefix * " " * course.num
-            # The prefix and number are exported as seperate fields here
-            # So they can be correctly imported later
+
             current_course["prefix"] =  course.prefix
             current_course["num"] = course.num
             current_course["credits"] = course.credit_hours
