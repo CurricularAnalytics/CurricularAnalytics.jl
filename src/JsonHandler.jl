@@ -1,14 +1,26 @@
 using JSON
 
+# Takes requisite and return it as a string for the visualization
+function requisite_to_string(req::Requisite)
+    if req == pre
+        return "prereq"
+    elseif req == co
+        return "coreq"
+    else
+        return "strict-coreq"
+    end
+end
+
+# Returns a requisite (enumerated type) from a string
 function string_to_requisite(req::String)
-    if req == "pre"
+    if req == "prereq"
         return pre
-    elseif req == "co"
+    elseif req == "coreq"
         return co
     else
         return strict_co
     end
-end 
+end
 
 function export_degree_plan(plan::DegreePlan, file_path::String)
     io = open(file_path, "w")
@@ -25,7 +37,6 @@ function export_degree_plan(plan::DegreePlan, file_path::String)
             current_course["id"] = course.id
             current_course["nameSub"] = course.name
             current_course["name"] =  course.prefix * " " * course.num
-
             current_course["prefix"] =  course.prefix
             current_course["num"] = course.num
             current_course["credits"] = course.credit_hours
@@ -35,11 +46,8 @@ function export_degree_plan(plan::DegreePlan, file_path::String)
                 current_req = Dict{String, Any}()
                 current_req["source_id"] = req
                 current_req["target_id"] = course.id
-                # This should parse the julia prereq type to the required type for the plugin
-                # pre -> prereq
-                # co -> coreq
-                # strict_co -> strict-coreq
-                current_req["type"] = course.requisites[req]
+                # Parse the Julia requisite type to the required type for the visualization
+                current_req["type"] = requisite_to_string(course.requisites[req])
                 push!(current_course["curriculum_requisites"], current_req)
             end
             push!(current_term["curriculum_items"], current_course)
