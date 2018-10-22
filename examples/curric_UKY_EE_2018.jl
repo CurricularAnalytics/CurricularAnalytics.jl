@@ -1,13 +1,12 @@
-## Curriculum assoicated with the University of Univ. of Kentucky EE program in 2012
+## Curriculum assoicated with the University of Univ. of Kentucky EE program in 2018
 
 using CurricularAnalytics
 
 # create the courses
-c = Array{Course}(undef,49)
+c = Array{Course}(undef,44)
 # term 1
 c[1] = Course("Engineering Exploration I", 3, prefix = "EGR", num = "101")
-c[2] = 
-Course("Calculus I", 4, prefix = "MA", num = "113")
+c[2] = Course("Calculus I", 4, prefix = "MA", num = "113")
 c[3] = Course("Intro. to Computer Programming", 3, prefix = "CS", num = "115")
 c[4] = Course("Composition and Communication I", 3, prefix = "CIS/WRD", num = "110")
 c[5] = Course("UK Core - Humanities", 3)
@@ -125,15 +124,15 @@ else
 end
 
 terms = Array{Term}(undef, 8)
-terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
-terms[2] = Term([c[7],c[8],c[9],c[10],c[11],c[12]])
-terms[3] = Term([c[13],c[14],c[15],c[16],c[17],c[18]])
-terms[4] = Term([c[19],c[20],c[21],c[22],c[23],c[24]])
-terms[5] = Term([c[25],c[26],c[27],c[28],c[29],c[30]])
-terms[6] = Term([c[31],c[32],c[33],c[34],c[35],c[36]])
-terms[7] = Term([c[37],c[38],c[39],c[40],c[41],c[42]])
-terms[8] = Term([c[43],c[44],c[45],c[46],c[47],c[48],c[49]])
+tterms[1] = Term([c[1],c[2],c[3],c[4],c[5]])
+terms[2] = Term([c[6],c[7],c[8],c[9],c[10],c[11]])
+terms[3] = Term([c[12],c[13],c[14],c[15],c[16]])
+terms[4] = Term([c[17],c[18],c[19],c[20],c[21],c[22]])
+terms[5] = Term([c[23],c[24],c[25],c[26],c[27],c[28]])
+terms[6] = Term([c[29],c[30],c[31],c[32],c[33]])
+terms[7] = Term([c[34],c[35],c[36],c[37],c[38],c[39]])
+terms[8] = Term([c[40],c[41],c[42],c[43],c[44]])
 
-dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
+dp = DegreePlan("University of Kentucky EE Program 4-year Plan", curric, terms)
 
 visualize(dp)
