@@ -44,7 +44,7 @@ c[31] = Course("Engineering/Science Elective", 3)
 c[32] = Course("Technical Elective", 3)
 c[33] = Course("UK Core – Statistical/Inferential Reasoning", 3)
 # term 7
-c[34] = Course("EE Capstone Design", 3 prefix = "EE", num = "490")
+c[34] = Course("EE Capstone Design", 3, prefix = "EE", num = "490")
 c[35] = Course("EE Technical Elective", 3)
 c[36] = Course("EE Technical Elective", 3)
 c[37] = Course("Elective EE Laboratory", 2)
