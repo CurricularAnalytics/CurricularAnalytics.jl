@@ -3,7 +3,7 @@
 using CurricularAnalytics
 
 # create the courses
-c = Array{Course}(undef,49)
+c = Array{Course}(undef,44)
 # term 1
 c[1] = Course("Creativity and Design in ECE", 3, prefix = "EE", num = "101")
 c[2] = Course("Calculus I", 4, prefix = "MA", num = "113")
@@ -109,7 +109,7 @@ add_requisite!(c[35],c[38],pre)
 add_requisite!(c[37],c[38],co)
 add_requisite!(c[38],c[44],pre)
 
-curric = Curriculum("University of Houston EE Program", c)
+curric = Curriculum("University of Kentucky EE Program", c)
 
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
@@ -133,6 +133,6 @@ terms[6] = Term([c[31],c[32],c[33],c[34],c[35],c[36]])
 terms[7] = Term([c[37],c[38],c[39],c[40],c[41],c[42]])
 terms[8] = Term([c[43],c[44],c[45],c[46],c[47],c[48],c[49]])
 
-dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
+dp = DegreePlan("University of Kentucky EE Program 4-year Plan", curric, terms)
 
 visualize(dp)
