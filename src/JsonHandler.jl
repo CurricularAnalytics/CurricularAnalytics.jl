@@ -26,6 +26,7 @@ function export_degree_plan(plan::DegreePlan, file_path::String)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
     degreeplan["curriculum"] = Dict{String, Any}()
+    degreeplan["curriculum"]["name"] = plan.name
     degreeplan["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
     for i = 1:plan.num_terms
         current_term = Dict{String, Any}()
