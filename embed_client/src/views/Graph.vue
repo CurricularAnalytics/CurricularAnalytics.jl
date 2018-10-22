@@ -1,6 +1,6 @@
 <template>
   <div class="graph">
-    <h2>Total Complexity: {{this.curriculum.complexity}}</h2>
+    <h2>Curriculum Complexity: {{this.curriculum.complexity}}</h2>
     <curriculum
       v-if="curriculum"
       :curriculum="curriculum"
