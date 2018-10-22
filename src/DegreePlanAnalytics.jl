@@ -8,7 +8,7 @@
 function isvalid_degree_plan(degree_plan::DegreePlan)
     # TODO:
     # 1. check that there is a 1-to-1 match between the courses in the degree
-    #    plan, and the curriclum required + additional courses
+    #    plan, and the curriclum required + additional courses - courses tested out of
     # 2. check that all requisite relationships are satisfied
 end
 
