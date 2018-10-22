@@ -78,7 +78,6 @@
           let curriculum = data.curriculum
           if (curriculum) this.curriculum = buildCurriculum(curriculum, {format: this.format, Item: CustomItem})
           window.curriculum = this.curriculum
-          console.log(this.curriculum.original)
         }
       }
     },
