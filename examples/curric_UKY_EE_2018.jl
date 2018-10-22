@@ -51,7 +51,7 @@ c[37] = Course("Elective EE Laboratory", 2)
 c[38] = Course("Math/Statistics Elective", 3)
 c[39] = Course("UK Core – Global Dynamics", 3)
 # term 8
-c[40] = Course("EE Capstone Design", 3 prefix = "EE", num = "491")
+c[40] = Course("EE Capstone Design", 3, prefix = "EE", num = "491")
 c[41] = Course("EE Technical Elective", 3)
 c[42] = Course("EE Technical Elective", 3)
 c[43] = Course("Supportive Elective", 3)
