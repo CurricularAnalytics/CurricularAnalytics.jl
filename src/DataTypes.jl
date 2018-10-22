@@ -146,7 +146,6 @@ end
 function create_graph!(curriculum::Curriculum)
     for (i, c) in enumerate(curriculum.courses)
         if add_vertex!(curriculum.graph)
-            println("  storing course $(c.name) as vertex $i in curriculum $(curriculum.id)\n")     
             c.vertex_id[curriculum.id] = i    # The vertex id of a course w/in the curriculum
                                               # Lightgraphs orders graph vertices sequentially
                                               # TODO: make sure course is not alerady in the curriculum   
