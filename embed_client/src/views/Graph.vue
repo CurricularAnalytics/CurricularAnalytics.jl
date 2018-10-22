@@ -1,11 +1,11 @@
 <template>
-  <div class="graph">
-    <h2>Curriculum Complexity: {{this.curriculum.complexity}}</h2>
+  <div v-if="curriculum" class="graph">
+    <h1>{{curriculum.original.name}}</h1>
+    <h2>Curriculum Complexity: {{curriculum.complexity}}</h2>
     <curriculum
-      v-if="curriculum"
       :curriculum="curriculum"
       v-bind="options"
-      hideBlocking
+      :hide-blocking='true'
       ref="curriculum"
     ></curriculum>
   </div>
@@ -77,6 +77,8 @@
           // Build Curriculum if Provided
           let curriculum = data.curriculum
           if (curriculum) this.curriculum = buildCurriculum(curriculum, {format: this.format, Item: CustomItem})
+          window.curriculum = this.curriculum
+          console.log(this.curriculum.original)
         }
       }
     },
