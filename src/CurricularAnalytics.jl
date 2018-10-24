@@ -193,8 +193,7 @@ function complexity(c::Curriculum)
         course_complexity[v] = c.courses[v].metrics["complexity"]
         curric_complexity += course_complexity[v]
     end
-    c.metrics["complexity"] = curric_complexity
-    return curric_complexity
+    return c.metrics["complexity"] = curric_complexity, course_complexity
 end
 
 # Compare the metrics associated with two curricula

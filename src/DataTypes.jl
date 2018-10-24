@@ -115,7 +115,6 @@ mutable struct Curriculum
         this.system_type = system_type
         this.institution = institution
         this.id = abs(signed(hash(this.name * this.institution * string(this.degree_type))))
-        println("curriculum id = $(this.id)\n")
         this.CIP = CIP
         this.courses = courses
         this.num_courses = length(this.courses)
