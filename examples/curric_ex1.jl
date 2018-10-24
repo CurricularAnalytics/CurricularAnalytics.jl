@@ -44,6 +44,8 @@ terms[4] = Term([g,h])
 
 dp = DegreePlan("MyPlan", curric, terms)
 
+println(dp)
+
 print_plan(dp)
 
 visualize(dp, changed = function (new_data)
