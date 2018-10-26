@@ -57,7 +57,7 @@ mutable struct Course
     institution::AbstractString         # Institution offering the course
     canonical_name::AbstractString      # Standard name used to denote the course in the
                                         # discipline, e.g., Psychology I
-    requisites::Dict{Int, Requisite}    # List of requisites, in (requisite_course, requisite_type) format
+    requisites::Dict{Int, Requisite}    # List of requisites, in (requisite_course id, requisite_type) format
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the course
     metrics::Dict{String, Any}          # Course-related metrics
 
