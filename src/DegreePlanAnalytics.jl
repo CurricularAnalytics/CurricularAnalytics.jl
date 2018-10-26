@@ -12,11 +12,8 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
                 for k in plan.terms[j].courses
                     for l in keys(k.requisites) 
                         if l == c.id 
-                            if validity == true 
-                                write(error_msg, "\nDegree Plan $(plan.name) has invalid requisite relationships:")
-                                validity = false
-                            end
-                            write(error_msg, "\n -Course $(c.name) in term $i is a requisite for course $(k.name) in term $j")
+                            validity = false
+                            write(error_msg, "\n-Invalid requisite: $(c.name) in term $i is a requisite for $(k.name) in term $j")
                         end
                     end 
                 end
@@ -31,11 +28,8 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
                     continue
                 elseif haskey(c.requisites, r.id) 
                     if c.requisites[r.id] == pre
-                        if validity == true 
-                            write(error_msg, "\nDegree Plan $(plan.name) has invalid requisite relationships:")
-                            validity = false
-                        end
-                        write(error_msg, "\n -Course $(r.name) in term $i is a prerequisite for course $(c.name) in the same term")
+                        validity = false
+                        write(error_msg, "\n-Invalid prerequisite: $(r.name) in term $i is a prerequisite for $(c.name) in the same term")
                     end
                 end
             end
@@ -53,22 +47,20 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
         end
     end
     if curric_classes != dp_classes
-        write(error_msg, "\nDegree Plan $(plan.name) does not contain all required courses. Missing courses:")
         validity == false
         for i in setdiff(curric_classes, dp_classes)
             c = course_from_id(i, plan.curriculum)
-            write(error_msg, "\n -$(c.name)")
+            write(error_msg, "\n-Degree plan is missing required course: $(c.name)")
         end
     end
     # Is a course in the degree plan multiple times?
     dp_classes = Set()
+    write_once = false
     for i = 1:plan.num_terms
         for j in plan.terms[i].courses
             if in(j.id, dp_classes)
-                if validity == true 
-                    write(error_msg, "\nCourse $(j.name) is listed multiple times in Degree Plan $(plan.name)")
-                    validity = false
-                end
+                validity = false
+                write(error_msg, "\n-Course $(j.name) is listed multiple times in degree plan")
             else
                 push!(dp_classes, j.id)
             end
