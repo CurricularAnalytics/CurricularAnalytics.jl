@@ -1,15 +1,47 @@
-#module DegreePlanAnalytics
+#File DegreePlanAnalytics.jl
 
-# Dependencies
-# using LightGraphs, JSON
-
-#include("CurricularAnalytics.jl")
-
-function isvalid_degree_plan(degree_plan::DegreePlan)
-    # TODO:
-    # 1. check that there is a 1-to-1 match between the courses in the degree
-    #    plan, and the curriclum required + additional courses - courses tested out of
-    # 2. check that all requisite relationships are satisfied
+# Check if a degree plan is valid.
+# Print error_msg using println(String(take!(error_msg))), where error_msg is the buffer returned by this function
+function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
+    validity = true
+    # Check that all requisite relationships are satisfied
+    for i in 2:plan.num_terms
+        for c in plan.terms[i].courses
+            for j in i-1:-1:1
+                for k in plan.terms[j].courses
+                    for l in keys(k.requisites) 
+                        if l == c.id 
+                            if validity == true 
+                                write(error_msg, "\nDegree Plan $(plan.name) has invalid requisite relationships:")
+                                validity = false
+                            end
+                            write(error_msg, "\n Course $(c.name) in term $i is a requisite for course $(k.name) in term $j")
+                        end
+                    end 
+                end
+            end
+        end
+    end
+    # Check that all courses in the curriculum are in the degree plan
+    curric_classes = Set()
+    dp_classes = Set()
+    for i in plan.curriculum.courses
+        push!(curric_classes, i.id)  
+    end
+    for i = 1:plan.num_terms
+        for j in plan.terms[i].courses
+            push!(dp_classes, j.id)
+        end
+    end
+    if curric_classes != dp_classes
+        write(error_msg, "\nDegree Plan $(plan.name) does not contain all required courses.\nMissing courses:")
+        validity == false
+        for i in setdiff(curric_classes, dp_classes)
+            c = course_from_id(i, plan.curriculum)
+            write(error_msg, "$(c.name); ")
+        end
+    end
+    return validity 
 end
 
 function print_plan(plan::DegreePlan)
@@ -24,4 +56,3 @@ function print_plan(plan::DegreePlan)
     end
 end
 
-#end

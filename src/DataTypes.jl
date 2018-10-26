@@ -57,7 +57,7 @@ mutable struct Course
     institution::AbstractString         # Institution offering the course
     canonical_name::AbstractString      # Standard name used to denote the course in the
                                         # discipline, e.g., Psychology I
-    requisites::Dict{Int, Requisite} # List of requisites, in (requisite_course, requisite_type) format
+    requisites::Dict{Int, Requisite}    # List of requisites, in (requisite_course, requisite_type) format
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the course
     metrics::Dict{String, Any}          # Course-related metrics
 
@@ -70,7 +70,7 @@ mutable struct Course
         this.prefix = prefix
         this.num = num
         this.institution = institution
-        this.id = abs(signed(hash(this.name * this.prefix * this.num * this.institution)))
+        this.id = abs(signed(hash(this.name * this.prefix * this.num * string(time()))))
         this.canonical_name = canonical_name
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
@@ -114,7 +114,7 @@ mutable struct Curriculum
         this.degree_type = degree_type
         this.system_type = system_type
         this.institution = institution
-        this.id = abs(signed(hash(this.name * this.institution * string(this.degree_type))))
+        this.id = abs(signed(hash(this.name * this.institution * string(this.degree_type) * string(this.system_type))))
         this.CIP = CIP
         this.courses = courses
         this.num_courses = length(this.courses)
@@ -132,6 +132,14 @@ function map_vertex_ids(curriculum::Curriculum)
         mapped_ids[c.id] = c.vertex_id[curriculum.id]
     end
     return mapped_ids
+end
+
+function course_from_id(id::Int, curriculum::Curriculum)
+    for c in curriculum.courses
+        if c.id == id
+            return c
+        end
+    end
 end
 
 function total_credits(curriculum::Curriculum)
