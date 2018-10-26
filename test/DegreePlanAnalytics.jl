@@ -31,8 +31,8 @@ curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution=
 
 terms = Array{Term}(undef, 3)
 terms[1] = Term([A,B])
-terms[2] = Term([D,C])
-terms[3] = Term([D,F])
+terms[2] = Term([C,D])
+terms[3] = Term([E,F])
 
 dp = DegreePlan("Plan w/ missing courses", curric, terms)
 

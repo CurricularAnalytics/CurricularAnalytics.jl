@@ -47,7 +47,7 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
         end
     end
     if curric_classes != dp_classes
-        validity == false
+        validity = false
         for i in setdiff(curric_classes, dp_classes)
             c = course_from_id(i, plan.curriculum)
             write(error_msg, "\n-Degree plan is missing required course: $(c.name)")
@@ -55,7 +55,6 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
     end
     # Is a course in the degree plan multiple times?
     dp_classes = Set()
-    write_once = false
     for i = 1:plan.num_terms
         for j in plan.terms[i].courses
             if in(j.id, dp_classes)
