@@ -46,7 +46,7 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
             push!(dp_classes, j.id)
         end
     end
-    if curric_classes != dp_classes
+    if length(setdiff(curric_classes, dp_classes)) > 0
         validity = false
         for i in setdiff(curric_classes, dp_classes)
             c = course_from_id(i, plan.curriculum)

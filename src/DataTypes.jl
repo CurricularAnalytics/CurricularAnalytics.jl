@@ -90,6 +90,13 @@ function add_requisite!(requisite_course::Array{Course}, course::Course, requisi
     end
 end
 
+function delete_requisite!(requisite_course::Course, course::Course)
+    #if !haskey(course.requisites, requisite_course.id)  
+    #    error("The requisite you are trying to delete does not exist")
+    #end
+    delete!(course.requisites, requisite_course.id)
+end
+
 ##############################################################
 # Curriculum data type
 # The required curriculum associated with a degree program

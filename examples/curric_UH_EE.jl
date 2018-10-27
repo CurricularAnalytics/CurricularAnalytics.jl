@@ -124,21 +124,30 @@ if isvalid_curriculum(curric, errors)
     println("  blocking factor = $(blocking_factor(curric))")
     println("  centrality factor = $(centrality(curric))")
     println("  curricular complexity = $(complexity(curric))")
-else
+
+    terms = Array{Term}(undef, 8)
+    terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
+    terms[2] = Term([c[7],c[8],c[9],c[10],c[11],c[12]])
+    terms[3] = Term([c[13],c[14],c[15],c[16],c[17],c[18]])
+    terms[4] = Term([c[19],c[20],c[21],c[22],c[23],c[24]])
+    terms[5] = Term([c[25],c[26],c[27],c[28],c[29],c[30]])
+    terms[6] = Term([c[31],c[32],c[33],c[34],c[35],c[36]])
+    terms[7] = Term([c[37],c[38],c[39],c[40],c[41],c[42]])
+    terms[8] = Term([c[43],c[44],c[45],c[46],c[47],c[48],c[49]])
+
+    dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
+
+    take!(errors) # clear the IO buffer
+    if isvalid_degree_plan(dp, errors)
+        println("Degree plan $(dp.name) is valid")
+    else
+        println("Degree plan $(dp.name) is not valid:")
+        print(String(take!(errors)))
+        println("\nDiplaying degree plan for debugging purposes...")
+    end
+    visualize(dp)
+
+else # invalid curriculum
     println("Curriculum $(curric.name) is not valid:")
     print(String(take!(errors)))
 end
-
-terms = Array{Term}(undef, 8)
-terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
-terms[2] = Term([c[7],c[8],c[9],c[10],c[11],c[12]])
-terms[3] = Term([c[13],c[14],c[15],c[16],c[17],c[18]])
-terms[4] = Term([c[19],c[20],c[21],c[22],c[23],c[24]])
-terms[5] = Term([c[25],c[26],c[27],c[28],c[29],c[30]])
-terms[6] = Term([c[31],c[32],c[33],c[34],c[35],c[36]])
-terms[7] = Term([c[37],c[38],c[39],c[40],c[41],c[42]])
-terms[8] = Term([c[43],c[44],c[45],c[46],c[47],c[48],c[49]])
-
-dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
-
-visualize(dp)
