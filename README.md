@@ -8,7 +8,7 @@ Documentation for methods is also available via the Julia REPL help system.
 Additional tutorials can be found at [CurricularAnaltyics](http://curricula.academicdashboards.org).
 
 ## Installation
-Installation is straightforward.  Enter Pkg mode in the Julia REPL by hitting `]`, and then
+Installation is straightforward.  Enter Pkg mode in the Julia REPL by hitting `]`, and then type:
 ```julia-repl
 (v1.0) pkg> add CurricularAnalytics
 ```
