@@ -3,12 +3,12 @@ CurricularAnalytics is a toolbox for studying and analyzing academic program cur
 In addition to analyzing curricular complexity, the toolbox supports the ability to visualize curricula, to compare and contrast curricula, to create optimal degree plans for completing curricula that satisfy particular constraints, and to simulate the impact of various events on student progression through a curriculum. 
 
 ## Documentation
-Full documentation is available at [GitHub Pages](https://addURL).
+Full documentation is available at [GitHub Pages](https://heileman.github.io/CurricularAnalytics).
 Documentation for methods is also available via the Julia REPL help system.
-Additional tutorials can be found at [CurricularAnaltyics](https://github.com/CurricularAnalytics/CurricularAnalyticsTutorials).
+Additional tutorials can be found at [CurricularAnaltyics](http://curricula.academicdashboards.org).
 
 ## Installation
-Installation is straightforward: enter Pkg mode by hitting `]`, and then
+Installation is straightforward.  Enter Pkg mode in the Julia REPL by hitting `]`, and then
 ```julia-repl
 (v1.0) pkg> add CurricularAnalytics
 ```
@@ -19,5 +19,5 @@ Installation is straightforward: enter Pkg mode by hitting `]`, and then
 * Later versions: Some functionality might not work with prerelease / unstable / nightly versions of Julia. If you run into a problem, please file an issue.
 
 # Contributing and Reporting Bugs
-We welcome contributions and bug reports! Please see [CONTRIBUTING.md](https://github.com/JuliaGraphs/CurricularAnalytics.jl/master/CONTRIBUTING.md)
+We welcome contributions and bug reports! Please see [CONTRIBUTING.md](https://github.com/CurricularAnalyticsgit/master/CONTRIBUTING.md)
 for guidance on development and bug reporting.
