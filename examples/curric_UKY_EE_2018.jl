@@ -100,7 +100,7 @@ c[43] = Course("UK Core – Statistical Inferential Reasoning", 3)
 
 # term 4
     add_requisite!(c[17],c[18],co)
-    add_requisite!(c[17],c[23],pre)
+    add_requisite!(c[17],c[23],pre)  # required edge being removed by viz 
     add_requisite!(c[18],c[22],pre)
     add_requisite!(c[18],c[23],pre)
     add_requisite!(c[18],c[25],pre)

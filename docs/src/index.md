@@ -1,0 +1,7 @@
+# CurricularAnalytics
+*CurricularAnalytics.jl* is a toolbox for studying and analyzing academic program curricula using the Julia programming language.  The toolbox represents curricula as graphs, allowing various graph-theoretic measures to be applied in order to quantify the complexity of curricula. In addition to analyzing curricular complexity, the toolbox supports the ability to visualize curricula, to compare and contrast curricula, to create optimal degree plans for completing curricula that satisfy particular constraints, and to simulate the impact of various events on student progression through a curriculum. 
+
+## Basic toolbox functionality
+The basic data types used in the *CurricularAnalytics.jl* libraries are described in [CurricularAnalytics Data Types](@ref). The toolbox includes a number of convenient functions that can be used to create a curriculum graph; these are described in [Creating Curricula](@ref). In addition, functions that can be used to create a degree plan from a curriculum are described in [Creating Degree Plans]. 
+
+Detailed example and tutorials on how to create and analyze curricula and degree plans can be found in the [CurricularAnalytics Tutorial Notebooks](https://addURL) repository.
