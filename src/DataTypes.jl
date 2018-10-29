@@ -8,6 +8,22 @@
 
 ##############################################################
 # LearningOutcome data type
+"""
+The `LearningOutcome` data type is used to associate a set of learning outcomes with 
+a course or a curriculum. To instantiate a `LearningOutcome` use:
+
+    LearningOutcome(name, description, hours)
+
+# Arguments
+- `name::AbstractString` : the name of the learning outcome.
+- `description::AbstractString` : detailed description of the learning outcome.
+- `hours::int` : number of class (contact) hours needed to attain the learning outcome. 
+
+# Examples:
+```julia-repl
+julia> LearningOutcome("M1", "Learner will demonstrate the ability to ...", 12)
+```
+"""
 mutable struct LearningOutcome
     id::Int                             # Unique id for the learning outcome,
                                         # set when the cousrse is added to a graph
@@ -45,6 +61,25 @@ end
 
 ##############################################################
 # Course data type
+"""
+The `Course` data type is used to represent a single course consisting of a given number 
+of credit hours.  To instantiate a `Course` use:
+
+    Course(name, credit_hours; <keyword arguments>)
+
+# Arguments
+- `name::AbstractString` : the name of the course.
+- `credit_hours::int` : the number of credit hours associated with the course.
+- `prefix::AbstractString` : the prefix associated with the course.
+- `num::AbstractString` : the number associated with the course.
+- `institution:AbstractString` : the name of the institution offering the course.
+- `canonical_name::AbstractString` : the common name used for the course.
+
+# Examples:
+```julia-repl
+julia> Course("Calculus with Applications", 4; prefix="MA", num="112", canonical_name="Calculus I")
+```
+"""
 mutable struct Course
     id::Int                            # Unique course id
     vertex_id::Dict{Int, Int}          # The vertex id of the course w/in a curriculum graph, stored as 
@@ -79,10 +114,32 @@ mutable struct Course
     end
 end
 
+"""
+    add_requisite!(rc, tc, requisite_type)
+
+Add course rc as a requisite, of type requisite_type, for target course tc.
+
+# Requisite types
+One of the following requisite types must be specified for `rc`:
+- `pre` : a prerequisite course that must be passed before `tc` can be attempted.
+- `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
+- `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+"""
 function add_requisite!(requisite_course::Course, course::Course, requisite_type::Requisite)
     course.requisites[requisite_course.id] = requisite_type
 end
 
+"""
+    add_requisite!([rc1, rc2, ...], tc, [requisite_type1, requisite_type2, ...])
+
+Add a collection of requisites to target course tc.
+
+# Requisite types
+The following requisite types may be specified for `rc`:
+- `pre` : a prerequisite course that must be passed before `tc` can be attempted.
+- `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
+- `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+"""
 function add_requisite!(requisite_course::Array{Course}, course::Course, requisite_type::Array{Requisite})
     @assert length(requisite_course) == length(requisite_type)
     for i = 1:length(requisite_course)
@@ -90,6 +147,18 @@ function add_requisite!(requisite_course::Array{Course}, course::Course, requisi
     end
 end
 
+"""
+    delete_requisite!(rc, tc)
+
+Remove course rc as a requisite for target course tc.  If rc is not an existing requisite for tc, an
+error is thrown.
+
+# Requisite types
+The following requisite types may be specified for `rc`:
+- `pre` : a prerequisite course that must be passed before `tc` can be attempted.
+- `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
+- `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+"""
 function delete_requisite!(requisite_course::Course, course::Course)
     #if !haskey(course.requisites, requisite_course.id)  
     #    error("The requisite you are trying to delete does not exist")
@@ -100,6 +169,28 @@ end
 ##############################################################
 # Curriculum data type
 # The required curriculum associated with a degree program
+"""
+The `Curriculum` data type is used to represent the collection of courses that must be
+be completed in order to earn a particualr degree.  To instantiate a `Curriculum` use:
+
+    Curriculum(name, courses; <keyword arguments>)
+
+# Arguments
+- `name::AbstractString` : the name of the curriculum.
+- `courses::Array{Course}` : the collection of required courses that comprise the curriculum.
+- `degree_type::Degree` : the type of degree, allowable 
+    types: `AA`, `AS`, `AAS`, `BA`, `BS` (default).
+- `institution:AbstractString` : the name of the institution offering the curriculum.
+- `system_type::System` : the type of system the institution uses, allowable 
+    types: `semester` (default), `quarter`.
+- `CIP::AbstractString` : the Classification of Instructional Programs (CIP) code for the 
+    curriculum.  See: `https://nces.ed.gov/ipeds/cipcode`
+
+# Examples:
+```julia-repl
+julia> Curriculum("Biology", courses; institution="South Harmon Tech", degree_type=AS, CIP="26.0101")
+```
+"""
 mutable struct Curriculum
     id::Int                            # Unique curriculum ID
     name::AbstractString                # Name of the curriculum (can be used as an identifier)
@@ -115,7 +206,7 @@ mutable struct Curriculum
 
     # Constructor
     function Curriculum(name::AbstractString, courses::Array{Course}; degree_type::Degree=BS,
-           system_type::System=semester, institution::AbstractString="", CIP::AbstractString="")
+           system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101")
         this = new()
         this.name = name
         this.degree_type = degree_type
@@ -157,6 +248,12 @@ function total_credits(curriculum::Curriculum)
     return total_credits
 end
 
+"""
+    create_graph!(c::Curriculum)
+
+Create a curriculum directed graph from a curriculum specification. The graph is stored as a 
+LightGraph.jl implemenation within the Curriculum data object.
+"""
 function create_graph!(curriculum::Curriculum)
     for (i, c) in enumerate(curriculum.courses)
         if add_vertex!(curriculum.graph)
@@ -196,6 +293,14 @@ end
 
 ##############################################################
 # Term data type
+"""
+The `Term` data type is used to represent a single term within a `DegreePlan`. To 
+instantiate a `Term` use:
+
+    Term([c1, c2, ...])
+
+where c1, c2, ... are `Course` data objects
+"""
 mutable struct Term
     courses::Array{Course}              # The courses associated with a term in a degree plan
     num_courses::Int                    # The number of courses in the Term
@@ -219,6 +324,25 @@ end
 
 ##############################################################
 # Degree Plan data types
+"""
+The `DegreePlan` data type is used to represent the collection of courses that must be
+be completed in order to earn a particualr degree.  To instantiate a `Curriculum` use:
+
+    DegreePlan(name, curriculum, terms, additional_courses)
+
+# Arguments
+- `name::AbstractString` : the name of the degree plan.
+- `curriculum::Curriculum` : the curriculum the degree plan must satisfy.
+- `terms::Array{Term}` : the arrangement of terms associated with the degree plan.
+- `additional_courses::Array{Course}` : additional courses in the degree plan that are not
+   a part of the curriculum. E.g., a prerequisite math class to the first required math
+   class in the curriculum.
+
+# Examples:
+```julia-repl
+julia> DegreePlan("Biology 4-year Degree Plan", curriculum, terms)
+```
+"""
 mutable struct DegreePlan
     name::AbstractString                # Name of the degree plan
     curriculum::Curriculum              # Curriculum the degree plan satisfies

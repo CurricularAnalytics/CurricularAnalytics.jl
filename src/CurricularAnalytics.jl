@@ -19,7 +19,29 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         import_degree_plan
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
-# Print error_msg using println(String(take!(error_msg))), where error_msg is the buffer returned by this function
+"""
+    isvalid_curriculum(c::Curriculum, errors::IOBuffer)
+
+Tests whether or not the curriculum graph associated with curriculum `c` is valid.  Returns 
+a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it 
+is not.
+
+If `c` is not valid, the reason(s) why are written to the `errors` buffer. To view these 
+reasons, use:
+
+```julia-repl
+julia> errors = IOBuffer()
+julia> isvalid_curriculum(c, errors)
+julia> println(String(take!(errors)))
+```
+
+There are two reasons why a curriculum graph might not be valid:
+- Cycles : If a curriculum graph contains a directed cycle, it is not possible to complete the curriculum.
+- Extraneous Requisites : These are redundant requisites that introduce spurious complexity.
+  If a curriculum has the prerequisite relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ 
+  and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are *not* co-requisites, then \$c_1 
+  \\rightarrow c_3\$ is redundant and therefore extraneous.   
+"""
 function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     g = c.graph
     validity = true
@@ -97,6 +119,14 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
 end
 
 # Compute the blocking factor of a course
+"""
+    blocking_factor(c::Curriculum, course::Int)
+
+The *blocking factor* associated with course \$v_i\$ in curriculum \$c\$, \$G_c = (V,E)\$, denoted \$b_c(v_i)\$, is 
+given by:
+\$b_c(v_i) = \\sum_{v_j \\in V} I(v_i,v_j)\$
+where \$I\$ is the indicator function:
+"""
 function blocking_factor(c::Curriculum, course::Int)
     b = length(reachable_from(c.graph, course))
     return c.courses[course].metrics["blocking factor"] = b

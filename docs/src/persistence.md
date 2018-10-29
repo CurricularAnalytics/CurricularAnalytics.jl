@@ -1,1 +1,1 @@
-# Reading/Writing Curricula \& Degree Plans
+# Reading/Writing Degree Plans

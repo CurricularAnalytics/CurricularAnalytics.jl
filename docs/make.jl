@@ -10,8 +10,8 @@ using CurricularAnalytics
 makedocs(
     modules     = [CurricularAnalytics],
     format      = :html,
-    sitename    = "CurricularAnalytics",
-    doctest     = false,
+    sitename    = "CurricularAnalytics.jl",
+    doctest     = true,
     pages       = Any[
         "Getting Started"                           => "index.md",
         "CurricularAnalytics Data Types"            => "types.md",
@@ -38,5 +38,5 @@ deploydocs(
     osname      = "linux"
 )
 
-rm(normpath(@__FILE__, "../src/contributing.md"))
-rm(normpath(@__FILE__, "../src/license.md"))
+#rm(normpath(@__FILE__, "../src/contributing.md"))
+#rm(normpath(@__FILE__, "../src/license.md"))
