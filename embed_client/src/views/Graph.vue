@@ -1,7 +1,7 @@
 <template>
   <div v-if="curriculum" class="graph">
-    <h1>{{curriculum.original.name}}</h1>
-    <h2>Curricular Complexity: {{curriculum.complexity}}</h2>
+    <p>{{curriculum.original.name}}</p>
+    <p>Curricular Complexity: {{curriculum.complexity}}</p>
     <curriculum
       :curriculum="curriculum"
       v-bind="options"
