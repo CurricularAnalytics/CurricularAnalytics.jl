@@ -1,0 +1,1 @@
+# CurricularAnalytics Data Types

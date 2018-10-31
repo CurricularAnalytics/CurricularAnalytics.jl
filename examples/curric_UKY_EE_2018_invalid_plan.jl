@@ -131,7 +131,7 @@ terms[4] = Term([c[17],c[18],c[19],c[20],c[21],c[22]])
 terms[5] = Term([c[23],c[24],c[25],c[26],c[27],c[28]])
 terms[6] = Term([c[29],c[30],c[31],c[32],c[33]])
 terms[7] = Term([c[34],c[35],c[36],c[37],c[38],c[39]])
-terms[8] = Term([c[40]]) #,c[41],c[42],c[43],c[44]])
+terms[8] = Term([c[40],c[40]]) #,c[41],c[42],c[43],c[44]])
 
 dp = DegreePlan("University of Kentucky EE Program 4-year Plan", curric, terms)
 

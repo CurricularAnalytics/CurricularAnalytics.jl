@@ -12,8 +12,8 @@ include("Visualization.jl")
 include("Optimization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
-        EdgeClass, LearningOutcome, Course, add_requisite!, Curriculum, total_credits,
-        create_graph!, requisite_type, Term, DegreePlan, dfs, longest_path, long_paths,
+        EdgeClass, LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, 
+        total_credits, create_graph!, requisite_type, Term, DegreePlan, dfs, longest_path, long_paths,
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
         complexity, compare_curricula, isvalid_degree_plan, print_plan, export_degree_plan, visualize,
         import_degree_plan
@@ -27,7 +27,7 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     cycles = simplecycles(g)
     if size(cycles,1) != 0
         validity = false
-        write(error_msg, "\nCurriculum $(c.name) contains the following requisite cycles:\n")
+        write(error_msg, "\nCurriculum $(c.name) has requisite cycles:\n")
         for cyc in cycles
             write(error_msg, "(")
             for (i,v) in enumerate(cyc)
@@ -42,7 +42,7 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
         extran_errors = IOBuffer()
         if extraneous_requisites(c, extran_errors)
             validity = false
-            write(error_msg, "\nCurriculum $(c.name) contains the following extraneous requisites:\n")
+            write(error_msg, "\nCurriculum $(c.name) has extraneous requisites:\n")
             write(error_msg, String(take!(extran_errors)))
         end
     end
@@ -50,15 +50,15 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
 end
 
 function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
-    if is_cyclic(c.graph)
-        error("extraneous requisities cannot be found in a curriculum graph that contains cycles")
+    if is_cyclic(c.graph) # error condition should no occur, as cycles are checked in isvalid_curriculum()
+        error("\nExtraneous requisities are due to cycles in the curriculum graph")
     end
     g = c.graph
     que = Queue{Int}()
     components = weakly_connected_components(g)
     extraneous = false
     for wcc in components
-        if length(wcc) > 1  # only consider curriculum graph components with more than one vertex
+        if length(wcc) > 1  # only consider components with more than one vertex
             for u in wcc
                 nb = neighbors(g,u)
                 for n in nb
@@ -72,7 +72,7 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                     end
                     for v in neighbors(g, x)
                         if has_edge(g, u, v)  # possible redundant requsisite
-                            # TODO: If this edge is a co-requistie it is an error, as it would be impossible to satsify.
+                            # TODO: If this edge is a co-requisite it is an error, as it would be impossible to satsify.
                             # This needs to be checked here.
                             remove = true
                             for n in nb  # check for co- or strict_co requisites
@@ -84,7 +84,7 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                                 end
                             end
                             if remove == true
-                                write(error_msg, "Course $(c.courses[v].name) has redundant requisite: $(c.courses[u].name)")
+                                write(error_msg, "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n")
                                 extraneous = true
                             end
                         end

@@ -1,5 +1,6 @@
 ## Curriculum assoicated with the University of Univ. of Kentucky EE program in 2018
-##Revised OCT262018
+##Revised OCT272018
+## course requisties can be found at: http://www.uky.edu/registrar/2018-2019-courses
 
 using CurricularAnalytics
 
@@ -66,40 +67,45 @@ c[43] = Course("UK Core – Statistical Inferential Reasoning", 3)
 
 # term 1
     add_requisite!(c[2],c[7],pre)
-    add_requisite!(c[2],c[6],co)
-    add_requisite!(c[2],c[3],co)
-    add_requisite!(c[3],c[6],co)
-    add_requisite!(c[3],c[13],pre)
-    add_requisite!(c[4],c[3],co)
-    add_requisite!(c[5],c[8],pre)
-    add_requisite!(c[6],c[9],pre)
     add_requisite!(c[2],c[16],pre)
-    add_requisite!(c[2],c[20],pre)
+    # add_requisite!(c[2],c[6],co)  # not correct
+    # add_requisite!(c[2],c[20],pre)  # redundant
+    # add_requisite!(c[2],c[3],co)  # not correct
+    add_requisite!(c[3],c[7],co)    # added
+    add_requisite!(c[3],c[13],pre)
+    add_requisite!(c[3],c[4],co)  # was wrong direction, flipped
+    add_requisite!(c[5],c[8],pre)
+    add_requisite!(c[6],c[3],co)  # was wrong direction, flipped
+    add_requisite!(c[6],c[7],co)  # added, a required edge being removed by viz
+    add_requisite!(c[6],c[9],pre)
 
 # term 2
     add_requisite!(c[9],c[12],pre)
-    add_requisite!(c[9],c[15],pre)
+    # add_requisite!(c[9],c[15],pre)  # redundant 
+    add_requisite!(c[10],c[7],co)   # added
 
 # term 3
-    add_requisite!(c[13],c[14],co)
+    # add_requisite!(c[3],c[13],pre)  # already specified above
     add_requisite!(c[12],c[13],co)
-    add_requisite!(c[13],c[15],co)
-    add_requisite!(c[14],c[15],co)
     add_requisite!(c[12],c[17],pre)
-    add_requisite!(c[14],c[18],pre)
-    add_requisite!(c[16],c[19],pre)
-    add_requisite!(c[13],c[22],pre)
     add_requisite!(c[12],c[26],pre)
-    add_requisite!(c[12],c[28],pre)
+    add_requisite!(c[12],c[28],pre)  # required edge correctly removed by viz, but not caught by isvalid_curric()
+    add_requisite!(c[13],c[14],co)
+    add_requisite!(c[13],c[15],co)  
+    add_requisite!(c[13],c[22],pre)  # required edge being removed by viz 
+    add_requisite!(c[14],c[15],co)
+    # add_requisite!(c[14],c[18],pre)  # not correct
+    add_requisite!(c[15],c[18],pre)  # added
+    add_requisite!(c[16],c[19],pre)
 
 # term 4
     add_requisite!(c[17],c[18],co)
-    add_requisite!(c[19],c[20],co)
+    add_requisite!(c[17],c[23],pre)  # required edge being removed by viz 
     add_requisite!(c[18],c[22],pre)
-    add_requisite!(c[17],c[23],pre)
     add_requisite!(c[18],c[23],pre)
     add_requisite!(c[18],c[25],pre)
     add_requisite!(c[18],c[28],pre)
+    add_requisite!(c[20],c[19],co)  # was wrong direction, flipped
 
 # term 5
 
@@ -109,8 +115,6 @@ c[43] = Course("UK Core – Statistical Inferential Reasoning", 3)
 add_requisite!(c[33],c[38],pre)
 
 curric = Curriculum("University of Kentucky EE Program", c)
-complexity(curric)
-centrality(curric)
 
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
@@ -119,21 +123,32 @@ if isvalid_curriculum(curric, errors)
     println("  blocking factor = $(blocking_factor(curric))")
     println("  centrality factor = $(centrality(curric))")
     println("  curricular complexity = $(complexity(curric))")
-else
+    
+    terms = Array{Term}(undef, 8)
+    terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
+    terms[2] = Term([c[7],c[8],c[9],c[10],c[11]])
+    terms[3] = Term([c[12],c[13],c[14],c[15],c[16]])
+    terms[4] = Term([c[17],c[18],c[19],c[20],c[21]])
+    terms[5] = Term([c[22],c[23],c[24],c[25],c[26],c[27]])
+    terms[6] = Term([c[28],c[29],c[30],c[31],c[32]])
+    terms[7] = Term([c[33],c[34],c[35],c[36],c[37]])
+    terms[8] = Term([c[38],c[39],c[40],c[41],c[42],c[43]])
+
+    dp = DegreePlan("University of Kentucky EE Program 4-year Plan", curric, terms)
+
+    take!(errors) # clear the IO buffer
+    if isvalid_degree_plan(dp, errors)
+        println("Degree plan $(dp.name) is valid")
+    else
+        println("Degree plan $(dp.name) is not valid:")
+        print(String(take!(errors)))
+        println("\nDiplaying degree plan for debugging purposes...")
+    end
+    visualize(dp)
+
+else # invalid curriculum
     println("Curriculum $(curric.name) is not valid:")
     print(String(take!(errors)))
 end
 
-terms = Array{Term}(undef, 8)
-terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
-terms[2] = Term([c[7],c[8],c[9],c[10],c[11]])
-terms[3] = Term([c[12],c[13],c[14],c[15],c[16]])
-terms[4] = Term([c[17],c[18],c[19],c[20],c[21]])
-terms[5] = Term([c[22],c[23],c[24],c[25],c[26],c[27]])
-terms[6] = Term([c[28],c[29],c[30],c[31],c[32]])
-terms[7] = Term([c[33],c[34],c[35],c[36],c[37]])
-terms[8] = Term([c[38],c[39],c[40],c[41],c[42],c[43]])
 
-dp = DegreePlan("University of Kentucky EE Program 4-year Plan", curric, terms)
-
-visualize(dp)
