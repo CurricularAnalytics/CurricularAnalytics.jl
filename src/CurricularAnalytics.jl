@@ -18,7 +18,6 @@ include("DataTypes.jl")
 include("GraphAlgs.jl")
 include("JsonHandler.jl")
 include("Visualization.jl")
-include("Optimization.jl")
 include("DegreePlanAnalytics.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
