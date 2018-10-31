@@ -102,8 +102,6 @@ c[43] = Course("UK Core – Statistical Inferential Reasoning", 3)
     add_requisite!(c[18],c[25],pre)
     add_requisite!(c[18],c[28],pre)
 
-
-
 # term 5
 
 # term 6
@@ -112,6 +110,8 @@ c[43] = Course("UK Core – Statistical Inferential Reasoning", 3)
 add_requisite!(c[33],c[38],pre)
 
 curric = Curriculum("University of Kentucky EE Program", c)
+complexity(curric)
+centrality(curric)
 
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
