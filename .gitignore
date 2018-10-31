@@ -1,2 +1,3 @@
 *.json
 docs/build/
+.DS_Store
