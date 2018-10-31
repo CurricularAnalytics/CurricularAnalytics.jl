@@ -32,11 +32,11 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
 """
     isvalid_curriculum(c::Curriculum, errors::IOBuffer)
 
-Tests whether or not the curriculum graph associated with curriculum `c` is valid.  Returns 
+Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid.  Returns 
 a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it 
 is not.
 
-If `c` is not valid, the reason(s) why are written to the `errors` buffer. To view these 
+If ``G_c`` is not valid, the reason(s) why are written to the `errors` buffer. To view these 
 reasons, use:
 
 ```julia-repl
@@ -173,14 +173,14 @@ end
 
 The **delay factor** associated with course ``c_k`` in curriculum ``c`` with
 curriculum graph ``G_c = (V,E)`` is the number of vertices in the longest path 
-in ``G_c`` that passes through ``v_k``, i.e., 
+in ``G_c`` that passes through ``v_k``. If ``\\#(p)`` denotes the number of
+vertices in the directed path ``p`` in ``G_c``, then we can define the delay factor of 
+course ``c_k`` as:
 ```math
 d_c(v_k) = \\max_{i,j,l,m}\\left\\{\\#(v_i  \\overset{p_l}{\\leadsto} v_k \\overset{p_m}{\\leadsto} v_j)\\right\\}
 ```
-where ``I(v_i,v_j)`` is the indicator function, which is ``1`` if  ``v_i \\leadsto v_j``, 
-and ``0`` otherwise. Here ``v_i \\leadsto v_j`` denotes that a directed path from vertex
-``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course 
-``c_i`` to ``c_j`` in curriculum ``c``.
+where ``v_i \\overset{p}{\\leadsto} v_j`` denotes a directed path ``p`` in ``G_c`` from vertex 
+``v_i`` to ``v_j``.
 """
 function delay_factor(c::Curriculum, course::Int)
     if !haskey(c.courses[course].metrics, "delay factor")
@@ -193,7 +193,7 @@ end
 """
     delay_factor(c::Curriculum)
 
-The **delay_factor factor** associated with curriculum ``c`` is defined as:
+The **delay factor** associated with curriculum ``c`` is defined as:
 ```math
 d(G_c) = \\sum_{v_k \\in V} d_c(v_k).
 ```
@@ -207,7 +207,7 @@ function delay_factor(c::Curriculum)
             # enumerate all of the longest paths from v (these are shortest paths in -G)
             for path in enumerate_paths(dijkstra_shortest_paths(g, v, -weights(g), allpaths=true))
                 for vtx in path
-                    path_length = length(path)  # path_length in terms of # of nodes, not edges
+                    path_length = length(path)  # path_length in terms of # of vertices, not edges
                     if path_length > df[vtx]
                         df[vtx] = path_length
                     end
@@ -229,17 +229,19 @@ end
     centrality(c::Curriculum, course::Int)
 
 Consider a curriculum graph ``G_c = (V,E)``, and a vertex ``v_i \\in V``. Furthermore, 
-consider all paths between every pair of vertices ``v_j, v_k \\in V``` that satisfy the 
+consider all paths between every pair of vertices ``v_j, v_k \\in V`` that satisfy the 
 following conditions:
 - ``v_i, v_j, v_k`` are distinct, i.e., ``v_i \\neq v_j, v_i \\neq v_k`` and ``v_j \\neq v_k``;
 - there is a path from ``v_j`` to ``v_k`` that includes ``v_i``, i.e., ``v_j \\leadsto v_i \\leadsto v_k``;
 - ``v_j`` has in-degree zero, i.e., ``v_j`` is a "source"; and
 - ``v_k`` has out-degree zero, i.e., ``v_k`` is a "sink".
-Let ``P_{v_i} = \\{p_1, p_2, \\ldots\\}`` denote the set of all paths that satisfy these conditions. 
+Let ``P_{v_i} = \\{p_1, p_2, \\ldots\\}`` denote the set of all directed paths that satisfy these 
+conditions. 
 Then the **centrality** of ``v_i`` is defined as    
 ```math
 q(v_i) = \\sum_{l=1}^{\\left| P_{v_i} \\right|} \\#(p_l).
 ```
+where ``\\#(p)`` denotes the number of vertices in the directed path ``p`` in ``G_c``.
 """
 function centrality(c::Curriculum, course::Int)
     cent = 0; g = c.graph
@@ -269,6 +271,10 @@ end
 
 The **complexity** associated with course ``c_i`` in curriculum ``c`` with
 curriculum graph ``G_c = (V,E)`` is defined as:
+```math
+h_c(v_i) = d_c(v_i) + b_c(v_i)
+```
+i.e., as a linear combination of the course delay and blocking factors.
 """
 function complexity(c::Curriculum, course::Int)
     if !haskey(c.courses[course].metrics, "complexity")
@@ -278,6 +284,15 @@ function complexity(c::Curriculum, course::Int)
 end
 
 # Compute the complexity of a curriculum
+"""
+    complexity(c::Curriculum, course::Int)
+
+The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)`` 
+is defined as:
+```math
+h(G_c) = \\sum_{v \\in V} \\left(d_c(v) + b_c(v)\\right).
+```
+"""
 function complexity(c::Curriculum)
     course_complexity = Array{Number, 1}(undef, c.num_courses)
     curric_complexity = 0
