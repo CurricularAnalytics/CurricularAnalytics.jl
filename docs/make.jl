@@ -3,9 +3,9 @@ using Documenter
 using CurricularAnalytics
 
 # same for contributing and license
-#cp(normpath(@__FILE__, "../../CONTRIBUTING.md"), normpath(@__FILE__, "../src/contributing.md"); force=true)
-#cp(normpath(@__FILE__, "../../LICENSE.md"), normpath(@__FILE__, "../src/license.md"); force=true)
-#cp(normpath(@__FILE__, "../../CITING.md"), normpath(@__FILE__, "../src/citing.md"); force=true)
+cp(normpath(@__FILE__, "../../CONTRIBUTING.md"), normpath(@__FILE__, "../src/contributing.md"); force=true)
+cp(normpath(@__FILE__, "../../LICENSE.md"), normpath(@__FILE__, "../src/license.md"); force=true)
+cp(normpath(@__FILE__, "../../CITING.md"), normpath(@__FILE__, "../src/citing.md"); force=true)
 
 makedocs(
     modules     = [CurricularAnalytics],
@@ -22,10 +22,10 @@ makedocs(
         "Curricular Metrics"                        => "metrics.md",
         "Optimizing Degree Plans"                   => "optimizing.md",
         "Simulating Student Flows"                  => "simulating.md",
-#        "Contributing"                              => "contributing.md",
+        "Contributing"                              => "contributing.md",
         "Developer Notes"                           => "developing.md",
-#        "License Information"                       => "license.md",
-#        "Citing CurricularAnalytics"                => "citing.md"
+        "License Information"                       => "license.md",
+        "Citing CurricularAnalytics"                => "citing.md"
     ]
 )
 

@@ -5,7 +5,7 @@ We encourage you to cite our work if you have used our libraries, tools or datas
 To cite the latest version of the CurricularAnalytics Julia toolbox, 
 
 ```tex
-@misc{HeFr:18,
+@misc{Bromberger17,
   author       = {Gregory L. Heileman and Hayden Free and {other contributors}},
   title        = {CurricularAnalytics.jl},
   year         = 2018,
@@ -26,4 +26,3 @@ Innovationsl},
   year         = 2018,
   url          = {getURL}
 }
-```
