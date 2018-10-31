@@ -19,6 +19,7 @@ include("GraphAlgs.jl")
 include("JsonHandler.jl")
 include("Visualization.jl")
 include("Optimization.jl")
+include("DegreePlanAnalytics.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
         EdgeClass, LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, 
@@ -334,8 +335,5 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
     end
     return report
 end
-
-include("./DegreePlanAnalytics.jl")
-include("./Visualization.jl")
 
 end # module

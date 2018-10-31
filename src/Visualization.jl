@@ -3,15 +3,8 @@ import HTTP.Messages
 
 const LOCAL_EMBED_PORT = 8156
 const LOCAL_EMBED_FOLDER = "embed_client/dist"
-# const REMOTE_EMBED_URL = "https://curricula-api-embed.damoursystems.com/"
 
-# Get the embedable url for the iFrame.
-# Remote embeding has been depricated, only local server embeding is now supported
 function get_embed_url()
-    # try
-    #     HTTP.request("GET", REMOTE_EMBED_URL)
-    #     return REMOTE_EMBED_URL
-    # catch
         local_embed_url = string("http://localhost:", LOCAL_EMBED_PORT)
         try
             HTTP.request("GET", local_embed_url)
@@ -19,7 +12,6 @@ function get_embed_url()
             serve_local_embed_client()
         end
         return local_embed_url
-    # end
 end
 
 # Serve a local embed client on port 8156
