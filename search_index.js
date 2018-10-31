@@ -185,11 +185,51 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "metrics/#CurricularAnalytics",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics",
+    "category": "module",
+    "text": "The curriculum-based metrics in this toolbox are based upon the graph structure of a  curriculum.  Specifically, assume curriculum c consists of n courses c_1 ldots c_n, and that there are m requisite (prerequisite or co-requsitie) relationships between these courses.   A curriculum graph G_c = (VE) is formed by creating a vertex set V = v_1 ldots v_n  (i.e., one vertex for each course) along with an edge set E = e_1 ldots e_m, where a  directed edge from vertex v_i to v_j is in E if course c_i is a requisite for course c_j.\n\n\n\n\n\n"
+},
+
+{
+    "location": "metrics/#CurricularAnalytics.blocking_factor",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics.blocking_factor",
+    "category": "function",
+    "text": "blocking_factor(c::Curriculum, course::Int)\n\nThe blocking factor associated with course c_i in curriculum c with curriculum graph G_c = (VE) is defined as:\n\nb_c(v_i) = sum_v_j in V I(v_iv_j)\n\nwhere I(v_iv_j) is the indicator function, which is 1 if  v_i leadsto v_j,  and 0 otherwise. Here v_i leadsto v_j denotes that a directed path from vertex v_i to v_j exists in G_c, i.e., there is a requisite pathway from course  c_i to c_j in curriculum c.\n\n\n\n\n\nblocking_factor(c::Curriculum)\n\nThe blocking factor associated with curriculum c is defined as:\n\nb(G_c) = sum_v_i in V b_c(v_i)\n\nwhere G_c = (VE) is the curriculum graph associated with curriculum c.\n\n\n\n\n\n"
+},
+
+{
+    "location": "metrics/#CurricularAnalytics.delay_factor",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics.delay_factor",
+    "category": "function",
+    "text": "delay_factor(c::Curriculum, course::Int)\n\nThe delay factor associated with course c_k in curriculum c with curriculum graph G_c = (VE) is the number of vertices in the longest path  in G_c that passes through v_k. If (p) denotes the number of vertices in the directed path p in G_c, then we can define the delay factor of  course c_k as:\n\nd_c(v_k) = max_ijlmleft(v_i  oversetp_lleadsto v_k oversetp_mleadsto v_j)right\n\nwhere v_i oversetpleadsto v_j denotes a directed path p in G_c from vertex  v_i to v_j.\n\n\n\n\n\ndelay_factor(c::Curriculum)\n\nThe delay factor associated with curriculum c is defined as:\n\nd(G_c) = sum_v_k in V d_c(v_k)\n\nwhere G_c = (VE) is the curriculum graph associated with curriculum c.\n\n\n\n\n\n"
+},
+
+{
+    "location": "metrics/#CurricularAnalytics.centrality",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics.centrality",
+    "category": "function",
+    "text": "centrality(c::Curriculum, course::Int)\n\nConsider a curriculum graph G_c = (VE), and a vertex v_i in V. Furthermore,  consider all paths between every pair of vertices v_j v_k in V that satisfy the  following conditions:\n\nv_i v_j v_k are distinct, i.e., v_i neq v_j v_i neq v_k and v_j neq v_k;\nthere is a path from v_j to v_k that includes v_i, i.e., v_j leadsto v_i leadsto v_k;\nv_j has in-degree zero, i.e., v_j is a \"source\"; and\nv_k has out-degree zero, i.e., v_k is a \"sink\".\n\nLet P_v_i = p_1 p_2 ldots denote the set of all directed paths that satisfy these  conditions.  Then the centrality of v_i is defined as    \n\nq(v_i) = sum_l=1^left P_v_i right (p_l)\n\nwhere (p) denotes the number of vertices in the directed path p in G_c.\n\n\n\n\n\ncentrality(c::Curriculum)\n\nComputes the total centrality associated with all of the courses in curriculum c,  with curriculum graph G_c = (VE).  \n\nq(c) = sum_v in V q(v)\n\n\n\n\n\n"
+},
+
+{
+    "location": "metrics/#CurricularAnalytics.complexity",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics.complexity",
+    "category": "function",
+    "text": "complexity(c::Curriculum, course::Int)\n\nThe complexity associated with course c_i in curriculum c with curriculum graph G_c = (VE) is defined as:\n\nh_c(v_i) = d_c(v_i) + b_c(v_i)\n\ni.e., as a linear combination of the course delay and blocking factors.\n\n\n\n\n\ncomplexity(c::Curriculum, course::Int)\n\nThe complexity associated with curriculum c with  curriculum graph G_c = (VE)  is defined as:\n\nh(G_c) = sum_v in V left(d_c(v) + b_c(v)right)\n\n\n\n\n\n"
+},
+
+{
     "location": "metrics/#Curricular-Metrics-1",
     "page": "Curricular Metrics",
     "title": "Curricular Metrics",
     "category": "section",
-    "text": "CurricularAnalytics\nisvalid_curriculum\nblocking_factor\ndelay_factor\ncentrality\ncomplexity"
+    "text": "CurricularAnalytics\nblocking_factor\ndelay_factor\ncentrality\ncomplexity"
 },
 
 {
@@ -285,7 +325,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Citing CurricularAnalytics",
     "title": "How to Cite CurricularAnalytics",
     "category": "section",
-    "text": "We encourage you to cite our work if you have used our libraries, tools or datasets. Starring the repository on GitHub is also appreciated.To cite the latest version of the CurricularAnalytics Julia toolbox, @misc{Bromberger17,\n  author       = {Gregory L. Heileman and Hayden Free and {other contributors}},\n  title        = {CurricularAnalytics.jl},\n  year         = 2018,\n  doi          = {getDOI},\n  url          = {getURL}\n}For previous versions, please reference the zenodo site.To cite the definitive Curricular Analytics technical reference, please use the following BibTeX citation:```tex @article{Heileman18,   author       = {Gregory L. Heileman and Chaouki T. Abdallah and Ahmad Slim and Michael Hickman},   title        = {Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical Innovationsl},   journal	= {to appear}   year         = 2018,   url          = {getURL} }"
+    "text": "We encourage you to cite our work if you have used our libraries, tools or datasets. Starring the repository on GitHub is also appreciated.To cite the latest version of the CurricularAnalytics Julia toolbox, @misc{HeFr:18,\n  author       = {Gregory L. Heileman and Hayden Free and {other contributors}},\n  title        = {CurricularAnalytics.jl},\n  year         = 2018,\n  doi          = {getDOI},\n  url          = {getURL}\n}For previous versions, please reference the zenodo site.To cite the definitive Curricular Analytics technical reference, please use the following BibTeX citation:@article{Heileman18,\n  author       = {Gregory L. Heileman and Chaouki T. Abdallah and Ahmad Slim and Michael Hickman},\n  title        = {Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical\nInnovationsl},\n  journal	= {to appear}\n  year         = 2018,\n  url          = {getURL}\n}"
 },
 
 ]}
