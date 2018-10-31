@@ -1,9 +1,18 @@
+"""
+The curriculum-based metrics in this toolbox are based upon the graph structure of a 
+curriculum.  Specifically, assume curriculum ``c`` consists of ``n`` courses ``\\{c_1, \\ldots, c_n\\}``,
+and that there are ``m`` requisite (prerequisite or co-requsitie) relationships between these courses.  A curriculum graph ``G_c = (V,E)`` is formed by 
+creating a vertex set ``V = \\{v_1, \\ldots, v_n\\}`` (i.e., one vertex for each course) along with
+an edge set ``E = \\{e_1, \\ldots, e_m\\}``, where a directed edge from vertex ``v_i`` to ``v_j`` is
+in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
+"""
 module CurricularAnalytics
 
 # Dependencies
 using LightGraphs
 using DataStructures
 using Printf
+using Markdown
 
 include("DataTypes.jl")
 include("GraphAlgs.jl")
@@ -122,16 +131,30 @@ end
 """
     blocking_factor(c::Curriculum, course::Int)
 
-The *blocking factor* associated with course \$v_i\$ in curriculum \$c\$, \$G_c = (V,E)\$, denoted \$b_c(v_i)\$, is 
-given by:
-\$b_c(v_i) = \\sum_{v_j \\in V} I(v_i,v_j)\$
-where \$I\$ is the indicator function:
+The **blocking factor** associated with course ``c_i`` in curriculum ``c`` with
+curriculum graph ``G_c = (V,E)`` is defined as:
+```math
+b_c(v_i) = \\sum_{v_j \\in V} I(v_i,v_j)
+```
+where ``I(v_i,v_j)`` is the indicator function, which is ``1`` if  ``v_i \\leadsto v_j``, 
+and ``0`` otherwise. Here ``v_i \\leadsto v_j`` denotes that a directed path from vertex
+``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course 
+``c_i`` to ``c_j`` in curriculum ``c``.
 """
 function blocking_factor(c::Curriculum, course::Int)
     b = length(reachable_from(c.graph, course))
     return c.courses[course].metrics["blocking factor"] = b
 end
 
+"""
+    blocking_factor(c::Curriculum)
+
+The **blocking factor** associated with curriculum ``c`` is defined as:
+```math
+b(G_c) = \\sum_{v_i \\in V} b_c(v_i).
+```
+where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
+"""
 # Compute the blocking factor of a curriculum
 function blocking_factor(c::Curriculum)
     b = 0
@@ -144,6 +167,20 @@ function blocking_factor(c::Curriculum)
 end
 
 # Compute the delay factor of a course
+"""
+    delay_factor(c::Curriculum, course::Int)
+
+The **delay factor** associated with course ``c_k`` in curriculum ``c`` with
+curriculum graph ``G_c = (V,E)`` is the number of vertices in the longest path 
+in ``G_c`` that passes through ``v_k``, i.e., 
+```math
+d_c(v_k) = \\max_{i,j,l,m}\\left\\{\\#(v_i  \\overset{p_l}{\\leadsto} v_k \\overset{p_m}{\\leadsto} v_j)\\right\\}
+```
+where ``I(v_i,v_j)`` is the indicator function, which is ``1`` if  ``v_i \\leadsto v_j``, 
+and ``0`` otherwise. Here ``v_i \\leadsto v_j`` denotes that a directed path from vertex
+``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course 
+``c_i`` to ``c_j`` in curriculum ``c``.
+"""
 function delay_factor(c::Curriculum, course::Int)
     if !haskey(c.courses[course].metrics, "delay factor")
         delay_factor(c)
@@ -152,6 +189,15 @@ function delay_factor(c::Curriculum, course::Int)
 end
 
 # Compute the delay factor of a curriculum
+"""
+    delay_factor(c::Curriculum)
+
+The **delay_factor factor** associated with curriculum ``c`` is defined as:
+```math
+d(G_c) = \\sum_{v_k \\in V} d_c(v_k).
+```
+where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
+"""
 function delay_factor(c::Curriculum)
     g = c.graph
     df = ones(c.num_courses)
@@ -178,6 +224,22 @@ function delay_factor(c::Curriculum)
 end
 
 # Compute the centrality of a course
+"""
+    centrality(c::Curriculum, course::Int)
+
+Consider a curriculum graph ``G_c = (V,E)``, and a vertex ``v_i \\in V``. Furthermore, 
+consider all paths between every pair of vertices ``v_j, v_k \\in V``` that satisfy the 
+following conditions:
+- ``v_i, v_j, v_k`` are distinct, i.e., ``v_i \\neq v_j, v_i \\neq v_k`` and ``v_j \\neq v_k``;
+- there is a path from ``v_j`` to ``v_k`` that includes ``v_i``, i.e., ``v_j \\leadsto v_i \\leadsto v_k``;
+- ``v_j`` has in-degree zero, i.e., ``v_j`` is a "source"; and
+- ``v_k`` has out-degree zero, i.e., ``v_k`` is a "sink".
+Let ``P_{v_i} = \\{p_1, p_2, \\ldots\\}`` denote the set of all paths that satisfy these conditions. 
+Then the **centrality** of ``v_i`` is defined as    
+```math
+q(v_i) = \\sum_{l=1}^{\\left| P_{v_i} \\right|} \\#(p_l).
+```
+"""
 function centrality(c::Curriculum, course::Int)
     cent = 0; g = c.graph
     for path in long_paths(g)  # all long paths in g
@@ -201,6 +263,12 @@ function centrality(c::Curriculum)
 end
 
 # Compute the complexity of a course
+"""
+    complexity(c::Curriculum, course::Int)
+
+The **complexity** associated with course ``c_i`` in curriculum ``c`` with
+curriculum graph ``G_c = (V,E)`` is defined as:
+"""
 function complexity(c::Curriculum, course::Int)
     if !haskey(c.courses[course].metrics, "complexity")
         complexity(c)

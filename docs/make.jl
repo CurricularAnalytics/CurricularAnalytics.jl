@@ -15,7 +15,7 @@ makedocs(
     pages       = Any[
         "Getting Started"                           => "index.md",
         "CurricularAnalytics Data Types"            => "types.md",
-        "Creating Curricula"                       => "curriculum.md",
+        "Creating Curricula"                        => "curriculum.md",
         "Creating Degree Plans"                     => "degreeplan.md",
         "Reading/Writing Curricula & Degree Plans"  => "persistence.md",
         "Visualizing Degree Plans"                  => "plotting.md",
