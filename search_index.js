@@ -89,38 +89,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "curriculum/#CurricularAnalytics.add_requisite!",
-    "page": "Creating Curricula",
-    "title": "CurricularAnalytics.add_requisite!",
-    "category": "function",
-    "text": "add_requisite!(rc, tc, requisite_type)\n\nAdd course rc as a requisite, of type requisite_type, for target course tc.\n\nRequisite types\n\nOne of the following requisite types must be specified for rc:\n\npre : a prerequisite course that must be passed before tc can be attempted.\nco  : a co-requisite course that may be taken before or at the same time as tc.\nstrict_co : a strict co-requisite course that must be taken at the same time as tc.\n\n\n\n\n\nadd_requisite!([rc1, rc2, ...], tc, [requisite_type1, requisite_type2, ...])\n\nAdd a collection of requisites to target course tc.\n\nRequisite types\n\nThe following requisite types may be specified for rc:\n\npre : a prerequisite course that must be passed before tc can be attempted.\nco  : a co-requisite course that may be taken before or at the same time as tc.\nstrict_co : a strict co-requisite course that must be taken at the same time as tc.\n\n\n\n\n\n"
-},
-
-{
-    "location": "curriculum/#CurricularAnalytics.delete_requisite!",
-    "page": "Creating Curricula",
-    "title": "CurricularAnalytics.delete_requisite!",
-    "category": "function",
-    "text": "delete_requisite!(rc, tc)\n\nRemove course rc as a requisite for target course tc.  If rc is not an existing requisite for tc, an error is thrown.\n\nRequisite types\n\nThe following requisite types may be specified for rc:\n\npre : a prerequisite course that must be passed before tc can be attempted.\nco  : a co-requisite course that may be taken before or at the same time as tc.\nstrict_co : a strict co-requisite course that must be taken at the same time as tc.\n\n\n\n\n\n"
-},
-
-{
-    "location": "curriculum/#CurricularAnalytics.create_graph!",
-    "page": "Creating Curricula",
-    "title": "CurricularAnalytics.create_graph!",
-    "category": "function",
-    "text": "create_graph!(c::Curriculum)\n\nCreate a curriculum directed graph from a curriculum specification. The graph is stored as a  LightGraph.jl implemenation within the Curriculum data object.\n\n\n\n\n\n"
-},
-
-{
-    "location": "curriculum/#CurricularAnalytics.isvalid_curriculum",
-    "page": "Creating Curricula",
-    "title": "CurricularAnalytics.isvalid_curriculum",
-    "category": "function",
-    "text": "isvalid_curriculum(c::Curriculum, errors::IOBuffer)\n\nTests whether or not the curriculum graph associated with curriculum c is valid.  Returns  a boolean value, with true indicating the curriculum is valid, and false indicating it  is not.\n\nIf c is not valid, the reason(s) why are written to the errors buffer. To view these  reasons, use:\n\njulia> errors = IOBuffer()\njulia> isvalid_curriculum(c, errors)\njulia> println(String(take!(errors)))\n\nThere are two reasons why a curriculum graph might not be valid:\n\nCycles : If a curriculum graph contains a directed cycle, it is not possible to complete the curriculum.\nExtraneous Requisites : These are redundant requisites that introduce spurious complexity. If a curriculum has the prerequisite relationships c_1 rightarrow c_2 rightarrow c_3  and c_1 rightarrow c_3, and c_1 and c_2 are not co-requisites, then c_1  rightarrow c_3 is redundant and therefore extraneous.   \n\n\n\n\n\n"
-},
-
-{
     "location": "curriculum/#Creating-Curricula-1",
     "page": "Creating Curricula",
     "title": "Creating Curricula",
@@ -185,11 +153,51 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "metrics/#CurricularAnalytics",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics",
+    "category": "module",
+    "text": "The curriculum-based metrics in this toolbox are based upon the graph structure of a  curriculum.  Specifically, assume curriculum c consists of n courses c_1 ldots c_n, and that there are m requisite (prerequisite or co-requsitie) relationships between these courses.  A curriculum graph G_c = (VE) is formed by  creating a vertex set V = v_1 ldots v_n (i.e., one vertex for each course) along with an edge set E = e_1 ldots e_m, where a directed edge from vertex v_i to v_j is in E if course c_i is a requisite for course c_j.\n\n\n\n\n\n"
+},
+
+{
+    "location": "metrics/#CurricularAnalytics.isvalid_curriculum",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics.isvalid_curriculum",
+    "category": "function",
+    "text": "isvalid_curriculum(c::Curriculum, errors::IOBuffer)\n\nTests whether or not the curriculum graph associated with curriculum c is valid.  Returns  a boolean value, with true indicating the curriculum is valid, and false indicating it  is not.\n\nIf c is not valid, the reason(s) why are written to the errors buffer. To view these  reasons, use:\n\njulia> errors = IOBuffer()\njulia> isvalid_curriculum(c, errors)\njulia> println(String(take!(errors)))\n\nThere are two reasons why a curriculum graph might not be valid:\n\nCycles : If a curriculum graph contains a directed cycle, it is not possible to complete the curriculum.\nExtraneous Requisites : These are redundant requisites that introduce spurious complexity. If a curriculum has the prerequisite relationships c_1 rightarrow c_2 rightarrow c_3  and c_1 rightarrow c_3, and c_1 and c_2 are not co-requisites, then c_1  rightarrow c_3 is redundant and therefore extraneous.   \n\n\n\n\n\n"
+},
+
+{
     "location": "metrics/#CurricularAnalytics.blocking_factor",
     "page": "Curricular Metrics",
     "title": "CurricularAnalytics.blocking_factor",
     "category": "function",
-    "text": "blocking_factor(c::Curriculum, course::Int)\n\nThe blocking factor associated with course v_i in curriculum c, G_c = (VE), denoted b_c(v_i), is  given by: b_c(v_i) = sum_v_j in V I(v_iv_j) where I is the indicator function:\n\n\n\n\n\n"
+    "text": "blocking_factor(c::Curriculum, course::Int)\n\nThe blocking factor associated with course c_i in curriculum c with curriculum graph G_c = (VE) is defined as:\n\nb_c(v_i) = sum_v_j in V I(v_iv_j)\n\nwhere I(v_iv_j) is the indicator function, which is 1 if  v_i leadsto v_j,  and 0 otherwise. Here v_i leadsto v_j denotes that a directed path from vertex v_i to v_j exists in G_c, i.e., there is a requisite pathway from course  c_i to c_j in curriculum c.\n\n\n\n\n\n"
+},
+
+{
+    "location": "metrics/#CurricularAnalytics.delay_factor",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics.delay_factor",
+    "category": "function",
+    "text": "delay_factor(c::Curriculum, course::Int)\n\nThe delay factor associated with course c_k in curriculum c with curriculum graph G_c = (VE) is the number of vertices in the longest path  in G_c that passes through v_k, i.e., \n\nd_c(v_k) = max_ijlmleft(v_i  oversetp_lleadsto v_k oversetp_mleadsto v_j)right\n\nwhere I(v_iv_j) is the indicator function, which is 1 if  v_i leadsto v_j,  and 0 otherwise. Here v_i leadsto v_j denotes that a directed path from vertex v_i to v_j exists in G_c, i.e., there is a requisite pathway from course  c_i to c_j in curriculum c.\n\n\n\n\n\ndelay_factor(c::Curriculum)\n\nThe delay_factor factor associated with curriculum c is defined as:\n\nd(G_c) = sum_v_k in V d_c(v_k)\n\nwhere G_c = (VE) is the curriculum graph associated with curriculum c.\n\n\n\n\n\n"
+},
+
+{
+    "location": "metrics/#CurricularAnalytics.centrality",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics.centrality",
+    "category": "function",
+    "text": "centrality(c::Curriculum, course::Int)\n\nConsider a curriculum graph G_c = (VE), and a vertex v_i in V. Furthermore,  consider all paths between every pair of vertices v_j v_k in V` that satisfy the  following conditions:\n\nv_i v_j v_k are distinct, i.e., v_i neq v_j v_i neq v_k and v_j neq v_k;\nthere is a path from v_j to v_k that includes v_i, i.e., v_j leadsto v_i leadsto v_k;\nv_j has in-degree zero, i.e., v_j is a \"source\"; and\nv_k has out-degree zero, i.e., v_k is a \"sink\".\n\nLet P_v_i = p_1 p_2 ldots denote the set of all paths that satisfy these conditions.  Then the centrality of v_i is defined as    \n\nq(v_i) = sum_l=1^left P_v_i right (p_l)\n\n\n\n\n\n"
+},
+
+{
+    "location": "metrics/#CurricularAnalytics.complexity",
+    "page": "Curricular Metrics",
+    "title": "CurricularAnalytics.complexity",
+    "category": "function",
+    "text": "complexity(c::Curriculum, course::Int)\n\nThe complexity associated with course c_i in curriculum c with curriculum graph G_c = (VE) is defined as:\n\n\n\n\n\n"
 },
 
 {
@@ -197,7 +205,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Curricular Metrics",
     "title": "Curricular Metrics",
     "category": "section",
-    "text": "blocking_factor"
+    "text": "CurricularAnalytics\nisvalid_curriculum\nblocking_factor\ndelay_factor\ncentrality\ncomplexity"
 },
 
 {
