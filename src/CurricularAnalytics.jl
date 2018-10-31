@@ -1,10 +1,10 @@
 """
 The curriculum-based metrics in this toolbox are based upon the graph structure of a 
 curriculum.  Specifically, assume curriculum ``c`` consists of ``n`` courses ``\\{c_1, \\ldots, c_n\\}``,
-and that there are ``m`` requisite (prerequisite or co-requsitie) relationships between these courses.  A curriculum graph ``G_c = (V,E)`` is formed by 
-creating a vertex set ``V = \\{v_1, \\ldots, v_n\\}`` (i.e., one vertex for each course) along with
-an edge set ``E = \\{e_1, \\ldots, e_m\\}``, where a directed edge from vertex ``v_i`` to ``v_j`` is
-in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
+and that there are ``m`` requisite (prerequisite or co-requsitie) relationships between these courses.  
+A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v_1, \\ldots, v_n\\}`` 
+(i.e., one vertex for each course) along with an edge set ``E = \\{e_1, \\ldots, e_m\\}``, where a 
+directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
 """
 module CurricularAnalytics
 
@@ -147,6 +147,7 @@ function blocking_factor(c::Curriculum, course::Int)
     return c.courses[course].metrics["blocking factor"] = b
 end
 
+# Compute the blocking factor of a curriculum
 """
     blocking_factor(c::Curriculum)
 
@@ -156,7 +157,6 @@ b(G_c) = \\sum_{v_i \\in V} b_c(v_i).
 ```
 where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
 """
-# Compute the blocking factor of a curriculum
 function blocking_factor(c::Curriculum)
     b = 0
     bf = Array{Int, 1}(undef, c.num_courses)
@@ -255,6 +255,15 @@ function centrality(c::Curriculum, course::Int)
 end
 
 # Compute the total centrality of all courses in a curriculum
+"""
+    centrality(c::Curriculum)
+
+Computes the total **centrality** associated with all of the courses in curriculum ``c``, 
+with curriculum graph ``G_c = (V,E)``.  
+```math
+q(c) = \\sum_{v \\in V} q(v).
+```
+"""
 function centrality(c::Curriculum)
     cent = 0
     cf = Array{Int, 1}(undef, c.num_courses)
