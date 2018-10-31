@@ -44,7 +44,7 @@ terms[4] = Term([g,h])
 
 dp = DegreePlan("MyPlan", curric, terms)
 
-println(dp)
+# println(dp)
 
 print_plan(dp)
 
