@@ -8,9 +8,9 @@ julia:
   - nightly
   - 1.0
 
-  jobs: 
-    include:
-      - stage: "Documentation"
+jobs: 
+  include:
+    - stage: "Documentation"
       julia: 1.0
       os: linux
       script:
