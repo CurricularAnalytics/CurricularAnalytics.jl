@@ -1,8 +1,6 @@
-using Documenter
-#include("../src/CurricularAnalytics.jl")
-using CurricularAnalytics
+using Documenter, CurricularAnalytics
 
-# same for contributing and license
+# include contributing, citing and license pages 
 cp(normpath(@__FILE__, "../../CONTRIBUTING.md"), normpath(@__FILE__, "../src/contributing.md"); force=true)
 cp(normpath(@__FILE__, "../../LICENSE.md"), normpath(@__FILE__, "../src/license.md"); force=true)
 cp(normpath(@__FILE__, "../../CITING.md"), normpath(@__FILE__, "../src/citing.md"); force=true)
@@ -30,12 +28,11 @@ makedocs(
 )
 
 deploydocs(
-    deps        = nothing,
-    make        = nothing,
     repo        = "github.com/heileman/CurricularAnalytics.jl.git",
     target      = "build",
     julia       = "nightly",
-    osname      = "linux"
+    deps        = nothing,
+    make        = nothing,
 )
 
 #rm(normpath(@__FILE__, "../src/contributing.md"))
