@@ -13,6 +13,7 @@ using LightGraphs
 using DataStructures
 using Printf
 using Markdown
+using Documenter
 
 include("DataTypes.jl")
 include("GraphAlgs.jl")
