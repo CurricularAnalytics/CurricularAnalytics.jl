@@ -30,7 +30,6 @@ makedocs(
 deploydocs(
     repo        = "github.com/heileman/CurricularAnalytics.jl.git",
     target      = "build",
-    julia       = "nightly",
     deps        = nothing,
     make        = nothing,
 )
