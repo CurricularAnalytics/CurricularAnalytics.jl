@@ -1,3 +1,4 @@
 *.json
 docs/build/
 .DS_Store
+mkdocs.yml

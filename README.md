@@ -7,7 +7,7 @@ CurricularAnalytics is a toolbox for studying and analyzing academic program cur
 In addition to analyzing curricular complexity, the toolbox supports the ability to visualize curricula, to compare and contrast curricula, to create optimal degree plans for completing curricula that satisfy particular constraints, and to simulate the impact of various events on student progression through a curriculum. 
 
 ## Documentation
-Full documentation is available at [GitHub Pages](https://heileman.github.io/CurricularAnalytics).
+Full documentation is available at [GitHub Pages](https://heileman.github.io/CurricularAnalytics.jl/).
 Documentation for methods is also available via the Julia REPL help system.
 Additional tutorials can be found at [CurricularAnaltyics](http://curricula.academicdashboards.org).
 

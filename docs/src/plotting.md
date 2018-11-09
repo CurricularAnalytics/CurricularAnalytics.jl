@@ -1,1 +1,3 @@
-# Visualizing Degree Plans
+# Visualizing Curricula and Degree Plans
+
+... Coming soon ...

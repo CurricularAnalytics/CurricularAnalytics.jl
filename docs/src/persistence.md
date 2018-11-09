@@ -1,1 +1,3 @@
-# Reading/Writing Degree Plans
+# Persisting Curricula & Degree Plans
+
+... Coming soon ...

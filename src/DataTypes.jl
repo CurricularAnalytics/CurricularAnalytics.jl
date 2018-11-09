@@ -47,17 +47,23 @@ mutable struct LearningOutcome
     end
 end
 
-function add_requisite!(requisite_lo::LearningOutcome, lo::LearningOutcome, requisite_type::Requisite)
-    lo.requisites[requisite_lo] = requisite_type
-end
-
-function add_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome, 
-                      requisite_type::Array{Requisite})
-    @assert length(requisite_lo) == length(requisite_type)
-    for i = 1:length(requisite_lo)
-        lo.requisites[lo[i]] = requisite_type[i]
-    end
-end
+#"""
+#    add_lo_requisite!(rlo, tlo, requisite_type)
+#
+#Add learning outcome rlo as a requisite, of type requisite_type, for target learning 
+#outcome tlo.
+#"""
+#function add_lo_requisite!(requisite_lo::LearningOutcome, lo::LearningOutcome, requisite_type::Requisite)
+#    lo.requisites[requisite_lo] = requisite_type
+#end
+#
+#function add_lo_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome, 
+#                      requisite_type::Array{Requisite})
+#    @assert length(requisite_lo) == length(requisite_type)
+#    for i = 1:length(requisite_lo)
+#        lo.requisites[lo[i]] = requisite_type[i]
+#    end
+#end
 
 ##############################################################
 # Course data type
@@ -68,8 +74,10 @@ of credit hours.  To instantiate a `Course` use:
     Course(name, credit_hours; <keyword arguments>)
 
 # Arguments
+Required:
 - `name::AbstractString` : the name of the course.
 - `credit_hours::int` : the number of credit hours associated with the course.
+Keyword:
 - `prefix::AbstractString` : the prefix associated with the course.
 - `num::AbstractString` : the number associated with the course.
 - `institution:AbstractString` : the name of the institution offering the course.
@@ -77,7 +85,7 @@ of credit hours.  To instantiate a `Course` use:
 
 # Examples:
 ```julia-repl
-julia> Course("Calculus with Applications", 4; prefix="MA", num="112", canonical_name="Calculus I")
+julia> Course("Calculus with Applications", 4, prefix="MA", num="112", canonical_name="Calculus I")
 ```
 """
 mutable struct Course
@@ -109,6 +117,7 @@ mutable struct Course
         this.canonical_name = canonical_name
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
+        #this.learning_outcomes = Array{LearningOutcome}()
         this.vertex_id = Dict{Int, Int}()
         return this
     end
@@ -166,6 +175,26 @@ function delete_requisite!(requisite_course::Course, course::Course)
     delete!(course.requisites, requisite_course.id)
 end
 
+#"""
+#    add_learning_outcome!(course, learning_outcome)
+#
+#Add a learning outcome to a course.
+#"""
+#function add_learning_outcome!(course::Course, learning_outcome::LearningOutcome)
+#    push!(course.learning_outcomes, learning_outcome)
+#end
+
+#"""
+#    add_learning_outcome!(course, [lo1, lo2, ...])
+#
+#Add a collection `lo1, lo2, ...` of learning outcome to a course.
+#"""
+#function add_learning_outcome!(course::Course, learning_outcome::Array{LearningOutcome})
+#    for i = 1:length(learning_outcome)
+#        push!(course.learning_outcomes, learning_outcome[i])
+#    end
+#end
+
 ##############################################################
 # Curriculum data type
 # The required curriculum associated with a degree program
@@ -176,8 +205,10 @@ be completed in order to earn a particualr degree.  To instantiate a `Curriculum
     Curriculum(name, courses; <keyword arguments>)
 
 # Arguments
+Required:
 - `name::AbstractString` : the name of the curriculum.
 - `courses::Array{Course}` : the collection of required courses that comprise the curriculum.
+Keyword:
 - `degree_type::Degree` : the type of degree, allowable 
     types: `AA`, `AS`, `AAS`, `BA`, `BS` (default).
 - `institution:AbstractString` : the name of the institution offering the curriculum.
@@ -188,7 +219,7 @@ be completed in order to earn a particualr degree.  To instantiate a `Curriculum
 
 # Examples:
 ```julia-repl
-julia> Curriculum("Biology", courses; institution="South Harmon Tech", degree_type=AS, CIP="26.0101")
+julia> Curriculum("Biology", courses, institution="South Harmon Tech", degree_type=AS, CIP="26.0101")
 ```
 """
 mutable struct Curriculum
@@ -224,6 +255,11 @@ mutable struct Curriculum
     end
 end
 
+# TODO: update a curriculum graph if requisites have been added/removed or courses have been added/removed
+#function update_curriculum(curriculum::Curriculum, courses::Array{Course}=())
+#    # if courses array is empty, no new courses were added
+#end
+
 function map_vertex_ids(curriculum::Curriculum)
     mapped_ids = Dict{Int, Int}()
     for c in curriculum.courses
@@ -248,12 +284,12 @@ function total_credits(curriculum::Curriculum)
     return total_credits
 end
 
-"""
-    create_graph!(c::Curriculum)
-
-Create a curriculum directed graph from a curriculum specification. The graph is stored as a 
-LightGraph.jl implemenation within the Curriculum data object.
-"""
+#"""
+#    create_graph!(c::Curriculum)
+#
+#Create a curriculum directed graph from a curriculum specification. The graph is stored as a 
+#LightGraph.jl implemenation within the Curriculum data object.
+#"""
 function create_graph!(curriculum::Curriculum)
     for (i, c) in enumerate(curriculum.courses)
         if add_vertex!(curriculum.graph)

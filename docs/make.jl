@@ -12,28 +12,23 @@ makedocs(
     doctest     = true,
     pages       = Any[
         "Getting Started"                           => "index.md",
-        "CurricularAnalytics Data Types"            => "types.md",
-        "Creating Curricula"                        => "curriculum.md",
-        "Creating Degree Plans"                     => "degreeplan.md",
+        "Installing the Toolbox"                    => "install.md",
+        "Data Types"                                => "types.md",
         "Reading/Writing Curricula & Degree Plans"  => "persistence.md",
         "Visualizing Degree Plans"                  => "plotting.md",
         "Curricular Metrics"                        => "metrics.md",
         "Optimizing Degree Plans"                   => "optimizing.md",
         "Simulating Student Flows"                  => "simulating.md",
         "Contributing"                              => "contributing.md",
-        "Developer Notes"                           => "developing.md",
         "License Information"                       => "license.md",
         "Citing CurricularAnalytics"                => "citing.md"
-    ]
+    ],
+    # Use clean URLs, unless built as a "local" build
+ #   html_prettyurls = !("local" in ARGS),
+ #   html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
 )
 
 deploydocs(
-    repo        = "github.com/heileman/CurricularAnalytics.jl.git",
-    target      = "build",
-    julia       = "nightly",
-    deps        = nothing,
-    make        = nothing,
+    repo = "github.com/heileman/CurricularAnalytics.jl.git",
+    target = "build",
 )
-
-#rm(normpath(@__FILE__, "../src/contributing.md"))
-#rm(normpath(@__FILE__, "../src/license.md"))
