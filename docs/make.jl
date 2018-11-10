@@ -24,11 +24,11 @@ makedocs(
         "Citing CurricularAnalytics"                => "citing.md"
     ],
     # Use clean URLs, unless built as a "local" build
- #   html_prettyurls = !("local" in ARGS),
- #   html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
+    # html_prettyurls = false,       #!("local" in ARGS),
+    # html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/", # location of stable documentation site
 )
 
 deploydocs(
-    repo = "github.com/heileman/CurricularAnalytics.jl.git",
-    target = "build",
+    repo    = "github.com/heileman/CurricularAnalytics.jl.git",
+    target  = "build",
 )
