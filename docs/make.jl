@@ -21,11 +21,11 @@ makedocs(
         "Simulating Student Flows"                  => "simulating.md",
         "Contributing"                              => "contributing.md",
         "License Information"                       => "license.md",
-        "Citing CurricularAnalytics"                => "citing.md"
+        "Citing CurricularAnalytics.jl"             => "citing.md"
     ],
     # Use clean URLs, unless built as a "local" build
-    # html_prettyurls = false,       #!("local" in ARGS),
-    # html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/", # location of stable documentation site
+    html_prettyurls = false,       #!("local" in ARGS),
+    html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/", # location of stable documentation site
 )
 
 deploydocs(

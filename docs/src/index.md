@@ -1,7 +1,5 @@
 # Curricular Analytics Toolbox
-**CurricularAnalytics.jl** is a toolbox for studying, analyzing and comparing academic program curricula and 
-their associated degree plans. The toolbox was built using the [Julia programming language](http://julialang.org).
-For assistance in installing the toolbox, see the [Installation](@ref) section. We welcome contributions and usage examples. If you would like to contribute to the toolbox, please see the [Contributor Guide](@ref). To cite this toolbox, please see [How to Cite CurricularAnalytics.jl](@ref).
+[CurricularAnalytics.jl](https://github.com/heileman/CurricularAnalytics.jl) is a toolbox for studying, analyzing and comparing academic program curricula and  their associated degree plans. The toolbox was built using the [Julia programming language](http://julialang.org). For assistance in installing the toolbox, see the [Installation](@ref) section. We welcome contributions and usage examples. If you would like to contribute to the toolbox, please see the [Contributor Guide](@ref). To cite this toolbox, please see [How to Cite CurricularAnalytics.jl](@ref).
 
 ## Terminology
 A basic understanding of the terminology associated with curricula and degree programs will greatly facilitate the use of this toolbx.
