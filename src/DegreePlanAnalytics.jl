@@ -103,3 +103,24 @@ end
 
 # Metrics: total number of terms, avg. load per term, load variance across all terms, max/min load in a term, max/min complexity in any one 
 # term, avg. complexity per term, complexity variance across all terms
+function basic_metrics(plan::DegreePlan)
+    plan.metrics["number of terms"] = plan.num_terms
+    plan.metrics["total credit hours"] = plan.credit_hours
+    max = 0
+    min = 0
+    for i = 1:plan.num_terms
+        if plan.terms[i].credit_hours > max
+            max = t.credit_hours
+            max_term = i
+        end
+        if plan.terms[i].credit_hours < min
+            min = t.credit_hours
+            min_term = i
+        end
+        plan.metrics["max. term credits"] = max
+        plan.metrics["min. term credits"] = min
+        plan.matrics["max. term"] = max_term
+        plan.matrics["min. term"] = min_term
+        plan.metrics["avg. credits per term"] = plan.credit_hours / plan.num_terms
+    end
+end

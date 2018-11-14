@@ -233,7 +233,7 @@ mutable struct Curriculum
     num_courses::Int                    # Number of required courses in curriculum
     credit_hours::Int                   # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
-    metrics::Dict{String, Any}      # Curriculum-related metrics
+    metrics::Dict{String, Any}          # Curriculum-related metrics
 
     # Constructor
     function Curriculum(name::AbstractString, courses::Array{Course}; degree_type::Degree=BS,
@@ -387,6 +387,7 @@ mutable struct DegreePlan
     terms::Array{Term}                  # The terms associated with the degree plan
     num_terms::Int                      # Number of terms in the degree plan
     credit_hours::Int                   # Total number of credit hours in the degree plan
+    metrics::Dict{String, Any}          # Dergee Plan-related metrics
 
     # Constructor
     function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term,1},
@@ -407,6 +408,7 @@ mutable struct DegreePlan
                 this.additional_courses[i] = additional_courses[i]
             end
         end
+        this.metrics = Dict{String, Any}()
         return this
     end
 end

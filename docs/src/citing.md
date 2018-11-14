@@ -2,7 +2,7 @@
 
 We encourage you to cite our work if you have used our libraries, tools or datasets. Starring the repository on GitHub is also appreciated.
 
-To cite the latest version of the CurricularAnalytics Julia toolbox, 
+To cite the latest version of the CurricularAnalytics Julia toolbox use:
 
 ```tex
 @misc{CA:18,
