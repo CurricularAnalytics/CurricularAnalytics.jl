@@ -6,11 +6,10 @@ To cite the latest version of the CurricularAnalytics Julia toolbox,
 
 ```tex
 @misc{CA:18,
-  author       = {Gregory L. Heileman and Hayden Free and {other contributors}},
+  author       = {Gregory L. Heileman and Hayden Free and William G. Thompson and Orhan Abar},
   title        = {CurricularAnalytics.jl},
   year         = 2018,
-  doi          = {getDOI},
-  url          = {getURL}
+  url          = {https://github.com/heileman/CurricularAnalytics.jl}
 }
 ```
 For previous versions, [please reference the zenodo site](https://addURL).
@@ -24,6 +23,5 @@ To cite the definitive Curricular Analytics technical reference, please use the 
 Innovationsl},
   journal	= {to appear}
   year         = 2018,
-  url          = {getURL}
 }
 ```
