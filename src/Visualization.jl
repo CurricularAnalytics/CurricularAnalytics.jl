@@ -51,8 +51,7 @@ Required:
 Keyword:
 - `window` : funtion argument that specifies the window to render content in. 
    Default is `Window()`.
-- `changed` : callback function argument, called whenever the curriculum is modified through
-the interface.
+- `changed` : callback function argument, called whenever the curriculum is modified through the interface.
     Default is `nothing`.
 - `file_name` : name of the file, in JSON format, that will the degree plan, including modifications. 
     Default is `recent-visualization.json`.
