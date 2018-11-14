@@ -32,3 +32,6 @@ deploydocs(
     repo    = "github.com/heileman/CurricularAnalytics.jl.git",
     target  = "build",
 )
+
+#rm(normpath(@__FILE__, "../src/contributing.md"))
+#rm(normpath(@__FILE__, "../src/license.md"))
