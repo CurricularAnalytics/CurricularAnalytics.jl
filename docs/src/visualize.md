@@ -1,3 +1,5 @@
 # Visualizing Curricula and Degree Plans
 
-... Coming soon ...
+```@docs
+visualize
+```

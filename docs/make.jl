@@ -15,7 +15,7 @@ makedocs(
         "Installing the Toolbox"                    => "install.md",
         "Data Types"                                => "types.md",
         "Reading/Writing Curricula & Degree Plans"  => "persistence.md",
-        "Visualizing Degree Plans"                  => "plotting.md",
+        "Visualizing Curricula & Degree Plans"      => "visualize.md",
         "Curricular Metrics"                        => "metrics.md",
         "Optimizing Degree Plans"                   => "optimizing.md",
         "Simulating Student Flows"                  => "simulating.md",

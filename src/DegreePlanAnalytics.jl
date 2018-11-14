@@ -2,6 +2,26 @@
 
 # Check if a degree plan is valid.
 # Print error_msg using println(String(take!(error_msg))), where error_msg is the buffer returned by this function
+"""
+    isvalid_degree_plan(plan::DegreePlan, errors::IOBuffer)
+
+Tests whether or not the degree plan ``plan`` is valid.  Returns a boolean value, with `true` indicating the 
+degree plan is valid, and `false` indicating it is not.
+
+If ``plan`` is not valid, the reason(s) why are written to the `errors` buffer. To view these 
+reasons, use:
+
+```julia-repl
+julia> errors = IOBuffer()
+julia> isvalid_degree_plan(plan, errors)
+julia> println(String(take!(errors)))
+```
+
+There are two reasons why a curriculum graph might not be valid:
+- Requisites not satsified : A prerequisite for a course occurs in a later term than the course itself.
+- Incomplete plan : There are course in the curriculum not included in the degree plan.
+- Redundant plan : The same course appears in the degree plan multiple times. 
+"""
 function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
     validity = true
     # All requisite relationships are satisfied?
@@ -35,6 +55,7 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
             end
         end
     end
+    #  -TODO: strict co-requisites must be in the same term
     # All courses in the curriculum are in the degree plan?
     curric_classes = Set()
     dp_classes = Set()
@@ -80,3 +101,5 @@ function print_plan(plan::DegreePlan)
     end
 end
 
+# Metrics: total number of terms, avg. load per term, load variance across all terms, max/min load in a term, max/min complexity in any one 
+# term, avg. complexity per term, complexity variance across all terms

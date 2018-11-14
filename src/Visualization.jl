@@ -41,6 +41,22 @@ end
 # prop can be passed in to specify the render where the visualization should be rendered.
 # Additional changed callback may be provided which will envoke whenever the curriculum is 
 # modified through the interfaces.
+"""
+    visualize(degree_plan; <keyword arguments>))
+
+Function used to visualize degree plans. 
+# Arguments
+Required:
+- `degree_plan::DegreePlan` : the name of the curriculum.
+Keyword:
+- `window` : funtion argument that specifies the window to render content in. 
+   Default is `Window()`.
+- `changed` : callback function argument, called whenever the curriculum is modified through
+the interface.
+    Default is `nothing`.
+- `file_name` : name of the file, in JSON format, that will the degree plan, including modifications. 
+    Default is `recent-visualization.json`.
+"""
 function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name="recent-visualization.json")
     export_degree_plan(plan, file_name)
 

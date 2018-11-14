@@ -36,3 +36,7 @@ To create a degree plan that satisfies the courses associated with a particular 
 ```@docs
 DegreePlan
 ```
+The following function can be used to ensure that a constructed degree plan is valid.
+```@docs
+isvalid_degree_plan
+```

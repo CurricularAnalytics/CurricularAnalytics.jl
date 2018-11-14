@@ -1,3 +1,8 @@
+branches:
+  only:
+    - master
+    - gh-pages
+
 language: julia
 
 os:
