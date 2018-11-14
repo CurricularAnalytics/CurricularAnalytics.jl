@@ -1,7 +1,7 @@
 var documenterSearchIndex = {"docs": [
 
 {
-    "location": "#",
+    "location": "index.html#",
     "page": "Getting Started",
     "title": "Getting Started",
     "category": "page",
@@ -9,15 +9,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "#Curricular-Analytics-Toolbox-1",
+    "location": "index.html#Curricular-Analytics-Toolbox-1",
     "page": "Getting Started",
     "title": "Curricular Analytics Toolbox",
     "category": "section",
-    "text": "CurricularAnalytics.jl is a toolbox for studying, analyzing and comparing academic program curricula and  their associated degree plans. The toolbox was built using the Julia programming language. For assistance in installing the toolbox, see the Installation section. We welcome contributions and usage examples. If you would like to contribute to the toolbox, please see the Contributor Guide. To cite this toolbox, please see How to Cite CurricularAnalytics."
+    "text": "CurricularAnalytics.jl is a toolbox for studying, analyzing and comparing academic program curricula and  their associated degree plans. The toolbox was built using the Julia programming language. For assistance in installing the toolbox, see the Installation section. We welcome contributions and usage examples. If you would like to contribute to the toolbox, please see the Contributor Guide. To cite this toolbox, please see How to Cite CurricularAnalytics.jl."
 },
 
 {
-    "location": "#Terminology-1",
+    "location": "index.html#Terminology-1",
     "page": "Getting Started",
     "title": "Terminology",
     "category": "section",
@@ -25,7 +25,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "#–-Example-–-1",
+    "location": "index.html#–-Example-–-1",
     "page": "Getting Started",
     "title": "– Example –",
     "category": "section",
@@ -33,7 +33,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "#Toolbox-Overview-1",
+    "location": "index.html#Toolbox-Overview-1",
     "page": "Getting Started",
     "title": "Toolbox Overview",
     "category": "section",
@@ -41,7 +41,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "install/#",
+    "location": "install.html#",
     "page": "Installing the Toolbox",
     "title": "Installing the Toolbox",
     "category": "page",
@@ -49,7 +49,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "install/#Installation-1",
+    "location": "install.html#Installation-1",
     "page": "Installing the Toolbox",
     "title": "Installation",
     "category": "section",
@@ -57,7 +57,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#",
+    "location": "types.html#",
     "page": "Data Types",
     "title": "Data Types",
     "category": "page",
@@ -65,7 +65,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.jl-Data-Types-1",
+    "location": "types.html#CurricularAnalytics.jl-Data-Types-1",
     "page": "Data Types",
     "title": "CurricularAnalytics.jl Data Types",
     "category": "section",
@@ -73,7 +73,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.Course",
+    "location": "types.html#CurricularAnalytics.Course",
     "page": "Data Types",
     "title": "CurricularAnalytics.Course",
     "category": "type",
@@ -81,7 +81,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.add_requisite!",
+    "location": "types.html#CurricularAnalytics.add_requisite!",
     "page": "Data Types",
     "title": "CurricularAnalytics.add_requisite!",
     "category": "function",
@@ -89,7 +89,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.delete_requisite!",
+    "location": "types.html#CurricularAnalytics.delete_requisite!",
     "page": "Data Types",
     "title": "CurricularAnalytics.delete_requisite!",
     "category": "function",
@@ -97,7 +97,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#Courses-1",
+    "location": "types.html#Courses-1",
     "page": "Data Types",
     "title": "Courses",
     "category": "section",
@@ -105,7 +105,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.LearningOutcome",
+    "location": "types.html#CurricularAnalytics.LearningOutcome",
     "page": "Data Types",
     "title": "CurricularAnalytics.LearningOutcome",
     "category": "type",
@@ -113,7 +113,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#Learning-Outcomes-1",
+    "location": "types.html#Learning-Outcomes-1",
     "page": "Data Types",
     "title": "Learning Outcomes",
     "category": "section",
@@ -121,7 +121,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.Curriculum",
+    "location": "types.html#CurricularAnalytics.Curriculum",
     "page": "Data Types",
     "title": "CurricularAnalytics.Curriculum",
     "category": "type",
@@ -129,7 +129,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.isvalid_curriculum",
+    "location": "types.html#CurricularAnalytics.isvalid_curriculum",
     "page": "Data Types",
     "title": "CurricularAnalytics.isvalid_curriculum",
     "category": "function",
@@ -137,7 +137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#Curricula-1",
+    "location": "types.html#Curricula-1",
     "page": "Data Types",
     "title": "Curricula",
     "category": "section",
@@ -145,7 +145,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.Term",
+    "location": "types.html#CurricularAnalytics.Term",
     "page": "Data Types",
     "title": "CurricularAnalytics.Term",
     "category": "type",
@@ -153,7 +153,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#Terms-1",
+    "location": "types.html#Terms-1",
     "page": "Data Types",
     "title": "Terms",
     "category": "section",
@@ -161,7 +161,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#CurricularAnalytics.DegreePlan",
+    "location": "types.html#CurricularAnalytics.DegreePlan",
     "page": "Data Types",
     "title": "CurricularAnalytics.DegreePlan",
     "category": "type",
@@ -169,15 +169,23 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "types/#Degree-Plans-1",
+    "location": "types.html#CurricularAnalytics.isvalid_degree_plan",
     "page": "Data Types",
-    "title": "Degree Plans",
-    "category": "section",
-    "text": "To create a degree plan that satisfies the courses associated with a particular curriculum, use:DegreePlan"
+    "title": "CurricularAnalytics.isvalid_degree_plan",
+    "category": "function",
+    "text": "isvalid_degree_plan(plan::DegreePlan, errors::IOBuffer)\n\nTests whether or not the degree plan plan is valid.  Returns a boolean value, with true indicating the  degree plan is valid, and false indicating it is not.\n\nIf plan is not valid, the reason(s) why are written to the errors buffer. To view these  reasons, use:\n\njulia> errors = IOBuffer()\njulia> isvalid_degree_plan(plan, errors)\njulia> println(String(take!(errors)))\n\nThere are two reasons why a curriculum graph might not be valid:\n\nRequisites not satsified : A prerequisite for a course occurs in a later term than the course itself.\nIncomplete plan : There are course in the curriculum not included in the degree plan.\nRedundant plan : The same course appears in the degree plan multiple times. \n\n\n\n\n\n"
 },
 
 {
-    "location": "persistence/#",
+    "location": "types.html#Degree-Plans-1",
+    "page": "Data Types",
+    "title": "Degree Plans",
+    "category": "section",
+    "text": "To create a degree plan that satisfies the courses associated with a particular curriculum, use:DegreePlanThe following function can be used to ensure that a constructed degree plan is valid.isvalid_degree_plan"
+},
+
+{
+    "location": "persistence.html#",
     "page": "Reading/Writing Curricula & Degree Plans",
     "title": "Reading/Writing Curricula & Degree Plans",
     "category": "page",
@@ -185,7 +193,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "persistence/#Persisting-Curricula-and-Degree-Plans-1",
+    "location": "persistence.html#Persisting-Curricula-and-Degree-Plans-1",
     "page": "Reading/Writing Curricula & Degree Plans",
     "title": "Persisting Curricula & Degree Plans",
     "category": "section",
@@ -193,23 +201,31 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "plotting/#",
-    "page": "Visualizing Degree Plans",
-    "title": "Visualizing Degree Plans",
+    "location": "visualize.html#",
+    "page": "Visualizing Curricula & Degree Plans",
+    "title": "Visualizing Curricula & Degree Plans",
     "category": "page",
     "text": ""
 },
 
 {
-    "location": "plotting/#Visualizing-Curricula-and-Degree-Plans-1",
-    "page": "Visualizing Degree Plans",
-    "title": "Visualizing Curricula and Degree Plans",
-    "category": "section",
-    "text": "... Coming soon ..."
+    "location": "visualize.html#CurricularAnalytics.visualize",
+    "page": "Visualizing Curricula & Degree Plans",
+    "title": "CurricularAnalytics.visualize",
+    "category": "function",
+    "text": "visualize(degree_plan; <keyword arguments>))\n\nFunction used to visualize degree plans. \n\nArguments\n\nRequired:\n\ndegree_plan::DegreePlan : the name of the curriculum.\n\nKeyword:\n\nwindow : funtion argument that specifies the window to render content in.   Default is Window().\nchanged : callback function argument, called whenever the curriculum is modified through\n\nthe interface.     Default is nothing.\n\nfile_name : name of the file, in JSON format, that will the degree plan, including modifications.    Default is recent-visualization.json.\n\n\n\n\n\n"
 },
 
 {
-    "location": "metrics/#",
+    "location": "visualize.html#Visualizing-Curricula-and-Degree-Plans-1",
+    "page": "Visualizing Curricula & Degree Plans",
+    "title": "Visualizing Curricula and Degree Plans",
+    "category": "section",
+    "text": "visualize"
+},
+
+{
+    "location": "metrics.html#",
     "page": "Curricular Metrics",
     "title": "Curricular Metrics",
     "category": "page",
@@ -217,7 +233,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "metrics/#CurricularAnalytics",
+    "location": "metrics.html#CurricularAnalytics",
     "page": "Curricular Metrics",
     "title": "CurricularAnalytics",
     "category": "module",
@@ -225,7 +241,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "metrics/#CurricularAnalytics.blocking_factor",
+    "location": "metrics.html#CurricularAnalytics.blocking_factor",
     "page": "Curricular Metrics",
     "title": "CurricularAnalytics.blocking_factor",
     "category": "function",
@@ -233,7 +249,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "metrics/#CurricularAnalytics.delay_factor",
+    "location": "metrics.html#CurricularAnalytics.delay_factor",
     "page": "Curricular Metrics",
     "title": "CurricularAnalytics.delay_factor",
     "category": "function",
@@ -241,7 +257,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "metrics/#CurricularAnalytics.centrality",
+    "location": "metrics.html#CurricularAnalytics.centrality",
     "page": "Curricular Metrics",
     "title": "CurricularAnalytics.centrality",
     "category": "function",
@@ -249,7 +265,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "metrics/#CurricularAnalytics.complexity",
+    "location": "metrics.html#CurricularAnalytics.complexity",
     "page": "Curricular Metrics",
     "title": "CurricularAnalytics.complexity",
     "category": "function",
@@ -257,7 +273,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "metrics/#Curricular-Metrics-1",
+    "location": "metrics.html#Curricular-Metrics-1",
     "page": "Curricular Metrics",
     "title": "Curricular Metrics",
     "category": "section",
@@ -265,7 +281,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "optimizing/#",
+    "location": "metrics.html#Degree-Plan-Metrics-1",
+    "page": "Curricular Metrics",
+    "title": "Degree Plan Metrics",
+    "category": "section",
+    "text": "... coming soon ..."
+},
+
+{
+    "location": "optimizing.html#",
     "page": "Optimizing Degree Plans",
     "title": "Optimizing Degree Plans",
     "category": "page",
@@ -273,7 +297,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "optimizing/#Optimizing-Degree-Plans-1",
+    "location": "optimizing.html#Optimizing-Degree-Plans-1",
     "page": "Optimizing Degree Plans",
     "title": "Optimizing Degree Plans",
     "category": "section",
@@ -281,7 +305,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "simulating/#",
+    "location": "simulating.html#",
     "page": "Simulating Student Flows",
     "title": "Simulating Student Flows",
     "category": "page",
@@ -289,7 +313,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "simulating/#Simulating-Student-Flows-1",
+    "location": "simulating.html#Simulating-Student-Flows-1",
     "page": "Simulating Student Flows",
     "title": "Simulating Student Flows",
     "category": "section",
@@ -297,7 +321,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "contributing/#",
+    "location": "contributing.html#",
     "page": "Contributing",
     "title": "Contributing",
     "category": "page",
@@ -305,7 +329,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "contributing/#Contributor-Guide-1",
+    "location": "contributing.html#Contributor-Guide-1",
     "page": "Contributing",
     "title": "Contributor Guide",
     "category": "section",
@@ -313,7 +337,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "contributing/#Bug-reports-1",
+    "location": "contributing.html#Bug-reports-1",
     "page": "Contributing",
     "title": "Bug reports",
     "category": "section",
@@ -321,7 +345,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "license/#",
+    "location": "license.html#",
     "page": "License Information",
     "title": "License Information",
     "category": "page",
@@ -329,19 +353,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "citing/#",
-    "page": "Citing CurricularAnalytics",
-    "title": "Citing CurricularAnalytics",
+    "location": "citing.html#",
+    "page": "Citing CurricularAnalytics.jl",
+    "title": "Citing CurricularAnalytics.jl",
     "category": "page",
     "text": ""
 },
 
 {
-    "location": "citing/#How-to-Cite-CurricularAnalytics-1",
-    "page": "Citing CurricularAnalytics",
-    "title": "How to Cite CurricularAnalytics",
+    "location": "citing.html#How-to-Cite-CurricularAnalytics.jl-1",
+    "page": "Citing CurricularAnalytics.jl",
+    "title": "How to Cite CurricularAnalytics.jl",
     "category": "section",
-    "text": "We encourage you to cite our work if you have used our libraries, tools or datasets. Starring the repository on GitHub is also appreciated.To cite the latest version of the CurricularAnalytics Julia toolbox, @misc{HeFr:18,\n  author       = {Gregory L. Heileman and Hayden Free and {other contributors}},\n  title        = {CurricularAnalytics.jl},\n  year         = 2018,\n  doi          = {getDOI},\n  url          = {getURL}\n}For previous versions, please reference the zenodo site.To cite the definitive Curricular Analytics technical reference, please use the following BibTeX citation:@article{Heileman18,\n  author       = {Gregory L. Heileman and Chaouki T. Abdallah and Ahmad Slim and Michael Hickman},\n  title        = {Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical\nInnovationsl},\n  journal	= {to appear}\n  year         = 2018,\n  url          = {getURL}\n}"
+    "text": "We encourage you to cite our work if you have used our libraries, tools or datasets. Starring the repository on GitHub is also appreciated.To cite the latest version of the CurricularAnalytics Julia toolbox, @misc{CA:18,\n  author       = {Gregory L. Heileman and Hayden Free and {other contributors}},\n  title        = {CurricularAnalytics.jl},\n  year         = 2018,\n  doi          = {getDOI},\n  url          = {getURL}\n}For previous versions, please reference the zenodo site.To cite the definitive Curricular Analytics technical reference, please use the following BibTeX citation:@article{Heileman18,\n  author       = {Gregory L. Heileman and Chaouki T. Abdallah and Ahmad Slim and Michael Hickman},\n  title        = {Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical\nInnovationsl},\n  journal	= {to appear}\n  year         = 2018,\n  url          = {getURL}\n}"
 },
 
 ]}
