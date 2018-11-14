@@ -8,7 +8,7 @@ To cite the latest version of the CurricularAnalytics Julia toolbox,
 @misc{CA:18,
   author = {Gregory L. Heileman and Hayden Free and William G. Thompson and Orhan Abar},
   title = {CurricularAnalytics.jl},
-  year = 2018,
+  year = {2018},
   url = {https://github.com/heileman/CurricularAnalytics.jl}
 }
 ```
@@ -20,7 +20,7 @@ To cite the definitive Curricular Analytics technical reference, please use the 
 @article{Heileman18,
   author = {Gregory L. Heileman and Chaouki T. Abdallah and Ahmad Slim and Michael Hickman},
   title = {Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical Innovations},
-  journal	= {to appear}
-  year = 2018,
+  journal	= {to appear},
+  year = {2018}
 }
 ```
