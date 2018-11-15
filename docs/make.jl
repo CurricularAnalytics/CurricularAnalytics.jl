@@ -16,7 +16,7 @@ makedocs(
         "Data Types"                                => "types.md",
         "Reading/Writing Curricula & Degree Plans"  => "persistence.md",
         "Visualizing Curricula & Degree Plans"      => "visualize.md",
-        "Curricular Metrics"                        => "metrics.md",
+        "Metrics"                                   => "metrics.md",
         "Optimizing Degree Plans"                   => "optimizing.md",
         "Simulating Student Flows"                  => "simulating.md",
         "Contributing"                              => "contributing.md",
