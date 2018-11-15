@@ -12,7 +12,7 @@ To cite the latest version of the CurricularAnalytics Julia toolbox,
   url = {https://github.com/heileman/CurricularAnalytics.jl}
 }
 ```
-For previous versions, [please reference the zenodo site](https://addURL).
+For previous versions, please reference the [zenodo site](https://addURL) for the CurricularAnalytics.jl repository.
 
 To cite the definitive Curricular Analytics technical reference, please use the following BibTeX citation:
 
