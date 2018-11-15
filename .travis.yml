@@ -1,8 +1,12 @@
+branches:
+  only:
+    - master
+    - gh-pages
+
 language: julia
 
 os:
   - linux
-  - osx
 
 julia:
   - nightly
@@ -15,5 +19,6 @@ jobs:
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd()))'
+        - julia --project=docs/ -e 'using Pkg; Pkg.add("Documenter")'
         - julia --project=docs/ docs/make.jl
       after_success: skip
