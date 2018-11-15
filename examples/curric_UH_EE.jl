@@ -145,6 +145,9 @@ if isvalid_curriculum(curric, errors)
         print(String(take!(errors)))
         println("\nDiplaying degree plan for debugging purposes...")
     end
+
+    basic_metrics(dp)
+    dp.metrics
     visualize(dp)
 
 else # invalid curriculum
