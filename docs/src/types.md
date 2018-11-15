@@ -32,11 +32,16 @@ isvalid_curriculum
 Term
 ```
 ## Degree Plans
-To create a degree plan that satisfies the courses associated with a particular curriculum, use:
+To create a degree plan that satisfies the courses associated with a particular curriculum use:
 ```@docs
 DegreePlan
 ```
 The following function can be used to ensure that a constructed degree plan is valid.
 ```@docs
 isvalid_degree_plan
+```
+A sophisticated visualization capability for degree plans is described in [Visualizing Curricula and Degree Plans](@ref). 
+To see the terms and courses associated with a degree plan within the Julia console use:
+```@docs
+print_plan
 ```

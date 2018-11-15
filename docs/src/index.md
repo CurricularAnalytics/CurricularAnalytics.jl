@@ -31,7 +31,7 @@ The toolbox represents curricula as graphs, allowing various graph-theoretic mea
 
 The basic data types used in the CurricularAnalytics.jl libraries are described in [CurricularAnalytics.jl Data Types](@ref). This section also describes a number of convenient functions that can be used to create curricula and degree plans. Functions that can be used to read and write curricula and degree plans to/from permament storage in a variety of formats are described in [Persisting Curricula & Degree Plans](@ref). 
 
-Metrics that have been developed to quanitfy the complexity of curricula are described in [Curricular Metrics](@ref), and functions that can be used study degree plans, and to create degree plans according to various optimzation criteria are described in [Optimizing Degree Plans](@ref).
+Metrics that have been developed to quanitfy the complexity of curricula and degree plans are described in [Metrics](@ref). Functions that can be used to study degree plans, and to create degree plans according to various optimzation criteria are described in [Optimizing Degree Plans](@ref).
 
 Visualization-related functions are described in [Visualizing Curricula and Degree Plans](@ref).
 
