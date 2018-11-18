@@ -2,6 +2,35 @@ using JSON
 using CSV
 using DataFrames
 
+function read_from_csv(file_path::String)
+    df = CSV.File(file_path) |> DataFrame
+    dict_Requisite = Dict("pre"=>pre, "co"=>co, "strict_co"=>strict_co)
+    c = Array{Course}(undef,nrow(df))
+    terms = Array{Term}(undef, nrow(unique(df, 7)))
+    print(co)
+    by(df, :7) do term    
+        #println(term)
+        termclasses = Array{Course}(undef,nrow(term))
+        for (index, row) in enumerate(eachrow(term))
+            c_Count = row[1]
+            c_Name = if typeof(row[2]) == Missing "" else row[2] end
+            c_Credit = row[6]
+            c_Prefix = if typeof(row[3]) == Missing "" else row[3] end
+            c_Number = if typeof(row[4]) == Missing "" else row[4] end
+            c[c_Count]= Course(c_Name, c_Credit, prefix = c_Prefix, num = c_Number)
+            if typeof(row[5]) != Missing
+                for req in split(row[5])
+                    split_req = split(req,":")
+                    add_requisite!(c[parse(Int64,split_req[2])],c[c_Count],dict_Requisite[split_req[1]])
+                end
+            end       
+            termclasses[index]=c[c_Count]
+        end
+        terms[term[7][1]]=Term(termclasses)    
+    end
+    return c, terms
+end
+
 function export_csv_to_json(classes::DataFrame, file_path::String)
     io = open(file_path, "w")
     #Create a dictionary containing all classes
