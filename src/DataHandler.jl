@@ -7,9 +7,7 @@ function read_from_csv(file_path::String)
     dict_Requisite = Dict("pre"=>pre, "co"=>co, "strict_co"=>strict_co)
     c = Array{Course}(undef,nrow(df))
     terms = Array{Term}(undef, nrow(unique(df, 7)))
-    print(co)
     by(df, :7) do term    
-        #println(term)
         termclasses = Array{Course}(undef,nrow(term))
         for (index, row) in enumerate(eachrow(term))
             c_Count = row[1]
