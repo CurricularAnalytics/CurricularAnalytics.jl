@@ -30,6 +30,8 @@ end
 function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term::Int)
     #total number of credits
     curric_total_credit=total_credit(curric)
+    #Even though the max credit is set, the algorithim will fill in free courses that optimally fill the term, up to the maximum 
+    #credits desired by the student or allowed by the university 
     max_credit_for_a_course = 3
     #round to average credit per term
     #make a function to calculate extra(2 in this case)
