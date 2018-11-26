@@ -2,7 +2,16 @@ using JSON
 using CSV
 using DataFrames
 
-function read_from_csv(file_path::String)
+
+"""
+    read_csv(file_path::AbstractString)
+
+Reads a degree plan stored as a CSV file and returns the courses and terms associated with the degree plan.
+
+# Argument
+- `file_path::AbstractString` : Fully-qualfied or realtive path of the CSV file that will be read.
+"""
+function read_csv(file_path::AbstractString)
     df = CSV.File(file_path) |> DataFrame
     dict_Requisite = Dict("pre"=>pre, "co"=>co, "strict_co"=>strict_co)
     c = Array{Course}(undef,nrow(df))
@@ -29,16 +38,29 @@ function read_from_csv(file_path::String)
     return c, terms
 end
 
-function export_csv_to_json(classes::DataFrame, file_path::String)
-    io = open(file_path, "w")
-    #Create a dictionary containing all classes
-    degreeplan = Dict{String, Any}()
-    #Add a new curriculum dictionary to the DegreePlan dictionary
-    degreeplan["curriculum"] = Dict{String, Any}()
+"""
+    csv_to_json(csv_file_path::AbstractString, json_file_path::AbstractString)
+
+Converts a degree plan stored as a CSV file into a degree plan stored as a JSON file.
+
+# Arguments
+- `csv_file_path::AbstractString` : fully-qualfied or realtive path of the CSV file that 
+will be read.
+- `json_file_path::AbstractString` : fully-qualfied or realtive path of the JSON file that 
+will be written.
+"""
+function csv_to_json(csv_file_path::AbstractString, json_file_path::AbstractString)
+    # read the CSV file into a DataFrame
+    df = CSV.File(csv_file_path) |> DataFrame
+    file = open(json_file_path, "w")
+    # create a dictionary containing all degree plan information
+    degree_plan = Dict{String, Any}()
+    # add a new curriculum dictionary to the degree plan dictionary
+    degree_plan["curriculum"] = Dict{String, Any}()
     #Create terms dictionary
-    degreeplan["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
+    degree_plan["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
     
-    by(classes, :7) do term # group by Term which is the 7th index
+    by(df, :7) do term # group by term, the 7th column in the CSV file
         current_term = Dict{String, Any}()
         current_term["id"] = term[7][1]
         name = term[7][1]
@@ -53,30 +75,23 @@ function export_csv_to_json(classes::DataFrame, file_path::String)
             current_course["num"] = if typeof(term[4][course]) == Missing "" else term[4][course] end
             current_course["credits"] = term[6][course]
             current_course["curriculum_requisites"] = Dict{String, Any}[]
-            #current_course["metrics"] = course.metrics
+            # current_course["metrics"] = course.metrics
             if typeof(term[5][course]) != Missing
                 for req in split(term[5][course])
                     current_req = Dict{String, Any}()
                     current_req["source_id"] = parse(Int64,(split(req,":")[2]))
                     current_req["target_id"] = term[1][course]
-                    # Parse the Julia requisite type to the required type for the visualization
+                    # parse the Julia requisite type to the required type for the visualization
                     current_req["type"] = split(req,":")[1]
                     push!(current_course["curriculum_requisites"], current_req)
                 end
             end
             push!(current_term["curriculum_items"], current_course)
         end
-        push!(degreeplan["curriculum"]["curriculum_terms"], current_term)
+        push!(degree_plan["curriculum"]["curriculum_terms"], current_term)
     end
-    JSON.print(io, degreeplan, 1)
-    close(io)
-end
-
-function read_csv(csv_file_path::String)
-    #Read csv file as DataFrame
-    df = CSV.File(csv_file_path) |> DataFrame
-    #Convert data fram to json
-    export_csv_to_json(df,"recent-visualization.json")
+    JSON.print(file, degree_plan, 1)
+    close(file)
 end
 
 # Takes requisite and return it as a string for the visualization
@@ -101,7 +116,17 @@ function string_to_requisite(req::String)
     end
 end
 
-function export_degree_plan(plan::DegreePlan, file_path::String)
+"""
+    write_degree_plan(plan::DegreePlan, file_path::AbstractString)
+
+Writes a degree plan as a JSON file.  
+
+# Arguments
+- `plan::DegreePlan` : variable of type DegreePlan. 
+will be read.
+- `file_path::AbstractString` : fully-qualfied or realtive path of the JSON file that will be written.
+"""
+function write_degree_plan(plan::DegreePlan, file_path::AbstractString)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
     degreeplan["curriculum"] = Dict{String, Any}()
@@ -138,42 +163,48 @@ function export_degree_plan(plan::DegreePlan, file_path::String)
     close(io)
 end
 
-function import_degree_plan(file_path::String)
-    # read in JSON from curriculum-data.json
+"""
+    read_degree_plan(file_path::AbstractString)
+
+Reads a degree plan stored as a JSON file and returns a DegreePlan data type containing the degree plan information.  
+
+# Arguments
+- `file_path::AbstractString` : fully-qualfied or realtive path of the JSON file that will be read.
+"""
+function read_degree_plan(file_path::AbstractString)
     open(file_path, "r") do f
         # Create empty dictionary to hold the imported data
         global degree_plan = Dict()
         filetxt = read(f, String)  # file information to string
         degree_plan=JSON.parse(filetxt)  # parse and transform data
     end
-    # Create an array "terms" with elements equal to the number of terms from the file
+    # create an array for the terms 
     num_terms = length(degree_plan["curriculum"]["curriculum_terms"])
     terms = Array{Term}(undef, num_terms)
     all_courses = Array{Course}(undef, 0)
     courses_dict = Dict{Int, Course}()
-    # For every term
     for i = 1:num_terms
-        # Grab the current term
+        # grab the current term
         current_term = degree_plan["curriculum"]["curriculum_terms"][i]
-        # Create an array of course objects with length equal to the number of courses
+        # create an array of course objects with length equal to the number of courses
         courses = Array{Course}(undef, 0)
-        # For each course in the current term
+        # for each course in the current term
         for course in current_term["curriculum_items"]
-            # Create Course object for each course in the current term
+            # create Course object for each course in the current term
             current_course = Course(course["nameSub"], course["credits"], prefix = course["prefix"], num = course["num"])
-            # Push each Course object to the array of courses
+            # push each Course object to the array of courses
             push!(courses, current_course)
             push!(all_courses, current_course)
             courses_dict[course["id"]] = current_course
         end
 
-        # For each course object create its requisites
+        # for each course object create its requisites
         for course in current_term["curriculum_items"]
-            # If the course has requisites
+            # if the course has requisites
             if !isempty(course["curriculum_requisites"])
-                # For each requisite of the course
+                # cor each requisite of the course
                 for req in course["curriculum_requisites"]
-                    # Create the requisite relationship
+                    # create the requisite relationship
                     source = courses_dict[req["source_id"]]
                     target = courses_dict[req["target_id"]]
                     add_requisite!(source, target, string_to_requisite(req["type"]))
