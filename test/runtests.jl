@@ -10,3 +10,4 @@ using Test
 include("DataTypes.jl")
 include("CurricularAnalytics.jl")
 include("DegreePlanAnalytics.jl")
+include("DataHandler.jl")

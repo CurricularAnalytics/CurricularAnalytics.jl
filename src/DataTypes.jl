@@ -233,6 +233,7 @@ mutable struct Curriculum
     num_courses::Int                    # Number of required courses in curriculum
     credit_hours::Int                   # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
+                                        # of the curriculum
     metrics::Dict{String, Any}          # Curriculum-related metrics
 
     # Constructor
@@ -384,6 +385,8 @@ mutable struct DegreePlan
     curriculum::Curriculum              # Curriculum the degree plan satisfies
     additional_courses::Array{Course}   # Additional (non-required) courses added to the curriculum,
                                         # e.g., these may be preparatory courses
+    graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure 
+                                        # of the degre plan
     terms::Array{Term}                  # The terms associated with the degree plan
     num_terms::Int                      # Number of terms in the degree plan
     credit_hours::Int                   # Total number of credit hours in the degree plan

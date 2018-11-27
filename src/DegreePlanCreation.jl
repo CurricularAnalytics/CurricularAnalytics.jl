@@ -1,10 +1,11 @@
-function total_credit(c::Curriculum)
-    total=0
-    for course in c.courses
-        total+=course.credit_hours
-    end
-    return total
+
+# file: DegreePlanCreation.jl
+
+function create_degree_plan(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(), create_terms::Function;
+    min_terms::Int=0, max_terms::Int=0, min_credits_per_term::Int=0, max_credits_per_term::Int=0, total_terms::Int=0)
+
 end
+
 function check_requistes(curric::Curriculum, index::Int, all_applied_courses::Array{Int}, this_term_applied_courses::Array{Int})
     req_complete = true
     #find all inneighbors of current node
@@ -29,7 +30,7 @@ end
 
 function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term::Int)
     #total number of credits
-    curric_total_credit=total_credit(curric)
+    curric_total_credit=total_credits(curric)
     #Even though the max credit is set, the algorithim will fill in free courses that optimally fill the term, up to the maximum 
     #credits desired by the student or allowed by the university 
     max_credit_for_a_course = 3

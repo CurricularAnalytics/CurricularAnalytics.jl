@@ -26,9 +26,9 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         EdgeClass, LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, 
         total_credits, requisite_type, Term, DegreePlan, dfs, longest_path, long_paths,
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
-        complexity, compare_curricula, isvalid_degree_plan, print_plan, export_degree_plan, visualize,
-        import_degree_plan, basic_metrics, read_csv, export_csv_to_json, visualize_jupyter, read_from_csv,
-        total_credit, check_requistes, create_terms
+        complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
+        read_csv, csv_to_json, read_degree_plan, write_degree_plan, visualize_jupyter, 
+        check_requistes, create_terms
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
 """
