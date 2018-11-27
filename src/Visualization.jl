@@ -56,11 +56,8 @@ Keyword:
 - `file_name` : name of the file, in JSON format, that will the degree plan, including modifications. 
     Default is `recent-visualization.json`.
 """
-function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name="recent-visualization.json", notebook=false)
-    export_degree_plan(plan, file_name)
-
-    w = window
-
+function visualize(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false)
+    write_degree_plan(plan, file_name)
     # Data
     data = JSON.parse(open("./" * file_name))
 
@@ -113,6 +110,7 @@ function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name
         )
     else
         # Write window body
+        w = Window()
         body!(
             w,
 

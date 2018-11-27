@@ -1,7 +1,7 @@
 
 # file: DegreePlanCreation.jl
 
-function create_degree_plan(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(), create_terms::Function;
+function create_degree_plan(curric::Curriculum, create_terms::Function, additional_courses::Array{Course}=Array{Course,1}();
     min_terms::Int=0, max_terms::Int=0, min_credits_per_term::Int=0, max_credits_per_term::Int=0, total_terms::Int=0)
 
 end

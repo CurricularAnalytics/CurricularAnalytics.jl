@@ -20,7 +20,7 @@ include("GraphAlgs.jl")
 include("DataHandler.jl")
 include("Visualization.jl")
 include("DegreePlanAnalytics.jl")
-include("Optimization.jl")
+include("DegreePlanCreation.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
         EdgeClass, LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, 
