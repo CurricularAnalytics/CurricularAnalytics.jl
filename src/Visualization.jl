@@ -56,7 +56,7 @@ Keyword:
 - `file_name` : name of the file, in JSON format, that will the degree plan, including modifications. 
     Default is `recent-visualization.json`.
 """
-function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name="recent-visualization.json")
+function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name="recent-visualization.json", notebook=false)
     export_degree_plan(plan, file_name)
 
     w = window
@@ -90,10 +90,7 @@ function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name
         window.addEventListener("message", window.messageReceived)
     end
 
-    # Write window body
-    body!(
-        w,
-
+    if (notebook == true)
         # scoped by WebIO
         s(
             dom"iframe#curriculum"(
@@ -114,61 +111,32 @@ function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name
                 )
             )
         )
-    )
+    else
+        # Write window body
+        body!(
+            w,
 
-    return w
-end
-
-function visualize_jupyter(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json")
-    export_degree_plan(plan, file_name)
-
-    # Data
-    data = JSON.parse(open("./" * file_name))
-
-    # Setup data observation to check for changes being made to curriculum
-    s = Scope()
-
-    obs = Observable(s, "curriculum-data", data)
-
-    on(obs) do new_data
-        if (isa(changed, Function)) 
-            changed(new_data)
-        end
-    end
-
-    # iFrame onload event handler
-    iframe_loaded = @js function ()
-        # when iFrame loaded, post curriculum data to it
-        this.contentWindow.postMessage($data, "*")
-        # listen for changes to the curriculum and make the observable aware
-        # make sure the previous handler is removed before adding the new one
-        window.removeEventListener("message", window.messageReceived)
-        window.messageReceived = function (event)
-            if (event.data.curriculum !== undefined) 
-                $obs[] = event.data.curriculum
-            end
-        end
-        window.addEventListener("message", window.messageReceived)
-    end
-
-    # scoped by WebIO
-    s(
-        dom"iframe#curriculum"(
-            "", 
-            # iFrame source
-            src=get_embed_url(),
-            # iFrame styles
-            style=Dict(
-                :width => "100%",
-                :height => "100vh",
-                :margin => "0",
-                :padding => "0",
-                :border => "none"
-            ),
-            events=Dict(
-                # iFrame onload event
-                :load => iframe_loaded
+            # scoped by WebIO
+            s(
+                dom"iframe#curriculum"(
+                    "", 
+                    # iFrame source
+                    src=get_embed_url(),
+                    # iFrame styles
+                    style=Dict(
+                        :width => "100%",
+                        :height => "100vh",
+                        :margin => "0",
+                        :padding => "0",
+                        :border => "none"
+                    ),
+                    events=Dict(
+                        # iFrame onload event
+                        :load => iframe_loaded
+                    )
+                )
             )
         )
-    )
+        return w
+    end
 end
