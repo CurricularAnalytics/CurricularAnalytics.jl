@@ -56,10 +56,14 @@ function csv_to_json(csv_file_path::AbstractString, json_file_path::AbstractStri
     # create a dictionary containing all degree plan information
     degree_plan = Dict{String, Any}()
     # add a new curriculum dictionary to the degree plan dictionary
+    #Create terms dictionary    
+    degree_plan["name"] = ""
     degree_plan["curriculum"] = Dict{String, Any}()
-    #Create terms dictionary
+    degree_plan["curriculum"]["name"] = ""
+    degree_plan["curriculum"]["id"] = 0
+    degree_plan["curriculum"]["institution"] = ""
+    degree_plan["curriculum"]["CIP"] = ""
     degree_plan["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
-    
     by(df, :7) do term # group by term, the 7th column in the CSV file
         current_term = Dict{String, Any}()
         current_term["id"] = term[7][1]
@@ -68,11 +72,14 @@ function csv_to_json(csv_file_path::AbstractString, json_file_path::AbstractStri
         current_term["curriculum_items"] = Dict{String, Any}[]
         for course in 1:size(term)[1]
             current_course = Dict{String, Any}()
+            current_course = Dict{String, Any}()
             current_course["id"] = term[1][course]
             current_course["nameSub"] = term[2][course]
             current_course["name"] = if typeof(term[3][course]) == Missing || typeof(term[4][course]) == Missing "" else term[3][course] * " " * term[4][course] end
             current_course["prefix"] = if typeof(term[3][course]) == Missing "" else term[3][course] end 
             current_course["num"] = if typeof(term[4][course]) == Missing "" else term[4][course] end
+            current_course["institution"] = ""
+            current_course["canonical_name"] = ""
             current_course["credits"] = term[6][course]
             current_course["curriculum_requisites"] = Dict{String, Any}[]
             # current_course["metrics"] = course.metrics
