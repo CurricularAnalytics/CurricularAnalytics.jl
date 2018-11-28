@@ -47,6 +47,5 @@ write_degree_plan(dp1, "./UBW.json")
 dp2 = read_degree_plan("./UBW.json")
 
 # Degree plans dp1 and dp2 should evaluate as the same degree plan
-@test dp1 == dp2
-
+@test isequal(string(dp1),string(dp2))
 end;

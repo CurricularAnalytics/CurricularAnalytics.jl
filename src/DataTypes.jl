@@ -106,14 +106,18 @@ mutable struct Course
 
     # Constructor
     function Course(name::AbstractString, credit_hours::Int; prefix::AbstractString="",
-                    num::AbstractString="", institution::AbstractString="", canonical_name::AbstractString="")
+                    num::AbstractString="", institution::AbstractString="", canonical_name::AbstractString="", id::Int=0)
         this = new()
         this.name = name
         this.credit_hours = credit_hours
         this.prefix = prefix
         this.num = num
         this.institution = institution
-        this.id = abs(signed(hash(this.name * this.prefix * this.num * string(time()))))
+        if id == 0
+            this.id = abs(signed(hash(this.name * this.prefix * this.num * string(time()))))
+        else 
+            this.id = id
+        end
         this.canonical_name = canonical_name
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
@@ -238,13 +242,17 @@ mutable struct Curriculum
 
     # Constructor
     function Curriculum(name::AbstractString, courses::Array{Course}; degree_type::Degree=BS,
-           system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101")
+           system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101", id::Int=0)
         this = new()
         this.name = name
         this.degree_type = degree_type
         this.system_type = system_type
         this.institution = institution
-        this.id = abs(signed(hash(this.name * this.institution * string(this.degree_type) * string(this.system_type))))
+        if id == 0
+            this.id = abs(signed(hash(this.name * this.institution * string(this.degree_type) * string(this.system_type))))
+        else 
+            this.id = id
+        end
         this.CIP = CIP
         this.courses = courses
         this.num_courses = length(this.courses)

@@ -16,8 +16,8 @@ In order to run this example follow these steps:
 """
 
 println("Reading csv file: " * ARGS[1])
-read_csv(ARGS[1])
-dp = import_degree_plan("recent-visualization.json")
+csv_to_json(ARGS[1], "recent-visualization.json")
+dp = read_degree_plan("recent-visualization.json")
 curric = dp.curriculum
 
 errors = IOBuffer()

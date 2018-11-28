@@ -129,8 +129,12 @@ will be read.
 function write_degree_plan(plan::DegreePlan, file_path::AbstractString)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
+    degreeplan["name"] = plan.name
     degreeplan["curriculum"] = Dict{String, Any}()
-    degreeplan["curriculum"]["name"] = plan.name
+    degreeplan["curriculum"]["name"] = plan.curriculum.name
+    degreeplan["curriculum"]["id"] = plan.curriculum.id
+    degreeplan["curriculum"]["institution"] = plan.curriculum.institution
+    degreeplan["curriculum"]["CIP"] = plan.curriculum.CIP
     degreeplan["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
     for i = 1:plan.num_terms
         current_term = Dict{String, Any}()
@@ -147,6 +151,8 @@ function write_degree_plan(plan::DegreePlan, file_path::AbstractString)
             current_course["credits"] = course.credit_hours
             current_course["curriculum_requisites"] = Dict{String, Any}[]
             current_course["metrics"] = course.metrics
+            current_course["institution"] = course.institution
+            current_course["canonical_name"] = course.canonical_name
             for req in collect(keys(course.requisites))
                 current_req = Dict{String, Any}()
                 current_req["source_id"] = req
@@ -191,7 +197,8 @@ function read_degree_plan(file_path::AbstractString)
         # for each course in the current term
         for course in current_term["curriculum_items"]
             # create Course object for each course in the current term
-            current_course = Course(course["nameSub"], course["credits"], prefix = course["prefix"], num = course["num"])
+            current_course = Course(course["nameSub"], course["credits"], institution = course["institution"],
+                 prefix = course["prefix"], num = course["num"], canonical_name=course["canonical_name"], id = course["id"])
             # push each Course object to the array of courses
             push!(courses, current_course)
             push!(all_courses, current_course)
@@ -214,6 +221,7 @@ function read_degree_plan(file_path::AbstractString)
         # Set the current term to be a Term object
         terms[i] = Term(courses)
     end
-    curric = Curriculum("Underwater Basket Weaving", all_courses)
-    return DegreePlan("MyPlan", curric, terms)
+    curric = Curriculum(degree_plan["curriculum"]["name"], all_courses, institution = degree_plan["curriculum"]["institution"],
+        id = degree_plan["curriculum"]["id"], CIP=degree_plan["curriculum"]["CIP"])
+    return DegreePlan(degree_plan["name"], curric, terms)
 end
