@@ -56,8 +56,8 @@ Keyword:
 - `file_name` : name of the file, in JSON format, that will the degree plan, including modifications. 
     Default is `recent-visualization.json`.
 """
-function visualize(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false)
-    write_degree_plan(plan, file_name)
+function visualize(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=false, hide_header=false)
+    write_degree_plan(plan, file_name, edit=edit, hide_header=hide_header)
     # Data
     data = JSON.parse(open("./" * file_name))
 
@@ -82,6 +82,13 @@ function visualize(plan::DegreePlan; changed=nothing, file_name="recent-visualiz
         window.messageReceived = function (event)
             if (event.data.curriculum !== undefined) 
                 $obs[] = event.data.curriculum
+            end
+        end
+        window.addEventListener("message", window.messageReceived)
+        window.removeEventListener("message", window.messageReceived)
+        window.messageReceived = function (event)
+            if (event.data.curriculum !== undefined) 
+                console.log(event.data.curriculum) 
             end
         end
         window.addEventListener("message", window.messageReceived)

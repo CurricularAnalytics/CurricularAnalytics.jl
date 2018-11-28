@@ -126,10 +126,13 @@ Writes a degree plan as a JSON file.
 will be read.
 - `file_path::AbstractString` : fully-qualfied or realtive path of the JSON file that will be written.
 """
-function write_degree_plan(plan::DegreePlan, file_path::AbstractString)
+function write_degree_plan(plan::DegreePlan, file_path::AbstractString; edit=false, hide_header=false)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
     degreeplan["name"] = plan.name
+    degreeplan["options"] = Dict{String, Any}()
+    degreeplan["options"]["edit"]=edit
+    degreeplan["options"]["hideTerms"]=hide_header
     degreeplan["curriculum"] = Dict{String, Any}()
     degreeplan["curriculum"]["name"] = plan.curriculum.name
     degreeplan["curriculum"]["id"] = plan.curriculum.id
