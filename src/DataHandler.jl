@@ -3,6 +3,18 @@ using CSV
 using DataFrames
 
 
+function find_cell(row,header)
+    try
+        out = row[header]
+        return out
+    catch e
+        if isa(e, KeyError)
+            return Missing
+        else
+            return e
+        end
+    end
+end
 """
     read_csv(file_path::AbstractString)
 
@@ -15,25 +27,25 @@ function read_csv(file_path::AbstractString)
     df = CSV.File(file_path) |> DataFrame
     dict_Requisite = Dict("pre"=>pre, "co"=>co, "strict_co"=>strict_co)
     c = Array{Course}(undef,nrow(df))
-    terms = Array{Term}(undef, nrow(unique(df, 7)))
-    by(df, :7) do term    
+    terms = Array{Term}(undef, nrow(unique(df, Symbol("Term"))))
+    by(df, Symbol("Term")) do term    
         termclasses = Array{Course}(undef,nrow(term))
         for (index, row) in enumerate(eachrow(term))
-            c_Count = row[1]
-            c_Name = if typeof(row[2]) == Missing "" else row[2] end
-            c_Credit = row[6]
-            c_Prefix = if typeof(row[3]) == Missing "" else row[3] end
-            c_Number = if typeof(row[4]) == Missing "" else row[4] end
+            c_Count = find_cell(row,Symbol("Course ID"))
+            c_Name = if typeof(find_cell(row,Symbol("Course Name"))) == Missing "" else find_cell(row,Symbol("Course Name")) end
+            c_Credit = find_cell(row,Symbol("Credit Hours")) 
+            c_Prefix = if typeof(find_cell(row,Symbol("Prefix"))) == Missing "" else find_cell(row,Symbol("Prefix")) end
+            c_Number = if typeof(find_cell(row,Symbol("Number"))) == Missing "" else find_cell(row,Symbol("Number")) end
             c[c_Count]= Course(c_Name, c_Credit, prefix = c_Prefix, num = c_Number)
-            if typeof(row[5]) != Missing
-                for req in split(row[5])
+            if typeof(find_cell(row,Symbol("Requisities"))) != Missing
+                for req in split(find_cell(row,Symbol("Requisities")))
                     split_req = split(req,":")
                     add_requisite!(c[parse(Int64,split_req[2])],c[c_Count],dict_Requisite[split_req[1]])
                 end
             end       
             termclasses[index]=c[c_Count]
         end
-        terms[term[7][1]]=Term(termclasses)    
+        terms[term[Symbol("Term")][1]]=Term(termclasses)    
     end
     return c, terms
 end
@@ -133,13 +145,10 @@ Writes a degree plan as a JSON file.
 will be read.
 - `file_path::AbstractString` : fully-qualfied or realtive path of the JSON file that will be written.
 """
-function write_degree_plan(plan::DegreePlan, file_path::AbstractString; edit=false, hide_header=false)
+function write_degree_plan(plan::DegreePlan, file_path::AbstractString)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
     degreeplan["name"] = plan.name
-    degreeplan["options"] = Dict{String, Any}()
-    degreeplan["options"]["edit"]=edit
-    degreeplan["options"]["hideTerms"]=hide_header
     degreeplan["curriculum"] = Dict{String, Any}()
     degreeplan["curriculum"]["name"] = plan.curriculum.name
     degreeplan["curriculum"]["id"] = plan.curriculum.id

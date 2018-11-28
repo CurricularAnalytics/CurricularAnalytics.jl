@@ -57,10 +57,12 @@ Keyword:
     Default is `recent-visualization.json`.
 """
 function visualize(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=false, hide_header=false)
-    write_degree_plan(plan, file_name, edit=edit, hide_header=hide_header)
+    write_degree_plan(plan, file_name)
     # Data
     data = JSON.parse(open("./" * file_name))
-
+    data["options"] = Dict{String, Any}()
+    data["options"]["edit"]=edit
+    data["options"]["hideTerms"]=hide_header
     # Setup data observation to check for changes being made to curriculum
     s = Scope()
 
