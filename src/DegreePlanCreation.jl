@@ -6,7 +6,7 @@ function create_degree_plan(curric::Curriculum, create_terms::Function, addition
 
 end
 
-function check_requistes(curric::Curriculum, index::Int, all_applied_courses::Array{Int}, this_term_applied_courses::Array{Int})
+function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{Int}, current_term::Array{Int})
     req_complete = true
     #find all inneighbors of current node
     
@@ -33,7 +33,6 @@ function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term:
     curric_total_credit=total_credits(curric)
     #Even though the max credit is set, the algorithim will fill in free courses that optimally fill the term, up to the maximum 
     #credits desired by the student or allowed by the university 
-    max_credit_for_a_course = 3
     #round to average credit per term
     #make a function to calculate extra(2 in this case)
     #calculate average creadit after each term
