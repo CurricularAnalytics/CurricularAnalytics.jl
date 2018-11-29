@@ -88,8 +88,8 @@ Keyword:
 - `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
 - `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
 """
-function visualize(plan::DegreePlan; notebook::Bool=false, edit::Bool=false)
-   viz_helper(plan; notebook=notebook, edit=edit)
+function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false)
+   viz_helper(plan; changed=changed, notebook=notebook, edit=edit)
 end
 
 function my_test()
@@ -138,53 +138,34 @@ function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visuali
         window.addEventListener("message", window.messageReceived)
     end
 
-    if (notebook == true)
-        # scoped by WebIO
-        s(
-            dom"iframe#curriculum"(
-                "", 
-                # iFrame source
-                src=get_embed_url(),
-                # iFrame styles
-                style=Dict(
-                    :width => "100%",
-                    :height => "100vh",
-                    :margin => "0",
-                    :padding => "0",
-                    :border => "none"
-                ),
-                events=Dict(
-                    # iFrame onload event
-                    :load => iframe_loaded
-                )
+    s(
+        dom"iframe#curriculum"(
+            "", 
+            # iFrame source
+            src=get_embed_url(),
+            # iFrame styles
+            style=Dict(
+                :width => "100%",
+                :height => "100vh",
+                :margin => "0",
+                :padding => "0",
+                :border => "none"
+            ),
+            events=Dict(
+                # iFrame onload event
+                :load => iframe_loaded
             )
         )
+    )
+
+    if (notebook == true)
+        s
     else
         # Write window body
         w = Window()
         body!(
             w,
-
-            # scoped by WebIO
-            s(
-                dom"iframe#curriculum"(
-                    "", 
-                    # iFrame source
-                    src=get_embed_url(),
-                    # iFrame styles
-                    style=Dict(
-                        :width => "100%",
-                        :height => "100vh",
-                        :margin => "0",
-                        :padding => "0",
-                        :border => "none"
-                    ),
-                    events=Dict(
-                        # iFrame onload event
-                        :load => iframe_loaded
-                    )
-                )
-            )
+            s
         )
         return w
     end
