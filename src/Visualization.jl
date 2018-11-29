@@ -52,6 +52,7 @@ Keyword:
 """
 function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false)
     num_courses = length(curric.courses)
+    term_count = 8
     if num_courses <= 8
         max_credit_each_term = 6
     elseif num_courses <= 16
@@ -89,6 +90,10 @@ Keyword:
 """
 function visualize(plan::DegreePlan; notebook::Bool=false, edit::Bool=false)
    viz_helper(plan; notebook=notebook, edit=edit)
+end
+
+function my_test()
+    printf("working")
 end
 
 # Main visualization function. A "changed" callback function may be provided which will be invoked whenever the 
