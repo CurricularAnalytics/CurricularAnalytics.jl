@@ -40,7 +40,7 @@ end
 """
     visualize(curriculum; <keyword arguments>))
 
-Function used to visualize a curriculum. 
+Visualize a curriculum. 
 # Arguments
 Required:
 - `curriculum::Curriculum` : the curriculum to visualize.
@@ -77,7 +77,7 @@ end
 """
     visualize(degree_plan; <keyword arguments>))
 
-Function used to visualize a degree plan. 
+Visualize a degree plan. 
 # Arguments
 Required:
 - `degree_plan::DegreePlan` : the degree plan to visualize.
