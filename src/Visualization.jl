@@ -52,20 +52,26 @@ Keyword:
 """
 function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false)
     num_courses = length(curric.courses)
-    term_count = 8
     if num_courses <= 8
+        term_count = 3
         max_credit_each_term = 6
     elseif num_courses <= 16
+        term_count = 4
         max_credit_each_term = 9
     elseif num_courses <= 24
+        term_count = 5
         max_credit_each_term = 12
     elseif num_courses <= 32
+        term_count = 6
         max_credit_each_term = 15
     elseif num_courses <= 40
+        term_count = 7
         max_credit_each_term = 18
     elseif num_courses <= 48
+        term_count = 8
         max_credit_each_term = 21
     elseif num_courses <= 56
+        term_count = 9
         max_credit_each_term = 24
     else
         error("Curriculum is too big to visualize.")
