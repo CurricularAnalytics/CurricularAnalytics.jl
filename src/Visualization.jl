@@ -37,26 +37,63 @@ function serve_local_embed_client()
     end
 end
 
-# Main visualization function. Pass in degree plan to be visualized. Optionally a window 
-# prop can be passed in to specify the render where the visualization should be rendered.
-# Additional changed callback may be provided which will envoke whenever the curriculum is 
-# modified through the interfaces.
+"""
+    visualize(curriculum; <keyword arguments>))
+
+Function used to visualize a curriculum. 
+# Arguments
+Required:
+- `curriculum::Curriculum` : the curriculum to visualize.
+Keyword:
+- `changed` : callback function argument, called whenever the curriculum is modified through the interface.
+    Default is `nothing`.
+- `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
+- `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
+"""
+function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false)
+    num_courses = length(curric.courses)
+    if num_courses <= 8
+        max_credit_each_term = 6
+    elseif num_courses <= 16
+        max_credit_each_term = 9
+    elseif num_courses <= 24
+        max_credit_each_term = 12
+    elseif num_courses <= 32
+        max_credit_each_term = 15
+    elseif num_courses <= 40
+        max_credit_each_term = 18
+    elseif num_courses <= 48
+        max_credit_each_term = 21
+    elseif num_courses <= 56
+        max_credit_each_term = 24
+    else
+        error("Curriculum is too big to visualize.")
+    end
+    terms = create_terms(curric, term_count, max_credit_each_term::Int)
+    dp = DegreePlan("temp plan", curric, terms)
+    viz_helper(dp; notebook=notebook, edit=edit, hide_header=true)
+end
+
 """
     visualize(degree_plan; <keyword arguments>))
 
-Function used to visualize degree plans. 
+Function used to visualize a degree plan. 
 # Arguments
 Required:
-- `degree_plan::DegreePlan` : the name of the curriculum.
+- `degree_plan::DegreePlan` : the degree plan to visualize.
 Keyword:
-- `window` : funtion argument that specifies the window to render content in. 
-   Default is `Window()`.
 - `changed` : callback function argument, called whenever the curriculum is modified through the interface.
     Default is `nothing`.
-- `file_name` : name of the file, in JSON format, that will the degree plan, including modifications. 
-    Default is `recent-visualization.json`.
+- `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
+- `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
 """
-function visualize(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=false, hide_header=false)
+function visualize(plan::DegreePlan; notebook::Bool=false, edit::Bool=false)
+   viz_helper(plan; notebook=notebook, edit=edit)
+end
+
+# Main visualization function. A "changed" callback function may be provided which will be invoked whenever the 
+# curriculum/degere plan is modified through the interface.
+function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=false, hide_header=false)
     write_degree_plan(plan, file_name)
     # Data
     data = JSON.parse(open("./" * file_name))
