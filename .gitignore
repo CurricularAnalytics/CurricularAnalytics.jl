@@ -2,3 +2,4 @@
 docs/build/
 .DS_Store
 mkdocs.yml
+.ipynb_checkpoints
