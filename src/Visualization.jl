@@ -2,7 +2,7 @@ using Blink, JSON, WebIO, HTTP
 import HTTP.Messages
 
 const LOCAL_EMBED_PORT = 8156
-const LOCAL_EMBED_FOLDER = "embed_client/dist"
+const LOCAL_EMBED_FOLDER = "./embed_client/dist"
 
 function get_embed_url()
         local_embed_url = string("http://localhost:", LOCAL_EMBED_PORT)
