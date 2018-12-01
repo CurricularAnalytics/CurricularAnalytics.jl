@@ -13,12 +13,12 @@ function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{I
     inngbr = inneighbors(curric.graph, index)
     for ngbr in inngbr
         req_type = curric.courses[index].requisites[curric.courses[ngbr].id]
-        if req_type == pre && !(ngbr in all_applied_courses)
+        if req_type == pre && !(ngbr in previous_terms)
             req_complete = false 
             break      
         elseif req_type == co || req_type == strict_co
-            if !(ngbr in all_applied_courses)
-                if !(ngbr in this_term_applied_courses)
+            if !(ngbr in previous_terms)
+                if !(ngbr in current_term)
                     req_complete = false 
                     break
                 end
