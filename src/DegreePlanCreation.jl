@@ -1,9 +1,12 @@
 
 # file: DegreePlanCreation.jl
 
-function create_degree_plan(curric::Curriculum, create_terms::Function, additional_courses::Array{Course}=Array{Course,1}();
+function create_degree_plan(name::AbstractString, curric::Curriculum, create_terms::Function, additional_courses::Array{Course}=Array{Course,1}();
     min_terms::Int=0, max_terms::Int=0, min_credits_per_term::Int=0, max_credits_per_term::Int=0, total_terms::Int=0)
-
+    
+    terms = create_terms(curric, additional_courses; ; min_terms, max_terms, min_credits_per_term, 
+                         max_credits_per_term, total_terms)
+    DegreePlan(name, curric, terms)
 end
 
 function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{Int}, current_term::Array{Int})
@@ -27,7 +30,9 @@ function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{I
     return req_complete
 end
 
-function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term::Int)
+function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); min_terms::Int=0, 
+          max_terms::Int=0, min_credits_per_term::Int=0, max_credits_per_term::Int=0, total_terms::Int=0)
+    term_count = min_terms
     #total number of credits
     curric_total_credit=total_credits(curric)
     #Even though the max credit is set, the algorithim will fill in free courses that optimally fill the term, up to the maximum 
@@ -47,7 +52,7 @@ function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term:
         #check if upper limit of average credit hours for remaining terms exceeds the maximum credit 
         #If exceed, there is no possible way of fitting remaining classses.
         #Therefor, try againg after increasing term count
-        if avrg_credit_remaining  < max_credit_each_term
+        if avrg_credit_remaining  < min_credits_per_term
             #go through all courses to add in current term according to the complexity score
             for index in sorted_index
                 # if current course is already added to the previous terms ignore
@@ -80,7 +85,7 @@ function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term:
     end
     if length(all_applied_courses) != length(sorted_index)
         println("Could not create a plan for term $term_count, add another term")
-        return create_terms(curric, term_count+1, max_credit_each_term)
+        return create_terms(curric, term_count+1, min_credits_per_term)
     end
     return terms
 end
