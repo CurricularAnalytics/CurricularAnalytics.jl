@@ -2,8 +2,7 @@ using JSON
 using CSV
 using DataFrames
 
-
-function find_cell(row,header)
+function find_cell(row, header)
     try
         out = row[header]
         return out
@@ -15,11 +14,11 @@ function find_cell(row,header)
         end
     end
 end
+
 """
     read_csv(file_path::AbstractString)
 
 Reads a degree plan stored as a CSV file and returns the courses and terms associated with the degree plan.
-
 # Argument
 - `file_path::AbstractString` : Fully-qualfied or realtive path of the CSV file that will be read.
 """
@@ -113,7 +112,7 @@ function csv_to_json(csv_file_path::AbstractString, json_file_path::AbstractStri
     close(file)
 end
 
-# Takes requisite and return it as a string for the visualization
+# Returns a requisite as a string for visualization
 function requisite_to_string(req::Requisite)
     if req == pre
         return "prereq"

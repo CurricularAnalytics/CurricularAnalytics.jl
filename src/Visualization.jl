@@ -47,8 +47,8 @@ Required:
 Keyword:
 - `changed` : callback function argument, called whenever the curriculum is modified through the interface.
     Default is `nothing`.
-- `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
-- `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
+- `notebook` : a Boolean argument, if set to `true`, the degree will be displayed within a Jupyter notebook
+- `edit` : a Boolean argument, if set to `true`, the user may edit the degree plan through the visualziation interface.
 """
 function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false)
     num_courses = length(curric.courses)
@@ -91,8 +91,8 @@ Required:
 Keyword:
 - `changed` : callback function argument, called whenever the curriculum is modified through the interface.
     Default is `nothing`.
-- `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
-- `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
+- `notebook` : a Boolean argument, if set to `true`, the degree will be displayed within a Jupyter notebook
+- `edit` : a Boolean argument, if set to `true`, the user may edit the degree plan through the visualziation interface.
 """
 function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false)
    viz_helper(plan; changed=changed, notebook=notebook, edit=edit)

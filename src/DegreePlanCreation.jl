@@ -9,7 +9,6 @@ end
 function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{Int}, current_term::Array{Int})
     req_complete = true
     #find all inneighbors of current node
-    
     inngbr = inneighbors(curric.graph, index)
     for ngbr in inngbr
         req_type = curric.courses[index].requisites[curric.courses[ngbr].id]
@@ -38,7 +37,7 @@ function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term:
     #calculate average creadit after each term
     sorted_index = sortperm(curric.metrics["complexity"][2], rev=true)
     terms = Array{Term}(undef, term_count)
-    all_applied_courses = Int[]
+    all_applied_courses = Array{Int,1}()
     for current_term in 1:term_count
         termclasses = Course[]
         this_term_applied_courses = Int[]
@@ -51,18 +50,18 @@ function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term:
         if avrg_credit_remaining  < max_credit_each_term
             #go through all courses to add in current term according to the complexity score
             for index in sorted_index
-                #if current course is already added to the previous terms ignore
+                # if current course is already added to the previous terms ignore
                 if !(index in all_applied_courses)
-                    #Control reqs 
+                    # control reqs 
                     if check_requistes(curric, index, all_applied_courses, this_term_applied_courses)
-                        #add current course if we still have enough credit 
+                        # add current course if we still have enough credit 
                         if total_credits_for_current_term + curric.courses[index].credit_hours <= avrg_credit_remaining
                             total_credits_for_current_term += curric.courses[index].credit_hours
                             push!(termclasses, curric.courses[index])
-                            #also keep indexes of this term's classes
+                            # also keep indexes of this term's classes
                             push!(this_term_applied_courses,index)
                         end
-                        #control if there is any credit to add other course
+                        # control if there is any credit to add other course
                         if total_credits_for_current_term == avrg_credit_remaining
                             break
                         end
@@ -80,7 +79,7 @@ function create_terms(curric::Curriculum, term_count::Int, max_credit_each_term:
         end
     end
     if length(all_applied_courses) != length(sorted_index)
-        println("Could not create a plan for $term_count term, try for one more term")
+        println("Could not create a plan for term $term_count, add another term")
         return create_terms(curric, term_count+1, max_credit_each_term)
     end
     return terms

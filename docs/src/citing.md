@@ -21,7 +21,7 @@ To cite the definitive Curricular Analytics technical reference, please use the 
   author = {Gregory L. Heileman and Chaouki T. Abdallah and Ahmad Slim and Michael Hickman},
   title = {Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical Innovations},
   journal = {arXiv.org},
-  url = {https://arxiv.org/submit/2471755/view},
+  url = {https://arxiv.org/abs/1811.09676},
   year = {2018}
 }
 ```
