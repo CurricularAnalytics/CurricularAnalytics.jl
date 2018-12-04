@@ -1,7 +1,17 @@
 <template>
   <div v-if="curriculum" class="graph">
+    <div v-if="curriculum.original.name" >
     <p>{{curriculum.original.name}}</p>
+    </div>
+    <div v-if="curriculum.credits" >
+    <p>Total Credit Hours: {{curriculum.credits}}</p>
+    </div>
+    <div v-if="curriculum.original.institution" >
+    <p>Curricular Institution: {{curriculum.original.institution}}</p>
+    </div>
+    <div v-if="curriculum.complexity" >
     <p>Curricular Complexity: {{curriculum.complexity}}</p>
+    </div>
     <curriculum
       :curriculum="curriculum"
       v-bind="options"
@@ -12,7 +22,14 @@
 </template>
 
 <script>
-  import { Curriculum, buildCurriculum, BaseItem } from '@unm-idi/vue-curricula'
+  import { Curriculum, buildCurriculum, BaseItem, BaseTerm } from '@unm-idi/vue-curricula'
+  const CustomTerm = BaseTerm.extend({
+    computed: {
+      footer () {
+        return `Credits: ${this.credits}`
+      }
+    }
+  })
 
   const CustomItem = BaseItem.extend({
     computed: {
@@ -30,7 +47,10 @@
         } else {
           return 0
         }
-      }
+      },
+      value () {
+        return this.credits
+      }    
     }
   })
   export default {
@@ -76,7 +96,7 @@
 
           // Build Curriculum if Provided
           let curriculum = data.curriculum
-          if (curriculum) this.curriculum = buildCurriculum(curriculum, {format: this.format, Item: CustomItem})
+          if (curriculum) this.curriculum = buildCurriculum(curriculum, {format: this.format, Item: CustomItem, Term: CustomTerm})
           window.curriculum = this.curriculum
         }
       }
