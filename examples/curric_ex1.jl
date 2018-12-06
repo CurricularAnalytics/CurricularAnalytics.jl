@@ -50,4 +50,4 @@ print_plan(dp)
 
 visualize(dp, changed = function (new_data)
   println(new_data)
-end)
+end,edit=true)
