@@ -30,7 +30,6 @@
       }
     }
   })
-
   const CustomItem = BaseItem.extend({
     computed: {
       content () {
@@ -40,7 +39,6 @@
         }
         return output
       },
-
       complexity () {
         if (this.original.metrics.complexity) {
           return this.original.metrics.complexity
@@ -63,11 +61,9 @@
         height: 0,
       }
     },
-
     components: {
       Curriculum
     },
-
     watch: {
       export: {
         handler (e) {
@@ -79,12 +75,10 @@
         },
         deep: true
       },
-
       height (height) {
         window.parent.postMessage({height}, '*');
       }
     },
-
     methods: {
       receiveMessage (event) {
         const data = event.data
@@ -93,7 +87,6 @@
           ['options', 'format', 'exportFormat'].forEach(prop => {
             if (data[prop]) this[prop] = data[prop]
           })
-
           // Build Curriculum if Provided
           let curriculum = data.curriculum
           if (curriculum) this.curriculum = buildCurriculum(curriculum, {format: this.format, Item: CustomItem, Term: CustomTerm})
@@ -101,23 +94,19 @@
         }
       }
     },
-
     computed: {
       exports () {
         return this.curriculum ? this.curriculum.exports : {}
       },
-
       export () {
         return this.exportFormat ? this.exports[this.exportFormat] : 
                  this.curriculum ? this.curriculum.exportOriginal :
                   {}
       }
     },
-
     created () {
       window.addEventListener('message', this.receiveMessage, false)
     },
-
     beforeDestroy () {
       window.removeEventListener('message', this.receiveMessage)
     }

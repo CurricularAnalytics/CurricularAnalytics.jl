@@ -37,19 +37,29 @@ function serve_local_embed_client()
     end
 end
 
+# Main visualization function. Pass in degree plan to be visualized. Optionally a window 
+# prop can be passed in to specify the render where the visualization should be rendered.
+# Additional changed callback may be provided which will envoke whenever the curriculum is 
+# modified through the interfaces.
 """
-    visualize(curriculum; <keyword arguments>))
+     visualize(curriculum; <keyword arguments>))
 
 Visualize a curriculum. 
 # Arguments
 Required:
 - `curriculum::Curriculum` : the curriculum to visualize.
+# Arguments
+Required:
+- `degree_plan::DegreePlan` : the name of the curriculum.
 Keyword:
+- `window` : funtion argument that specifies the window to render content in. 
+   Default is `Window()`.
 - `changed` : callback function argument, called whenever the curriculum is modified through the interface.
     Default is `nothing`.
-- `notebook` : a Boolean argument, if set to `true`, the degree will be displayed within a Jupyter notebook
-- `edit` : a Boolean argument, if set to `true`, the user may edit the degree plan through the visualziation interface.
+- `file_name` : name of the file, in JSON format, that will the degree plan, including modifications. 
+    Default is `recent-visualization.json`.
 """
+
 function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false)
     num_courses = length(curric.courses)
     if num_courses <= 8
@@ -81,34 +91,30 @@ function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false)
     viz_helper(dp; notebook=notebook, edit=edit, hide_header=true)
 end
 
-"""
-    visualize(degree_plan; <keyword arguments>))
-
-Visualize a degree plan. 
-# Arguments
-Required:
-- `degree_plan::DegreePlan` : the degree plan to visualize.
-Keyword:
-- `changed` : callback function argument, called whenever the curriculum is modified through the interface.
-    Default is `nothing`.
-- `notebook` : a Boolean argument, if set to `true`, the degree will be displayed within a Jupyter notebook
-- `edit` : a Boolean argument, if set to `true`, the user may edit the degree plan through the visualziation interface.
-"""
 function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false)
    viz_helper(plan; changed=changed, notebook=notebook, edit=edit)
 end
 
-function my_test()
-    printf("working")
-end
-
 # Main visualization function. A "changed" callback function may be provided which will be invoked whenever the 
 # curriculum/degere plan is modified through the interface.
-function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=false, hide_header=false)
+"""
+    visualize(degree_plan; <keyword arguments>))
+Visualize a degree plan. 
+# Arguments
+Required:
+- `degree_plan::DegreePlan` : the degree plan to visualize.
+ Keyword:
+ - `changed` : callback function argument, called whenever the curriculum is modified through the interface.
+     Default is `nothing`.
+ - `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
+ - `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
+"""
+function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=true, hide_header=false)
     write_degree_plan(plan, file_name)
+
     # Data
     data = JSON.parse(open("./" * file_name))
-    data["options"] = Dict{String, Any}()
+	data["options"] = Dict{String, Any}()
     data["options"]["edit"]=edit
     data["options"]["hideTerms"]=hide_header
     # Setup data observation to check for changes being made to curriculum
@@ -135,42 +141,37 @@ function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visuali
             end
         end
         window.addEventListener("message", window.messageReceived)
-        window.removeEventListener("message", window.messageReceived)
-        window.messageReceived = function (event)
-            if (event.data.curriculum !== undefined) 
-                console.log(event.data.curriculum) 
-            end
-        end
-        window.addEventListener("message", window.messageReceived)
     end
-
-    s(
-        dom"iframe#curriculum"(
-            "", 
-            # iFrame source
-            src=get_embed_url(),
-            # iFrame styles
-            style=Dict(
-                :width => "100%",
-                :height => "100vh",
-                :margin => "0",
-                :padding => "0",
-                :border => "none"
-            ),
-            events=Dict(
-                # iFrame onload event
-                :load => iframe_loaded
+	
+	s(
+            dom"iframe#curriculum"(
+                "", 
+                # iFrame source
+                src=get_embed_url(),
+                # iFrame styles
+                style=Dict(
+                    :width => "100%",
+                    :height => "100vh",
+                    :margin => "0",
+                    :padding => "0",
+                    :border => "none"
+                ),
+                events=Dict(
+                    # iFrame onload event
+                    :load => iframe_loaded
+                )
             )
         )
-    )
-
     if (notebook == true)
+        # scoped by WebIO
         s
     else
         # Write window body
-        w = Window()
+		w=Window()
         body!(
             w,
+
+            # scoped by WebIO
             s
         )
         return w
