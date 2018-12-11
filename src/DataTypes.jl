@@ -31,21 +31,23 @@ mutable struct LearningOutcome
     description::AbstractString         # A description of the learning outcome
     hours::Int                          # number of class hours that should be devoted
                                         # to the learning outcome
-    requisites::Dict{LearningOutcome, Requisite} # List of requisites, in
+    requisites::Dict{Int, Requisite} # List of requisites, in
                                                  #(requisite_learning_outcome, requisite_type) format
     metrics::Dict{String, Any}          # Learning outcome-related metrics
 
     # Constructor
     function LearningOutcome(name::AbstractString, description::AbstractString, hours::Int=0)
         this = new()
-        this.name
+        this.name =name
         this.description = description
         this.hours = hours
-        this.requisites = Dict{LearningOutcome, Requisite}()
+        this.id = abs(signed(hash(this.name * this.description * string(time()))))
+        this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
         return this
     end
 end
+
 
 #"""
 #    add_lo_requisite!(rlo, tlo, requisite_type)
@@ -53,17 +55,17 @@ end
 #Add learning outcome rlo as a requisite, of type requisite_type, for target learning 
 #outcome tlo.
 #"""
-#function add_lo_requisite!(requisite_lo::LearningOutcome, lo::LearningOutcome, requisite_type::Requisite)
-#    lo.requisites[requisite_lo] = requisite_type
-#end
-#
-#function add_lo_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome, 
-#                      requisite_type::Array{Requisite})
-#    @assert length(requisite_lo) == length(requisite_type)
-#    for i = 1:length(requisite_lo)
-#        lo.requisites[lo[i]] = requisite_type[i]
-#    end
-#end
+function add_lo_requisite!(requisite_lo::LearningOutcome, lo::LearningOutcome, requisite_type::Requisite)
+    lo.requisites[requisite_lo.id] = requisite_type
+end
+
+function add_lo_requisite!(requisite_lo::Array{LearningOutcome}, lo::LearningOutcome, 
+                      requisite_type::Array{Requisite})
+    @assert length(requisite_lo) == length(requisite_type)
+    for i = 1:length(requisite_lo)
+        lo.requisites[requisite_lo[i].id] = requisite_type[i]
+    end
+end
 
 ##############################################################
 # Course data type
@@ -105,7 +107,7 @@ mutable struct Course
     metrics::Dict{String, Any}          # Course-related metrics
 
     # Constructor
-    function Course(name::AbstractString, credit_hours::Int; prefix::AbstractString="",
+    function Course(name::AbstractString, credit_hours::Int; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
                     num::AbstractString="", institution::AbstractString="", canonical_name::AbstractString="", id::Int=0)
         this = new()
         this.name = name
@@ -121,7 +123,7 @@ mutable struct Course
         this.canonical_name = canonical_name
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
-        #this.learning_outcomes = Array{LearningOutcome}()
+        this.learning_outcomes = learning_outcomes
         this.vertex_id = Dict{Int, Int}()
         return this
     end
@@ -156,7 +158,7 @@ The following requisite types may be specified for `rc`:
 function add_requisite!(requisite_course::Array{Course}, course::Course, requisite_type::Array{Requisite})
     @assert length(requisite_course) == length(requisite_type)
     for i = 1:length(requisite_course)
-        course.requisites[course[i]] = requisite_type[i]
+        course.requisites[requisite_course[i].id] = requisite_type[i]
     end
 end
 
@@ -238,11 +240,12 @@ mutable struct Curriculum
     credit_hours::Int                   # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
                                         # of the curriculum
+    learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the curriculum
     metrics::Dict{String, Any}          # Curriculum-related metrics
 
     # Constructor
-    function Curriculum(name::AbstractString, courses::Array{Course}; degree_type::Degree=BS,
-           system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101", id::Int=0)
+    function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
+        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101", id::Int=0)
         this = new()
         this.name = name
         this.degree_type = degree_type
@@ -260,6 +263,7 @@ mutable struct Curriculum
         this.graph = SimpleDiGraph{Int}()
         create_graph!(this)
         this.metrics = Dict{String, Any}()
+        this.learning_outcomes = learning_outcomes
         return this
     end
 end

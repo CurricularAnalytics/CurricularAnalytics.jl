@@ -1,24 +1,31 @@
 <template>
+<div id="block_container">
   <div v-if="curriculum" class="graph">
+    <div v-if="curriculum.original.institution" >
+    Curricular Institution: {{curriculum.original.institution}}
+    </div>
     <div v-if="curriculum.original.name" >
-    <p>{{curriculum.original.name}}</p>
+    Curriculum Name: {{curriculum.original.name}}
+    </div>
+    <div v-if="curriculum.original.dp_name" >
+    Degree Plan Name: {{curriculum.original.dp_name}}
     </div>
     <div v-if="curriculum.credits" >
-    <p>Total Credit Hours: {{curriculum.credits}}</p>
-    </div>
-    <div v-if="curriculum.original.institution" >
-    <p>Curricular Institution: {{curriculum.original.institution}}</p>
-    </div>
+    Total Credit Hours: {{curriculum.credits}}
+    </div>    
     <div v-if="curriculum.complexity" >
-    <p>Curricular Complexity: {{curriculum.complexity}}</p>
+    Curricular Complexity: {{curriculum.complexity}}
     </div>
     <curriculum
       :curriculum="curriculum"
       v-bind="options"
+      :name="name"
       :hide-blocking='true'
       ref="curriculum"
     ></curriculum>
   </div>
+<!--<button class="btn btn-close">Save Changes</button>!-->
+</div>
 </template>
 
 <script>
@@ -26,7 +33,12 @@
   const CustomTerm = BaseTerm.extend({
     computed: {
       footer () {
-        return `Credits: ${this.credits}`
+        if (this.complexity){
+          return `Complexity: ${this.complexity}`
+        }
+        else{
+          return `Credits: ${this.credits}`
+        }
       }
     }
   })
@@ -47,7 +59,11 @@
         }
       },
       value () {
-        return this.credits
+        if (this.complexity){
+          return this.complexity
+        }else {
+          return this.credits
+        }
       }    
     }
   })

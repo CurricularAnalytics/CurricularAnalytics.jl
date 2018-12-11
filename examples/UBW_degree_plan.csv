@@ -1,0 +1,20 @@
+Curriculum Name,Underwater Basket Weaving,,,,,,,,,
+Degree Plan Name,2-year plan,,,,,,,,,
+Institution,ACME State University,,,,,,,,,
+Degree Type,AA,,,,,,,,,
+System Type,semester,,,,,,,,,
+CIP,445786,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,Introduction to Baskets,BW,101,,,,3,ACME State University,Baskets I,1
+2,Swimming,PE,115,,,,3,ACME State University,Physical Education,1
+3,Introductory Calculus w/ Applications,MA,116,,,,4,ACME State University,Calculus I,1
+4,Basic Basket Forms,BW,111,1,,5,3,ACME State University,Baskets II,2
+5,Basic Basket Forms Lab,BW,111L,,,,1,ACME State University,Baskets II Laboratory,2
+6,Advanced Basketry,BW,201,"4,5,3",,,3,ACME State University,Baskets III,2
+7,Basket Materials & Decoration,BW,214,1,,,3,ACME State University,Basket Materials,3
+8,Underwater Weaving,BW,301,"2,7",,,3,ACME State University,Baskets IV,3
+9,Humanitites Elective,,,,,,3,ACME State University,Humanitites Core,2
+10,Social Sciences Elective,,,,,,3,ACME State University,,3
+11,Technical Elective,,,,,,3,ACME State University,,4
+12,General Elective,,,,,,3,ACME State University,,4

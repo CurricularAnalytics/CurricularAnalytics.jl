@@ -1,0 +1,31 @@
+Curriculum Name,Curriculum 1,,,,,,,,,
+Degree Plan Name,Degree Plan 1,,,,,,,,,
+Institution,Name of the Institution,,,,,,,,,
+Degree Type,BS,"One of ""AA AS AAS BA BS""",,,,,,,,
+System Type,semester,"One of ""semester, quarter""",,,,,,,,
+CIP,,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,Course 1,C,1,,,,3,UKY,Course Example 1,1
+2,Course 2,C,2,1,,,2,UKY,Course Example 2,1
+Additional Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+3,Additional Course 1,AC,1,,,,3,UKY,,2
+4,Additional Course 2,AC,2,,,,3,UKY,,2
+Course Learning Outcomes,,,,,,,,,,
+CourseID,Learning Outcome ID,Learning Outcome,Description,Requisites,,,,,,
+1,1,AE1,Adding examples 1,,,,,,,
+2,2,AE2,Adding examples 2,,,,,,,
+Curriculum Learning Outcomes,,,,,,,,,,
+Learning Outcome,Description,Requisites,,,,,,,,
+AE1,Adding examples 1,,,,,,,,,
+AE2,Adding examples 2,,,,,,,,,
+"#Degree Plan, Curriculum and Courses headers must be included",,,,,,,,,,
+# For each course,,,,,,,,,,
+# Course ID has to be unique for each cours(Can be list of number or unique names for each course),,,,,,,,,,
+"# Term information must be included, start from 1 and increased by one????",,,,,,,,,,
+# Eather Course name or Prefix and Number must be included,,,,,,,,,,
+# Credit information must be includded ,,,,,,,,,,
+# All other fields are optional,,,,,,,,,,
+# Additional Course Ids must start after Cour IDs,,,,,,,,,,
+# Part of the classes can have Missing term info only if none of other classes has those as prerequisite,,,,,,,,,,

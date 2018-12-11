@@ -2,6 +2,26 @@ using JSON
 using CSV
 using DataFrames
 
+function csv_line_reader(line::AbstractString, delimeter::Char=',')
+    quotes =false
+    result = String[]
+    item=""
+    for ch in line
+        if ch == '"'
+            quotes=!quotes
+        elseif ch == delimeter && !quotes
+            push!(result,item)
+            item=""
+        else
+            item= item * string(ch)
+        end
+    end
+    if length(item)>0
+        push!(result,item)
+    end
+    return result
+end
+
 function find_cell(row, header)
     try
         out = row[header]
@@ -10,10 +30,368 @@ function find_cell(row, header)
         if isa(e, KeyError)
             return Missing
         else
-            return e
+            throw(e)
         end
     end
 end
+
+function generate_course_lo(df_learning_outcomes::DataFrame)
+    lo_dict= Dict{Int, LearningOutcome}()
+    for row in eachrow(df_learning_outcomes)
+        lo_ID = find_cell(row,Symbol("Learning Outcome ID"))
+        lo_name = find_cell(row,Symbol("Learning Outcome"))
+        lo_description = if typeof(find_cell(row,Symbol("Description"))) == Missing "" else find_cell(row,Symbol("Description")) end
+        lo_Credit = if typeof(find_cell(row,Symbol("Hours"))) == Missing 0 else find_cell(row,Symbol("Hours")) end
+        if lo_ID in keys(lo_dict)
+            throw("Learning Outcome ID must be unique")
+        else
+            lo_dict[lo_ID] = LearningOutcome(lo_name, lo_description,lo_Credit)
+        end
+    end
+    for row in eachrow(df_learning_outcomes)
+        lo_ID = find_cell(row,Symbol("Learning Outcome ID"))
+        reqs = find_cell(row,Symbol("Requisites"))
+        if typeof(reqs) != Missing
+            for req in reqs
+               add_lo_requisite!(lo_dict[req],lo_dict[lo_ID],pre)
+            end
+        end
+    end
+    lo_Course = Dict{Int, Array{LearningOutcome}}()
+    for row in eachrow(df_learning_outcomes)
+        c_ID = find_cell(row,Symbol("Course ID"))
+        lo_ID = find_cell(row,Symbol("Learning Outcome ID"))
+        if c_ID in keys(lo_Course)
+            push!(lo_Course[c_ID],lo_dict[lo_ID]) 
+        else
+            lo_Course[c_ID] = [lo_dict[lo_ID]]
+        end
+    end    
+    return lo_Course
+end
+
+function generate_curric_lo(df_curric_lo::DataFrame)
+    learning_outcomes = LearningOutcome[]
+    for row in eachrow(df_curric_lo)
+        lo_name = find_cell(row,Symbol("Learning Outcome"))
+        lo_description = find_cell(row,Symbol("Description"))
+        push!(learning_outcomes,LearningOutcome(lo_name, lo_description,0))
+    end
+    return learning_outcomes
+end
+
+function read_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{LearningOutcome}}=Dict{Int, Array{LearningOutcome}}(), all_c=false)
+    course_dict= Dict{Int, Course}()
+    for row in eachrow(df_courses)
+        c_ID = row[Symbol("Course ID")]
+        c_Name = if typeof(find_cell(row,Symbol("Course Name"))) == Missing "" else find_cell(row,Symbol("Course Name")) end
+        c_Credit = row[Symbol("Credit Hours")] 
+        c_Prefix = if typeof(find_cell(row,Symbol("Prefix"))) == Missing "" else find_cell(row,Symbol("Prefix")) end
+        c_Number = if typeof(find_cell(row,Symbol("Number"))) == Missing "" else string(find_cell(row,Symbol("Number"))) end
+        c_Inst = if typeof(find_cell(row,Symbol("Institution"))) == Missing "" else find_cell(row,Symbol("Institution")) end
+        c_col_name = if typeof(find_cell(row,Symbol("Canonical Name"))) == Missing "" else find_cell(row,Symbol("Canonical Name")) end
+        learning_outcomes = if c_ID in keys(lo_Course) lo_Course[c_ID] else LearningOutcome[] end
+        if c_ID in keys(course_dict)
+            throw("Course IDs must be unique")
+        else
+            course_dict[c_ID] = Course(c_Name, c_Credit, prefix= c_Prefix, learning_outcomes= learning_outcomes,
+                num= c_Number, institution=c_Inst, canonical_name=c_col_name)
+        end
+    end
+    if all_c
+        for row in eachrow(df_courses)
+            c_ID = row[Symbol("Course ID")]
+            pre_reqs = find_cell(row,Symbol("Prerequisites"))
+            if typeof(pre_reqs) != Missing
+                for pre_req in split(string(pre_reqs),",")
+                    add_requisite!(course_dict[parse(Int,pre_req)],course_dict[c_ID],pre)
+                end
+            end
+            co_reqs = find_cell(row,Symbol("Corequisites"))
+            if typeof(co_reqs) != Missing
+                for co_req in split(string(co_reqs),",")
+                   add_requisite!(course_dict[parse(Int,co_req)],course_dict[c_ID],co)
+                end
+            end
+            sco_reqs = find_cell(row,Symbol("Strict-Corequisites"))
+            if typeof(sco_reqs) != Missing
+                for sco_req in split(string(sco_reqs),",")
+                   add_requisite!(course_dict[parse(Int,sco_req)],course_dict[c_ID],strict_co)
+                end
+            end
+
+        end
+    end
+    return course_dict
+end
+function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course})
+    terms = Dict{Int, Array{Course}}()
+    for row in eachrow(df_courses)
+        c_ID = find_cell(row,Symbol("Course ID"))
+        term_ID = find_cell(row,Symbol("Term"))
+        if term_ID in keys(terms)
+            push!(terms[term_ID],course_dict[c_ID]) 
+        else
+            terms[term_ID] = [course_dict[c_ID]]
+        end
+    end    
+    return terms
+end
+function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
+    terms = Dict{Int, Array{Course}}()
+    for row in eachrow(df_courses)
+        c_ID = find_cell(row,Symbol("Course ID"))
+        term_ID = find_cell(row,Symbol("Term"))
+        for course in course_arr
+            if course_dict[c_ID].id == course.id
+                if term_ID in keys(terms)
+                    push!(terms[term_ID],course) 
+                else
+                    terms[term_ID] = [course]
+                end
+                break
+            end            
+        end        
+        
+    end    
+    return terms
+end
+function read_csv_new(file_path::AbstractString)
+    dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS)
+    dict_curric_system = Dict("semester"=>semester, "quarter"=>quarter)
+    dp_name = ""
+    dp_add_courses = Array{Course,1}()
+    curric_name = ""
+    curric_inst = ""
+    curric_dtype = dict_curric_degree_type["BS"]
+    curric_stype = dict_curric_system["semester"]
+    curric_CIP = ""
+    courses_header = 1
+    course_count = 0
+    additional_course_start=0
+    additional_course_count=0
+    learning_outcomes_start=0
+    learning_outcomes_count=0
+    curric_learning_outcomes_start=0
+    curric_learning_outcomes_count=0
+    part_missing_term=false
+    open(file_path) do csv_file        
+        read_line = csv_line_reader(readline(csv_file),',')
+        courses_header += 1
+        if read_line[1] == "Curriculum Name"
+            curric_name = read_line[2]
+            read_line = csv_line_reader(readline(csv_file),',')
+            is_dp = read_line[1] == "Degree Plan Name"
+            if is_dp 
+                dp_name = read_line[2]
+                read_line = csv_line_reader(readline(csv_file),',')
+                courses_header += 1
+            end
+            if read_line[1] == "Institution"
+                curric_inst = read_line[2]
+                read_line = csv_line_reader(readline(csv_file),',')
+                courses_header += 1
+            end
+            if read_line[1] == "Degree Type"
+                curric_dtype = dict_curric_degree_type[read_line[2]]
+                read_line = csv_line_reader(readline(csv_file),',')
+                courses_header += 1
+            end
+            if read_line[1] == "System Type"
+                curric_stype = dict_curric_system[read_line[2]]
+                read_line = csv_line_reader(readline(csv_file),',')
+                courses_header += 1
+            end
+            if read_line[1] == "CIP"
+                curric_CIP = read_line[2]
+                read_line = csv_line_reader(readline(csv_file),',')
+                courses_header += 1
+            end
+            if read_line[1] == "Courses"
+                courses_header += 1 
+            else
+                throw("Could not found Courses")
+            end         
+            
+        else 
+            throw("Could not found a Curriculum")
+        end
+        #read_line = csv_line_reader(readline(csv_file),',')
+        #courses_start += 1
+        read_line = csv_line_reader(readline(csv_file),',')
+        while length(read_line)>0 && read_line[1] != "Additional Courses" && read_line[1] != "Course Learning Outcomes"&&
+            read_line[1] != "Curriculum Learning Outcomes" && !startswith(read_line[1],"#")
+            if length(read_line[1]) == 0
+                throw("All courses must have Course ID")
+            end
+            course_count +=1
+            read_line = csv_line_reader(readline(csv_file),',')
+        end
+        df_courses = CSV.File(file_path, header=courses_header, limit=course_count-1) |> DataFrame
+        if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID")))
+            throw("All courses must have unique Course ID")
+        end
+        df_all_courses = DataFrame()
+        df_additional_courses =DataFrame()
+        if length(read_line)>0 && read_line[1] == "Additional Courses"
+            if !is_dp throw("Only Degree Plan could have additional classes") end
+            additional_course_start = courses_header+course_count+1
+            read_line = csv_line_reader(readline(csv_file),',')
+            while length(read_line)>0 && read_line[1] != "Course Learning Outcomes" && 
+                read_line[1] != "Curriculum Learning Outcomes" && !startswith(read_line[1],"#")
+                additional_course_count +=1
+                read_line = csv_line_reader(readline(csv_file),',')
+            end     
+        end
+        if additional_course_count > 1
+            df_additional_courses = CSV.File(file_path, header=additional_course_start, limit=additional_course_count-1) |> DataFrame
+            df_all_courses = vcat(df_courses,df_additional_courses)
+            #add_cources=create_additional_courses(df_additional_courses, terms,part_missing)
+        else
+            df_all_courses = df_courses
+        end
+        
+        if any(ismissing.(df_all_courses[Symbol("Term")])) && is_dp
+            throw("All courses in Degree Plan must have Term information")
+        end  
+        df_course_learning_outcomes=""
+        if length(read_line)>0 && read_line[1] == "Course Learning Outcomes"
+            learning_outcomes_start = additional_course_start+additional_course_count+1
+            read_line = csv_line_reader(readline(csv_file),',')
+            while length(read_line)>0 && !startswith(read_line[1],"#")  && read_line[1] != "Curriculum Learning Outcomes"
+                learning_outcomes_count +=1
+                read_line = csv_line_reader(readline(csv_file),',')
+            end  
+            if learning_outcomes_count > 1
+                df_course_learning_outcomes = CSV.File(file_path, header=learning_outcomes_start, limit=learning_outcomes_count-1) |> DataFrame
+            end
+        end    
+        
+        course_learning_outcomes =if df_course_learning_outcomes != "" generate_course_lo(df_course_learning_outcomes) else Dict{Int, Array{LearningOutcome}}() end
+        
+        df_curric_learning_outcomes = ""
+        if length(read_line)>0 && read_line[1] == "Curriculum Learning Outcomes"
+            curric_learning_outcomes_start = learning_outcomes_start+learning_outcomes_count+1
+            read_line = csv_line_reader(readline(csv_file),',')
+            while length(read_line)>0 && !startswith(read_line[1],"#")
+                curric_learning_outcomes_count +=1
+                read_line = csv_line_reader(readline(csv_file),',')
+            end            
+            if learning_outcomes_count > 1
+                df_curric_learning_outcomes = CSV.File(file_path, header=curric_learning_outcomes_start, limit=curric_learning_outcomes_count-1) |> DataFrame
+            end
+        end  
+        
+        curric_learning_outcomes =if df_curric_learning_outcomes != "" generate_curric_lo(df_curric_learning_outcomes) else LearningOutcome[] end
+
+        if is_dp
+            all_courses = read_courses(df_all_courses,course_learning_outcomes, true)
+            all_courses_arr = [course[2] for course in all_courses]
+            curric = Curriculum("",all_courses_arr,learning_outcomes=Array{LearningOutcome,1}()) 
+            delay_factor(curric)
+            blocking_factor(curric)
+            centrality(curric)
+            complexity(curric)
+            terms = read_terms(df_all_courses,all_courses, curric.courses)
+            #terms = read_terms(df_all_courses, all_courses)
+            all_courses = [course[2] for course in all_courses] 
+            terms_arr = Array{Term}(undef,length(terms))
+            for term in terms
+                terms_arr[term[1]]=Term([class for class in term[2]])
+            end
+            curric_courses = read_courses(df_courses,course_learning_outcomes)
+            curric_courses = [course[2] for course in curric_courses] 
+            additional_courses = read_courses(df_additional_courses,course_learning_outcomes)  
+            ac_arr =Course[]
+            for course in additional_courses
+                push!(ac_arr,course[2])
+            end             
+            curric = Curriculum(curric_name, curric_courses, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+                                system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
+            
+            degree_plan = DegreePlan(dp_name, curric, terms_arr, ac_arr)
+            return degree_plan
+            #visualize(degree_plan, notebook=true)
+        else
+            curric_courses = read_courses(df_courses,course_learning_outcomes, true)
+            curric_courses_arr = [course[2] for course in curric_courses] 
+            term_type =  eltype(df_courses[Symbol("Term")])
+            if term_type == Missing  
+                curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+                                    system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
+                delay_factor(curric)
+                blocking_factor(curric)
+                centrality(curric)
+                complexity(curric)
+                complexity(curric)
+                return curric
+                #visualize(curric, notebook=true)
+            else
+                #If term information is given but part of it missing note that and make a new term at the end of them
+                #part_missing_term=any(ismissing.(df_courses[Symbol("Term")]))
+                terms = read_terms(df_courses, curric_courses)
+                terms_arr = Array{Term}(undef,length(terms))
+                for term in terms
+                    terms_arr[term[1]]=Term([class for class in term[2]])
+                end
+                curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+                                    system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
+                delay_factor(curric)
+                blocking_factor(curric)
+                centrality(curric)
+                complexity(curric)
+                degree_plan = DegreePlan("", curric, terms_arr)
+                return degree_plan
+                #visualize(degree_plan, notebook=true)
+            end
+        end
+    end
+end
+
+function prepare_data(degree_plan::DegreePlan, edit,hide_header)
+    dp_dict=Dict{String,Any}()
+    dp_dict["options"] = Dict{String, Any}()
+    dp_dict["options"]["edit"]=edit
+    dp_dict["options"]["hideTerms"]=hide_header
+    dp_dict["curriculum"] = Dict{String, Any}()
+    dp_dict["curriculum"]["dp_name"] = degree_plan.name
+    dp_dict["curriculum"]["name"] = degree_plan.curriculum.name
+    #dp_dict["curriculum"]["id"] = degree_plan.curriculum.id
+    dp_dict["curriculum"]["institution"] = degree_plan.curriculum.institution
+    #dp_dict["curriculum"]["CIP"] = degree_plan.curriculum.CIP
+    dp_dict["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
+    for i = 1:degree_plan.num_terms
+        current_term = Dict{String, Any}()
+        current_term["id"] = i
+        current_term["name"] = "Term $i"
+        current_term["curriculum_items"] = Dict{String, Any}[]
+        for course in degree_plan.terms[i].courses
+            current_course = Dict{String, Any}()
+            current_course["id"] = course.id
+            current_course["nameSub"] = course.name
+            current_course["name"] =  course.prefix * " " * course.num
+            #current_course["prefix"] =  course.prefix
+            #current_course["num"] = course.num
+            current_course["credits"] = course.credit_hours
+            current_course["curriculum_requisites"] = Dict{String, Any}[]
+            current_course["metrics"] = course.metrics
+            #current_course["institution"] = course.institution
+            #current_course["canonical_name"] = course.canonical_name
+            for req in collect(keys(course.requisites))
+                current_req = Dict{String, Any}()
+                current_req["source_id"] = req
+                current_req["target_id"] = course.id
+                # Parse the Julia requisite type to the required type for the visualization
+                current_req["type"] = requisite_to_string(course.requisites[req])
+                push!(current_course["curriculum_requisites"], current_req)
+            end
+            push!(current_term["curriculum_items"], current_course)
+        end
+        push!(dp_dict["curriculum"]["curriculum_terms"], current_term)
+    end
+    return dp_dict
+end
+
 
 """
     read_csv(file_path::AbstractString)
@@ -47,6 +425,11 @@ function read_csv(file_path::AbstractString)
         terms[term[Symbol("Term")][1]]=Term(termclasses)    
     end
     return c, terms
+end
+
+function write_csv(file_path::AbstractString, original_plan::Dict{String,Any}, editied_curric::Dict{String,Any})
+
+    println("coming soon")
 end
 
 """
@@ -147,8 +530,9 @@ will be read.
 function write_degree_plan(plan::DegreePlan, file_path::AbstractString)
     io = open(file_path, "w")
     degreeplan = Dict{String, Any}()
-    degreeplan["name"] = plan.name
+    
     degreeplan["curriculum"] = Dict{String, Any}()
+    degreeplan["curriculum"]["dp_name"] = plan.name
     degreeplan["curriculum"]["name"] = plan.curriculum.name
     degreeplan["curriculum"]["id"] = plan.curriculum.id
     degreeplan["curriculum"]["institution"] = plan.curriculum.institution
