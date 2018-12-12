@@ -741,9 +741,9 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.0.tgz#50c1e2260ac0ed9439a181de3725a0168d59c48a"
 
-"@unm-idi/vue-curricula@^1.1.23":
-  version "1.1.23"
-  resolved "https://registry.yarnpkg.com/@unm-idi/vue-curricula/-/vue-curricula-1.1.23.tgz#56e99fd956b38f2e36762c2fd7b9d13ef13af0d1"
+"@unm-idi/vue-curricula@^1.1.24":
+  version "1.1.24"
+  resolved "https://registry.yarnpkg.com/@unm-idi/vue-curricula/-/vue-curricula-1.1.24.tgz#46489894e8f8f05c6dd5597f01f850602f461120"
   dependencies:
     d3-drag "^1.2.1"
     d3-selection "^1.3.0"
