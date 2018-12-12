@@ -24,7 +24,7 @@
       ref="curriculum"
     ></curriculum>
   </div>
-<!--<button class="btn btn-close">Save Changes</button>!-->
+<!-- <button class="btn btn-close" @click="refresh">Save Changes</button>! -->
 </div>
 </template>
 
@@ -100,6 +100,10 @@
       }
     },
     methods: {
+      refresh() {
+        window.parent.postMessage({curriculum: this.export}, '*');
+      },
+
       receiveMessage (event) {
         const data = event.data
         if (data) {
