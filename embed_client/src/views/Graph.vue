@@ -45,14 +45,18 @@
   const CustomItem = BaseItem.extend({
     computed: {
       content () {
-        let output = ""
-        for (var metric in this.original.metrics) {
-          output += `${metric}: ${this.original.metrics[metric]}<br />`
+        if (this.original) {
+          let output = ""
+          for (var metric in this.original.metrics) {
+            output += `${metric}: ${this.original.metrics[metric]}<br />`
+          }
+          return output
+        } else {
+          return 0
         }
-        return output
       },
       complexity () {
-        if (this.original.metrics.complexity) {
+        if (this.original && this.original.metrics.complexity) {
           return this.original.metrics.complexity
         } else {
           return 0
