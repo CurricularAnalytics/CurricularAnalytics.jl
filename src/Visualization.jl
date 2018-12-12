@@ -60,7 +60,7 @@ Keyword:
     Default is `recent-visualization.json`.
 """
 
-function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false)
+function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false,output_file="default_csv.csv")
     num_courses = length(curric.courses)
     if num_courses <= 8
         term_count = 3
@@ -87,11 +87,11 @@ function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false)
         error("Curriculum is too big to visualize.")
     end
     dp = create_degree_plan(curric, max_terms = term_count, max_credits_per_term = max_credits_per_term)
-    viz_helper(dp; notebook=notebook, edit=edit, hide_header=true)
+    viz_helper(dp; notebook=notebook, edit=edit, hide_header=true,output_file=output_file)
 end
 
-function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false)
-   viz_helper(plan; changed=changed, notebook=notebook, edit=edit)
+function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false, output_file="default_csv.csv")
+   viz_helper(plan; changed=changed, notebook=notebook, edit=edit,output_file=output_file)
 end
 
 # Main visualization function. A "changed" callback function may be provided which will be invoked whenever the 
@@ -108,7 +108,7 @@ Required:
  - `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
  - `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
 """
-function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=true, hide_header=false)
+function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=true, hide_header=false, output_file="default_csv.csv")
     #write_degree_plan(plan, file_name)
 
     # Data
@@ -122,7 +122,7 @@ function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visuali
 
     on(obs) do new_data
         if (isa(changed, Function)) 
-            write_csv(file_name, data, new_data)
+            changed(plan, new_data, output_file)
         end
     end
 

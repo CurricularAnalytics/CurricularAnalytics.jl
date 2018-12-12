@@ -10,9 +10,9 @@ end
 function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{Int}, current_term::Array{Int})
     req_complete = true
     #find all inneighbors of current node
-   inngbr = inneighbors(curric.graph, index)
-   for ngbr in inngbr
-       req_type = curric.courses[index].requisites[curric.courses[ngbr].id]
+    inngbr = inneighbors(curric.graph, index)
+    for ngbr in inngbr
+        req_type = curric.courses[index].requisites[curric.courses[ngbr].id]
         if req_type == pre && !(ngbr in previous_terms)
             req_complete = false 
             break      
