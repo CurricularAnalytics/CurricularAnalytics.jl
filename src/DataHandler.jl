@@ -1,17 +1,9 @@
 using JSON
 using CSV
 using DataFrames
-function find_curric_courses(curric,course)
-    for c_course in curric.courses
-        if c_course.id == course
-            return true
-        end
-    end
-    return false
-end
-function find_additional_courses(ad_course,course)
-    for ad_c in ad_course
-        if ad_c.id == course
+function find_courses(courses,course_id)
+    for course in courses
+        if course_id == course.id
             return true
         end
     end
@@ -66,8 +58,6 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
         curric = original_plan.curriculum
         curric_name = "Curriculum Name,"* string(curric.name) *",,,,,,,,,"
         write(csv_file, curric_name)   
-        println(isdefined(original_plan, :additional_courses))
-        println(original_plan.name != "")
         if original_plan.name != "" || isdefined(original_plan, :additional_courses)
             dp_name="\nDegree Plan Name,"*string(original_plan.name)*",,,,,,,,,"
             write(csv_file, dp_name)
@@ -84,7 +74,7 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
         write(csv_file,course_header) 
         for (term_id,term) in enumerate(original_plan.terms)
             for course in term.courses
-                if find_curric_courses(curric,course.id)
+                if find_courses(curric.courses,course.id)
                     write(csv_file, course_line(course,term_id)) 
                 end
             end
@@ -94,7 +84,7 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
             write(csv_file,course_header) 
             for (term_id,term) in enumerate(original_plan.terms)
                 for course in term.courses
-                    if find_additional_courses(original_plan.additional_courses,course.id)
+                    if find_courses(original_plan.additional_courses,course.id)
                         write(csv_file,course_line(course,term_id)) 
                     end
                 end
@@ -147,6 +137,110 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
         
     end
 end
+function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString="default_csv.csv")
+    dict_requisite = Dict("prereq"=>pre, "coreq"=>co, "strict-coreq"=>strict_co)
+    # Requisites might be updated by interface
+    # Get all original courses without any requisite
+    original_curriculum = original_plan.curriculum
+    is_dp = original_plan.name != "" || isdefined(original_plan, :additional_courses) 
+    original_courses = Dict{Int,Course}()
+    new_courses_IDs = Dict{String,Int}()
+    new_courses =  Dict{Int,Course}()
+    for term in original_plan.terms
+        for course in term.courses
+            course.requisites = Dict{Int, Requisite}()
+            original_courses[course.id] = course
+        end
+    end    
+    num_terms = length(edited_plan["curriculum_terms"])
+    terms = Array{Term}(undef, num_terms)
+    all_courses = Array{Course}(undef, 0)
+    courses_dict = Dict{Int, Course}()
+    for i = 1:num_terms
+        # grab the current term
+        current_term = edited_plan["curriculum_terms"][i]
+        # create an array of course objects with length equal to the number of courses
+        courses = Array{Course}(undef, 0)    
+        # for each course in the current term
+        for course in current_term["curriculum_items"]    
+            # create Course object for each course in the current term
+            current_course = ""        
+            if typeof(course["id"]) == String && !(course["id"] in keys(new_courses_IDs))
+                c_credit = typeof(course["credits"]) == String ? parse(Int,course["credits"]) : course["credits"]
+                current_course = Course(course["nameSub"],c_credit,prefix=split(course["name"]," ")[1],
+                    num=split(course["name"]," ")[end])
+                new_courses_IDs[course["id"]] = current_course.id
+                new_courses[current_course.id] = current_course    
+            else
+                course_id = course["id"]
+                if typeof(course_id) == String
+                    course_id = new_courses_IDs[course_id]
+                end
+                current_course = original_courses[course_id]
+                current_course.name=course["nameSub"]
+                current_course.credit_hours=course["credits"]   
+                # get course remove alll reqs
+            end
+            # push each Course object to the array of courses
+            push!(courses, current_course)
+            push!(all_courses, current_course)
+            courses_dict[current_course.id] = current_course
+        end
+
+        # for each course object create its requisites
+        for course in current_term["curriculum_items"]
+            # if the course has requisites
+            if !isempty(course["curriculum_requisites"])
+                # cor each requisite of the course
+                for req in course["curriculum_requisites"]
+                    # create the requisite relationship
+                    source = ""
+                    if(typeof(req["source_id"]) == Int)
+                        source = courses_dict[req["source_id"]]
+                    elseif(typeof(req["source_id"]) == String)
+                        source = courses_dict[new_courses_IDs[req["source_id"]]]
+                    end
+                    target = ""
+                    if(typeof(req["target_id"]) == Int)
+                        target = courses_dict[req["target_id"]]
+                    elseif(typeof(req["target_id"]) == String)
+                        target = courses_dict[new_courses_IDs[req["target_id"]]]
+                    end
+                    add_requisite!(source, target, dict_requisite[req["type"]])
+                end
+            end
+        end
+        # Set the current term to be a Term object
+        terms[i] = Term(courses)
+    end
+    curric = Curriculum("", all_courses, id = original_curriculum.id)
+    #calculate metrics for courses in terms
+    delay_factor(curric)
+    blocking_factor(curric)
+    centrality(curric)
+    complexity(curric)    
+    #then split courses betweeen additional and curriculum courses
+    curric_courses = Course[]
+    additional_courses = Course[]
+    for course in all_courses
+        if find_courses(original_curriculum.courses,course.id)
+            push!(curric_courses,course)
+        elseif find_courses(original_plan.additional_courses, course.id)
+            push!(additional_courses,course)
+        elseif is_dp
+            push!(additional_courses,course)
+        else
+            push!(curric_courses,course)
+        end
+    end
+    curric = Curriculum(original_curriculum.name, curric_courses, learning_outcomes = original_curriculum.learning_outcomes,
+        degree_type= original_curriculum.degree_type, system_type=original_curriculum.system_type, 
+        institution=original_curriculum.institution, CIP=original_curriculum.CIP,id=original_curriculum.id)
+        
+    degree_plan = DegreePlan(original_plan.name, curric, terms, additional_courses)
+    write_csv(degree_plan) 
+end
+
 function csv_line_reader(line::AbstractString, delimeter::Char=',')
     quotes =false
     result = String[]
@@ -578,12 +672,6 @@ function read_csv(file_path::AbstractString)
     end
     return c, terms
 end
-
-function write_csv(file_path::AbstractString, original_plan::Dict{String,Any}, editied_curric::Dict{String,Any})
-
-    println("dsadasda")
-end
-
 """
     csv_to_json(csv_file_path::AbstractString, json_file_path::AbstractString)
 

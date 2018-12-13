@@ -28,7 +28,7 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
         complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
         read_csv, csv_to_json, read_degree_plan, write_degree_plan, create_degree_plan, 
-        bin_packing, add_lo_requisite!, prepare_data, read_csv_new
+        bin_packing, add_lo_requisite!, prepare_data, read_csv_new, update_plan, write_csv
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
 """
