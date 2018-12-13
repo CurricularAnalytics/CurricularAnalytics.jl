@@ -3,7 +3,7 @@ using CSV
 using DataFrames
 function find_curric_courses(curric,course)
     for c_course in curric.courses
-        if c_course.id == course.id
+        if c_course.id == course
             return true
         end
     end
@@ -11,7 +11,7 @@ function find_curric_courses(curric,course)
 end
 function find_additional_courses(ad_course,course)
     for ad_c in ad_course
-        if ad_c.id == course.id
+        if ad_c.id == course
             return true
         end
     end
@@ -84,7 +84,7 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
         write(csv_file,course_header) 
         for (term_id,term) in enumerate(original_plan.terms)
             for course in term.courses
-                if find_curric_courses(curric,course)
+                if find_curric_courses(curric,course.id)
                     write(csv_file, course_line(course,term_id)) 
                 end
             end
@@ -94,7 +94,7 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
             write(csv_file,course_header) 
             for (term_id,term) in enumerate(original_plan.terms)
                 for course in term.courses
-                    if find_additional_courses(original_plan.additional_courses,course)
+                    if find_additional_courses(original_plan.additional_courses,course.id)
                         write(csv_file,course_line(course,term_id)) 
                     end
                 end
@@ -451,7 +451,7 @@ function read_csv_new(file_path::AbstractString)
             for term in terms
                 terms_arr[term[1]]=Term([class for class in term[2]])
             end
-            curric_courses = read_courses(df_courses,all_courses)
+            curric_courses = read_courses(df_courses, all_courses)
             curric_courses = [course[2] for course in curric_courses] 
             additional_courses = read_courses(df_additional_courses,all_courses)  
             ac_arr =Course[]
