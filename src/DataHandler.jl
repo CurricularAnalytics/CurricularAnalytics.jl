@@ -225,7 +225,7 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
     for course in all_courses
         if find_courses(original_curriculum.courses,course.id)
             push!(curric_courses,course)
-        elseif find_courses(original_plan.additional_courses, course.id)
+        elseif isdefined(original_plan, :additional_courses) && find_courses(original_plan.additional_courses, course.id)
             push!(additional_courses,course)
         elseif is_dp
             push!(additional_courses,course)
