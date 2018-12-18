@@ -2,13 +2,13 @@
 <div id="block_container">
   <div v-if="curriculum" class="graph">
     <div v-if="curriculum.original.institution" >
-    Curricular Institution: {{curriculum.original.institution}}
+    Institution: {{curriculum.original.institution}}
     </div>
     <div v-if="curriculum.original.name" >
-    Curriculum Name: {{curriculum.original.name}}
+    Curriculum: {{curriculum.original.name}}
     </div>
     <div v-if="curriculum.original.dp_name" >
-    Degree Plan Name: {{curriculum.original.dp_name}}
+    Degree Plan: {{curriculum.original.dp_name}}
     </div>
     <div v-if="curriculum.credits" >
     Total Credit Hours: {{curriculum.credits}}
