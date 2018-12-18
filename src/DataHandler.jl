@@ -455,6 +455,7 @@ function read_csv_new(file_path::AbstractString)
     curric_learning_outcomes_start=0
     curric_learning_outcomes_count=0
     part_missing_term=false
+    output = ""
     open(file_path) do csv_file        
         read_line = csv_line_reader(readline(csv_file),',')
         courses_header += 1
@@ -589,7 +590,7 @@ function read_csv_new(file_path::AbstractString)
                                 system_type=curric_stype, institution=curric_inst, CIP=curric_CIP,id=curric.id)
             
             degree_plan = DegreePlan(dp_name, curric, terms_arr, ac_arr)
-            return degree_plan
+            output = degree_plan
             #visualize(degree_plan, notebook=true)
         else
             curric_courses = read_all_courses(df_courses,course_learning_outcomes)
@@ -603,7 +604,7 @@ function read_csv_new(file_path::AbstractString)
                 centrality(curric)
                 complexity(curric)
                 complexity(curric)
-                return curric
+                output = curric
                 #visualize(curric, notebook=true)
             else
                 #If term information is given but part of it missing note that and make a new term at the end of them
@@ -620,11 +621,17 @@ function read_csv_new(file_path::AbstractString)
                 centrality(curric)
                 complexity(curric)
                 degree_plan = DegreePlan("", curric, terms_arr)
-                return degree_plan
+                output = degree_plan
                 #visualize(degree_plan, notebook=true)
             end
         end
     end
+
+    if endswith(file_path,"_temp.csv")
+        rm(file_path)
+    end
+    return output
+
 end
 
 function prepare_data(degree_plan::DegreePlan, edit,hide_header)
