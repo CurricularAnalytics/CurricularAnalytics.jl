@@ -10,6 +10,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.2.0",
     "@unm-idi/vue-curricula": "^1.1.25",
+    "@vue/cli": "^3.2.1",
     "vue": "^2.5.16",
     "vue-router": "^3.0.1"
   },
