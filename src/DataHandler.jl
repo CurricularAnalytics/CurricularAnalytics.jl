@@ -1,6 +1,37 @@
 using JSON
 using CSV
 using DataFrames
+
+function readfile(file_path)
+    open(file_path) do f 
+        lines = readlines(f)
+        return lines
+    end
+end
+
+function remove_empty_lines(file_path)
+    if file_path[end-3:end] != ".csv"
+        throw("Input is not a csv file")
+    end
+    temp_file = file_path[1:end-4] * "_temp.csv"
+    file = readfile(file_path)
+    open(temp_file,"w") do f  
+        new_file = ""
+        for line in file
+            line = replace(line, "\r"=> "")
+            if length(line)>0 && !startswith(replace(line,"\""=>""), "#")
+                line= line * "\n"
+                new_file = new_file * line
+            end
+        end
+        if length(new_file)>0
+            new_file = chop(new_file)
+        end
+        write(f,new_file)
+    end
+    return temp_file
+end
+
 function find_courses(courses,course_id)
     for course in courses
         if course_id == course.id
@@ -403,7 +434,9 @@ function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course
     end    
     return terms
 end
+
 function read_csv_new(file_path::AbstractString)
+    file_path = remove_empty_lines(file_path)
     dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS)
     dict_curric_system = Dict("semester"=>semester, "quarter"=>quarter)
     dp_name = ""

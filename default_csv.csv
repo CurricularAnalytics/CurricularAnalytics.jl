@@ -6,14 +6,10 @@ System Type,semester,,,,,,,,,
 CIP,,,,,,,,,,
 Courses,,,,,,,,,,
 Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
-329592947354035,Calculus I,,,,,,4,,,1
-350232557899377,Calculus II,,,"329592947354035",,,4,,,2
-262159650646250,Physics I,,,"329592947354035",,,4,,,2
-228240293697188,Programming I,,,"329592947354035",,,3,,,2
-773101023266030,Calculus III,,,"350232557899377",,,4,,,3
-735589541563174,Differential Eqs.,,,"350232557899377",,,3,,,3
-721059485474027,Circuits I,,,"262159650646250,228240293697188,735589541563174",,,3,,,4
-Additional Courses,,,,,,,,,,
-Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
-213386129263220,cxcxzcxz,New,Item,,,,0,,,1
-11452223740199,xZXX,New,Item,,,,0,,,1
+245099295814772,Calculus I,,,,,,4,,,1
+723444326414583,Calculus II,,,"245099295814772",,,4,,,2
+379257619817525,Physics I,,,"245099295814772",,,4,,,2
+13575292388626,Programming I,,,"245099295814772",,,3,,,2
+72363758636397,Calculus III,,,"723444326414583",,,4,,,3
+24967791063427,Differential Eqs.,,,"723444326414583",,,3,,,3
+527023786720374,Circuits I,,,"24967791063427,379257619817525,13575292388626",,,3,,,4
