@@ -60,23 +60,26 @@ Keyword:
     Default is `recent-visualization.json`.
 """
 
-function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false,output_file="default_csv.csv")
+function visualize(curric::Curriculum;changed=nothing,  notebook::Bool=false, edit::Bool=false,
+    output_file="default_csv.csv", show_delay_factor::Bool=false,
+    show_blocking_factor::Bool=false, show_centrality::Bool=false,
+    show_complexity::Bool=false)
     num_courses = length(curric.courses)
     if num_courses <= 8
         term_count = 3
-        max_credits_per_term = 6
+        max_credits_per_term = 10
     elseif num_courses <= 16
         term_count = 4
-        max_credits_per_term = 12
+        max_credits_per_term = 13
     elseif num_courses <= 24
         term_count = 5
-        max_credits_per_term = 12
+        max_credits_per_term = 16
     elseif num_courses <= 32
         term_count = 6
-        max_credits_per_term = 15
+        max_credits_per_term = 16
     elseif num_courses <= 40
         term_count = 7
-        max_credits_per_term = 18
+        max_credits_per_term = 19
     elseif num_courses <= 48
         term_count = 8
         max_credits_per_term = 21
@@ -87,11 +90,30 @@ function visualize(curric::Curriculum; notebook::Bool=false, edit::Bool=false,ou
         error("Curriculum is too big to visualize.")
     end
     dp = create_degree_plan(curric, max_terms = term_count, max_credits_per_term = max_credits_per_term)
-    viz_helper(dp; notebook=notebook, edit=edit, hide_header=true,output_file=output_file)
+    viz_helper(dp; changed=changed, notebook=notebook, edit=edit, hide_header=true,
+    output_file=output_file, show_delay_factor=show_delay_factor,
+    show_blocking_factor=show_blocking_factor,show_centrality=show_centrality,
+    show_complexity=show_complexity)
 end
 
-function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false, output_file="default_csv.csv")
-   viz_helper(plan; changed=changed, notebook=notebook, edit=edit,output_file=output_file)
+function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, 
+    edit::Bool=false, output_file="default_csv.csv", show_delay_factor::Bool=true,
+    show_blocking_factor::Bool=true, show_centrality::Bool=true,
+    show_complexity::Bool=true)
+   viz_helper(plan; changed=changed, notebook=notebook, edit=edit,output_file=output_file, show_delay_factor=show_delay_factor,
+   show_blocking_factor=show_blocking_factor,show_centrality=show_centrality,
+   show_complexity=show_complexity)
+end
+
+function visualize(curric_terms::Tuple; changed=nothing, notebook::Bool=false, 
+    edit::Bool=false, output_file="default_csv.csv", show_delay_factor::Bool=false,
+    show_blocking_factor::Bool=false, show_centrality::Bool=false,
+    show_complexity::Bool=false)
+    plan = DegreePlan("", curric_terms[1], curric_terms[2])
+   viz_helper(plan; changed=changed, notebook=notebook, edit=edit,hide_header=true,
+   output_file=output_file, show_delay_factor=show_delay_factor,
+   show_blocking_factor=show_blocking_factor,show_centrality=show_centrality,
+   show_complexity=show_complexity)
 end
 
 # Main visualization function. A "changed" callback function may be provided which will be invoked whenever the 
@@ -108,12 +130,16 @@ Required:
  - `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
  - `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
 """
-function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=true, hide_header=false, output_file="default_csv.csv")
+function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=true, hide_header=false, output_file="default_csv.csv",
+    show_delay_factor::Bool=true, show_blocking_factor::Bool=true,
+    show_centrality::Bool=true, show_complexity::Bool=true)
     #write_degree_plan(plan, file_name)
 
     # Data
     #data = JSON.parse(open("./" * file_name))
-    data = prepare_data(plan,edit,hide_header)        
+    data = prepare_data(plan,edit=edit,hide_header=hide_header, show_delay_factor=show_delay_factor,
+    show_blocking_factor=show_blocking_factor,show_centrality=show_centrality,
+    show_complexity=show_complexity)        
 
     # Setup data observation to check for changes being made to curriculum
     s = Scope()

@@ -1,15 +1,15 @@
-Curriculum Name,EE Program,,,,,,,,,
-Degree Plan Name,Curricular Pattern-Calculus Ready ,,,,,,,,,
-Institution,Wright State University ,,,,,,,,,
+Curriculum Name,Underwater Basket Weaving,,,,,,,,,
+Institution,,,,,,,,,,
 Degree Type,BS,,,,,,,,,
 System Type,semester,,,,,,,,,
 CIP,,,,,,,,,,
 Courses,,,,,,,,,,
 Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
-189964466753862,Calculus I,,,,,,4,,,1
-332702244144541,Calculus II,,,"189964466753862",,,4,,,2
-514516458043522,Physics I,,,"189964466753862",,,4,,,2
-578339198057273,Programming I,,,"189964466753862",,,3,,,2
-886603892952277,Calculus III,,,"332702244144541",,,4,,,3
-557991116879170,Differential Eqs.,,,"332702244144541",,,3,,,3
-473884436584827,Circuits I,,,"578339198057273,557991116879170,514516458043522",,,3,,,4
+407170219482275,Introduction to Baskets,BW,101,,,,1,,,1
+791483077951521,Swimming,PE,115,,,,1,,,1
+490771672307658,Introductory Calculus w/ Applications,MA,116,,,,1,,,1
+439910314758237,Basic Basket Forms Lab,BW,111L,,,,1,,,2
+292874827301502,Basic Basket Forms,BW,111,"407170219482275",,"439910314758237",1,,,2
+406405528546733,Basket Materials & Decoration,BW,214,"407170219482275",,,1,,,2
+657834944242405,Underwater Weaving,BW,301,"791483077951521,406405528546733",,,1,,,3
+63040069765916,Advanced Basketry,BW,201,"490771672307658,292874827301502,439910314758237",,,1,,,3

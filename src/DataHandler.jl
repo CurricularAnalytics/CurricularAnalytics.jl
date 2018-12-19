@@ -603,7 +603,6 @@ function read_csv_new(file_path::AbstractString)
                 blocking_factor(curric)
                 centrality(curric)
                 complexity(curric)
-                complexity(curric)
                 output = curric
                 #visualize(curric, notebook=true)
             else
@@ -620,8 +619,9 @@ function read_csv_new(file_path::AbstractString)
                 blocking_factor(curric)
                 centrality(curric)
                 complexity(curric)
-                degree_plan = DegreePlan("", curric, terms_arr)
-                output = degree_plan
+                output = curric, terms_arr
+                #degree_plan = DegreePlan("", curric, terms_arr)
+                #output = degree_plan
                 #visualize(degree_plan, notebook=true)
             end
         end
@@ -634,7 +634,9 @@ function read_csv_new(file_path::AbstractString)
 
 end
 
-function prepare_data(degree_plan::DegreePlan, edit,hide_header)
+function prepare_data(degree_plan::DegreePlan; edit::Bool=false,hide_header::Bool=false,
+    show_delay_factor::Bool=true, show_blocking_factor::Bool=true,
+    show_centrality::Bool=true, show_complexity::Bool=true)
     dp_dict=Dict{String,Any}()
     dp_dict["options"] = Dict{String, Any}()
     dp_dict["options"]["edit"]=edit
@@ -656,13 +658,25 @@ function prepare_data(degree_plan::DegreePlan, edit,hide_header)
             current_course["id"] = course.id
             current_course["nameSub"] = course.name
             current_course["name"] =  course.prefix * " " * course.num
-            #current_course["prefix"] =  course.prefix
+            #current_course["prefix"] = course.prefix
             #current_course["num"] = course.num
             current_course["credits"] = course.credit_hours
             current_course["curriculum_requisites"] = Dict{String, Any}[]
+            if !show_complexity
+                delete!(course.metrics, "complexity")
+            end
+            if !show_centrality
+                delete!(course.metrics, "centrality")
+            end
+            if !show_delay_factor
+                delete!(course.metrics, "delay factor")
+            end
+            if !show_blocking_factor
+                delete!(course.metrics, "blocking factor")
+            end
             current_course["metrics"] = course.metrics
             #current_course["institution"] = course.institution
-            #current_course["canonical_name"] = course.canonical_name
+            current_course["canonical_name"] = course.canonical_name
             for req in collect(keys(course.requisites))
                 current_req = Dict{String, Any}()
                 current_req["source_id"] = req
