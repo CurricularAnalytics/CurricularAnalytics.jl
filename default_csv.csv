@@ -1,15 +1,15 @@
-Curriculum Name,Underwater Basket Weaving,,,,,,,,,
-Institution,,,,,,,,,,
-Degree Type,BS,,,,,,,,,
+Curriculum,Underwater Basket Weaving,,,,,,,,,
+Institution,ACME State University,,,,,,,,,
+Degree Type,AA,,,,,,,,,
 System Type,semester,,,,,,,,,
-CIP,,,,,,,,,,
+CIP,445786,,,,,,,,,
 Courses,,,,,,,,,,
 Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
-407170219482275,Introduction to Baskets,BW,101,,,,1,,,1
-791483077951521,Swimming,PE,115,,,,1,,,1
-490771672307658,Introductory Calculus w/ Applications,MA,116,,,,1,,,1
-439910314758237,Basic Basket Forms Lab,BW,111L,,,,1,,,2
-292874827301502,Basic Basket Forms,BW,111,"407170219482275",,"439910314758237",1,,,2
-406405528546733,Basket Materials & Decoration,BW,214,"407170219482275",,,1,,,2
-657834944242405,Underwater Weaving,BW,301,"791483077951521,406405528546733",,,1,,,3
-63040069765916,Advanced Basketry,BW,201,"490771672307658,292874827301502,439910314758237",,,1,,,3
+177238851685312,Introduction to Baskets,BW,101,,,,1,,,1
+145714853288404,Swimming,PE,115,,,,1,,,1
+197599834611686,Introductory Calculus w/ Applications,MA,116,,,,1,,,1
+577537740929670,Basic Basket Forms Lab,BW,111L,,,,1,,,2
+601629080577417,Basic Basket Forms,BW,111,"177238851685312",,"577537740929670",1,,,2
+823731437694784,Basket Materials & Decoration,BW,214,"177238851685312",,,1,,,2
+386319403778846,Underwater Weaving,BW,301,"145714853288404,823731437694784",,,1,,,3
+349526055873079,Advanced Basketry,BW,201,"577537740929670,601629080577417,197599834611686",,,1,,,3

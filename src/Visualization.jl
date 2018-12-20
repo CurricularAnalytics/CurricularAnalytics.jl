@@ -66,29 +66,30 @@ function visualize(curric::Curriculum;changed=nothing,  notebook::Bool=false, ed
     show_complexity::Bool=false)
     num_courses = length(curric.courses)
     if num_courses <= 8
-        term_count = 3
-        max_credits_per_term = 10
+        #term_count = 3
+        max_credits_per_term = 12
     elseif num_courses <= 16
-        term_count = 4
-        max_credits_per_term = 13
+        #term_count = 4
+        max_credits_per_term = 15
     elseif num_courses <= 24
-        term_count = 5
-        max_credits_per_term = 16
+        #term_count = 5
+        max_credits_per_term = 18
     elseif num_courses <= 32
-        term_count = 6
-        max_credits_per_term = 16
+        #term_count = 6
+        max_credits_per_term = 18
     elseif num_courses <= 40
-        term_count = 7
-        max_credits_per_term = 19
-    elseif num_courses <= 48
-        term_count = 8
+        #term_count = 7
         max_credits_per_term = 21
+    elseif num_courses <= 48
+        #term_count = 8
+        max_credits_per_term = 23
     elseif num_courses <= 56
-        term_count = 9
-        max_credits_per_term = 24
+        #term_count = 9
+        max_credits_per_term = 26
     else
         error("Curriculum is too big to visualize.")
     end
+    term_count = num_courses
     dp = create_degree_plan(curric, max_terms = term_count, max_credits_per_term = max_credits_per_term)
     viz_helper(dp; changed=changed, notebook=notebook, edit=edit, hide_header=true,
     output_file=output_file, show_delay_factor=show_delay_factor,
