@@ -2,7 +2,6 @@
 
 @testset "DataHandler Tests" begin
 
-
 # 8-vertex test curriculum - valid
 #
 #    A --------* C --------* E
@@ -26,10 +25,11 @@ add_requisite!(D,C,co)
 add_requisite!(C,E,pre)
 add_requisite!(D,F,pre)
 
-curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F], institution="ACME State University", CIP="445786")
-# Test curriculum validity 
-errors = IOBuffer()
-@test isvalid_curriculum(curric, errors) == true
+curric1 = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F], institution="ACME State University", CIP="445786")
+# Write curriculum to disk
+@test write_csv(curric1, "./UBW-curric.csv") == true
+curric2 = read_csv("./UBW-curric.csv")
+@test curric1 == curric2  # read/write invariance test
 
 terms = Array{Term}(undef, 3)
 terms[1] = Term([A,B])
@@ -37,16 +37,9 @@ terms[2] = Term([C,D])
 terms[3] = Term([E,F])
 
 dp1 = DegreePlan("3-term UBW plan", curric, terms)
-
-# Test degree plan validity 
-errors = IOBuffer()
-@test isvalid_degree_plan(dp1, errors) == true
-
-# Write curriculum to disk
-write_degree_plan(dp1, "./UBW.json")
-dp2 = read_degree_plan("./UBW.json")
-
-# Degree plans dp1 and dp2 should evaluate as the same degree plan
-@test dp1 == dp2
+# Write degree plan to disk
+@test write_csv(dp1, "./UBW-degree-plan.json") == true
+dp2 = read_csv("./UBW-degree-plan.json")
+@test dp1 == dp2  # read/write invariance test
 
 end;

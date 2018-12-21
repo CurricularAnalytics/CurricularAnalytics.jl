@@ -168,6 +168,7 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
         
     end
 end
+
 function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString="default_csv.csv")
     dict_requisite = Dict("prereq"=>pre, "coreq"=>co, "strict-coreq"=>strict_co)
     # Requisites might be updated by interface
@@ -415,6 +416,7 @@ function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course})
     end    
     return terms
 end
+
 function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
     terms = Dict{Int, Array{Course}}()
     for row in eachrow(df_courses)
