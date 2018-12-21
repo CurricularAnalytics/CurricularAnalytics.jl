@@ -2,6 +2,36 @@
 
 @testset "DataHandler Tests" begin
 
+# Test the data file format used for curriculum and degree plans
+curric = read_csv(./"curriculum.csv")
+@test curric.name == "Underwater Basket Weaving"
+@test curric.institution == "ACME State University"
+@test curric.degree_type == AA
+@test curric.system_type == semester
+@test curric.CIP == "445786"
+@test length(curric.courses) == 12
+@test curric.num_courses == 12
+@test curric.credit_hours == 35
+@test curric.courses[1].name == Introduction to Baskets
+@test curric.courses[1].id == 1
+@test credit_hours == 3
+@test curric.prefix == "BW"
+@test curric.num == "101"
+@test curric.institution == "ACME State University"
+@test curric.canonical_name == "Baskets I"
+@test length(curric.requisites) == 0
+# TODO: add learning outcomes
+
+dp = read_csv(./"degree_plan.csv")
+@test dp.curriculum.name == "Underwater Basket Weaving"
+@test dp.curriculum.institution == "ACME State University"
+@test dp.curriculum.degree_type == AA
+@test dp.curriculum.system_type == semester
+@test dp.curriculum.CIP == "445786"
+@test length(dp.curriculum.courses) == 12
+
+
+# Create a curriculum and degree plan, and test read/write invariance for both
 # 8-vertex test curriculum - valid
 #
 #    A --------* C --------* E
@@ -41,5 +71,6 @@ dp1 = DegreePlan("3-term UBW plan", curric1, terms)
 @test write_csv(dp1, "UBW-degree-plan.csv") == true
 dp2 = read_csv_new("UBW-degree-plan.csv")
 @test string(dp1) == string(dp2)  # read/write invariance test
+
 
 end;

@@ -80,7 +80,11 @@ function course_line(course,term_id)
     return c_line 
 end
 
+<<<<<<< HEAD
 function write_csv(original_plan,file_path::AbstractString="Temp.csv")
+=======
+function write_csv(original_plan,file_path::AbstractString="temp.csv")
+>>>>>>> 38017691ce137151aacc59cae77307312b56ba99
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
