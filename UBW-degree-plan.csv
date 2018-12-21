@@ -1,0 +1,14 @@
+Curriculum,Underwater Basket Weaving,,,,,,,,,
+Degree Plan,3-term UBW plan,,,,,,,,,
+Institution,ACME State University,,,,,,,,,
+Degree Type,BS,,,,,,,,,
+System Type,semester,,,,,,,,,
+CIP,445786,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+716469576722221,Introduction to Baskets,BW,101,,,,3,ACME State University,Baskets I,1
+364410958200328,Swimming,PE,115,,,,3,ACME State University,Physical Education,1
+201019195474177,Basic Basket Forms,BW,111,"364410958200328,716469576722221","279325829972117",,3,ACME State University,Baskets I,2
+279325829972117,Basic Basket Forms Lab,BW,111L,,,,1,ACME State University,Baskets I Laboratory,2
+813085603425020,Advanced Basketry,CS,300,"201019195474177",,,3,ACME State University,Baskets II,3
+559513388847146,Basket Materials & Decoration,BW,214,"279325829972117",,,3,ACME State University,Basket Materials,3

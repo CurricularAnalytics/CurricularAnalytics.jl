@@ -27,19 +27,19 @@ add_requisite!(D,F,pre)
 
 curric1 = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F], institution="ACME State University", CIP="445786")
 # Write curriculum to disk
-@test write_csv(curric1, "./UBW-curric.csv") == true
-curric2 = read_csv("./UBW-curric.csv")
-@test curric1 == curric2  # read/write invariance test
+#@test write_csv(curric1, "UBW-curric.csv") == true
+#curric2 = read_csv_new("examples/UBW-curric.csv")
+#@test string(curric1) == string(curric2)  # read/write invariance test
 
 terms = Array{Term}(undef, 3)
 terms[1] = Term([A,B])
 terms[2] = Term([C,D])
 terms[3] = Term([E,F])
 
-dp1 = DegreePlan("3-term UBW plan", curric, terms)
+dp1 = DegreePlan("3-term UBW plan", curric1, terms)
 # Write degree plan to disk
-@test write_csv(dp1, "./UBW-degree-plan.json") == true
-dp2 = read_csv("./UBW-degree-plan.json")
-@test dp1 == dp2  # read/write invariance test
+@test write_csv(dp1, "UBW-degree-plan.csv") == true
+dp2 = read_csv_new("UBW-degree-plan.csv")
+@test string(dp1) == string(dp2)  # read/write invariance test
 
 end;

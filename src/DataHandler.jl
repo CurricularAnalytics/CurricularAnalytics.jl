@@ -80,7 +80,7 @@ function course_line(course,term_id)
     return c_line 
 end
 
-function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
+function write_csv(original_plan,file_path::AbstractString="Temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
@@ -367,7 +367,7 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             throw("Course IDs must be unique")
         else
             course_dict[c_ID] = Course(c_Name, c_Credit, prefix= c_Prefix, learning_outcomes= learning_outcomes,
-                num= c_Number, institution=c_Inst, canonical_name=c_col_name)
+                num= c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID)
         end
     end
     for row in eachrow(df_courses)

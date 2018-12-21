@@ -252,7 +252,7 @@ mutable struct Curriculum
         this.system_type = system_type
         this.institution = institution
         if id == 0
-            this.id = div(abs(signed(hash(this.name * this.institution * string(this.degree_type) * string(this.system_type)))),10000)
+            this.id = div(abs(signed(hash(this.name * this.institution * string(this.degree_type)))),10000)
         else 
             this.id = id
         end
