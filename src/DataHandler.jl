@@ -87,10 +87,10 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
         #11 colums
         course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
         curric = original_plan.curriculum
-        curric_name = "Curriculum Name,"* string(curric.name) *",,,,,,,,,"
+        curric_name = "Curriculum,"* string(curric.name) *",,,,,,,,,"
         write(csv_file, curric_name)   
         if original_plan.name != "" || isdefined(original_plan, :additional_courses)
-            dp_name="\nDegree Plan Name,"*string(original_plan.name)*",,,,,,,,,"
+            dp_name="\nDegree Plan,"*string(original_plan.name)*",,,,,,,,,"
             write(csv_file, dp_name)
         end
         curric_ins = "\nInstitution,"*string(curric.institution)*",,,,,,,,,"
@@ -105,7 +105,7 @@ function write_csv(original_plan,file_path::AbstractString="default_csv.csv")
         write(csv_file,course_header) 
         for (term_id,term) in enumerate(original_plan.terms)
             for course in term.courses
-                if find_courses(curric.courses,course.id)
+                if !isdefined(original_plan, :additional_courses) || !find_courses(original_plan.additional_courses,course.id)
                     write(csv_file, course_line(course,term_id)) 
                 end
             end
@@ -255,10 +255,11 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
     curric_courses = Course[]
     additional_courses = Course[]
     for course in all_courses
-        if find_courses(original_curriculum.courses,course.id)
-            push!(curric_courses,course)
-        elseif isdefined(original_plan, :additional_courses) && find_courses(original_plan.additional_courses, course.id)
+        if isdefined(original_plan, :additional_courses) && find_courses(original_plan.additional_courses, course.id)
             push!(additional_courses,course)
+            push!(curric_courses,course)
+        elseif find_courses(original_curriculum.courses,course.id)
+            push!(curric_courses,course)
         elseif is_dp
             push!(additional_courses,course)
         else
@@ -461,10 +462,10 @@ function read_csv_new(file_path::AbstractString)
     open(file_path) do csv_file        
         read_line = csv_line_reader(readline(csv_file),',')
         courses_header += 1
-        if read_line[1] == "Curriculum Name"
+        if read_line[1] == "Curriculum"
             curric_name = read_line[2]
             read_line = csv_line_reader(readline(csv_file),',')
-            is_dp = read_line[1] == "Degree Plan Name"
+            is_dp = read_line[1] == "Degree Plan"
             if is_dp 
                 dp_name = read_line[2]
                 read_line = csv_line_reader(readline(csv_file),',')
@@ -588,7 +589,7 @@ function read_csv_new(file_path::AbstractString)
             for course in additional_courses
                 push!(ac_arr,course[2])
             end             
-            curric = Curriculum(curric_name, curric_courses, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+            curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                 system_type=curric_stype, institution=curric_inst, CIP=curric_CIP,id=curric.id)
             
             degree_plan = DegreePlan(dp_name, curric, terms_arr, ac_arr)
