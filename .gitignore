@@ -3,3 +3,5 @@ docs/build/
 .DS_Store
 mkdocs.yml
 .ipynb_checkpoints
+temp.csv
+node_modules/
