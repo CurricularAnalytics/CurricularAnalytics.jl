@@ -2,8 +2,9 @@
 
 @testset "DataHandler Tests" begin
 
-# Test the data file format used for curriculum and degree plans
+# test the data file format used for curricula
 curric = read_csv("./test/curriculum.csv")
+
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
 @test curric.degree_type == AA
@@ -12,108 +13,104 @@ curric = read_csv("./test/curriculum.csv")
 @test length(curric.courses) == 12
 @test curric.num_courses == 12
 @test curric.credit_hours == 35
-# courses
-@test curric.courses[1].name == "Introduction to Baskets"
-@test curric.courses[1].id == 1
-@test curric.courses[1].credit_hours == 3
-@test curric.courses[1].prefix == "BW"
-@test curric.courses[1].num == "101"
-@test curric.courses[1].institution == "ACME State University"
-@test curric.courses[1].canonical_name == "Baskets I"
-@test length(curric.courses[1].requisites) == 0
-#
-@test curric.courses[2].name == "Swimming"
-@test curric.courses[2].id == 2
-@test curric.courses[2].credit_hours == 3
-@test curric.courses[2].prefix == "PE"
-@test curric.courses[2].num == "115"
-@test curric.courses[2].institution == "ACME State University"
-@test curric.courses[2].canonical_name == "Physical Education"
-@test length(curric.courses[2].requisites) == 0
-#
-@test curric.courses[3].name == "Introductory Calculus w/ Basketry Applications"
-@test curric.courses[3].id == 3
-@test curric.courses[3].credit_hours == 4
-@test curric.courses[3].curric.prefix == "MA"
-@test curric.courses[3].num == "116"
-@test curric.courses[3].institution == "ACME State University"
-@test curric.courses[3].canonical_name == "Calculus I"
-@test curric.courses[3].requisites[13] == pre
-#
-@test curric.courses[4].name == "Basic Basket Forms"
-@test curric.courses[4].id == 4
-@test curric.courses[4].credit_hours == 3
-@test curric.courses[4].prefix == "BW"
-@test curric.courses[4].num == "111"
-@test curric.courses[4].institution == "ACME State University"
-@test curric.courses[4].canonical_name == "Baskets II"
-@test curric.courses[4].requisites[1] == pre
-@test curric.courses[4].requisites[5] == strict_co
-#
-@test curric.courses[5].name == "Basic Basket Forms Lab"
-@test curric.courses[5].id == 5
-@test curric.courses[5].credit_hours == 1
-@test curric.courses[5].prefix == "BW"
-@test curric.courses[5].num == "111L"
-@test curric.courses[5].institution == "ACME State University"
-@test curric.courses[5].canonical_name == "Baskets II Laboratory"
-@test length(curric.courses[5].requisites) == 0
-#
-@test curric.courses[6].name == "Advanced Basketry"
-@test curric.courses[6].id == 6
-@test curric.courses[6].credit_hours == 3
-@test curric.courses[6].prefix == "BW"
-@test curric.courses[6].num == "201"
-@test curric.courses[6].institution == "ACME State University"
-@test curric.courses[6].canonical_name == "Baskets III"
-@test curric.courses[6].requisites[4] == pre
-@test curric.courses[6].requisites[5] == pre
-@test curric.courses[6].requisites[3] == co
-#
-@test curric.courses[7].name == "Basket Materials & Decoration"
-@test curric.courses[7].id == 7
-@test curric.courses[7].credit_hours == 3
-@test curric.courses[7].prefix == "BW"
-@test curric.courses[7].num == "214"
-@test curric.courses[7].institution == "ACME State University"
-@test curric.courses[7].canonical_name == "Basket Materials"
-@test curric.courses[7].requisites[1] == pre
-#
-@test curric.courses[8].name == "Underwater Weaving"
-@test curric.courses[8].id == 8
-@test curric.courses[8].credit_hours == 3
-@test curric.courses[8].prefix == "BW"
-@test curric.courses[8].num == "301"
-@test curric.courses[8].institution == "ACME State University"
-@test curric.courses[8].canonical_name == "Baskets IV"
-@test curric.courses[8].requisites[2] == pre
-@test curric.courses[8].requisites[7] == co
-#
-@test curric.courses[9].name == "Humanitites Elective"
-@test curric.courses[9].id == 9
-@test curric.courses[9].credit_hours == 3
-@test curric.courses[9].institution == "ACME State University"
-@test length(curric.courses[9].requisites) == 0
-#
-@test curric.courses[10].name == "Social Sciences Elective"
-@test curric.courses[10].id == 10
-@test curric.courses[10].credit_hours == 3
-@test curric.courses[11].institution == "ACME State University"
-@test length(curric.courses[10].requisites) == 0
-#
-@test curric.courses[11].name == "Technical Elective"
-@test curric.courses[11].id == 11
-@test curric.courses[11].credit_hours == 3
-@test curric.courses[11].institution == "ACME State University"
-@test length(curric.courses[11].requisites) == 0
-#
-@test curric.courses[12].name == "General Elective"
-@test curric.courses[12].id == 12
-@test curric.courses[12].credit_hours == 3
-@test curric.courses[12].institution == "ACME State University"
-@test length(curric.courses[12].requisites) == 0
+# test courses
+function test_courses(curric::Curriculum)
+    for (i,c) in enumerate(curric.courses)
+       if c.id == 1
+            @test curric.courses[i].name == "Introduction to Baskets"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].prefix == "BW"
+            @test curric.courses[i].num == "101"
+            @test curric.courses[i].institution == "ACME State University"
+            @test curric.courses[i].canonical_name == "Baskets I"
+            @test length(curric.courses[i].requisites) == 0
+       elseif c.id == 2
+            @test curric.courses[i].name == "Swimming"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].prefix == "PE"
+            @test curric.courses[i].num == "115"
+            @test curric.courses[i].institution == "ACME State University"
+            @test curric.courses[i].canonical_name == "Physical Education"
+            @test length(curric.courses[i].requisites) == 0
+       elseif c.id == 3
+            @test curric.courses[i].name == "Introductory Calculus w/ Basketry Applications"
+            @test curric.courses[i].credit_hours == 4
+            @test curric.courses[i].prefix == "MA"
+            @test curric.courses[i].num == "116"
+            @test curric.courses[i].institution == "ACME State University"
+            @test curric.courses[i].canonical_name == "Calculus I"
+            @test length(curric.courses[i].requisites) == 0
+       elseif c.id == 4
+            @test curric.courses[i].name == "Basic Basket Forms"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].prefix == "BW"
+            @test curric.courses[i].num == "111"
+            @test curric.courses[i].institution == "ACME State University"
+            @test curric.courses[i].canonical_name == "Baskets II"
+            @test curric.courses[i].requisites[1] == pre
+            @test curric.courses[i].requisites[5] == strict_co
+       elseif c.id == 5
+            @test curric.courses[i].name == "Basic Basket Forms Lab"
+            @test curric.courses[i].credit_hours == 1
+            @test curric.courses[i].prefix == "BW"
+            @test curric.courses[i].num == "111L"
+            @test curric.courses[i].institution == "ACME State University"
+            @test curric.courses[i].canonical_name == "Baskets II Laboratory"
+            @test length(curric.courses[i].requisites) == 0
+       elseif c.id == 6
+            @test curric.courses[i].name == "Advanced Basketry"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].prefix == "BW"
+            @test curric.courses[i].num == "201"
+            @test curric.courses[i].institution == "ACME State University"
+            @test curric.courses[i].canonical_name == "Baskets III"
+            @test curric.courses[i].requisites[4] == pre
+            @test curric.courses[i].requisites[5] == pre
+            @test curric.courses[i].requisites[3] == pre
+       elseif c.id == 7
+            @test curric.courses[i].name == "Basket Materials & Decoration"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].prefix == "BW"
+            @test curric.courses[i].num == "214"
+            @test curric.courses[i].institution == "ACME State University"
+            @test curric.courses[i].canonical_name == "Basket Materials"
+            @test curric.courses[i].requisites[1] == pre
+       elseif c.id == 8
+            @test curric.courses[i].name == "Underwater Weaving"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].prefix == "BW"
+            @test curric.courses[i].num == "301"
+            @test curric.courses[i].institution == "ACME State University"
+            @test curric.courses[i].canonical_name == "Baskets IV"
+            @test curric.courses[i].requisites[2] == pre
+            @test curric.courses[i].requisites[7] == co
+       elseif c.id == 9
+            @test curric.courses[i].name == "Humanitites Elective"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].institution == "ACME State University"
+            @test length(curric.courses[i].requisites) == 0
+       elseif c.id == 10
+            @test curric.courses[i].name == "Social Sciences Elective"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].institution == "ACME State University"
+            @test length(curric.courses[i].requisites) == 0
+       elseif c.id == 11
+            @test curric.courses[i].name == "Technical Elective"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].institution == "ACME State University"
+            @test length(curric.courses[i].requisites) == 0
+       elseif c.id == 12
+            @test curric.courses[i].name == "General Elective"
+            @test curric.courses[i].credit_hours == 3
+            @test curric.courses[i].institution == "ACME State University"
+            @test length(curric.courses[i].requisites) == 0
+       end
+    end
+end
+test_courses(curric)
 # TODO: add learning outcomes
 
+# test the data file format used for degree plans
 dp = read_csv("test/degree_plan.csv")
 @test dp.name == "4-Term Plan"
 @test dp.curriculum.name == "Underwater Basket Weaving"
@@ -125,133 +122,39 @@ dp = read_csv("test/degree_plan.csv")
 @test dp.num_terms == 4
 @test dp.credit_hours == 42
 @test length(dp.additional_courses) == 3
-# courses
-@test curric.courses[1].name == "Introduction to Baskets"
-@test curric.courses[1].id == 1
-@test curric.courses[1].credit_hours == 3
-@test curric.courses[1].prefix == "BW"
-@test curric.courses[1].num == "101"
-@test curric.courses[1].institution == "ACME State University"
-@test curric.courses[1].canonical_name == "Baskets I"
-@test length(curric.courses[1].requisites) == 0
-#
-@test curric.courses[2].name == "Swimming"
-@test curric.courses[2].id == 2
-@test curric.courses[2].credit_hours == 3
-@test curric.courses[2].prefix == "PE"
-@test curric.courses[2].num == "115"
-@test curric.courses[2].institution == "ACME State University"
-@test curric.courses[2].canonical_name == "Physical Education"
-@test length(curric.courses[2].requisites) == 0
-#
-@test curric.courses[3].name == "Introductory Calculus w/ Basketry Applications"
-@test curric.courses[3].id == 3
-@test curric.courses[3].credit_hours == 4
-@test curric.courses[3].curric.prefix == "MA"
-@test curric.courses[3].num == "116"
-@test curric.courses[3].institution == "ACME State University"
-@test curric.courses[3].canonical_name == "Calculus I"
-@test curric.courses[3].requisites[13] == pre
-#
-@test curric.courses[4].name == "Basic Basket Forms"
-@test curric.courses[4].id == 4
-@test curric.courses[4].credit_hours == 3
-@test curric.courses[4].prefix == "BW"
-@test curric.courses[4].num == "111"
-@test curric.courses[4].institution == "ACME State University"
-@test curric.courses[4].canonical_name == "Baskets II"
-@test curric.courses[4].requisites[1] == pre
-@test curric.courses[4].requisites[5] == strict_co
-#
-@test curric.courses[5].name == "Basic Basket Forms Lab"
-@test curric.courses[5].id == 5
-@test curric.courses[5].credit_hours == 1
-@test curric.courses[5].prefix == "BW"
-@test curric.courses[5].num == "111L"
-@test curric.courses[5].institution == "ACME State University"
-@test curric.courses[5].canonical_name == "Baskets II Laboratory"
-@test length(curric.courses[5].requisites) == 0
-#
-@test curric.courses[6].name == "Advanced Basketry"
-@test curric.courses[6].id == 6
-@test curric.courses[6].credit_hours == 3
-@test curric.courses[6].prefix == "BW"
-@test curric.courses[6].num == "201"
-@test curric.courses[6].institution == "ACME State University"
-@test curric.courses[6].canonical_name == "Baskets III"
-@test curric.courses[6].requisites[4] == pre
-@test curric.courses[6].requisites[5] == pre
-@test curric.courses[6].requisites[3] == co
-#
-@test curric.courses[7].name == "Basket Materials & Decoration"
-@test curric.courses[7].id == 7
-@test curric.courses[7].credit_hours == 3
-@test curric.courses[7].prefix == "BW"
-@test curric.courses[7].num == "214"
-@test curric.courses[7].institution == "ACME State University"
-@test curric.courses[7].canonical_name == "Basket Materials"
-@test curric.courses[7].requisites[1] == pre
-#
-@test curric.courses[8].name == "Underwater Weaving"
-@test curric.courses[8].id == 8
-@test curric.courses[8].credit_hours == 3
-@test curric.courses[8].prefix == "BW"
-@test curric.courses[8].num == "301"
-@test curric.courses[8].institution == "ACME State University"
-@test curric.courses[8].canonical_name == "Baskets IV"
-@test curric.courses[8].requisites[2] == pre
-@test curric.courses[8].requisites[7] == co
-#
-@test curric.courses[9].name == "Humanitites Elective"
-@test curric.courses[9].id == 9
-@test curric.courses[9].credit_hours == 3
-@test curric.courses[9].institution == "ACME State University"
-@test length(curric.courses[9].requisites) == 0
-#
-@test curric.courses[10].name == "Social Sciences Elective"
-@test curric.courses[10].id == 10
-@test curric.courses[10].credit_hours == 3
-@test curric.courses[11].institution == "ACME State University"
-@test length(curric.courses[10].requisites) == 0
-#
-@test curric.courses[11].name == "Technical Elective"
-@test curric.courses[11].id == 11
-@test curric.courses[11].credit_hours == 3
-@test curric.courses[11].institution == "ACME State University"
-@test length(curric.courses[11].requisites) == 0
-#
-@test curric.courses[12].name == "General Elective"
-@test curric.courses[12].id == 12
-@test curric.courses[12].credit_hours == 3
-@test curric.courses[12].institution == "ACME State University"
-@test length(curric.courses[12].requisites) == 0
-# additional courses
-@test dp.additional_courses[1].name == "Precalculus w/ Basketry Applications"
-@test dp.additional_courses[1].id == 13
-@test dp.additional_courses[1].credit_hours == 3
-@test dp.additional_courses[1].prefix == "MA"
-@test dp.additional_courses[1].num == "110"
-@test dp.additional_courses[1].institution == "ACME State University"
-@test dp.additional_courses[1].canonical_name == "Precalculus"
-@test dp.additional_courses[1].requisites[14] == pre
-#
-@test dp.additional_courses[1].name == "College Algebra"
-@test dp.additional_courses[1].id == 14
-@test dp.additional_courses[1].credit_hours == 3
-@test dp.additional_courses[1].prefix == "MA"
-@test dp.additional_courses[1].num == "102"
-@test dp.additional_courses[1].institution == "ACME State University"
-@test dp.additional_courses[1].canonical_name == "College Algebra"
-@test dp.additional_courses[1].requisites[15] == strict_co
-#
-@test dp.additional_courses[1].name == "College Algebra Studio"
-@test dp.additional_courses[1].id == 15
-@test dp.additional_courses[1].credit_hours == 1
-@test dp.additional_courses[1].prefix == "MA"
-@test dp.additional_courses[1].num == "102S"
-@test dp.additional_courses[1].institution == "ACME State University"
-@test dp.additional_courses[1].canonical_name == "College Algebra Recitation"
-@test length(dp.additional_courses[1].requisites[15]) == 0
+# test courses
+test_courses(dp.curriculum)
+# test additional courses
+for (i,c) in enumerate(dp.additional_courses)
+    if c.id == 13
+        @test dp.additional_courses[i].name == "Precalculus w/ Basketry Applications"
+        @test dp.additional_courses[i].id == 13
+        @test dp.additional_courses[i].credit_hours == 3
+        @test dp.additional_courses[i].prefix == "MA"
+        @test dp.additional_courses[i].num == "110"
+        @test dp.additional_courses[i].institution == "ACME State University"
+        @test dp.additional_courses[i].canonical_name == "Precalculus"
+        @test dp.additional_courses[i].requisites[14] == pre
+    elseif c.id == 14
+        @test dp.additional_courses[i].name == "College Algebra"
+        @test dp.additional_courses[i].id == 14
+        @test dp.additional_courses[i].credit_hours == 3
+        @test dp.additional_courses[i].prefix == "MA"
+        @test dp.additional_courses[i].num == "102"
+        @test dp.additional_courses[i].institution == "ACME State University"
+        @test dp.additional_courses[i].canonical_name == "College Algebra"
+        @test dp.additional_courses[i].requisites[15] == strict_co
+    elseif c.id == 15
+        @test dp.additional_courses[i].name == "College Algebra Studio"
+        @test dp.additional_courses[i].id == 15
+        @test dp.additional_courses[i].credit_hours == 1
+        @test dp.additional_courses[i].prefix == "MA"
+        @test dp.additional_courses[i].num == "102S"
+        @test dp.additional_courses[i].institution == "ACME State University"
+        @test dp.additional_courses[i].canonical_name == "College Algebra Recitation"
+        @test length(dp.additional_courses[i].requisites) == 0
+    end
+end
 
 # Create a curriculum and degree plan, and test read/write invariance for both
 # 8-vertex test curriculum - valid
@@ -279,9 +182,9 @@ add_requisite!(D,F,pre)
 
 curric1 = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F], institution="ACME State University", CIP="445786")
 # Write curriculum to disk
-#@test write_csv(curric1, "UBW-curric.csv") == true
-#curric2 = read_csv_new("examples/UBW-curric.csv")
-#@test string(curric1) == string(curric2)  # read/write invariance test
+@test write_csv(curric1, "UBW-curric.csv") == true
+curric2 = read_csv("examples/UBW-curric.csv")
+@test string(curric1) == string(curric2)  # read/write invariance test
 
 terms = Array{Term}(undef, 3)
 terms[1] = Term([A,B])
@@ -291,7 +194,7 @@ terms[3] = Term([E,F])
 dp1 = DegreePlan("3-term UBW plan", curric1, terms)
 # Write degree plan to disk
 @test write_csv(dp1, "UBW-degree-plan.csv") == true
-dp2 = read_csv_new("UBW-degree-plan.csv")
+dp2 = read_csv("UBW-degree-plan.csv")
 @test string(dp1) == string(dp2)  # read/write invariance test
 
 end;
