@@ -3,7 +3,7 @@
 @testset "DataHandler Tests" begin
 
 # Test the data file format used for curriculum and degree plans
-curric = read_csv("./curriculum.csv")
+curric = read_csv("./test/curriculum.csv")
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
 @test curric.degree_type == AA
@@ -114,7 +114,7 @@ curric = read_csv("./curriculum.csv")
 @test length(curric.courses[12].requisites) == 0
 # TODO: add learning outcomes
 
-dp = read_csv(./"degree_plan.csv")
+dp = read_csv("test/degree_plan.csv")
 @test dp.name == "4-Term Plan"
 @test dp.curriculum.name == "Underwater Basket Weaving"
 @test dp.curriculum.institution == "ACME State University"

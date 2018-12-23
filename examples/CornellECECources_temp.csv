@@ -1,0 +1,39 @@
+"Course ID", "Course Name", "Prefix", "Number", "Requisities", "Credit Hours", "Term"
+1,"CHEM 2090","CHEM","2090","",3,1
+2,"MATH 1910","MATH","1910","",3,1
+3,"ENGRI 1xxx","ENGRI","1xxx","",3,1
+4,"1st Yr Writing Seminar","","","",3,1
+5,"PE","","","",3,1
+6,"PHYS 1112","PHYS","1112","pre:2",3,2
+7,"MATH 1920","MATH","1920","pre:2",3,2
+8,"CS 111x","CS","111x","",3,2
+9,"1st Yr Writing Seminar","","","",3,2
+10,"PE","","","",3,2
+11,"PHYS 2213","PHYS","2213","pre:6 pre:7",3,3
+12,"MATH 2930","MATH","2930","pre:7",3,3
+13,"ECE/ENGRD 2100","ECE/ENGRD","2100","co:11 co:12",3,3
+14,"MECE/ENGRD 2300","MECE/ENGRD","2300","pre:8",3,3
+15,"Liberal Studies","","","",3,3
+16,"PHYS 2214","PHYS","2214","co:12",3,4
+17,"MATH 2940","MATH","2940","pre:7",3,4
+18,"ENGRD 2xxx","ENGRD","2xxx","pre:11",3,4
+19,"ECE 2200/ENGRD 2220","ECE/ENGRD","2200/2220","pre:12 co:17",3,4
+20,"Liberal Studies","","","",3,4
+21,"ECE Foundations","","","",3,5
+22,"Elective","","","",3,5
+23,"Outside Tech. Elective","","","pre:8",3,5
+24,"ECE 3400","ECE","3400","pre:13 pre:14 pre:19",3,5
+25,"Liberal Studies","","","",3,5
+26,"ECE Foundations","","","",3,6
+27,"ECE Foundations","","","",3,6
+28,"Outside Tech. Elective","","","",3,6
+29,"Elective","","","",3,6
+30,"Liberal Studies","","","",3,6
+31,"ECE Elective ","","","",3,7
+32,"ECE Elective","","","",3,7
+33,"Outside Tech. Elective","","","",3,7
+34,"Liberal Studies","","","",3,7
+35,"ECE Elective","","","",3,8
+36,"ECE Elective","","","",3,8
+37,"ECE Elective","","","",3,8
+38,"Liberal Studies","","","",3,8
