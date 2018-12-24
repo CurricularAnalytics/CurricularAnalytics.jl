@@ -23,3 +23,4 @@ Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisit
 13,Precalculus w/ Basketry Applications,MA,110,14,,,3,ACME State University,Precalculus,2
 14,College Algebra,MA,102,,,15,3,ACME State University,College Algebra,1
 15,College Algebra Studio,MA,102S,,,,1,ACME State University,College Algebra Recitation,1
+16,Hemp Baskets,BW,420,,6,,3,ACME State University,College Algebra Recitation,4
