@@ -116,7 +116,7 @@ mutable struct Course
         this.num = num
         this.institution = institution
         if id == 0
-            this.id = mod(hash(this.prefix * this.num * this.institution), UInt32)
+            this.id = mod(hash(this.name * this.prefix * this.num * this.institution), UInt32)
         else 
             this.id = id
         end
