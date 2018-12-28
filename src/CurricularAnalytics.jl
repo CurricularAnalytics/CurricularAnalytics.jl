@@ -83,7 +83,7 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
 end
 
 function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
-    if is_cyclic(c.graph) # error condition should no occur, as cycles are checked in isvalid_curriculum()
+    if is_cyclic(c.graph) # error condition should not occur, as cycles are checked in isvalid_curriculum()
         error("\nExtraneous requisities are due to cycles in the curriculum graph")
     end
     g = c.graph

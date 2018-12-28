@@ -278,7 +278,7 @@ add_requisite!(C,E,pre)
 add_requisite!(D,F,pre)
 
 curric1 = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F], institution="ACME State University", CIP="445786")
-# write curriculum to seconday storage
+# write curriculum to secondary storage
 @test write_csv(curric1, "./UBW-curric.csv") == true
 # read from same location
 curric2 = read_csv("./UBW-curric.csv")
