@@ -127,4 +127,5 @@ errors = IOBuffer()
 @test centrality(curric) == (49, [0, 9, 12, 18, 0, 0, 10])
 @test complexity(curric) == (48.0, [11.0, 8.0, 8.0, 7.0, 3.0, 5.0, 6.0])
 
+
 end;

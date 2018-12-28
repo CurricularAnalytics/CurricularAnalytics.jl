@@ -115,7 +115,7 @@ dp = read_csv("test/degree_plan.csv")
 @test dp.curriculum.degree_type == AA
 @test dp.curriculum.system_type == semester
 @test dp.curriculum.CIP == "445786"
-@test length(dp.curriculum.courses) == 12
+@test length(dp.curriculum.courses)-length(dp.additional_courses) == 12
 @test dp.num_terms == 4
 @test dp.credit_hours == 45
 @test length(dp.additional_courses) == 4
@@ -281,7 +281,7 @@ curric1 = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F], institution="AC
 # write curriculum to seconday storage
 @test write_csv(curric1, "./UBW-curric.csv") == true
 # read from same location
-curric2 = read_csv("./UBW-curric.csv")
+curric2 = read_csv("./UBW-curric.csv") 
 @test string(curric1) == string(curric2)  # read/write invariance test
 rm("./UBW-curric.csv")
 
@@ -292,11 +292,13 @@ terms[3] = Term([E,F])
 
 dp1 = DegreePlan("3-term UBW plan", curric1, terms)
 # write degree plan to secondary storage
-@test write_csv(dp1, "./UBW-degree-plan.csv") == true
+@test write_csv(dp1, "UBW-degree-plan.csv") == true
 # read from same location
 dp2 = read_csv("./UBW-degree-plan.csv")
+
 @test string(dp1) == string(dp2)  # read/write invariance test
-rm("./UBW-degree-plan.csv")
+
+#rm("./UBW-degree-plan.csv")
 
 # TODO: add learning outcomes
 

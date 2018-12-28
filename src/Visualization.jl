@@ -134,6 +134,19 @@ Required:
 function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=true, hide_header=false, output_file="default_csv.csv",
     show_delay_factor::Bool=true, show_blocking_factor::Bool=true,
     show_centrality::Bool=true, show_complexity::Bool=true)
+    if show_delay_factor
+        delay_factor(plan.curriculum)
+    end
+    if show_blocking_factor
+        blocking_factor(plan.curriculum)
+    end
+    if show_centrality
+        centrality(plan.curriculum)
+    end
+    if show_complexity
+        complexity(plan.curriculum)
+    end  
+     
     #write_degree_plan(plan, file_name)
 
     # Data
