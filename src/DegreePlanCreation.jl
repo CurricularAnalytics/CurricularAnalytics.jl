@@ -35,6 +35,9 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
     #round to average credit per term
     #make a function to calculate extra(2 in this case)
     #calculate average creadit after each term
+    if !("complexity" in keys(curric.metrics))
+        complexity(curric)
+    end
     sorted_index = sortperm(curric.metrics["complexity"][2], rev=true)
     terms = Array{Term}(undef, min_terms)
     all_applied_courses = Int[]

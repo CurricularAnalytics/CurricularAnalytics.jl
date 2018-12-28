@@ -83,14 +83,83 @@ function course_line(course,term_id)
     course_chours = course.credit_hours
     course_inst = course.institution
     course_canName = course.canonical_name
-    course_term = term_id
+    course_term = typeof(term_id) == Int ? string(term_id) : term_id
     c_line= "\n"*string(course_ID)*","*string(course_name)*","*string(course_prefix)*","*string(course_num)*","*
                     string(course_prereq)*","*string(course_coreq)*","*string(course_scoreq)*","*
-                    string(course_chours)*","*string(course_inst)*","*string(course_canName)*","*string(course_term)
+                    string(course_chours)*","*string(course_inst)*","*string(course_canName)*","* course_term
     return c_line 
 end
 
-function write_csv(original_plan,file_path::AbstractString="temp.csv")
+function write_csv(curric::Curriculum,file_path::AbstractString="temp.csv")
+    dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
+    dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
+    open(file_path, "w") do csv_file
+        #11 colums
+        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
+        curric_name = "Curriculum,"* string(curric.name) *",,,,,,,,,"
+        write(csv_file, curric_name)   
+        curric_ins = "\nInstitution,"*string(curric.institution)*",,,,,,,,,"
+        write(csv_file,curric_ins) 
+        curric_dtype="\nDegree Type,"*string(dict_curric_degree_type[curric.degree_type])*",,,,,,,,,"
+        write(csv_file,curric_dtype) 
+        curric_stype="\nSystem Type,"*string(dict_curric_system[curric.system_type])*",,,,,,,,,"
+        write(csv_file,curric_stype) 
+        curric_CIP="\nCIP,"*string(curric.CIP)*",,,,,,,,,"
+        write(csv_file,curric_CIP) 
+        write(csv_file,"\nCourses,,,,,,,,,,") 
+        write(csv_file,course_header) 
+        for course in curric.courses
+            write(csv_file, course_line(course,""))
+        end
+        
+        all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
+        for course in curric.courses
+            if length(course.learning_outcomes)>0
+                all_course_lo[course.id] = course.learning_outcomes
+            end
+        end
+        
+        if length(all_course_lo)>0
+            write(csv_file,"\nCourse Learning Outcomes,,,,,,,,,,") 
+            write(csv_file,"\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,") 
+            for lo_arr in all_course_lo
+                for lo in lo_arr[2]
+                    course_ID = lo_arr[1]
+                    lo_ID = lo.id
+                    lo_name=lo.name
+                    lo_desc=lo.description
+                    lo_prereq = "\""
+                    for requesite in lo.requisites
+                        lo_prereq=lo_prereq*string(requesite[1])*","
+                    end
+                    lo_prereq = chop(lo_prereq)
+                    if length(lo_prereq)>0
+                       lo_prereq=lo_prereq* "\""
+                    end
+                    lo_hours=lo.hours
+                    lo_line = "\n"*string(course_ID)*","*string(lo_ID)*","*string(lo_name)*","*string(lo_desc)*","*
+                                    string(lo_prereq)*","*string(lo_hours)*",,,,,"
+                    
+                    write(csv_file,lo_line) 
+                end
+            end
+        end
+        if length(curric.learning_outcomes)>0
+            write(csv_file,"\nCurriculum Learning Outcomes,,,,,,,,,,") 
+            write(csv_file,"\nLearning Outcome,Description,,,,,,,,,") 
+            for lo in curric.learning_outcomes
+                lo_name=lo.name
+                lo_desc=lo.description
+                lo_line = "\n"*string(lo_name)*","*string(lo_desc)*",,,,,,,,,"
+                write(csv_file,lo_line) 
+            end 
+        end
+        
+    end
+    return true
+end
+
+function write_csv(original_plan::DegreePlan,file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
@@ -177,6 +246,7 @@ function write_csv(original_plan,file_path::AbstractString="temp.csv")
         end
         
     end
+    return true
 end
 
 function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString="default_csv.csv")
@@ -581,27 +651,27 @@ function read_csv(file_path::AbstractString)
         if is_dp
             all_courses = read_all_courses(df_all_courses,course_learning_outcomes)
             all_courses_arr = [course[2] for course in all_courses]
-            curric = Curriculum("",all_courses_arr,learning_outcomes=Array{LearningOutcome,1}()) 
-            delay_factor(curric)
-            blocking_factor(curric)
-            centrality(curric)
-            complexity(curric)
+            additional_courses = read_courses(df_additional_courses,all_courses)  
+            ac_arr =Course[]
+            for course in additional_courses
+                push!(ac_arr,course[2])
+            end
+
+            curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+                                system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
+            #delay_factor(curric)
+            #blocking_factor(curric)
+            #centrality(curric)
+            #complexity(curric)
             terms = read_terms(df_all_courses,all_courses, curric.courses)
             #terms = read_terms(df_all_courses, all_courses)
             terms_arr = Array{Term}(undef,length(terms))
             for term in terms
                 terms_arr[term[1]]=Term([class for class in term[2]])
             end
-            curric_courses = read_courses(df_courses, all_courses)
-            curric_courses = [course[2] for course in curric_courses] 
-            additional_courses = read_courses(df_additional_courses,all_courses)  
-            ac_arr =Course[]
-            for course in additional_courses
-                push!(ac_arr,course[2])
-            end             
-            curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
-                                system_type=curric_stype, institution=curric_inst, CIP=curric_CIP,id=curric.id)
-            
+            #curric_courses = read_courses(df_courses, all_courses)
+            #curric_courses = [course[2] for course in curric_courses] 
+
             degree_plan = DegreePlan(dp_name, curric, terms_arr, ac_arr)
             output = degree_plan
             #visualize(degree_plan, notebook=true)
@@ -612,10 +682,10 @@ function read_csv(file_path::AbstractString)
             if term_type == Missing  
                 curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                     system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-                delay_factor(curric)
-                blocking_factor(curric)
-                centrality(curric)
-                complexity(curric)
+                #delay_factor(curric)
+                #blocking_factor(curric)
+                #centrality(curric)
+                #complexity(curric)
                 output = curric
                 #visualize(curric, notebook=true)
             else
@@ -628,10 +698,10 @@ function read_csv(file_path::AbstractString)
                 end
                 curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                     system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-                delay_factor(curric)
-                blocking_factor(curric)
-                centrality(curric)
-                complexity(curric)
+                #delay_factor(curric)
+                #blocking_factor(curric)
+                #centrality(curric)
+                #complexity(curric)
                 output = curric, terms_arr
                 #degree_plan = DegreePlan("", curric, terms_arr)
                 #output = degree_plan
