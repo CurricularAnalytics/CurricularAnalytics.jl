@@ -60,10 +60,8 @@ Keyword:
     Default is `recent-visualization.json`.
 """
 
-function visualize(curric::Curriculum;changed=nothing,  notebook::Bool=false, edit::Bool=false, min_term::Int=1,
-    output_file="default_csv.csv", show_delay_factor::Bool=false,
-    show_blocking_factor::Bool=false, show_centrality::Bool=false,
-    show_complexity::Bool=false)
+function visualize(curric::Curriculum;changed=nothing,  notebook::Bool=false, edit::Bool=false, min_term::Int=1, output_file="default_csv.csv", 
+                    show_delay::Bool=false, show_blocking::Bool=false, show_centrality::Bool=false, show_complexity::Bool=false)
     num_courses = length(curric.courses)
     if num_courses <= 8
         #term_count = 3
@@ -91,19 +89,8 @@ function visualize(curric::Curriculum;changed=nothing,  notebook::Bool=false, ed
     end
     term_count = num_courses
     dp = create_degree_plan(curric, max_terms = term_count, max_credits_per_term = max_credits_per_term)
-    viz_helper(dp; changed=changed, notebook=notebook, edit=edit, hide_header=true,
-    output_file=output_file, show_delay_factor=show_delay_factor,
-    show_blocking_factor=show_blocking_factor,show_centrality=show_centrality,
-    show_complexity=show_complexity)
-end
-
-function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, 
-    edit::Bool=false, output_file="default_csv.csv", show_delay_factor::Bool=true,
-    show_blocking_factor::Bool=true, show_centrality::Bool=true,
-    show_complexity::Bool=true)
-   viz_helper(plan; changed=changed, notebook=notebook, edit=edit,output_file=output_file, show_delay_factor=show_delay_factor,
-   show_blocking_factor=show_blocking_factor,show_centrality=show_centrality,
-   show_complexity=show_complexity)
+    viz_helper(dp; changed=changed, notebook=notebook, edit=edit, hide_header=true, output_file=output_file, show_delay=show_delay,
+                show_blocking=show_blocking,show_centrality=show_centrality, show_complexity=show_complexity)
 end
 
 # Main visualization function. A "changed" callback function may be provided which will be invoked whenever the 
@@ -120,13 +107,19 @@ Required:
  - `notebook` : a Boolean argument, if set to true, the degree will be displayed within a Jupyter notebook
  - `edit` : a Boolean argument, the user may edit the degree plan through the visualziation interface.
 """
-function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visualization.json", notebook=false, edit=true, hide_header=false, output_file="default_csv.csv",
-    show_delay_factor::Bool=true, show_blocking_factor::Bool=true,
-    show_centrality::Bool=true, show_complexity::Bool=true)
-    if show_delay_factor
+function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false, output_file="default_csv.csv", 
+                    show_delay::Bool=true, show_blocking::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true)
+   
+    viz_helper(plan; changed=changed, notebook=notebook, edit=edit,output_file=output_file, show_delay=show_delay,
+                show_blocking=show_blocking,show_centrality=show_centrality, show_complexity=show_complexity)
+end
+
+function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false, output_file, show_delay::Bool, 
+    show_blocking::Bool, show_centrality::Bool, show_complexity::Bool)
+    if show_delay
         delay_factor(plan.curriculum)
     end
-    if show_blocking_factor
+    if show_blocking
         blocking_factor(plan.curriculum)
     end
     if show_centrality
@@ -135,13 +128,10 @@ function viz_helper(plan::DegreePlan; changed=nothing, file_name="recent-visuali
     if show_complexity
         complexity(plan.curriculum)
     end  
-     
-    #write_degree_plan(plan, file_name)
 
     # Data
-    #data = JSON.parse(open("./" * file_name))
-    data = prepare_data(plan,edit=edit,hide_header=hide_header, show_delay_factor=show_delay_factor,
-    show_blocking_factor=show_blocking_factor,show_centrality=show_centrality,
+    data = prepare_data(plan,edit=edit,hide_header=hide_header, show_delay=show_delay,
+    show_blocking=show_blocking,show_centrality=show_centrality,
     show_complexity=show_complexity)        
 
     # Setup data observation to check for changes being made to curriculum

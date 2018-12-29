@@ -708,8 +708,8 @@ function read_csv(file_path::AbstractString)
 
 end
 
-function prepare_data(degree_plan::DegreePlan; edit::Bool=false, hide_header::Bool=false, show_delay_factor::Bool=true, 
-                        show_blocking_factor::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true)
+function prepare_data(degree_plan::DegreePlan; edit::Bool=false, hide_header::Bool=false, show_delay::Bool=true, 
+                        show_blocking::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true)
     dp_dict = Dict{String,Any}()
     dp_dict["options"] = Dict{String, Any}()
     dp_dict["options"]["edit"] = edit
@@ -737,10 +737,10 @@ function prepare_data(degree_plan::DegreePlan; edit::Bool=false, hide_header::Bo
             if !show_centrality
                 delete!(course.metrics, "centrality")
             end
-            if !show_delay_factor
+            if !show_delay
                 delete!(course.metrics, "delay factor")
             end
-            if !show_blocking_factor
+            if !show_blocking
                 delete!(course.metrics, "blocking factor")
             end
             current_course["metrics"] = course.metrics
