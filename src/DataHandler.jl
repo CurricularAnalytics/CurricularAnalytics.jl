@@ -484,20 +484,6 @@ function read_courses(df_courses::DataFrame, all_courses::Dict{Int,Course})
     return course_dict
 end
 
-function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course})
-    terms = Dict{Int, Array{Course}}()
-    for row in eachrow(df_courses)
-        c_ID = find_cell(row,Symbol("Course ID"))
-        term_ID = find_cell(row,Symbol("Term"))
-        if term_ID in keys(terms)
-            push!(terms[term_ID],course_dict[c_ID]) 
-        else
-            terms[term_ID] = [course_dict[c_ID]]
-        end
-    end    
-    return terms
-end
-
 function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
     terms = Dict{Int, Array{Course}}()
     for row in eachrow(df_courses)
@@ -580,8 +566,6 @@ function read_csv(file_path::AbstractString)
         else 
             throw("Could not found a Curriculum")
         end
-        #read_line = csv_line_reader(readline(csv_file),',')
-        #courses_start += 1
         read_line = csv_line_reader(readline(csv_file),',')
         while length(read_line)>0 && read_line[1] != "Additional Courses" && read_line[1] != "Course Learning Outcomes"&&
             read_line[1] != "Curriculum Learning Outcomes" && !startswith(read_line[1],"#")
@@ -594,6 +578,9 @@ function read_csv(file_path::AbstractString)
         df_courses = CSV.File(file_path, header=courses_header, limit=course_count-1) |> DataFrame
         if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID")))
             throw("All courses must have unique Course ID")
+        end
+        if !is_dp && Symbol("Term") in names(df_courses)
+            throw("Curriculum cannot have term information.")
         end
         df_all_courses = DataFrame()
         df_additional_courses =DataFrame()
@@ -615,7 +602,7 @@ function read_csv(file_path::AbstractString)
             df_all_courses = df_courses
         end
         
-        if any(ismissing.(df_all_courses[Symbol("Term")])) && is_dp
+        if is_dp && any(ismissing.(df_all_courses[Symbol("Term")]))
             throw("All courses in Degree Plan must have Term information")
         end  
         df_course_learning_outcomes=""
@@ -659,54 +646,19 @@ function read_csv(file_path::AbstractString)
 
             curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                 system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-            #delay_factor(curric)
-            #blocking_factor(curric)
-            #centrality(curric)
-            #complexity(curric)
             terms = read_terms(df_all_courses,all_courses, curric.courses)
-            #terms = read_terms(df_all_courses, all_courses)
             terms_arr = Array{Term}(undef,length(terms))
             for term in terms
                 terms_arr[term[1]]=Term([class for class in term[2]])
             end
-            #curric_courses = read_courses(df_courses, all_courses)
-            #curric_courses = [course[2] for course in curric_courses] 
-
             degree_plan = DegreePlan(dp_name, curric, terms_arr, ac_arr)
             output = degree_plan
-            #visualize(degree_plan, notebook=true)
         else
             curric_courses = read_all_courses(df_courses,course_learning_outcomes)
             curric_courses_arr = [course[2] for course in curric_courses] 
-            term_type =  eltype(df_courses[Symbol("Term")])
-            if term_type == Missing  
-                curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+            curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                     system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-                #delay_factor(curric)
-                #blocking_factor(curric)
-                #centrality(curric)
-                #complexity(curric)
-                output = curric
-                #visualize(curric, notebook=true)
-            else
-                #If term information is given but part of it missing note that and make a new term at the end of them
-                #part_missing_term=any(ismissing.(df_courses[Symbol("Term")]))
-                terms = read_terms(df_courses, curric_courses)
-                terms_arr = Array{Term}(undef,length(terms))
-                for term in terms
-                    terms_arr[term[1]]=Term([class for class in term[2]])
-                end
-                curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
-                                    system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-                #delay_factor(curric)
-                #blocking_factor(curric)
-                #centrality(curric)
-                #complexity(curric)
-                output = curric, terms_arr
-                #degree_plan = DegreePlan("", curric, terms_arr)
-                #output = degree_plan
-                #visualize(degree_plan, notebook=true)
-            end
+            output = curric            
         end
     end
 

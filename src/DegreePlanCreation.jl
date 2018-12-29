@@ -1,9 +1,9 @@
 # file: DegreePlanCreation.jl
  
 function create_degree_plan(curric::Curriculum, name::AbstractString="", create_terms::Function=bin_packing, additional_courses::Array{Course}=Array{Course,1}();
-    min_terms::Int=0, max_terms::Int=0, min_credits_per_term::Int=0, max_credits_per_term::Int=0, total_terms::Int=0)
+    min_terms::Int=0, max_terms::Int=0, min_credits_per_term::Int=0, max_credits_per_term::Int=0)
     terms =  create_terms(curric,additional_courses; min_terms=min_terms,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
-                                max_credits_per_term=max_credits_per_term,total_terms=total_terms)
+                                max_credits_per_term=max_credits_per_term)
     DegreePlan(name, curric, terms)
 end
 
@@ -25,7 +25,7 @@ function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{I
 end
 
 function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
-    min_terms::Int=0, max_terms::Int=0, min_credits_per_term::Int=0, max_credits_per_term::Int=0, total_terms::Int=0)
+    min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=19, max_credits_per_term::Int=19)
     #println("min_terms $min_terms max $max_terms min_credits_per_term $min_credits_per_term")
     #println("max_credits_per_term $max_credits_per_term $total_terms")
     #total number of credits
@@ -104,11 +104,11 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
     end
     if length(all_applied_courses) != length(sorted_index)
         if min_terms<max_terms
-            println("Could not create a plan for $min_terms term, try for one more term")
+            println("Could not create a plan for $min_terms term, tring for $(min_terms+1) term")
             return bin_packing(curric,additional_courses; min_terms=min_terms+1,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
-        max_credits_per_term=max_credits_per_term,total_terms=total_terms)
+        max_credits_per_term=max_credits_per_term)
         else 
-            throw("Could not found terms for given information")
+            throw("Could not visualize for given information")
         end
     end
     return terms

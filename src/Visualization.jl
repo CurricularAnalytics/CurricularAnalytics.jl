@@ -106,17 +106,6 @@ function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false,
    show_complexity=show_complexity)
 end
 
-function visualize(curric_terms::Tuple; changed=nothing, notebook::Bool=false, 
-    edit::Bool=false, output_file="default_csv.csv", show_delay_factor::Bool=false,
-    show_blocking_factor::Bool=false, show_centrality::Bool=false,
-    show_complexity::Bool=false)
-    plan = DegreePlan("", curric_terms[1], curric_terms[2])
-   viz_helper(plan; changed=changed, notebook=notebook, edit=edit,hide_header=true,
-   output_file=output_file, show_delay_factor=show_delay_factor,
-   show_blocking_factor=show_blocking_factor,show_centrality=show_centrality,
-   show_complexity=show_complexity)
-end
-
 # Main visualization function. A "changed" callback function may be provided which will be invoked whenever the 
 # curriculum/degere plan is modified through the interface.
 """
