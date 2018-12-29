@@ -95,18 +95,18 @@ function write_csv(curric::Curriculum,file_path::AbstractString="temp.csv")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
         #11 colums
-        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
-        curric_name = "Curriculum,"* string(curric.name) *",,,,,,,,,"
+        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
+        curric_name = "Curriculum,"* string(curric.name) *",,,,,,,,"
         write(csv_file, curric_name)   
-        curric_ins = "\nInstitution,"*string(curric.institution)*",,,,,,,,,"
+        curric_ins = "\nInstitution,"*string(curric.institution)*",,,,,,,,"
         write(csv_file,curric_ins) 
-        curric_dtype="\nDegree Type,"*string(dict_curric_degree_type[curric.degree_type])*",,,,,,,,,"
+        curric_dtype="\nDegree Type,"*string(dict_curric_degree_type[curric.degree_type])*",,,,,,,,"
         write(csv_file,curric_dtype) 
-        curric_stype="\nSystem Type,"*string(dict_curric_system[curric.system_type])*",,,,,,,,,"
+        curric_stype="\nSystem Type,"*string(dict_curric_system[curric.system_type])*",,,,,,,,"
         write(csv_file,curric_stype) 
-        curric_CIP="\nCIP,"*string(curric.CIP)*",,,,,,,,,"
+        curric_CIP="\nCIP,"*string(curric.CIP)*",,,,,,,,"
         write(csv_file,curric_CIP) 
-        write(csv_file,"\nCourses,,,,,,,,,,") 
+        write(csv_file,"\nCourses,,,,,,,,,") 
         write(csv_file,course_header) 
         for course in curric.courses
             write(csv_file, course_line(course,""))
@@ -120,8 +120,8 @@ function write_csv(curric::Curriculum,file_path::AbstractString="temp.csv")
         end
         
         if length(all_course_lo)>0
-            write(csv_file,"\nCourse Learning Outcomes,,,,,,,,,,") 
-            write(csv_file,"\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,") 
+            write(csv_file,"\nCourse Learning Outcomes,,,,,,,,,") 
+            write(csv_file,"\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,") 
             for lo_arr in all_course_lo
                 for lo in lo_arr[2]
                     course_ID = lo_arr[1]
@@ -138,19 +138,19 @@ function write_csv(curric::Curriculum,file_path::AbstractString="temp.csv")
                     end
                     lo_hours=lo.hours
                     lo_line = "\n"*string(course_ID)*","*string(lo_ID)*","*string(lo_name)*","*string(lo_desc)*","*
-                                    string(lo_prereq)*","*string(lo_hours)*",,,,,"
+                                    string(lo_prereq)*","*string(lo_hours)*",,,,"
                     
                     write(csv_file,lo_line) 
                 end
             end
         end
         if length(curric.learning_outcomes)>0
-            write(csv_file,"\nCurriculum Learning Outcomes,,,,,,,,,,") 
-            write(csv_file,"\nLearning Outcome,Description,,,,,,,,,") 
+            write(csv_file,"\nCurriculum Learning Outcomes,,,,,,,,,") 
+            write(csv_file,"\nLearning Outcome,Description,,,,,,,,") 
             for lo in curric.learning_outcomes
                 lo_name=lo.name
                 lo_desc=lo.description
-                lo_line = "\n"*string(lo_name)*","*string(lo_desc)*",,,,,,,,,"
+                lo_line = "\n"*string(lo_name)*","*string(lo_desc)*",,,,,,,,"
                 write(csv_file,lo_line) 
             end 
         end
@@ -160,6 +160,9 @@ function write_csv(curric::Curriculum,file_path::AbstractString="temp.csv")
 end
 
 function write_csv(original_plan::DegreePlan,file_path::AbstractString="temp.csv")
+    if original_plan.name == "" && !isdefined(original_plan, :additional_courses)
+        return write_csv(original_plan.curriculum, file_path)
+    end
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
@@ -167,11 +170,9 @@ function write_csv(original_plan::DegreePlan,file_path::AbstractString="temp.csv
         course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
         curric = original_plan.curriculum
         curric_name = "Curriculum,"* string(curric.name) *",,,,,,,,,"
-        write(csv_file, curric_name)   
-        if original_plan.name != "" || isdefined(original_plan, :additional_courses)
-            dp_name="\nDegree Plan,"*string(original_plan.name)*",,,,,,,,,"
-            write(csv_file, dp_name)
-        end
+        write(csv_file, curric_name)
+        dp_name="\nDegree Plan,"*string(original_plan.name)*",,,,,,,,,"
+        write(csv_file, dp_name)
         curric_ins = "\nInstitution,"*string(curric.institution)*",,,,,,,,,"
         write(csv_file,curric_ins) 
         curric_dtype="\nDegree Type,"*string(dict_curric_degree_type[curric.degree_type])*",,,,,,,,,"
@@ -249,7 +250,7 @@ function write_csv(original_plan::DegreePlan,file_path::AbstractString="temp.csv
     return true
 end
 
-function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString="default_csv.csv")
+function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString="temp.csv")
     dict_requisite = Dict("prereq"=>pre, "coreq"=>co, "strict-coreq"=>strict_co)
     # Requisites might be updated by interface
     # Get all original courses without any requisite
@@ -324,13 +325,7 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
         end
         # Set the current term to be a Term object
         terms[i] = Term(courses)
-    end
-    curric = Curriculum("", all_courses, id = original_curriculum.id)
-    #calculate metrics for courses in terms
-    delay_factor(curric)
-    blocking_factor(curric)
-    centrality(curric)
-    complexity(curric)    
+    end    
     #then split courses betweeen additional and curriculum courses
     curric_courses = Course[]
     additional_courses = Course[]
@@ -349,9 +344,12 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
     curric = Curriculum(original_curriculum.name, curric_courses, learning_outcomes = original_curriculum.learning_outcomes,
         degree_type= original_curriculum.degree_type, system_type=original_curriculum.system_type, 
         institution=original_curriculum.institution, CIP=original_curriculum.CIP,id=original_curriculum.id)
-        
-    degree_plan = DegreePlan(original_plan.name, curric, terms, additional_courses)
-    write_csv(degree_plan) 
+    if is_dp
+        degree_plan = DegreePlan(original_plan.name, curric, terms, additional_courses)
+        write_csv(degree_plan,file_path)
+    else
+        write_csv(curric,file_path)
+    end
 end
 
 function csv_line_reader(line::AbstractString, delimeter::Char=',')

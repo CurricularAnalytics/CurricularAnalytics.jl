@@ -1,7 +1,7 @@
 # file: DegreePlanCreation.jl
  
 function create_degree_plan(curric::Curriculum, name::AbstractString="", create_terms::Function=bin_packing, additional_courses::Array{Course}=Array{Course,1}();
-    min_terms::Int=0, max_terms::Int=0, min_credits_per_term::Int=0, max_credits_per_term::Int=0)
+    min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
     terms =  create_terms(curric,additional_courses; min_terms=min_terms,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
                                 max_credits_per_term=max_credits_per_term)
     DegreePlan(name, curric, terms)
@@ -25,7 +25,7 @@ function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{I
 end
 
 function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
-    min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=19, max_credits_per_term::Int=19)
+    min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
     #println("min_terms $min_terms max $max_terms min_credits_per_term $min_credits_per_term")
     #println("max_credits_per_term $max_credits_per_term $total_terms")
     #total number of credits

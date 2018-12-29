@@ -60,7 +60,7 @@ Keyword:
     Default is `recent-visualization.json`.
 """
 
-function visualize(curric::Curriculum;changed=nothing,  notebook::Bool=false, edit::Bool=false,
+function visualize(curric::Curriculum;changed=nothing,  notebook::Bool=false, edit::Bool=false, min_term::Int=1,
     output_file="default_csv.csv", show_delay_factor::Bool=false,
     show_blocking_factor::Bool=false, show_centrality::Bool=false,
     show_complexity::Bool=false)
