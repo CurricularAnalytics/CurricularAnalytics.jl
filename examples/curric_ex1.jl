@@ -18,7 +18,7 @@ d = Course("Calculus 2", 1, prefix="MA", num="114")
 e = Course("C++ Programming", 3, prefix="CS", num="300")
 f = Course("Data Systems", 3, prefix="CS", num="214")
 g = Course("Intro to Engineering", 3, prefix="EGR", num="101")
-h = Course("Physics 1", 3, prefix="PHY", num="231")
+h = Course("Physics 1", 3, prefix="PHY", num="231", canonical_name="Classical Mechanics")
 
 add_requisite!(a,c,pre)
 add_requisite!(b,c,pre)
