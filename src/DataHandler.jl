@@ -711,7 +711,7 @@ function prepare_data(degree_plan::DegreePlan; edit::Bool=false,hide_header::Boo
             end
             current_course["metrics"] = course.metrics
             #current_course["institution"] = course.institution
-            current_course["canonical_name"] = course.canonical_name
+            current_course["nameCanonical"] = course.canonical_name
             for req in collect(keys(course.requisites))
                 current_req = Dict{String, Any}()
                 current_req["source_id"] = req
