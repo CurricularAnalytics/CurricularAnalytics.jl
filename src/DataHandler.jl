@@ -8,6 +8,7 @@ function readfile(file_path)
         return lines
     end
 end
+
 # Returns a requisite as a string for visualization
 function requisite_to_string(req::Requisite)
     if req == pre
@@ -50,6 +51,7 @@ function find_courses(courses,course_id)
     end
     return false
 end
+
 function course_line(course,term_id)
     course_ID = course.id
     course_name = course.name
@@ -90,7 +92,12 @@ function course_line(course,term_id)
     return c_line 
 end
 
-function write_csv(curric::Curriculum,file_path::AbstractString="temp.csv")
+"""
+write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
+
+
+"""
+function write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
@@ -159,7 +166,12 @@ function write_csv(curric::Curriculum,file_path::AbstractString="temp.csv")
     return true
 end
 
-function write_csv(original_plan::DegreePlan,file_path::AbstractString="temp.csv")
+"""
+write_csv(degree_plan::DegreePlan, file_path::AbstractString="temp.csv")
+
+
+"""
+function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
@@ -518,6 +530,22 @@ function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course
     return terms
 end
 
+"""
+read_csv(file_path::AbstractString)
+
+Reads a CSV file containing either a curriculum or a degree plan, and returns a corresponding
+Curriculum` or `DegreePlan`.  The required format for curriculum or degree plan CSV files is 
+described in ?
+
+# Arguments
+- `file_path::AbstractString` : the relative or absolute path to the CSV file.
+
+# Examples:
+```julia-repl
+julia> curric = read_csv("./test/curriculum.csv")
+julia> dp = read_csv("./test/degree-plan.csv")
+```
+"""
 function read_csv(file_path::AbstractString)
     file_path = remove_empty_lines(file_path)
     dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
@@ -574,11 +602,11 @@ function read_csv(file_path::AbstractString)
             if read_line[1] == "Courses"
                 courses_header += 1 
             else
-                throw("Could not found Courses")
+                throw("Could not find Courses")
             end         
             
         else 
-            throw("Could not found a Curriculum")
+            throw("Could not find a Curriculum")
         end
         #read_line = csv_line_reader(readline(csv_file),',')
         #courses_start += 1
@@ -586,19 +614,19 @@ function read_csv(file_path::AbstractString)
         while length(read_line)>0 && read_line[1] != "Additional Courses" && read_line[1] != "Course Learning Outcomes"&&
             read_line[1] != "Curriculum Learning Outcomes" && !startswith(read_line[1],"#")
             if length(read_line[1]) == 0
-                throw("All courses must have Course ID")
+                throw("All courses must have a Course ID")
             end
             course_count +=1
             read_line = csv_line_reader(readline(csv_file),',')
         end
         df_courses = CSV.File(file_path, header=courses_header, limit=course_count-1) |> DataFrame
         if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID")))
-            throw("All courses must have unique Course ID")
+            throw("All courses must have a unique Course ID")
         end
         df_all_courses = DataFrame()
         df_additional_courses =DataFrame()
         if length(read_line)>0 && read_line[1] == "Additional Courses"
-            if !is_dp throw("Only Degree Plan could have additional classes") end
+            if !is_dp throw("Only Degree Plans can have additional courses") end
             additional_course_start = courses_header+course_count+1
             read_line = csv_line_reader(readline(csv_file),',')
             while length(read_line)>0 && read_line[1] != "Course Learning Outcomes" && 
