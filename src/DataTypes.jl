@@ -245,7 +245,7 @@ mutable struct Curriculum
 
     # Constructor
     function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
-        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101", id::Int=0)
+        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101", id::Int=0, sortby_ID::Bool=true)
         this = new()
         this.name = name
         this.degree_type = degree_type
@@ -257,7 +257,11 @@ mutable struct Curriculum
             this.id = id
         end
         this.CIP = CIP
-        this.courses = courses
+        if sortby_ID
+            this.courses = sort(collect(courses), by=c->c.id)
+        else
+            this.courses = courses
+        end
         this.num_courses = length(this.courses)
         this.credit_hours = total_credits(this)
         this.graph = SimpleDiGraph{Int}()
