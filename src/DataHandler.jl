@@ -520,8 +520,8 @@ end
 
 function read_csv(file_path::AbstractString)
     file_path = remove_empty_lines(file_path)
-    dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS)
-    dict_curric_system = Dict("semester"=>semester, "quarter"=>quarter)
+    dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
+    dict_curric_system = Dict("semester"=>semester, "quarter"=>quarter, ""=>semester)
     dp_name = ""
     dp_add_courses = Array{Course,1}()
     curric_name = ""
