@@ -5,3 +5,4 @@ mkdocs.yml
 .ipynb_checkpoints
 temp.csv
 node_modules/
+yarn.lock

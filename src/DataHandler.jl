@@ -8,6 +8,7 @@ function readfile(file_path)
         return lines
     end
 end
+
 # Returns a requisite as a string for visualization
 function requisite_to_string(req::Requisite)
     if req == pre
@@ -92,6 +93,11 @@ function course_line(course, term_id)
     return c_line 
 end
 
+"""
+write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
+
+
+"""
 function write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
@@ -176,6 +182,11 @@ function write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
 end
 
 # TODO - Reduce duplicated code between this and the curriculum version of the function
+"""
+write_csv(degree_plan::DegreePlan, file_path::AbstractString="temp.csv")
+
+
+"""
 function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
@@ -184,11 +195,9 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.cs
         course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
         curric = original_plan.curriculum
         curric_name = "Curriculum,"* string(curric.name) *",,,,,,,,,"
-        write(csv_file, curric_name)   
-        if original_plan.name != "" || isdefined(original_plan, :additional_courses)
-            dp_name="\nDegree Plan,"*string(original_plan.name)*",,,,,,,,,"
-            write(csv_file, dp_name)
-        end
+        write(csv_file, curric_name)
+        dp_name="\nDegree Plan,"*string(original_plan.name)*",,,,,,,,,"
+        write(csv_file, dp_name)
         curric_ins = "\nInstitution,"*string(curric.institution)*",,,,,,,,,"
         write(csv_file,curric_ins) 
         curric_dtype="\nDegree Type,"*string(dict_curric_degree_type[curric.degree_type])*",,,,,,,,,"
@@ -266,7 +275,7 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.cs
     return true
 end
 
-function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString="default_csv.csv")
+function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString="temp.csv")
     dict_requisite = Dict("prereq"=>pre, "coreq"=>co, "strict-coreq"=>strict_co)
     # Requisites might be updated by interface
     # Get all original courses without any requisite
@@ -341,13 +350,7 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
         end
         # Set the current term to be a Term object
         terms[i] = Term(courses)
-    end
-    curric = Curriculum("", all_courses, id = original_curriculum.id)
-    #calculate metrics for courses in terms
-    delay_factor(curric)
-    blocking_factor(curric)
-    centrality(curric)
-    complexity(curric)    
+    end    
     #then split courses betweeen additional and curriculum courses
     curric_courses = Course[]
     additional_courses = Course[]
@@ -365,10 +368,13 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
     end
     curric = Curriculum(original_curriculum.name, curric_courses, learning_outcomes = original_curriculum.learning_outcomes,
                         degree_type = original_curriculum.degree_type, system_type = original_curriculum.system_type, 
-                        institution = original_curriculum.institution, CIP = original_curriculum.CIP, id = original_curriculum.id)
-        
-    degree_plan = DegreePlan(original_plan.name, curric, terms, additional_courses)
-    write_csv(degree_plan) 
+                        institution = original_curriculum.institution, CIP=original_curriculum.CIP, id=original_curriculum.id)
+    if is_dp
+        degree_plan = DegreePlan(original_plan.name, curric, terms, additional_courses)
+        write_csv(degree_plan, file_path)
+    else
+        write_csv(curric, file_path)
+    end
 end
 
 function csv_line_reader(line::AbstractString, delimeter::Char=',')
@@ -501,20 +507,6 @@ function read_courses(df_courses::DataFrame, all_courses::Dict{Int,Course})
     return course_dict
 end
 
-function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course})
-    terms = Dict{Int, Array{Course}}()
-    for row in eachrow(df_courses)
-        c_ID = find_cell(row, Symbol("Course ID"))
-        term_ID = find_cell(row, Symbol("Term"))
-        if term_ID in keys(terms)
-            push!(terms[term_ID], course_dict[c_ID]) 
-        else
-            terms[term_ID] = [course_dict[c_ID]]
-        end
-    end    
-    return terms
-end
-
 function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
     terms = Dict{Int, Array{Course}}()
     for row in eachrow(df_courses)
@@ -535,6 +527,22 @@ function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course
     return terms
 end
 
+"""
+read_csv(file_path::AbstractString)
+
+Reads a CSV file containing either a curriculum or a degree plan, and returns a corresponding
+Curriculum` or `DegreePlan`.  The required format for curriculum or degree plan CSV files is 
+described in ?
+
+# Arguments
+- `file_path::AbstractString` : the relative or absolute path to the CSV file.
+
+# Examples:
+```julia-repl
+julia> curric = read_csv("./test/curriculum.csv")
+julia> dp = read_csv("./test/degree-plan.csv")
+```
+"""
 function read_csv(file_path::AbstractString)
     file_path = remove_empty_lines(file_path)
     dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
@@ -591,29 +599,32 @@ function read_csv(file_path::AbstractString)
             if read_line[1] == "Courses"
                 courses_header += 1 
             else
-                throw("Could not found Courses")
+                throw("Could not find Courses")
             end         
             
         else 
-            throw("Could not found a Curriculum")
+            throw("Could not find a Curriculum")
         end
         read_line = csv_line_reader(readline(csv_file), ',')
         while length(read_line) > 0 && read_line[1] != "Additional Courses" && read_line[1] != "Course Learning Outcomes" && 
                         read_line[1] != "Curriculum Learning Outcomes" && !startswith(read_line[1], "#")
             if length(read_line[1]) == 0
-                throw("All courses must have Course ID")
+                throw("All courses must have a Course ID")
             end
             course_count += 1
             read_line = csv_line_reader(readline(csv_file), ',')
         end
         df_courses = CSV.File(file_path, header=courses_header, limit=course_count-1) |> DataFrame
         if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID")))
-            throw("All courses must have unique Course ID")
+            throw("All courses must have a unique Course ID")
+        end
+        if !is_dp && Symbol("Term") in names(df_courses)
+            throw("Curriculum cannot have term information.")
         end
         df_all_courses = DataFrame()
         df_additional_courses = DataFrame()
         if length(read_line) > 0 && read_line[1] == "Additional Courses"
-            if !is_dp throw("Only Degree Plan could have additional classes") end
+            if !is_dp throw("Only Degree Plan can have additional classes") end
             additional_course_start = courses_header+course_count+1
             read_line = csv_line_reader(readline(csv_file), ',')
             while length(read_line) > 0 && read_line[1] != "Course Learning Outcomes" && 
@@ -629,7 +640,7 @@ function read_csv(file_path::AbstractString)
             df_all_courses = df_courses
         end
         
-        if any(ismissing.(df_all_courses[Symbol("Term")])) && is_dp
+        if is_dp && any(ismissing.(df_all_courses[Symbol("Term")]))
             throw("All courses in Degree Plan must have Term information")
         end  
         df_course_learning_outcomes=""
@@ -684,23 +695,9 @@ function read_csv(file_path::AbstractString)
         else
             curric_courses = read_all_courses(df_courses, course_learning_outcomes)
             curric_courses_arr = [course[2] for course in curric_courses] 
-            term_type = eltype(df_courses[Symbol("Term")])
-            if term_type == Missing  
-                curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+            curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                     system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-                output = curric
-            else
-                # If term information is given but part of it missing note that and make a new term at the end of them
-                # part_missing_term=any(ismissing.(df_courses[Symbol("Term")]))
-                terms = read_terms(df_courses, curric_courses)
-                terms_arr = Array{Term}(undef, length(terms))
-                for term in terms
-                    terms_arr[term[1]]=Term([class for class in term[2]])
-                end
-                curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
-                                    system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-                output = curric, terms_arr
-            end
+            output = curric            
         end
     end
 

@@ -40,7 +40,7 @@ add_requisite!(b,c,pre)
 add_requisite!(d,c,co)
 add_requisite!(a,b,pre)
 
-curric = Curriculum("Extraneous", [a,b,c,d])
+curric = Curriculum("Extraneous", [a,b,c,d],sortby_ID=false)
 
 # Test curriculum validity 
 errors = IOBuffer()
@@ -72,7 +72,7 @@ add_requisite!(D,C,co)
 add_requisite!(C,E,pre)
 add_requisite!(D,F,pre)
 
-curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786")
+curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786",sortby_ID=false)
 
 # Test curriculum validity 
 errors = IOBuffer()
@@ -115,7 +115,7 @@ add_requisite!(D,F,pre)
 add_requisite!(D,G,co)
 add_requisite!(G,F,pre)
 
-curric = Curriculum("Postmodern Basket Weaving", [A,B,C,D,E,F,G])
+curric = Curriculum("Postmodern Basket Weaving", [A,B,C,D,E,F,G], sortby_ID=false)
 
 # Test curriculum validity 
 errors = IOBuffer()
@@ -153,8 +153,8 @@ add_requisite!(D,C,co)
 add_requisite!(C,E,pre)
 add_requisite!(D,F,pre)
 
-curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786")
-@test isvalid_curriculum(curric, errors) == true
+curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786",sortby_ID=false)
+
 # Test curriculum validity
 
 end;
