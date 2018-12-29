@@ -298,7 +298,7 @@ dp2 = read_csv("./UBW-degree-plan.csv")
 
 @test string(dp1) == string(dp2)  # read/write invariance test
 
-#rm("./UBW-degree-plan.csv")
+rm("./UBW-degree-plan.csv")
 
 # TODO: add learning outcomes
 
