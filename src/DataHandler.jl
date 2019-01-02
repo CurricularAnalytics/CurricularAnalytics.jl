@@ -2,17 +2,6 @@ using JSON
 using CSV
 using DataFrames
 
-# Returns a requisite as a string for visualization
-function requisite_to_string(req::Requisite)
-    if req == pre
-        return "prereq"
-    elseif req == co
-        return "coreq"
-    else
-        return "strict-coreq"
-    end
-end
-
 """
 write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
 
@@ -111,83 +100,102 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.cs
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
-        #11 colums
-        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
+        # 11 columns, write them all out
+        course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
+        
+        # Grab a copy of the curriculum
         curric = original_plan.curriculum
-        curric_name = "Curriculum,"* string(curric.name) *",,,,,,,,,"
+        
+        # Write Curriculum Name
+        curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
         write(csv_file, curric_name)
-        dp_name="\nDegree Plan,"*string(original_plan.name)*",,,,,,,,,"
+        
+        dp_name = "\nDegree Plan," * string(original_plan.name) * ",,,,,,,,,"
         write(csv_file, dp_name)
-        curric_ins = "\nInstitution,"*string(curric.institution)*",,,,,,,,,"
-        write(csv_file,curric_ins) 
-        curric_dtype="\nDegree Type,"*string(dict_curric_degree_type[curric.degree_type])*",,,,,,,,,"
+
+        # Write Institution Name
+        curric_ins = "\nInstitution," * string(curric.institution) * ",,,,,,,,,"
+        write(csv_file, curric_ins) 
+
+        # Write Degree Type
+        curric_dtype = "\nDegree Type," * string(dict_curric_degree_type[curric.degree_type]) * ",,,,,,,,,"
         write(csv_file,curric_dtype) 
-        curric_stype="\nSystem Type,"*string(dict_curric_system[curric.system_type])*",,,,,,,,,"
-        write(csv_file,curric_stype) 
-        curric_CIP="\nCIP,"*string(curric.CIP)*",,,,,,,,,"
-        write(csv_file,curric_CIP) 
-        write(csv_file,"\nCourses,,,,,,,,,,") 
-        write(csv_file,course_header) 
-        for (term_id,term) in enumerate(original_plan.terms)
+
+        # Write System Type (Semester or Quarter)
+        curric_stype = "\nSystem Type," * string(dict_curric_system[curric.system_type]) * ",,,,,,,,,"
+        write(csv_file, curric_stype) 
+        
+        # Write CIP Code
+        curric_CIP = "\nCIP," * string(curric.CIP) * ",,,,,,,,,"
+        write(csv_file, curric_CIP)
+
+        # Write Courses Header
+        write(csv_file, "\nCourses,,,,,,,,,,") 
+        write(csv_file, course_header) 
+
+        for (term_id, term) in enumerate(original_plan.terms)
             for course in term.courses
-                if !isdefined(original_plan, :additional_courses) || !find_courses(original_plan.additional_courses,course.id)
-                    write(csv_file, course_line(course,term_id)) 
+                if !isdefined(original_plan, :additional_courses) || !find_courses(original_plan.additional_courses, course.id)
+                    write(csv_file, course_line(course, term_id)) 
                 end
             end
         end
+        
         if isdefined(original_plan, :additional_courses)
-            write(csv_file,"\nAdditional Courses,,,,,,,,,,")
-            write(csv_file,course_header) 
-            for (term_id,term) in enumerate(original_plan.terms)
+            write(csv_file, "\nAdditional Courses,,,,,,,,,,")
+            write(csv_file, course_header) 
+            for (term_id, term) in enumerate(original_plan.terms)
                 for course in term.courses
-                    if find_courses(original_plan.additional_courses,course.id)
-                        write(csv_file,course_line(course,term_id)) 
+                    if find_courses(original_plan.additional_courses, course.id)
+                        write(csv_file, course_line(course, term_id)) 
                     end
                 end
             end
         end
 
-        all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
-        for (term_id,term) in enumerate(original_plan.terms)
+        all_course_lo = Dict{Int, Array{LearningOutcome, 1}}()
+        for (term_id, term) in enumerate(original_plan.terms)
             for course in term.courses
-                if length(course.learning_outcomes)>0
+                if length(course.learning_outcomes) > 0
                     all_course_lo[course.id] = course.learning_outcomes
                 end
             end
         end
-        if length(all_course_lo)>0
-            write(csv_file,"\nCourse Learning Outcomes,,,,,,,,,,") 
-            write(csv_file,"\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,") 
+
+        if length(all_course_lo) > 0
+            write(csv_file, "\nCourse Learning Outcomes,,,,,,,,,,") 
+            write(csv_file, "\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,") 
             for lo_arr in all_course_lo
                 for lo in lo_arr[2]
                     course_ID = lo_arr[1]
                     lo_ID = lo.id
-                    lo_name=lo.name
-                    lo_desc=lo.description
+                    lo_name = lo.name
+                    lo_desc = lo.description
                     lo_prereq = "\""
                     for requesite in lo.requisites
-                        lo_prereq=lo_prereq*string(requesite[1])*","
+                        lo_prereq = lo_prereq*string(requesite[1]) * ","
                     end
                     lo_prereq = chop(lo_prereq)
-                    if length(lo_prereq)>0
-                       lo_prereq=lo_prereq* "\""
+                    if length(lo_prereq) > 0
+                       lo_prereq = lo_prereq * "\""
                     end
-                    lo_hours=lo.hours
-                    lo_line = "\n"*string(course_ID)*","*string(lo_ID)*","*string(lo_name)*","*string(lo_desc)*","*
-                                    string(lo_prereq)*","*string(lo_hours)*",,,,,"
+                    lo_hours = lo.hours
+                    lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * "," * string(lo_name) * "," * string(lo_desc) * "," *
+                                    string(lo_prereq) * "," * string(lo_hours) * ",,,,,"
                     
-                    write(csv_file,lo_line) 
+                    write(csv_file, lo_line) 
                 end
             end
         end
-        if length(curric.learning_outcomes)>0
-            write(csv_file,"\nCurriculum Learning Outcomes,,,,,,,,,,") 
-            write(csv_file,"\nLearning Outcome,Description,,,,,,,,,") 
+
+        if length(curric.learning_outcomes) > 0
+            write(csv_file, "\nCurriculum Learning Outcomes,,,,,,,,,,") 
+            write(csv_file, "\nLearning Outcome,Description,,,,,,,,,") 
             for lo in curric.learning_outcomes
-                lo_name=lo.name
-                lo_desc=lo.description
-                lo_line = "\n"*string(lo_name)*","*string(lo_desc)*",,,,,,,,,"
-                write(csv_file,lo_line) 
+                lo_name = lo.name
+                lo_desc = lo.description
+                lo_line = "\n" * string(lo_name) * "," * string(lo_desc) * ",,,,,,,,,"
+                write(csv_file, lo_line) 
             end 
         end
         
@@ -476,6 +484,17 @@ function read_csv(file_path::AbstractString)
     end
     return output
 
+end
+
+# Returns a requisite as a string for visualization
+function requisite_to_string(req::Requisite)
+    if req == pre
+        return "prereq"
+    elseif req == co
+        return "coreq"
+    else
+        return "strict-coreq"
+    end
 end
 
 function prepare_data(degree_plan::DegreePlan; edit::Bool=false, hide_header::Bool=false, show_delay::Bool=true, 
