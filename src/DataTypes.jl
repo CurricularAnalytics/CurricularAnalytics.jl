@@ -206,7 +206,8 @@ end
 # The required curriculum associated with a degree program
 """
 The `Curriculum` data type is used to represent the collection of courses that must be
-be completed in order to earn a particualr degree.  To instantiate a `Curriculum` use:
+be completed in order to earn a particualr degree. Thus, we use the terms *curriculum* and
+*degree program* synonymously. To instantiate a `Curriculum` use:
 
     Curriculum(name, courses; <keyword arguments>)
 
