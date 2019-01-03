@@ -429,8 +429,8 @@ function read_csv(file_path::AbstractString)
             output = curric            
         end
     end
-
-    if endswith(file_path, "_temp.csv")
+    # Current file is the temp file created by remove_empty_lines(), remove the file.
+    if file_path[end-8:end] == "_temp.csv"
         rm(file_path)
     end
     return output
