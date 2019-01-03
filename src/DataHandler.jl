@@ -11,9 +11,6 @@ function write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
-        # 11 columns, write them all out
-        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
-        
         # Write Curriculum Name
         curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
         write(csv_file, curric_name)
@@ -42,50 +39,11 @@ function write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
         end
         
         # Iterate through courses to gather learning outcomes
-        all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
-        for course in curric.courses
-            if length(course.learning_outcomes)>0
-                all_course_lo[course.id] = course.learning_outcomes
-            end
-        end
+        all_course_lo = gather_learning_outcomes(curric)
         
-        # If there are learning outcomes, write them out
+        # Write course and curriculum learning outcomes, if any
         # TODO - This should be it's own function, write_learning_outcomes()
-        if length(all_course_lo) > 0
-            write(csv_file, "\nCourse Learning Outcomes,,,,,,,,,,") 
-            write(csv_file, "\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,") 
-            for lo_arr in all_course_lo
-                for lo in lo_arr[2]
-                    course_ID = lo_arr[1]
-                    lo_ID = lo.id
-                    lo_name = lo.name
-                    lo_desc = lo.description
-                    lo_prereq = "\""
-                    for requesite in lo.requisites
-                        lo_prereq = lo_prereq*string(requesite[1]) * ","
-                    end
-                    lo_prereq = chop(lo_prereq)
-                    if length(lo_prereq) > 0
-                       lo_prereq=lo_prereq * "\""
-                    end
-                    lo_hours = lo.hours
-                    lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * "," * string(lo_name) *
-                                "," * string(lo_desc) * "," * string(lo_prereq) * "," * string(lo_hours) * ",,,,,"
-                    write(csv_file,lo_line) 
-                end
-            end
-        end
-        if length(curric.learning_outcomes) > 0
-            write(csv_file, "\nCurriculum Learning Outcomes,,,,,,,,,,") 
-            write(csv_file, "\nLearning Outcome,Description,,,,,,,,,") 
-            for lo in curric.learning_outcomes
-                lo_name=lo.name
-                lo_desc=lo.description
-                lo_line = "\n" * string(lo_name) * "," * string(lo_desc) * ",,,,,,,,,"
-                write(csv_file, lo_line) 
-            end 
-        end
-        
+        write_learning_outcomes(curric, csv_file, all_course_lo)
     end
     return true
 end
@@ -135,12 +93,13 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.cs
 
         for (term_id, term) in enumerate(original_plan.terms)
             for course in term.courses
+                # TODO - If additional courses is not defined on the original plan, why do a second check?
                 if !isdefined(original_plan, :additional_courses) || !find_courses(original_plan.additional_courses, course.id)
                     write(csv_file, course_line(course, term_id)) 
                 end
             end
         end
-        
+
         if isdefined(original_plan, :additional_courses)
             write(csv_file, "\nAdditional Courses,,,,,,,,,,")
             write(csv_file, course_header) 
@@ -162,43 +121,8 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.cs
             end
         end
 
-        if length(all_course_lo) > 0
-            write(csv_file, "\nCourse Learning Outcomes,,,,,,,,,,") 
-            write(csv_file, "\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,") 
-            for lo_arr in all_course_lo
-                for lo in lo_arr[2]
-                    course_ID = lo_arr[1]
-                    lo_ID = lo.id
-                    lo_name = lo.name
-                    lo_desc = lo.description
-                    lo_prereq = "\""
-                    for requesite in lo.requisites
-                        lo_prereq = lo_prereq*string(requesite[1]) * ","
-                    end
-                    lo_prereq = chop(lo_prereq)
-                    if length(lo_prereq) > 0
-                       lo_prereq = lo_prereq * "\""
-                    end
-                    lo_hours = lo.hours
-                    lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * "," * string(lo_name) * "," * string(lo_desc) * "," *
-                                    string(lo_prereq) * "," * string(lo_hours) * ",,,,,"
-                    
-                    write(csv_file, lo_line) 
-                end
-            end
-        end
-
-        if length(curric.learning_outcomes) > 0
-            write(csv_file, "\nCurriculum Learning Outcomes,,,,,,,,,,") 
-            write(csv_file, "\nLearning Outcome,Description,,,,,,,,,") 
-            for lo in curric.learning_outcomes
-                lo_name = lo.name
-                lo_desc = lo.description
-                lo_line = "\n" * string(lo_name) * "," * string(lo_desc) * ",,,,,,,,,"
-                write(csv_file, lo_line) 
-            end 
-        end
-        
+        # Write course and curriculum learning outcomes, if any
+        write_learning_outcomes(curric, csv_file, all_course_lo)        
     end
     return true
 end

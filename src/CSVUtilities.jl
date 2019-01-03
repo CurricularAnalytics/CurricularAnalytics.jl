@@ -230,3 +230,51 @@ function generate_curric_lo(df_curric_lo::DataFrame)
     end
     return learning_outcomes
 end
+
+function gather_learning_outcomes(curric::Curriculum)
+    all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
+    for course in curric.courses
+        if length(course.learning_outcomes)>0
+            all_course_lo[course.id] = course.learning_outcomes
+        end
+    end
+    return all_course_lo
+end
+
+function write_learning_outcomes(curric::Curriculum, csv_file, all_course_lo)
+    if length(all_course_lo) > 0
+        write(csv_file, "\nCourse Learning Outcomes,,,,,,,,,,") 
+        write(csv_file, "\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,") 
+        for lo_arr in all_course_lo
+            for lo in lo_arr[2]
+                course_ID = lo_arr[1]
+                lo_ID = lo.id
+                lo_name = lo.name
+                lo_desc = lo.description
+                lo_prereq = "\""
+                for requesite in lo.requisites
+                    lo_prereq = lo_prereq*string(requesite[1]) * ","
+                end
+                lo_prereq = chop(lo_prereq)
+                if length(lo_prereq) > 0
+                   lo_prereq = lo_prereq * "\""
+                end
+                lo_hours = lo.hours
+                lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * "," * string(lo_name) * "," * string(lo_desc) * "," *
+                                string(lo_prereq) * "," * string(lo_hours) * ",,,,,"
+                
+                write(csv_file, lo_line) 
+            end
+        end
+    end
+    if length(curric.learning_outcomes) > 0
+        write(csv_file, "\nCurriculum Learning Outcomes,,,,,,,,,,") 
+        write(csv_file, "\nLearning Outcome,Description,,,,,,,,,") 
+        for lo in curric.learning_outcomes
+            lo_name = lo.name
+            lo_desc = lo.description
+            lo_line = "\n" * string(lo_name) * "," * string(lo_desc) * ",,,,,,,,,"
+            write(csv_file, lo_line) 
+        end 
+    end
+end
