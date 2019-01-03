@@ -19,7 +19,7 @@ The file format used to store curricula is described in [File Format](@ref).
 julia> write_csv(c, "./mydata/UBW_curric.csv")
 ```
 """
-function write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
+function write_csv(curric::Curriculum, file_path::AbstractString)
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
@@ -81,7 +81,7 @@ The file format used to store degree plans is described in [File Format](@ref).
 julia> write_csv(dp, "./mydata/UBW_plan.csv")
 ```
 """
-function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.csv")
+function write_csv(original_plan::DegreePlan, file_path::AbstractString)
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
@@ -154,7 +154,7 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.cs
     return true
 end
 
-function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString="temp.csv")
+function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString)
     dict_requisite = Dict("prereq"=>pre, "coreq"=>co, "strict-coreq"=>strict_co)
     # Requisites might be updated by interface
     # Get all original courses without any requisite
