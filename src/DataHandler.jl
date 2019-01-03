@@ -23,6 +23,9 @@ function write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
+        # 10 columns, generate the header
+        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
+
         # Write Curriculum Name
         curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
         write(csv_file, curric_name)
