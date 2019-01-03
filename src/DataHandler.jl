@@ -3,9 +3,21 @@ using CSV
 using DataFrames
 
 """
-write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
+    write_csv(c::Curriculum, file_path::AbstractString)
 
+Write (i.e., serialize) a `Curriculum` data object to disk as a CSV file. To read 
+(i.e., deserialize) a curriculum CSV file, use the corresponding `read_csv` function.
+The file format used to store curricula is described in [File Format](@ref).
 
+# Arguments
+- `c::Curriculum` : the `Curriculum` data object to be serialized.
+- `file_path::AbstractString` : the absolute or relative path where the CSV file will be stored. 
+   Default is `temp.csv`. 
+
+# Examples:
+```julia-repl
+julia> write_csv(c, "./mydata/UBW_curric.csv")
+```
 """
 function write_csv(curric::Curriculum, file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
@@ -50,9 +62,21 @@ end
 
 # TODO - Reduce duplicated code between this and the curriculum version of the function
 """
-write_csv(degree_plan::DegreePlan, file_path::AbstractString="temp.csv")
+    write_csv(dp::DegreePlan, file_path::AbstractString)
 
+Write (i.e., serialize) a `DegreePlan` data object to disk as a CSV file. To read 
+(i.e., deserialize) a degree plan CSV file, use the corresponding `read_csv` function.
+The file format used to store degree plans is described in [File Format](@ref).
 
+# Arguments
+- `dp::DegreePlan` : the `DegreePlan` data object to be serialized.
+- `file_path::AbstractString` : the absolute or relative path where the CSV file will be stored.
+   Default is `temp.csv`. 
+
+# Examples:
+```julia-repl
+julia> write_csv(dp, "./mydata/UBW_plan.csv")
+```
 """
 function write_csv(original_plan::DegreePlan, file_path::AbstractString="temp.csv")
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
@@ -230,19 +254,19 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
 end
 
 """
-read_csv(file_path::AbstractString)
+    read_csv(file_path::AbstractString)
 
-Reads a CSV file containing either a curriculum or a degree plan, and returns a corresponding
-Curriculum` or `DegreePlan`.  The required format for curriculum or degree plan CSV files is 
-described in ?
+Read (i.e., deserialize) a CSV file containing either a curriculum or a degree plan, and returns a corresponding
+`Curriculum` or `DegreePlan` data object.  The required format for curriculum or degree plan CSV files is 
+described in [File Format](@ref).
 
 # Arguments
 - `file_path::AbstractString` : the relative or absolute path to the CSV file.
 
 # Examples:
 ```julia-repl
-julia> curric = read_csv("./test/curriculum.csv")
-julia> dp = read_csv("./test/degree-plan.csv")
+julia> c = read_csv("./mydata/UBW_curric.csv")
+julia> dp = read_csv("./mydata/UBW_plan.csv")
 ```
 """
 function read_csv(file_path::AbstractString)
