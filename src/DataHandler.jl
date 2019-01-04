@@ -23,9 +23,6 @@ function write_csv(curric::Curriculum, file_path::AbstractString)
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
-        # 10 columns, generate the header
-        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
-
         # Write Curriculum Name
         curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
         write(csv_file, curric_name)
@@ -46,13 +43,19 @@ function write_csv(curric::Curriculum, file_path::AbstractString)
         curric_CIP="\nCIP," * string(curric.CIP) * ",,,,,,,,,"
         write(csv_file, curric_CIP)
 
-        # Iterate through courses and write them all to the file
+        # Define the course header, 10 columns of data for each course
+        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
+        # Write Course Section and Course Header
         write(csv_file, "\nCourses,,,,,,,,,,") 
-        write(csv_file, course_header)
+        write(csv_file, course_header) 
+        # Iterate through each course and write it to the curriculum
         for course in curric.courses
             write(csv_file, course_line(course,""))
         end
         
+        # TODO - We iterate the courses two times here I believe, once to write every course to the curriculum csv,
+        # and a second time to gather learning outcomes. We should gather learning outcomes as we write courses?
+
         # Iterate through courses to gather learning outcomes
         all_course_lo = gather_learning_outcomes(curric)
         
@@ -85,9 +88,6 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString)
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     open(file_path, "w") do csv_file
-        # 11 columns, write them all out
-        course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
-        
         # Grab a copy of the curriculum
         curric = original_plan.curriculum
         
@@ -114,10 +114,12 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString)
         curric_CIP = "\nCIP," * string(curric.CIP) * ",,,,,,,,,"
         write(csv_file, curric_CIP)
 
-        # Write Courses Header
+        # Define the course header, 11 columns of data for each course
+        course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
+        # Write Course Section and Course Header
         write(csv_file, "\nCourses,,,,,,,,,,") 
         write(csv_file, course_header) 
-
+        # Iterate through each term and each course in the term and write them to the degree plan
         for (term_id, term) in enumerate(original_plan.terms)
             for course in term.courses
                 # TODO - If additional courses is not defined on the original plan, why do a second check?
@@ -139,6 +141,7 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString)
             end
         end
 
+        # TODO - This should somehow use the gather_learning_outcomes
         all_course_lo = Dict{Int, Array{LearningOutcome, 1}}()
         for (term_id, term) in enumerate(original_plan.terms)
             for course in term.courses
