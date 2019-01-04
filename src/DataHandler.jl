@@ -48,19 +48,20 @@ function write_csv(curric::Curriculum, file_path::AbstractString)
         # Write Course Section and Course Header
         write(csv_file, "\nCourses,,,,,,,,,,") 
         write(csv_file, course_header) 
-        # Iterate through each course and write it to the curriculum
+
+        # Define dict to store all course learning outcomes
+        all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
+        # Iterate through each course in the curriculum
         for course in curric.courses
+            # Iterate through each course and write it to the curriculum
             write(csv_file, course_line(course,""))
+            # Check if the course has learning outcomes, if it does store them
+            if length(course.learning_outcomes) > 0
+                all_course_lo[course.id] = course.learning_outcomes
+            end
         end
         
-        # TODO - We iterate the courses two times here I believe, once to write every course to the curriculum csv,
-        # and a second time to gather learning outcomes. We should gather learning outcomes as we write courses?
-
-        # Iterate through courses to gather learning outcomes
-        all_course_lo = gather_learning_outcomes(curric)
-        
         # Write course and curriculum learning outcomes, if any
-        # TODO - This should be it's own function, write_learning_outcomes()
         write_learning_outcomes(curric, csv_file, all_course_lo)
     end
     return true
@@ -119,34 +120,35 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString)
         # Write Course Section and Course Header
         write(csv_file, "\nCourses,,,,,,,,,,") 
         write(csv_file, course_header) 
+
         # Iterate through each term and each course in the term and write them to the degree plan
         for (term_id, term) in enumerate(original_plan.terms)
             for course in term.courses
-                # TODO - If additional courses is not defined on the original plan, why do a second check?
                 if !isdefined(original_plan, :additional_courses) || !find_courses(original_plan.additional_courses, course.id)
                     write(csv_file, course_line(course, term_id)) 
                 end
             end
         end
 
+        # Define dict to store all course learning outcomes
+        all_course_lo = Dict{Int, Array{LearningOutcome, 1}}()
+        # Check if the original plan has additional courses defined
         if isdefined(original_plan, :additional_courses)
+            # Write the additional courses section of the CSV
             write(csv_file, "\nAdditional Courses,,,,,,,,,,")
             write(csv_file, course_header) 
+            # Iterate through each term
             for (term_id, term) in enumerate(original_plan.terms)
+                # Iterate through each course in the current term
                 for course in term.courses
+                    # Check if the current course is an additional course, if so, write it here
                     if find_courses(original_plan.additional_courses, course.id)
                         write(csv_file, course_line(course, term_id)) 
                     end
-                end
-            end
-        end
-
-        # TODO - This should somehow use the gather_learning_outcomes
-        all_course_lo = Dict{Int, Array{LearningOutcome, 1}}()
-        for (term_id, term) in enumerate(original_plan.terms)
-            for course in term.courses
-                if length(course.learning_outcomes) > 0
-                    all_course_lo[course.id] = course.learning_outcomes
+                    # Check if the current course has learning outcomes, if so store them
+                    if length(course.learning_outcomes) > 0
+                        all_course_lo[course.id] = course.learning_outcomes
+                    end
                 end
             end
         end
