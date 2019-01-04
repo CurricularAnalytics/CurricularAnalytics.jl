@@ -15,7 +15,5 @@ Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisit
 7,Basket Materials & Decoration,BW,214,1,,,3,,,3
 8,Underwater Weaving,BW,301,2,7,,3,,,4
 Additional Courses,,,,,,,,,,
-Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,,,Term
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
 9,Precalculus w/ Basketry Applications,MA,110,,,,3,,,1
-,,,,,,,,,,
-,,,,,,,,,,

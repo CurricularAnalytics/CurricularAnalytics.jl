@@ -34,7 +34,7 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
     #credits desired by the student or allowed by the university 
     #round to average credit per term
     #make a function to calculate extra(2 in this case)
-    #calculate average creadit after each term
+    #calculate average credit after each term
     if !("complexity" in keys(curric.metrics))
         complexity(curric)
     end
@@ -55,7 +55,6 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
         if avrg_credit_remaining  < max_credits_per_term
             #go through all courses to add in current term according to the complexity score
             for index in sorted_index
-                
                 #if current course is already added to the previous terms ignore
                 if !(index in all_applied_courses)
                     #find vertex and send vertex id
@@ -104,11 +103,11 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
     end
     if length(all_applied_courses) != length(sorted_index)
         if min_terms<max_terms
-            println("Could not create a plan for $min_terms term, tring for $(min_terms+1) term")
+            println("Unable to create a $min_terms plan, attempting a $(min_terms+1) term plan")
             return bin_packing(curric,additional_courses; min_terms=min_terms+1,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
         max_credits_per_term=max_credits_per_term)
         else 
-            throw("Could not visualize for given information")
+            throw("Unable to create visualization")
         end
     end
     return terms

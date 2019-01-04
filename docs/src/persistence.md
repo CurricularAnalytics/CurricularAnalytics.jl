@@ -1,10 +1,10 @@
-# Persisting Curricula & Degree Plans
+# Reading/Writing Curricula & Degree Plans
 
 The ability to read/write curricula and degree plans to disk is greately facilitated by using the functions described here.
 
 ## File Format
 
-The *CSV file format* stores data as comma-separated values in a text file, allowing data to be presisted in tabular form. You can open CSV files with either a text editor or by using your favorate spreadsheet program.  
+The *CSV file format* stores data as comma-separated values in a text file, allowing data to be presisted in tabular form. You can open CSV files with either a text editor or by using your favorate spreadsheet program. The sections below describe the CSV file formats used for curricula and degree plans, as well as functions that can be used to read/write these CSV files.
 
 ### Curricula
 
@@ -33,21 +33,25 @@ More specifically, the data that is exepected to follow each keyword provided in
   * Institution : the institution offering the course (my be different from the institution offering the curriculum).
   * Canonical Name : the canonical (i.e., common) name used for the course.
 
-An example curriculum file using the aforedescribed format is as follows:
+Below is an example curriculum file that uses the aforedescribed format:
 ![example file format for curricula](./curriculum-ex.png)
 A link to this CSV file can be found [here](./curriculum-ex.csv).
 
 ### Degree Plans
 
 The CSV file format used to store degree plans is shown below:
-
 ![file format for curricula](./degree-plan-format.png)
+The elements shown in boldface are required keywords that must appear in the degree plan CSV file, while the italicized elements are user supplied arguments.  Notice that the italicized elements stipulate the input type, and whether or not the argument is required.
 
-An example curriculum stored using the aforedescribed format is as follows:
+The data that is exepected to follow each keyword provided in the degree plan CSV file is the same as described in [Curricula](@ref) for curriculum CSV files, with two additions:
 
+* Degree Plan : the name of the degree plan (required).
+* Term : this keyword appears at the end of the header row associated with courses (required).  The term that a course should appear in as a part of a degree plan should be listed under this keyword.
+
+Below is an example degree plan file that uses the aforedescribed format:
 ![example file format for curricula](./degree-plan-ex.png)
-
-A link to this CSV file can be found [here](./degree-plan-ex.csv)
+A link to this CSV file can be found [here](./degree-plan-ex.csv), and a visualization of this degree plan, created using the [Visualize](@ref) function, is as follows:
+![visualization of example degree plan](./degree-plan-ex-viz.png)
 
 ## Writing Curricula and Degree Plans
 
