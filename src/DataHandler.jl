@@ -192,8 +192,7 @@ The file format used to store curricula is described in [File Format](@ref).
 
 # Arguments
 - `c::Curriculum` : the `Curriculum` data object to be serialized.
-- `file_path::AbstractString` : the absolute or relative path where the CSV file will be stored. 
-   Default is `temp.csv`. 
+- `file_path::AbstractString` : the absolute or relative path where the CSV file will be stored.
 
 # Examples:
 ```julia-repl
@@ -258,8 +257,7 @@ The file format used to store degree plans is described in [File Format](@ref).
 
 # Arguments
 - `dp::DegreePlan` : the `DegreePlan` data object to be serialized.
-- `file_path::AbstractString` : the absolute or relative path where the CSV file will be stored.
-   Default is `temp.csv`. 
+- `file_path::AbstractString` : the absolute or relative path where the CSV file will be stored. 
 
 # Examples:
 ```julia-repl
