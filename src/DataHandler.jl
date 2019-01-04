@@ -53,7 +53,7 @@ function write_csv(curric::Curriculum, file_path::AbstractString)
         all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
         # Iterate through each course in the curriculum
         for course in curric.courses
-            # Iterate through each course and write it to the curriculum
+            # Write the current course to the CSV
             write(csv_file, course_line(course,""))
             # Check if the course has learning outcomes, if it does store them
             if length(course.learning_outcomes) > 0
