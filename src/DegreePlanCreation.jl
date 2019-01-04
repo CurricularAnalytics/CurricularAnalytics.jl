@@ -4,7 +4,7 @@ function create_degree_plan(curric::Curriculum, name::AbstractString="", create_
     min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
     terms =  create_terms(curric,additional_courses; min_terms=min_terms,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
                                 max_credits_per_term=max_credits_per_term)
-    DegreePlan(name, curric, terms)
+    return DegreePlan(name, curric, terms)
 end
 
 function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{Int}, current_term::Array{Int})
@@ -57,7 +57,7 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
             for index in sorted_index
                 
                 #if current course is already added to the previous terms ignore
-                if !(index in all_applied_courses)
+                if !(index in all_applied_courses) && !(index in this_term_applied_courses)
                     #find vertex and send vertex id
                     #Control reqs 
                     can_be_added = true
