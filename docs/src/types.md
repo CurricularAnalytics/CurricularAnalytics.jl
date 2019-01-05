@@ -25,7 +25,7 @@ LearningOutcome
 
 ## Curricula
 
-To create a curriculum from a collection of courses, and their assoiated requsites, use:
+To create a curriculum from a collection of courses, and their associated requisites, use:
 
 ```@docs
 Curriculum
