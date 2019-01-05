@@ -9,8 +9,8 @@ c = Array{Course}(undef,43)
 # term 1
 c[1] = Course("Engineering Exploration I", 1, prefix = "EGR", num = "101")
 c[2] = Course("Fundamentals of Engineering Computing", 2, prefix = "EGR", num = "102")
-c[3] = Course("GEN UNIV PHYS", 4, prefix = "PHY", num = "231")
-c[4] = Course("PHY LAB", 1, prefix = "PHY", num = "241")
+c[3] = Course("General University Physics", 4, prefix = "PHY", num = "231")
+c[4] = Course("General University Physics Lab", 1, prefix = "PHY", num = "241")
 c[5] = Course("Composition and Communication I", 3, prefix = "CIS/WRD", num = "110")
 c[6] = Course("Calculus I", 4, prefix = "MA", num = "113")
 
@@ -32,38 +32,38 @@ c[16] = Course("Digital Logic Design", 4, prefix = "EE", num = "282")
 c[17] = Course("Calculus IV", 3, prefix = "MA", num = "214")
 c[18] = Course("AC Circuits", 4, prefix = "EE", num = "223")
 c[19] = Course("Intro. to Embedded Systems", 4, prefix = "EE", num = "287")
-c[20] = Course("Intro. to Program Design, Abstraction and Problem Solving", 4, prefix = "CS", num = "215")
+c[20] = Course("Intro. to Program Design Abstraction and Problem Solving", 4, prefix = "CS", num = "215")
 c[21] = Course("UK Core - Humanities", 3)
 
 # term 5
 c[22] = Course("Electromechanics", 3, prefix = "EE", num = "415G")
 c[23] = Course("Signals & Systems", 3, prefix = "EE", num = "421G")
-c[24] = Course("Elective EE Laboratory", 2)
+c[24] = Course("Elective EE Laboratory 1", 2)
 c[25] = Course("Intro. to Electronics", 3, prefix = "EE", num = "461G")
 c[26] = Course("Introductory Probability", 3, prefix = "MA", num = "320")
-c[27] = Course("Technical Elective", 3)
+c[27] = Course("Technical Elective 1", 3)
 
 # term 6
 c[28] = Course("Intro. to Engineering Electromagnetics", 4, prefix = "EE", num = "468G")
-c[29] = Course("Elective EE Laboratory", 2)
-c[30] = Course("Engineering/Science Elective", 3)
-c[31] = Course("Technical Elective", 3)
-c[32] = Course("UK Core – Citizenship - USA", 3)
+c[29] = Course("Elective EE Laboratory 2", 2)
+c[30] = Course("Engineering/Science Elective 1", 3)
+c[31] = Course("Technical Elective 2", 3)
+c[32] = Course("UK Core - Citizenship - USA", 3)
 
 # term 7
 c[33] = Course("EE Capstone Design", 3, prefix = "EE", num = "490")
-c[34] = Course("EE Technical Elective", 3)
-c[35] = Course("EE Technical Elective", 3)
+c[34] = Course("EE Technical Elective 1", 3)
+c[35] = Course("EE Technical Elective 2", 3)
 c[36] = Course("Math/Statistics Elective", 3)
-c[37] = Course("UK Core – Global Dynamics", 3)
+c[37] = Course("UK Core - Global Dynamics", 3)
 
 # term 8
 c[38] = Course("EE Capstone Design", 3, prefix = "EE", num = "491")
-c[39] = Course("EE Technical Elective", 3)
-c[40] = Course("EE Technical Elective", 3)
+c[39] = Course("EE Technical Elective 3", 3)
+c[40] = Course("EE Technical Elective 4", 3)
 c[41] = Course("Supportive Elective", 3)
-c[42] = Course("Engineering/Science Elective", 3)
-c[43] = Course("UK Core – Statistical Inferential Reasoning", 3)
+c[42] = Course("Engineering/Science Elective 2", 3)
+c[43] = Course("UK Core - Statistical Inferential Reasoning", 3)
 
 # term 1
     add_requisite!(c[2],c[7],pre)

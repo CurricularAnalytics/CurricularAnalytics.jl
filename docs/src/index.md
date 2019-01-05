@@ -23,14 +23,19 @@ There is a one-to-many relationshiop a curriculum and the degree plans that sati
 Consider the Basket Weaving curriculum, consisting of the following four courses:
 
 - BW 101 : Introduction to Baskets, 3 credits
-- BW 101L : Introduction to Baskets Lab, 1 credit; co-requisite: BW 101 
+- BW 101L : Introduction to Baskets Lab, 1 credit; strict co-requisite: BW 101
 - BW 111 : Basic Basket Forms, 3 credits; prerequisite: BW 101
-- BW 201 : Advanced Basketry, 3 credits; prerequisite: BW 111 
+- BW 201 : Advanced Basketry, 3 credits; co-requisite: BW 111
 
 The following degree plan completes this curriculum in two terms while satisfying all of the requisite relationships:
 
 - Term 1: BW 101, BW 101L
 - Term 2: BW 111, BW 201
+
+A visual representation of this degree plan is as follows:
+![Basket Weaving degree plan](./BW-plan.png)
+
+The solid arrow in this figure represents a prerequisite relationship, while the dashed arrows represent co-requisite relationships.
 
 ## Toolbox Overview
 

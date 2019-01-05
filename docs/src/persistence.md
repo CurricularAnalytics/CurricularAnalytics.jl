@@ -35,7 +35,8 @@ More specifically, the data that is exepected to follow each keyword provided in
 
 Below is an example curriculum file that uses the aforedescribed format:
 ![example file format for curricula](./curriculum-ex.png)
-A link to this CSV file can be found [here](./curriculum-ex.csv).
+A link to this CSV file can be found [here](./curriculum-ex.csv), and a visualization of this curriculum, created using the function descrebed in [Visualization Functions](@ref), is as follows:
+![visualization of example curriculum](./curriculum-ex-viz.png)
 
 ### Degree Plans
 
@@ -48,9 +49,9 @@ The data that is exepected to follow each keyword provided in the degree plan CS
 * Degree Plan : the name of the degree plan (required).
 * Term : this keyword appears at the end of the header row associated with courses (required).  The term that a course should appear in as a part of a degree plan should be listed under this keyword.
 
-Below is an example degree plan file that uses the aforedescribed format:
+Below is an example degree plan file that uses the aforedescribed format. This degree plan satisfies the curriculum shown in the previous section, and it includes one additional prerequisite course. Noitce that term information is also provided with each course.
 ![example file format for curricula](./degree-plan-ex.png)
-A link to this CSV file can be found [here](./degree-plan-ex.csv), and a visualization of this degree plan, created using the [Visualize](@ref) function, is as follows:
+A link to this CSV file can be found [here](./degree-plan-ex.csv), and a visualization of this degree plan, created using the function descrebed in [Visualization Functions](@ref), is as follows:
 ![visualization of example degree plan](./degree-plan-ex-viz.png)
 
 ## Writing Curricula and Degree Plans

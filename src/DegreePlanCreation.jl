@@ -102,10 +102,11 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
         end
     end
     if length(all_applied_courses) != length(sorted_index)
-        if min_terms<max_terms
-            println("Unable to create a $min_terms plan, attempting a $(min_terms+1) term plan")
-            return bin_packing(curric,additional_courses; min_terms=min_terms+1,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
-        max_credits_per_term=max_credits_per_term)
+        if min_terms < max_terms
+            # the following print statement can be uncommented for debugging purposes
+            #println("Unable to create a $min_terms term plan, attempting a $(min_terms+1) term plan")
+            return bin_packing(curric, additional_courses; min_terms=min_terms+1, max_terms=max_terms, min_credits_per_term=min_credits_per_term,
+             max_credits_per_term=max_credits_per_term)
         else 
             throw("Unable to create visualization")
         end

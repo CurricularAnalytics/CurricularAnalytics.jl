@@ -63,3 +63,25 @@ To see the terms and courses associated with a degree plan within the Julia cons
 ```@docs
 print_plan
 ```
+
+### -- Example --
+
+The following commands will produce the visualization shown below:
+
+```julia-repl
+julia> A = Course("Introduction to Baskets", 3)
+julia> B = Course("Introduction to Baskets Lab", 1)
+julia> C = Course("Basic Basket Forms", 3)
+julia> D = Course("Advanced Basketry", 3)
+julia> add_requisite!(A, B, strict_co)
+julia> add_requisite!(A, C, pre)
+julia> add_requisite!(C, D, co)
+julia> curric = Curriculum("Basket Weaving", [A,B,C,D])
+julia> terms = Array{Term}(undef, 2)
+julia> terms[1] = Term([A,B])
+julia> terms[2] = Term([C,D])
+julia> dp = DegreePlan("2-Term Plan", curric, terms)
+julia> visualize(dp)
+```
+
+![Basket Weaving degree plan](./BW-plan.png)
