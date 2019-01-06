@@ -17,8 +17,8 @@ makedocs(
         "Reading/Writing Curricula & Degree Plans"  => "persistence.md",
         "Visualizing Curricula & Degree Plans"      => "visualize.md",
         "Metrics"                                   => "metrics.md",
-        "Optimizing Degree Plans"                   => "optimizing.md",
-        "Simulating Student Flows"                  => "simulating.md",
+        #"Optimizing Degree Plans"                   => "optimizing.md",
+        #"Simulating Student Flows"                  => "simulating.md",
         "Contributing"                              => "contributing.md",
         "License Information"                       => "license.md",
         "Citing CurricularAnalytics.jl"             => "citing.md"

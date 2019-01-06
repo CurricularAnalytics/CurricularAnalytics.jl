@@ -1,0 +1,9 @@
+Course ID," ""Course Name"""," ""Prefix"""," ""Number"""," ""Requisities"""," ""Credit Hours"""," ""Term"""
+1,Precalculus,,,,3,1
+2,Calculus I,,,pre:1,4,2
+3,Calculus II,,,pre:2,4,3
+4,Physics I,,,pre:2,4,3
+5,Programming I,,,pre:2,3,3
+6,Calculus III,,,pre:3,4,4
+7,Differential Eqs.,,,pre:3,3,4
+8,Circuits I,,,pre:5 pre:4 pre:7,3,5

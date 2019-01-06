@@ -18,9 +18,11 @@ julia> println(String(take!(errors)))
 ```
 
 There are two reasons why a curriculum graph might not be valid:
+
 - Requisites not satsified : A prerequisite for a course occurs in a later term than the course itself.
 - Incomplete plan : There are course in the curriculum not included in the degree plan.
 - Redundant plan : The same course appears in the degree plan multiple times. 
+
 """
 function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
     validity = true
@@ -115,6 +117,7 @@ Computes basic metrics associated with degree plan `plan`.  This metrics are pri
 hours are distributed across the terms in a plan.
 
 The basic metrics computed include:
+
 - number of terms : The total number of terms (semesters or quarters) in the degree plan, ``n``.
 - total credit hours : The total number of credit hours in the degree plan.
 - max. credits in a term : The maximum number of credit hours in any one term in the degree plan.
@@ -123,16 +126,19 @@ The basic metrics computed include:
 - min. credit term : The earliest term in the degree plan that has the minimum number of credit hours.
 - avg. credits per term : The average number of credit hours per term in the degree plan, ``\\overline{ch}``.
 - credit hour variance : The term-by-term credit hour variance, ``\\sigma^2``.  If ``ch_i`` denotes the number 
-of credit hours in term ``i``, then
+   of credit hours in term ``i``, then
+
 ```math
 \\sigma^2 = \\sum_{i=1}^n {(ch_i - \\overline{ch})^2 \\over n}
 ```
 
 To view the basic degree plan metrics associated with degree plan `plan` in the Julia console use:
+
 ```julia-repl
 julia> basic_metrics(plan)
 julia> plan.metrics
 ```
+
 """
 function basic_metrics(plan::DegreePlan)
     plan.metrics["number of terms"] = plan.num_terms

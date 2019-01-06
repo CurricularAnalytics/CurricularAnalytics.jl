@@ -16,17 +16,19 @@ using Markdown
 using Documenter
 
 include("DataTypes.jl")
+include("DegreePlanCreation.jl")
 include("GraphAlgs.jl")
-include("JsonHandler.jl")
-include("Visualization.jl")
 include("DegreePlanAnalytics.jl")
+include("CSVUtilities.jl")
+include("DataHandler.jl")
+include("Visualization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
         EdgeClass, LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, 
         total_credits, requisite_type, Term, DegreePlan, dfs, longest_path, long_paths,
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
-        complexity, compare_curricula, isvalid_degree_plan, print_plan, export_degree_plan, visualize,
-        import_degree_plan, basic_metrics
+        complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
+        read_csv, create_degree_plan, bin_packing, add_lo_requisite!, update_plan, write_csv
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
 """
