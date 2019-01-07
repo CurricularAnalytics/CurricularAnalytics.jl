@@ -12,13 +12,17 @@ julia:
   - nightly
   - 1.0
 
+script:
+  - pwd
+  - cd /home/travis/build/heileman/CurricularAnalytics.jl
+
 jobs: 
   include:
     - stage: "Documentation"
       julia: 1.0
       os: linux
       script:
-        - cd /home/travis/build/heileman/CurricularAnalytics.jl
+        - pwd
         - julia --project=docs/ -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd()))'
         - julia --project=docs/ -e 'using Pkg; Pkg.add("Documenter")'
         - julia --project=docs/ docs/make.jl
