@@ -7,9 +7,6 @@ language: julia
 
 os:
   - linux
-  
-env:
-  - TRAVIS_BUILD_DIR="~/CurricularAnalytics.jl"
 
 julia:
   - nightly
@@ -21,7 +18,7 @@ jobs:
       julia: 1.0
       os: linux
       script:
-        - cd $TRAVIS_BUILD_DIR
+        - cd /home/travis/build/heileman/CurricularAnalytics.jl
         - julia --project=docs/ -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd()))'
         - julia --project=docs/ -e 'using Pkg; Pkg.add("Documenter")'
         - julia --project=docs/ docs/make.jl
