@@ -5,6 +5,8 @@
 # test the data file format used for curricula
 curric = read_csv("./test/curriculum.csv")
 
+print(pwd())
+
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
 @test curric.degree_type == AA

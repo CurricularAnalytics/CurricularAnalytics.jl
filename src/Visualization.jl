@@ -55,15 +55,15 @@ Keyword:
 
 - `changed` : callback function argument, called whenever the curriculum is modified through the interface.
      Default is `nothing`.
-- `notebook` : a Boolean argument, if set to `true`, the curriculum will be displayed within a Jupyter notebook.
+- `notebook` : a Boolean argument, if set to `true`, Blink will not create a new window for the visualization, which allows it to be displayed in the output cell of a Jupyter notebook.
 - `edit` : a Boolean argument, if set to `true`, the user may edit the curriculum through the visualziation interface. 
    Default is `false`.
 - `output_file` : the relative or absolute path to the CSV file that will store the edited curriculum. Default 
    is `edited_curriculum.csv`.
-- `show_delay` : a Boolean argument, if set to `true`, the delay factor metric will be displayed as a part of the visualization. Default is `false`.
-- `show_blocking` : a Boolean argument, if set to `true`, the blocking factor metric will be displayed as a part of the visualization. Default is `false`.
-- `show_centrality` : a Boolean argument, if set to `true`, the centrality metric will be displayed as a part of the visualization. Default is `false`.
-- `show_complexity` : a Boolean argument, if set to `true`, the complexity metric will be displayed as a part of the visualization. Default is `false`.
+- `show_delay` : a Boolean argument, if set to `true`, the delay factor metric will be displayed in the tooltip when hovering over a course. Default is `false`.
+- `show_blocking` : a Boolean argument, if set to `true`, the blocking factor metric will be displayed in the tooltip when hovering over a course. Default is `false`.
+- `show_centrality` : a Boolean argument, if set to `true`, the centrality metric will be displayed in the tooltip when hovering over a course. Default is `false`.
+- `show_complexity` : a Boolean argument, if set to `true`, the complexity metric will be displayed in the tooltip when hovering over a course. Default is `false`.
 
 """
 function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, edit::Bool=false, min_term::Int=1, output_file="edited_curriculum.csv", 
@@ -115,22 +115,22 @@ Keyword:
 
 - `changed` : callback function argument, called whenever the degree plan is modified through the interface.
      Default is `nothing`.
-- `notebook` : a Boolean argument, if set to `true`, the degree plan will be displayed within a Jupyter notebook.
+- `notebook` : a Boolean argument, if set to `true`, Blink will not create a new window for the visualization, which allows it to be displayed in the output cell of a Jupyter notebook.
 - `edit` : a Boolean argument, if set to `true`, the user may edit the degree plan through the visualziation interface. 
    Default is `false`.
 - `output_file` : the relative or absolute path to the CSV file that will store the edited degree plan. Default 
    is `edited_degree_plan.csv`.
-- `show_delay` : a Boolean argument, if set to `true`, the delay factor metric will be displayed as a part of the visualization. Default is `true`.
-- `show_blocking` : a Boolean argument, if set to `true`, the blocking factor metric will be displayed as a part of the visualization. Default is `true`.
-- `show_centrality` : a Boolean argument, if set to `true`, the centrality metric will be displayed as a part of the visualization. Default is `true`.
-- `show_complexity` : a Boolean argument, if set to `true`, the complexity metric will be displayed as a part of the visualization. Default is `true`.
+- `show_delay` : a Boolean argument, if set to `true`, the delay factor metric will be displayed in the tooltip when hovering over a course. Default is `true`.
+- `show_blocking` : a Boolean argument, if set to `true`, the blocking factor metric will be displayed in the tooltip when hovering over a course. Default is `true`.
+- `show_centrality` : a Boolean argument, if set to `true`, the centrality metric will be displayed in the tooltip when hovering over a course. Default is `true`.
+- `show_complexity` : a Boolean argument, if set to `true`, the complexity metric will be displayed in the tooltip when hovering over a course. Default is `true`.
 
 """
 function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false, output_file="edited_degree_plan.csv", 
                     show_delay::Bool=true, show_blocking::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true)
    
     viz_helper(plan; changed=changed, notebook=notebook, edit=edit,output_file=output_file, show_delay=show_delay,
-                show_blocking=show_blocking,show_centrality=show_centrality, show_complexity=show_complexity)
+                show_blocking=show_blocking, show_centrality=show_centrality, show_complexity=show_complexity)
 end
 
 function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false, output_file, show_delay::Bool, 
