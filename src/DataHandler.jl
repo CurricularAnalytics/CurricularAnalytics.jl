@@ -403,7 +403,7 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
                 end
                 current_course = original_courses[course_id]
                 current_course.name=course["nameSub"]
-                current_course.credit_hours=course["credits"]   
+                current_course.credit_hours=typeof(course["credits"]) == String ? parse(Int,course["credits"]) : course["credits"] 
                 # get course remove all reqs
             end
             # push each Course object to the array of courses

@@ -77,7 +77,7 @@ function course_line(course, term_id)
     course_term = typeof(term_id) == Int ? string(term_id) : term_id
     c_line= "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\""  *
                     string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
-                    string(course_scoreq) * "," * string(course_chours) *"\",\""* string(course_inst) * "\",\"" *
+                    string(course_scoreq) * "," * string(course_chours) *",\""* string(course_inst) * "\",\"" *
                     string(course_canName) * "\"," * course_term
     return c_line 
 end
@@ -118,6 +118,7 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
         c_ID = row[Symbol("Course ID")]
         c_Name = find_cell(row, Symbol("Course Name"))
         c_Credit = row[Symbol("Credit Hours")] 
+        c_Credit = typeof(c_Credit) == String ? parse(Int,c_Credit) : c_Credit
         c_Prefix = find_cell(row, Symbol("Prefix"))
         c_Number = find_cell(row, Symbol("Number"))
         c_Inst = find_cell(row, Symbol("Institution"))
