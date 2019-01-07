@@ -114,7 +114,7 @@ end
 
 function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{LearningOutcome}}=Dict{Int, Array{LearningOutcome}}())
     course_dict= Dict{Int, Course}()
-    for row in eachrow(df_courses)
+    for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         c_Name = find_cell(row, Symbol("Course Name"))
         c_Credit = row[Symbol("Credit Hours")] 
@@ -132,7 +132,7 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
                 num= c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID)
         end
     end
-    for row in eachrow(df_courses)
+    for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         pre_reqs = find_cell(row, Symbol("Prerequisites"))
         if pre_reqs != ""
@@ -159,7 +159,7 @@ end
 
 function read_courses(df_courses::DataFrame, all_courses::Dict{Int,Course})
     course_dict = Dict{Int, Course}()
-    for row in eachrow(df_courses)
+    for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         course_dict[c_ID] = all_courses[c_ID]
     end
@@ -168,7 +168,7 @@ end
 
 function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
     terms = Dict{Int, Array{Course}}()
-    for row in eachrow(df_courses)
+    for row in DataFrames.eachrow(df_courses)
         c_ID = find_cell(row, Symbol("Course ID"))
         term_ID = find_cell(row, Symbol("Term"))
         for course in course_arr
@@ -188,7 +188,7 @@ end
 
 function generate_course_lo(df_learning_outcomes::DataFrame)
     lo_dict = Dict{Int, LearningOutcome}()
-    for row in eachrow(df_learning_outcomes)
+    for row in DataFrames.eachrow(df_learning_outcomes)
         lo_ID = find_cell(row, Symbol("Learning Outcome ID"))
         lo_name = find_cell(row, Symbol("Learning Outcome"))
         lo_description = find_cell(row, Symbol("Description"))
@@ -200,7 +200,7 @@ function generate_course_lo(df_learning_outcomes::DataFrame)
             lo_dict[lo_ID] = LearningOutcome(lo_name, lo_description,lo_Credit)
         end
     end
-    for row in eachrow(df_learning_outcomes)
+    for row in DataFrames.eachrow(df_learning_outcomes)
         lo_ID = find_cell(row, Symbol("Learning Outcome ID"))
         reqs = find_cell(row, Symbol("Requisites"))
         if typeof(reqs) != Missing
@@ -210,7 +210,7 @@ function generate_course_lo(df_learning_outcomes::DataFrame)
         end
     end
     lo_Course = Dict{Int, Array{LearningOutcome}}()
-    for row in eachrow(df_learning_outcomes)
+    for row in DataFrames.eachrow(df_learning_outcomes)
         c_ID = find_cell(row, Symbol("Course ID"))
         lo_ID = find_cell(row, Symbol("Learning Outcome ID"))
         if c_ID in keys(lo_Course)
@@ -224,7 +224,7 @@ end
 
 function generate_curric_lo(df_curric_lo::DataFrame)
     learning_outcomes = LearningOutcome[]
-    for row in eachrow(df_curric_lo)
+    for row in DataFrames.eachrow(df_curric_lo)
         lo_name = find_cell(row, Symbol("Learning Outcome"))
         lo_description = find_cell(row, Symbol("Description"))
         push!(learning_outcomes, LearningOutcome(lo_name, lo_description, 0))
