@@ -10,7 +10,8 @@ end
 
 function remove_empty_lines(file_path)
     if file_path[end-3:end] != ".csv"
-        throw("Input is not a csv file")
+        println("Input is not a csv file")
+        return false
     end
     temp_file = file_path[1:end-4] * "_temp.csv"
     file = readfile(file_path)
@@ -74,10 +75,10 @@ function course_line(course, term_id)
     course_inst = course.institution
     course_canName = course.canonical_name
     course_term = typeof(term_id) == Int ? string(term_id) : term_id
-    c_line= "\n" * string(course_ID) * "," * string(course_name) * "," * string(course_prefix) * ","  *
-                    string(course_num) * "," * string(course_prereq) * "," * string(course_coreq) * "," *
-                    string(course_scoreq) * "," * string(course_chours) * "," * string(course_inst) * "," *
-                    string(course_canName) * "," * course_term
+    c_line= "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\""  *
+                    string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
+                    string(course_scoreq) * "," * string(course_chours) *"\",\""* string(course_inst) * "\",\"" *
+                    string(course_canName) * "\"," * course_term
     return c_line 
 end
 
@@ -102,15 +103,12 @@ function csv_line_reader(line::AbstractString, delimeter::Char=',')
 end
 
 function find_cell(row, header)
-    try
-        out = row[header]
-        return out
-    catch e
-        if isa(e, KeyError)
-            return Missing
-        else
-            throw(e)
-        end
+    if !(header in names(row))
+        return ""
+    elseif typeof(row[header]) == Missing
+        return ""
+    else
+        return row[header]
     end
 end
 
@@ -118,15 +116,16 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
     course_dict= Dict{Int, Course}()
     for row in eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
-        c_Name = if typeof(find_cell(row, Symbol("Course Name"))) == Missing "" else find_cell(row, Symbol("Course Name")) end
+        c_Name = find_cell(row, Symbol("Course Name"))
         c_Credit = row[Symbol("Credit Hours")] 
-        c_Prefix = if typeof(find_cell(row, Symbol("Prefix"))) == Missing "" else find_cell(row, Symbol("Prefix")) end
-        c_Number = if typeof(find_cell(row, Symbol("Number"))) == Missing "" else string(find_cell(row, Symbol("Number"))) end
-        c_Inst = if typeof(find_cell(row, Symbol("Institution"))) == Missing "" else find_cell(row, Symbol("Institution")) end
-        c_col_name = if typeof(find_cell(row, Symbol("Canonical Name"))) == Missing "" else find_cell(row, Symbol("Canonical Name")) end
+        c_Prefix = find_cell(row, Symbol("Prefix"))
+        c_Number = find_cell(row, Symbol("Number"))
+        c_Inst = find_cell(row, Symbol("Institution"))
+        c_col_name = find_cell(row, Symbol("Canonical Name"))
         learning_outcomes = if c_ID in keys(lo_Course) lo_Course[c_ID] else LearningOutcome[] end
         if c_ID in keys(course_dict)
-            throw("Course IDs must be unique")
+            println("Course IDs must be unique")
+            return false
         else
             course_dict[c_ID] = Course(c_Name, c_Credit, prefix= c_Prefix, learning_outcomes= learning_outcomes,
                 num= c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID)
@@ -135,19 +134,19 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
     for row in eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         pre_reqs = find_cell(row, Symbol("Prerequisites"))
-        if typeof(pre_reqs) != Missing
+        if pre_reqs != ""
             for pre_req in split(string(pre_reqs), ",")
                 add_requisite!(course_dict[parse(Int, pre_req)], course_dict[c_ID], pre)
             end
         end
         co_reqs = find_cell(row, Symbol("Corequisites"))
-        if typeof(co_reqs) != Missing
+        if co_reqs != ""
             for co_req in split(string(co_reqs), ",")
                 add_requisite!(course_dict[parse(Int, co_req)], course_dict[c_ID], co)
             end
         end
         sco_reqs = find_cell(row, Symbol("Strict-Corequisites"))
-        if typeof(sco_reqs) != Missing
+        if sco_reqs != ""
             for sco_req in split(string(sco_reqs), ",")
                 add_requisite!(course_dict[parse(Int, sco_req)], course_dict[c_ID], strict_co)
             end
@@ -191,10 +190,11 @@ function generate_course_lo(df_learning_outcomes::DataFrame)
     for row in eachrow(df_learning_outcomes)
         lo_ID = find_cell(row, Symbol("Learning Outcome ID"))
         lo_name = find_cell(row, Symbol("Learning Outcome"))
-        lo_description = if typeof(find_cell(row, Symbol("Description"))) == Missing "" else find_cell(row, Symbol("Description")) end
-        lo_Credit = if typeof(find_cell(row, Symbol("Hours"))) == Missing 0 else find_cell(row, Symbol("Hours")) end
+        lo_description = find_cell(row, Symbol("Description"))
+        lo_Credit = find_cell(row, Symbol("Hours"))
         if lo_ID in keys(lo_dict)
-            throw("Learning Outcome ID must be unique")
+            println("Learning Outcome ID must be unique")
+            return false
         else
             lo_dict[lo_ID] = LearningOutcome(lo_name, lo_description,lo_Credit)
         end
@@ -260,8 +260,8 @@ function write_learning_outcomes(curric::Curriculum, csv_file, all_course_lo)
                    lo_prereq = lo_prereq * "\""
                 end
                 lo_hours = lo.hours
-                lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * "," * string(lo_name) * "," * string(lo_desc) * "," *
-                                string(lo_prereq) * "," * string(lo_hours) * ",,,,,"
+                lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * ",\"" * string(lo_name) * "\",\"" * string(lo_desc) * "\",\"" *
+                                string(lo_prereq) * "\"," * string(lo_hours) * ",,,,,"
                 
                 write(csv_file, lo_line) 
             end
@@ -273,7 +273,7 @@ function write_learning_outcomes(curric::Curriculum, csv_file, all_course_lo)
         for lo in curric.learning_outcomes
             lo_name = lo.name
             lo_desc = lo.description
-            lo_line = "\n" * string(lo_name) * "," * string(lo_desc) * ",,,,,,,,,"
+            lo_line = "\n\"" * string(lo_name) *"\",\""* string(lo_desc) * "\",,,,,,,,,"
             write(csv_file, lo_line) 
         end 
     end

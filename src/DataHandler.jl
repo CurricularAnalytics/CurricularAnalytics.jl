@@ -20,6 +20,9 @@ julia> dp = read_csv("./mydata/UBW_plan.csv")
 """
 function read_csv(file_path::AbstractString)
     file_path = remove_empty_lines(file_path)
+    if typeof(file_path) == Bool && !file_path
+        return false
+    end
     dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
     dict_curric_system = Dict("semester"=>semester, "quarter"=>quarter, ""=>semester)
     dp_name = ""
@@ -74,32 +77,40 @@ function read_csv(file_path::AbstractString)
             if read_line[1] == "Courses"
                 courses_header += 1 
             else
-                throw("Could not find Courses")
+                println("Could not find Courses")
+                return false
             end         
             
         else 
-            throw("Could not find a Curriculum")
+            println("Could not find a Curriculum")
+            return false
         end
         read_line = csv_line_reader(readline(csv_file), ',')
         while length(read_line) > 0 && read_line[1] != "Additional Courses" && read_line[1] != "Course Learning Outcomes" && 
                         read_line[1] != "Curriculum Learning Outcomes" && !startswith(read_line[1], "#")
             if length(read_line[1]) == 0
-                throw("All courses must have a Course ID")
+                println("All courses must have a Course ID")
+                return false
             end
             course_count += 1
             read_line = csv_line_reader(readline(csv_file), ',')
         end
         df_courses = CSV.File(file_path, header=courses_header, limit=course_count-1) |> DataFrame
         if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID")))
-            throw("All courses must have a unique Course ID")
+            println("All courses must have a unique Course ID")
+            return false
         end
         if !is_dp && Symbol("Term") in names(df_courses)
-            throw("Curriculum cannot have term information.")
+            println("Curriculum cannot have term information.")
+            return false
         end
         df_all_courses = DataFrame()
         df_additional_courses = DataFrame()
         if length(read_line) > 0 && read_line[1] == "Additional Courses"
-            if !is_dp throw("Only Degree Plan can have additional classes") end
+            if !is_dp 
+                println("Only Degree Plan can have additional classes") 
+                return false
+            end
             additional_course_start = courses_header+course_count+1
             read_line = csv_line_reader(readline(csv_file), ',')
             while length(read_line) > 0 && read_line[1] != "Course Learning Outcomes" && 
@@ -116,7 +127,8 @@ function read_csv(file_path::AbstractString)
         end
         
         if is_dp && any(ismissing.(df_all_courses[Symbol("Term")]))
-            throw("All courses in Degree Plan must have Term information")
+            println("All courses in Degree Plan must have Term information")
+            return false
         end  
         df_course_learning_outcomes=""
         if length(read_line)>0 && read_line[1] == "Course Learning Outcomes"
@@ -130,8 +142,13 @@ function read_csv(file_path::AbstractString)
                 df_course_learning_outcomes = CSV.File(file_path, header=learning_outcomes_start, limit=learning_outcomes_count-1) |> DataFrame
             end
         end    
-        
-        course_learning_outcomes =if df_course_learning_outcomes != "" generate_course_lo(df_course_learning_outcomes) else Dict{Int, Array{LearningOutcome}}() end
+        course_learning_outcomes = Dict{Int, Array{LearningOutcome}}()
+        if df_course_learning_outcomes != "" 
+            course_learning_outcomes = generate_course_lo(df_course_learning_outcomes)
+            if typeof(course_learning_outcomes) == Bool && !course_learning_outcomes
+                return false
+            end
+        end
         
         df_curric_learning_outcomes = ""
         if length(read_line)>0 && read_line[1] == "Curriculum Learning Outcomes"
@@ -150,6 +167,9 @@ function read_csv(file_path::AbstractString)
 
         if is_dp
             all_courses = read_all_courses(df_all_courses,course_learning_outcomes)
+            if typeof(all_courses) == Bool && !all_courses
+                return false
+            end
             all_courses_arr = [course[2] for course in all_courses]
             additional_courses = read_courses(df_additional_courses,all_courses)  
             ac_arr = Course[]
@@ -169,6 +189,9 @@ function read_csv(file_path::AbstractString)
             output = degree_plan
         else
             curric_courses = read_all_courses(df_courses, course_learning_outcomes)
+            if typeof(curric_courses) == Bool && !curric_courses
+                return false
+            end
             curric_courses_arr = [course[2] for course in curric_courses] 
             curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                     system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
@@ -272,27 +295,27 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString)
         curric = original_plan.curriculum
         
         # Write Curriculum Name
-        curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
+        curric_name = "Curriculum," * "\""*string(curric.name) *"\""* ",,,,,,,,,"
         write(csv_file, curric_name)
         
         # Write Degree Plan Name
-        dp_name = "\nDegree Plan," * string(original_plan.name) * ",,,,,,,,,"
+        dp_name = "\nDegree Plan," * "\""*string(original_plan.name) *"\""* ",,,,,,,,,"
         write(csv_file, dp_name)
 
         # Write Institution Name
-        curric_ins = "\nInstitution," * string(curric.institution) * ",,,,,,,,,"
+        curric_ins = "\nInstitution," * "\""*string(curric.institution) *"\""* ",,,,,,,,,"
         write(csv_file, curric_ins) 
 
         # Write Degree Type
-        curric_dtype = "\nDegree Type," * string(dict_curric_degree_type[curric.degree_type]) * ",,,,,,,,,"
+        curric_dtype = "\nDegree Type," *"\""* string(dict_curric_degree_type[curric.degree_type]) * "\""*",,,,,,,,,"
         write(csv_file,curric_dtype) 
 
         # Write System Type (Semester or Quarter)
-        curric_stype = "\nSystem Type," * string(dict_curric_system[curric.system_type]) * ",,,,,,,,,"
+        curric_stype = "\nSystem Type," * "\""*string(dict_curric_system[curric.system_type]) * "\""*",,,,,,,,,"
         write(csv_file, curric_stype) 
         
         # Write CIP Code
-        curric_CIP = "\nCIP," * string(curric.CIP) * ",,,,,,,,,"
+        curric_CIP = "\nCIP," * "\""*string(curric.CIP) * "\""*",,,,,,,,,"
         write(csv_file, curric_CIP)
 
         # Define the course header, 11 columns of data for each course

@@ -108,7 +108,8 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
             return bin_packing(curric, additional_courses; min_terms=min_terms+1, max_terms=max_terms, min_credits_per_term=min_credits_per_term,
              max_credits_per_term=max_credits_per_term)
         else 
-            throw("Unable to create visualization")
+            println("Unable to create visualization")
+            return false
         end
     end
     return terms
