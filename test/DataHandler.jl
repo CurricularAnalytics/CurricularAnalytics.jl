@@ -3,7 +3,7 @@
 @testset "DataHandler Tests" begin
 
 # test the data file format used for curricula
-curric = read_csv("./test/curriculum.csv")
+curric = read_csv("./expectedError/test/curriculum.csv")
 
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
