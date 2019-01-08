@@ -41,7 +41,7 @@ The solid arrow in this figure represents a prerequisite relationship, while the
 
 The toolbox represents curricula as graphs, allowing various graph-theoretic measures to be applied in order to quantify the complexity of curricula. In addition to analyzing curricular complexity, the toolbox supports the ability to visualize curricula and degree plans, to compare and contrast curricula, to create optimal degree plans for completing curricula that satisfy particular constraints, and to simulate the impact of various events on student progression through a curriculum.
 
-The basic data types used in the CurricularAnalytics.jl libraries are described in [CurricularAnalytics.jl Data Types](@ref). This section also describes a number of convenient functions that can be used to create curricula and degree plans. Functions that can be used to read and write curricula and degree plans to/from permanent storage are described in [Persisting Curricula & Degree Plans](@ref).
+The basic data types used in the CurricularAnalytics.jl libraries are described in [CurricularAnalytics.jl Data Types](@ref). This section also describes a number of convenient functions that can be used to create curricula and degree plans. Functions that can be used to read and write curricula and degree plans to/from permanent storage are described in [Reading/Writing Curricula & Degree Plans](@ref).
 
 Metrics that have been developed to quantify the complexity of curricula and degree plans are described in [Metrics](@ref). Functions that can be used to study degree plans, and to create degree plans according to various optimization criteria are described in [Optimizing Degree Plans](@ref).
 
