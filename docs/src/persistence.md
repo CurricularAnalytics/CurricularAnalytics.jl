@@ -44,7 +44,7 @@ The CSV file format used to store degree plans is shown below:
 ![file format for curricula](./degree-plan-format.png)
 The elements shown in boldface are required keywords that must appear in the degree plan CSV file, while the italicized elements are user supplied arguments.  Notice that the italicized elements stipulate the input type, and whether or not the argument is required.
 
-The data that is expected to follow each keyword provided in the degree plan CSV file is the same as described in [Curricula](@ref) for curriculum CSV files, with two additions:
+The data that is expected to follow each keyword provided in the degree plan CSV file is the same as those for curriculum CSV files above, with two additions:
 
 * Degree Plan : the name of the degree plan (required).
 * Term : this keyword appears at the end of the header row associated with courses (required).  The term that a course should appear in as a part of a degree plan should be listed under this keyword.
