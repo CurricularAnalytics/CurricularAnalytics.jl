@@ -12,9 +12,6 @@ julia:
   - nightly
   - 1.0
 
-script:
-  - cd /home/travis/build/heileman/CurricularAnalytics.jl
-
 jobs: 
   include:
     - stage: "Documentation"
