@@ -143,6 +143,20 @@ where ``I(v_i,v_j)`` is the indicator function, which is ``1`` if  ``v_i \\leads
 and ``0`` otherwise. Here ``v_i \\leadsto v_j`` denotes that a directed path from vertex
 ``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course 
 ``c_i`` to ``c_j`` in curriculum ``c``.
+
+The blocking factor is an important curriculum-based metric because it measures the extent to which one course blocks 
+the ability to take other courses in the curriculum. That is, a course with a high blocking factor acts as a gateway to many other courses 
+in the curriculum. Students who are unable to pass the gateway course will be blocked from taking many other courses in the curriculum.
+
+As examples of the blocking factor metric, conisder the two four-course curricula, with courses ``v_1, v_2, v_3``
+and ``v_4``, shown below.  In part (a) of this figure, ``v_1`` is a prerequisite for courses ``v_2`` and ``v_3``, and ``v_2`` is a prerequisite 
+for course ``v_4``, while in part (b), courses ``v_1`` and ``v_2`` are prerequisites for course ``v_3``, and ``v_3`` is a prerequisite for 
+course ``v_4``.  
+
+![blocking factor example](./blocking_ex.pdf)
+
+The blocking factor of each course is shown inside of the course vertices in this figure.  Notice that the blocking factor of a course ``v_i`` 
+is given by the number of courses in the graph that are reachable from ``v_i``.
 """
 function blocking_factor(c::Curriculum, course::Int)
     b = length(reachable_from(c.graph, course))
@@ -183,6 +197,18 @@ d_c(v_k) = \\max_{i,j,l,m}\\left\\{\\#(v_i  \\overset{p_l}{\\leadsto} v_k \\over
 ```
 where ``v_i \\overset{p}{\\leadsto} v_j`` denotes a directed path ``p`` in ``G_c`` from vertex 
 ``v_i`` to ``v_j``.
+
+Many curricula, particularly those in science, technology engineering and math (STEM) fields, contain a set of courses 
+that must be completed in sequential order. The ability to successfully navigate these long pathways without delay is 
+critical for student success and on-time graduation. If any course on the pathway is not completed on time, the student 
+will then be delayed in completing the entire pathway by one term. The delay factor metric allows us to quanity this effect.
+
+As an example of the delay factor metric, consider the same four-course curricula shown above. The delay factor of each course 
+is shown inside of the course vertices in the figure below.
+
+![delay factor example](./delay_ex.pdf)
+
+ Notice that the blocking factor of a course is given by the longest path in the curriculum that a course is on.
 """
 function delay_factor(c::Curriculum, course::Int)
     if !haskey(c.courses[course].metrics, "delay factor")
@@ -244,6 +270,19 @@ Then the **centrality** of ``v_i`` is defined as
 q(v_i) = \\sum_{l=1}^{\\left| P_{v_i} \\right|} \\#(p_l).
 ```
 where ``\\#(p)`` denotes the number of vertices in the directed path ``p`` in ``G_c``.
+
+We can define a course as being central to a curriculum if it requires a number of foundational courses as 
+prerequisites, and the course itself serves as a prerequisite to many additional discipline-specific courses 
+in the curriculum. The centrality metric is meant to capture this notion.
+
+As an example of the centrality factor metric, consider the same four-course curricula shown above. 
+The centrality factor of each course is shown inside of the course vertices in the figure below.
+
+![centrality factor example](./centrality_ex.pdf)
+
+Notice that the centralities of source and sink vertices are 0. In the case of the curriculum in part (a), 
+there is one path of length three that includes course ``v_2``, hence its centrality is 3, while in part (b), there are 
+two paths of length three that include course ``v_2``, hence its centrality is 6.
 """
 function centrality(c::Curriculum, course::Int)
     cent = 0; g = c.graph
@@ -287,6 +326,17 @@ curriculum graph ``G_c = (V,E)`` is defined as:
 h_c(v_i) = d_c(v_i) + b_c(v_i)
 ```
 i.e., as a linear combination of the course delay and blocking factors.
+
+The curricular complexity of a course is meant to capture the impact of curricular structure on 
+student progression.  Through experimentation, we have found that a simple linear combination of the
+delay and blocking factors (per the equation above) provides a good measure for quantifying the 
+structural complexity of a curriculum.
+
+As an example of the complexity factor metric, consider the same four-course curricula shown above. 
+The compleixty factor of each course is shown inside of the course vertices in this figure.
+
+![complexity factor example](./complexity_ex.pdf)
+
 """
 function complexity(c::Curriculum, course::Int)
     if !haskey(c.courses[course].metrics, "complexity")
@@ -301,9 +351,18 @@ end
 
 The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)`` 
 is defined as:
+
 ```math
 h(G_c) = \\sum_{v \\in V} \\left(d_c(v) + b_c(v)\\right).
 ```
+
+For the example curricula considered above, the curriculum in part (a) has an overall complexity of 15, 
+while the curriculum in part (b) has an overall complexity of 17. This indicates that the curriculum
+in part (b) will be slightly more difficult to complete than the one in part (a). In particular, notice
+that course ``v_1`` in part (a) has the highest individual course complexity, but the combination of 
+courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
+``v_3`` in that curriculum, has a higher combined complexity.
+
 """
 function complexity(c::Curriculum)
     course_complexity = Array{Number, 1}(undef, c.num_courses)
