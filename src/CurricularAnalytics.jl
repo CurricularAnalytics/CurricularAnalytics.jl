@@ -153,7 +153,7 @@ and ``v_4``, shown below.  In part (a) of this figure, ``v_1`` is a prerequisite
 for course ``v_4``, while in part (b), courses ``v_1`` and ``v_2`` are prerequisites for course ``v_3``, and ``v_3`` is a prerequisite for 
 course ``v_4``.  
 
-![blocking factor example](./blocking_ex.pdf)
+![blocking factor example](./blocking_ex.png)
 
 The blocking factor of each course is shown inside of the course vertices in this figure.  Notice that the blocking factor of a course ``v_i`` 
 is given by the number of courses in the graph that are reachable from ``v_i``.
@@ -206,7 +206,7 @@ will then be delayed in completing the entire pathway by one term. The delay fac
 As an example of the delay factor metric, consider the same four-course curricula shown above. The delay factor of each course 
 is shown inside of the course vertices in the figure below.
 
-![delay factor example](./delay_ex.pdf)
+![delay factor example](./delay_ex.png)
 
  Notice that the blocking factor of a course is given by the longest path in the curriculum that a course is on.
 """
@@ -278,7 +278,7 @@ in the curriculum. The centrality metric is meant to capture this notion.
 As an example of the centrality factor metric, consider the same four-course curricula shown above. 
 The centrality factor of each course is shown inside of the course vertices in the figure below.
 
-![centrality factor example](./centrality_ex.pdf)
+![centrality factor example](./centrality_ex.png)
 
 Notice that the centralities of source and sink vertices are 0. In the case of the curriculum in part (a), 
 there is one path of length three that includes course ``v_2``, hence its centrality is 3, while in part (b), there are 
@@ -335,7 +335,7 @@ structural complexity of a curriculum.
 As an example of the complexity factor metric, consider the same four-course curricula shown above. 
 The compleixty factor of each course is shown inside of the course vertices in this figure.
 
-![complexity factor example](./complexity_ex.pdf)
+![complexity factor example](./complexity_ex.png)
 
 """
 function complexity(c::Curriculum, course::Int)
