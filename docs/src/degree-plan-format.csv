@@ -1,0 +1,16 @@
+Curriculum,String - required,,,,,,,,,
+Degree Plan,String - required,,,,,,,,,
+Institution,String,,,,,,,,,
+Degree Type,String,,,,,,,,,
+System Type,String,,,,,,,,,
+CIP,String,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+Integer - required,String - required,String,String,Integer,Integer,Integer,Integer - required,String,String,Integer - required
+Additional Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+Integer - required,String - required,String,String,Integer,Integer,Integer,Integer - required,String,String,Integer - required
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,

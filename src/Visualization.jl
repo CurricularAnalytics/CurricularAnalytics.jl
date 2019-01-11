@@ -2,7 +2,7 @@ using Blink, JSON, WebIO, HTTP
 import HTTP.Messages
 
 const LOCAL_EMBED_PORT = 8156
-const LOCAL_EMBED_FOLDER = "embed_client/dist"
+const LOCAL_EMBED_FOLDER = joinpath(dirname(pathof(CurricularAnalytics)),"..","embed_client","dist")
 
 function get_embed_url()
         local_embed_url = string("http://localhost:", LOCAL_EMBED_PORT)
@@ -41,13 +41,120 @@ end
 # prop can be passed in to specify the render where the visualization should be rendered.
 # Additional changed callback may be provided which will envoke whenever the curriculum is 
 # modified through the interfaces.
-function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name="recent-visualization.json")
-    export_degree_plan(plan, file_name)
+"""
+     visualize(curriculum; <keyword arguments>))
 
-    w = window
+Visualize a curriculum. 
 
+# Arguments
+Required:
+
+- `curriculum::Curriculum` : the curriculum to visualize.
+
+Keyword:
+
+- `changed` : callback function argument, called whenever the curriculum is modified through the interface.
+     Default is `nothing`.
+- `notebook` : a Boolean argument, if set to `true`, Blink will not create a new window for the visualization, which allows it to be displayed in the output cell of a Jupyter notebook.
+- `edit` : a Boolean argument, if set to `true`, the user may edit the curriculum through the visualziation interface. 
+   Default is `false`.
+- `output_file` : the relative or absolute path to the CSV file that will store the edited curriculum. Default 
+   is `edited_curriculum.csv`.
+- `show_delay` : a Boolean argument, if set to `true`, the delay factor metric will be displayed in the tooltip when hovering over a course. Default is `false`.
+- `show_blocking` : a Boolean argument, if set to `true`, the blocking factor metric will be displayed in the tooltip when hovering over a course. Default is `false`.
+- `show_centrality` : a Boolean argument, if set to `true`, the centrality metric will be displayed in the tooltip when hovering over a course. Default is `false`.
+- `show_complexity` : a Boolean argument, if set to `true`, the complexity metric will be displayed in the tooltip when hovering over a course. Default is `false`.
+
+"""
+function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, edit::Bool=false, min_term::Int=1, output_file="edited_curriculum.csv", 
+                    show_delay::Bool=false, show_blocking::Bool=false, show_centrality::Bool=false, show_complexity::Bool=false)
+    num_courses = length(curric.courses)
+    if num_courses <= 8
+        #term_count = 3
+        max_credits_per_term = 12
+    elseif num_courses <= 16
+        #term_count = 4
+        max_credits_per_term = 15
+    elseif num_courses <= 24
+        #term_count = 5
+        max_credits_per_term = 18
+    elseif num_courses <= 32
+        #term_count = 6
+        max_credits_per_term = 18
+    elseif num_courses <= 40
+        #term_count = 7
+        max_credits_per_term = 21
+    elseif num_courses <= 48
+        #term_count = 8
+        max_credits_per_term = 23
+    elseif num_courses <= 56
+        #term_count = 9
+        max_credits_per_term = 26
+    else
+        error("Curriculum is too big to visualize.")
+    end
+    term_count = num_courses
+    dp = create_degree_plan(curric, max_terms = term_count, max_credits_per_term = max_credits_per_term)
+    viz_helper(dp; changed=changed, notebook=notebook, edit=edit, hide_header=true, output_file=output_file, show_delay=show_delay,
+                show_blocking=show_blocking,show_centrality=show_centrality, show_complexity=show_complexity)
+end
+
+# Main visualization function. A "changed" callback function may be provided which will be invoked whenever the 
+# curriculum/degere plan is modified through the interface.
+"""
+    visualize(degree_plan; <keyword arguments>))
+
+Visualize a degree plan. 
+
+# Arguments
+Required:
+
+- `degree_plan::DegreePlan` : the degree plan to visualize.
+
+Keyword:
+
+- `changed` : callback function argument, called whenever the degree plan is modified through the interface.
+     Default is `nothing`.
+- `notebook` : a Boolean argument, if set to `true`, Blink will not create a new window for the visualization, which allows it to be displayed in the output cell of a Jupyter notebook.
+- `edit` : a Boolean argument, if set to `true`, the user may edit the degree plan through the visualziation interface. 
+   Default is `false`.
+- `output_file` : the relative or absolute path to the CSV file that will store the edited degree plan. Default 
+   is `edited_degree_plan.csv`.
+- `show_delay` : a Boolean argument, if set to `true`, the delay factor metric will be displayed in the tooltip when hovering over a course. Default is `true`.
+- `show_blocking` : a Boolean argument, if set to `true`, the blocking factor metric will be displayed in the tooltip when hovering over a course. Default is `true`.
+- `show_centrality` : a Boolean argument, if set to `true`, the centrality metric will be displayed in the tooltip when hovering over a course. Default is `true`.
+- `show_complexity` : a Boolean argument, if set to `true`, the complexity metric will be displayed in the tooltip when hovering over a course. Default is `true`.
+
+"""
+function visualize(plan::DegreePlan; changed=nothing, notebook::Bool=false, edit::Bool=false, output_file="edited_degree_plan.csv", 
+                    show_delay::Bool=true, show_blocking::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true)
+   
+    viz_helper(plan; changed=changed, notebook=notebook, edit=edit,output_file=output_file, show_delay=show_delay,
+                show_blocking=show_blocking, show_centrality=show_centrality, show_complexity=show_complexity)
+end
+
+function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false, output_file, show_delay::Bool, 
+    show_blocking::Bool, show_centrality::Bool, show_complexity::Bool)
+    if show_delay
+        delay_factor(plan.curriculum)
+    end
+    if show_blocking
+        blocking_factor(plan.curriculum)
+    end
+    if show_centrality
+        centrality(plan.curriculum)
+    end
+    if show_complexity
+        complexity(plan.curriculum)
+    end  
+
+    if !Blink.AtomShell.isinstalled() 
+        Blink.AtomShell.install()
+    end
     # Data
-    data = JSON.parse(open("./" * file_name))
+    data = prepare_data(plan,edit=edit,hide_header=hide_header, show_delay=show_delay,
+    show_blocking=show_blocking,show_centrality=show_centrality,
+    show_complexity=show_complexity)        
 
     # Setup data observation to check for changes being made to curriculum
     s = Scope()
@@ -56,7 +163,7 @@ function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name
 
     on(obs) do new_data
         if (isa(changed, Function)) 
-            changed(new_data)
+            changed(plan, new_data, output_file)
         end
     end
 
@@ -74,13 +181,8 @@ function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name
         end
         window.addEventListener("message", window.messageReceived)
     end
-
-    # Write window body
-    body!(
-        w,
-
-        # scoped by WebIO
-        s(
+	
+	s(
             dom"iframe#curriculum"(
                 "", 
                 # iFrame source
@@ -99,7 +201,18 @@ function visualize(plan::DegreePlan; window=Window(), changed=nothing, file_name
                 )
             )
         )
-    )
+    if (notebook == true)
+        # scoped by WebIO
+        s
+    else
+        # Write window body
+		w=Window()
+        body!(
+            w,
 
-    return w
+            # scoped by WebIO
+            s
+        )
+        return w
+    end
 end

@@ -1,8 +1,6 @@
-using Documenter
-#include("../src/CurricularAnalytics.jl")
-using CurricularAnalytics
+using Documenter, CurricularAnalytics
 
-# same for contributing and license
+# include contributing, citing and license pages 
 cp(normpath(@__FILE__, "../../CONTRIBUTING.md"), normpath(@__FILE__, "../src/contributing.md"); force=true)
 cp(normpath(@__FILE__, "../../LICENSE.md"), normpath(@__FILE__, "../src/license.md"); force=true)
 cp(normpath(@__FILE__, "../../CITING.md"), normpath(@__FILE__, "../src/citing.md"); force=true)
@@ -14,28 +12,25 @@ makedocs(
     doctest     = true,
     pages       = Any[
         "Getting Started"                           => "index.md",
-        "CurricularAnalytics Data Types"            => "types.md",
-        "Creating Curricula"                        => "curriculum.md",
-        "Creating Degree Plans"                     => "degreeplan.md",
+        "Installing the Toolbox"                    => "install.md",
+        "Data Types"                                => "types.md",
         "Reading/Writing Curricula & Degree Plans"  => "persistence.md",
-        "Visualizing Degree Plans"                  => "plotting.md",
-        "Curricular Metrics"                        => "metrics.md",
+        "Visualizing Curricula & Degree Plans"      => "visualize.md",
+        "Metrics"                                   => "metrics.md",
         "Optimizing Degree Plans"                   => "optimizing.md",
-        "Simulating Student Flows"                  => "simulating.md",
+        #"Simulating Student Flows"                  => "simulating.md",
         "Contributing"                              => "contributing.md",
-        "Developer Notes"                           => "developing.md",
         "License Information"                       => "license.md",
-        "Citing CurricularAnalytics"                => "citing.md"
-    ]
+        "Citing CurricularAnalytics.jl"             => "citing.md"
+    ],
+    # Use clean URLs, unless built as a "local" build
+    html_prettyurls = false,       #!("local" in ARGS),
+    html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/", # location of stable documentation site
 )
 
 deploydocs(
-    deps        = nothing,
-    make        = nothing,
-    repo        = "github.com/heileman/CurricularAnalytics.jl.git",
-    target      = "build",
-    julia       = "nightly",
-    osname      = "linux"
+    repo    = "github.com/heileman/CurricularAnalytics.jl.git",
+    target  = "build",
 )
 
 #rm(normpath(@__FILE__, "../src/contributing.md"))

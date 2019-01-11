@@ -2,11 +2,12 @@
 using CurricularAnalytics
 using Test
 
-# Include each test file, which should be in this same directory (/test)
-# Example: The below would include DataTypes.jl, from the test directory. This file should contain all
-# necessary for the DataTypes file
-# include("DataTypes.jl")
+# Include each test.  Each of these files should reside in this (i.e., the /test) directory. 
+# All data used by each test file should also reside in /test directory.  
+# to execute all tests, use:
+# julia> include("./test/runtests.jl")
 
 include("DataTypes.jl")
 include("CurricularAnalytics.jl")
 include("DegreePlanAnalytics.jl")
+include("DataHandler.jl")

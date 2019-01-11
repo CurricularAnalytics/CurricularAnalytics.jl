@@ -13,20 +13,22 @@ using LightGraphs
 using DataStructures
 using Printf
 using Markdown
+using Documenter
 
 include("DataTypes.jl")
+include("DegreePlanCreation.jl")
 include("GraphAlgs.jl")
-include("JsonHandler.jl")
-include("Visualization.jl")
-include("Optimization.jl")
 include("DegreePlanAnalytics.jl")
+include("CSVUtilities.jl")
+include("DataHandler.jl")
+include("Visualization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
         EdgeClass, LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, 
-        total_credits, create_graph!, requisite_type, Term, DegreePlan, dfs, longest_path, long_paths,
+        total_credits, requisite_type, Term, DegreePlan, dfs, longest_path, long_paths,
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
-        complexity, compare_curricula, isvalid_degree_plan, print_plan, export_degree_plan, visualize,
-        import_degree_plan
+        complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
+        read_csv, create_degree_plan, bin_packing, add_lo_requisite!, update_plan, write_csv
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
 """
@@ -246,7 +248,8 @@ where ``\\#(p)`` denotes the number of vertices in the directed path ``p`` in ``
 function centrality(c::Curriculum, course::Int)
     cent = 0; g = c.graph
     for path in long_paths(g)  # all long paths in g
-        # conditions: path length is greater than 2, target course must be in the path, the target vertex cannot be the first or last vertex in the path
+        # conditions: path length is greater than 2, target course must be in the path, the target vertex 
+        # cannot be the first or last vertex in the path
         if (in(course,path) && length(path) > 2 && path[1] != course && path[end] != course)
             cent += length(path)
         end
@@ -298,9 +301,18 @@ end
 
 The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)`` 
 is defined as:
+
 ```math
 h(G_c) = \\sum_{v \\in V} \\left(d_c(v) + b_c(v)\\right).
 ```
+
+For the example curricula considered above, the curriculum in part (a) has an overall complexity of 15, 
+while the curriculum in part (b) has an overall complexity of 17. This indicates that the curriculum
+in part (b) will be slightly more difficult to complete than the one in part (a). In particular, notice
+that course ``v_1`` in part (a) has the highest individual course complexity, but the combination of 
+courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
+``v_3`` in that curriculum, has a higher combined complexity.
+
 """
 function complexity(c::Curriculum)
     course_complexity = Array{Number, 1}(undef, c.num_courses)
