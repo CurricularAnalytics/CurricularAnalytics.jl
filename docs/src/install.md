@@ -1,18 +1,11 @@
 # Installation
 
-To install the toolbox open the Julia REPL and run the following:
-
+Installation is straightforward.  Enter Pkg mode in the Julia REPL by typing `]`, and then type:
 ```julia-repl
-julia> using Pkg
-julia> Pkg.add("CurricularAnalytics")
+(v1.0) pkg> add CurricularAnalytics
 ```
 
-The CurricularAnalytics.jl toolbox contains sophisticated visualization capabilities. In order to use them, you must first install the [Blink.jl](http://junolab.org/Blink.jl/latest/) package.  Blink.jl is a Julia wrapper that leverages the [Electron](https://electronjs.org) framework to perform the actual visualizations. To install Blink.jl, first install the CurricularAnalytics.jl toolbox (as described above) and then execute the following commands from the Julia REPL:
-
-```julia-repl
-julia> using Blink
-julia> Blink.AtomShell.install()
-```
+The CurricularAnalytics.jl toolbox contains sophisticated visualization capabilities. In order to use them, you must first install the [Blink.jl](http://junolab.org/Blink.jl/latest/) package.  Blink.jl is a Julia wrapper that leverages the [Electron](https://electronjs.org) framework to perform the actual visualizations. Blink.jl should install automatically when you install the CurricularAnalytics.jl toolbox, and Electron will also install automatically upon first use of the visualization functions.
 
 ## Troubleshooting
 
