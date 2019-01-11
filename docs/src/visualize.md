@@ -31,5 +31,6 @@ This should produce the following window:
 
 In order to visualize the various metrics associated with this degree plan, simply hover your mouse over a course, as shown below:
 ![UK EE degree plan metrics](./UK-EE-metrics.png)
+
 To learn more about the metrics displayed in this visualization, see the [Metrics](@ref) section.
 

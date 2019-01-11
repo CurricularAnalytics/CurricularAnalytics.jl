@@ -19,7 +19,7 @@ Installation is straightforward.  Enter Pkg mode in the Julia REPL by typing `]`
 
 ## Supported Versions
 * CurricularAnalytics master will be maintained/enhanced to work with the latest stable version of Julia.
-* Julia 1.0: CurricularAnalytics v0.1.0 is the last version guaranteed to work with Julia 1.0.
+* Julia 1.0: CurricularAnalytics v0.2.4 is the last version guaranteed to work with Julia 1.0.
 * Later versions: Some functionality might not work with prerelease / unstable / nightly versions of Julia. If you run into a problem, please file an issue.
 
 # Contributing and Reporting Bugs

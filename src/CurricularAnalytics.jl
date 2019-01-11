@@ -301,9 +301,18 @@ end
 
 The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)`` 
 is defined as:
+
 ```math
 h(G_c) = \\sum_{v \\in V} \\left(d_c(v) + b_c(v)\\right).
 ```
+
+For the example curricula considered above, the curriculum in part (a) has an overall complexity of 15, 
+while the curriculum in part (b) has an overall complexity of 17. This indicates that the curriculum
+in part (b) will be slightly more difficult to complete than the one in part (a). In particular, notice
+that course ``v_1`` in part (a) has the highest individual course complexity, but the combination of 
+courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
+``v_3`` in that curriculum, has a higher combined complexity.
+
 """
 function complexity(c::Curriculum)
     course_complexity = Array{Number, 1}(undef, c.num_courses)
