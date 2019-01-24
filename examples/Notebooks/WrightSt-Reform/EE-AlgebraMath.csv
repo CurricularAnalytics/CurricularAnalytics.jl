@@ -1,0 +1,17 @@
+Curriculum,Circuits I Design Pattern,,,,,,,,,
+Degree Plan,College Algebra ready,,,,,,,,,
+Institution,,,,,,,,,,
+Degree Type,,,,,,,,,,
+System Type,,,,,,,,,,
+CIP,,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,College Algebra,,,,,,3,,,1
+2,Precalculus,,,1,,,3,,,2
+3,Calculus I,,,2,,,4,,,3
+4,Calculus II,,,3,,,4,,,4
+5,Physics I,,,3,,,4,,,4
+6,Programming I,,,3,,,3,,,4
+7,Calculus III,,,4,,,4,,,5
+8,Differential Eqs.,,,4,,,3,,,5
+9,Circuits I,,,"6,5,8",,,3,,,6

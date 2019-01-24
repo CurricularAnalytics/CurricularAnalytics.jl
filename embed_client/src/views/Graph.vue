@@ -14,7 +14,7 @@
     Total Credit Hours: {{curriculum.credits}}
     </div>    
     <div v-if="curriculum.complexity" >
-    Curricular Complexity: {{curriculum.complexity}}
+    Curricular Complexity: {{curriculum.complexity.toFixed(1)}}
     </div>
     <curriculum
       :curriculum="curriculum"
@@ -34,7 +34,7 @@
     computed: {
       footer () {
         if (this.complexity){
-          return `Complexity: ${this.complexity}`
+          return `Complexity: ${this.complexity.toFixed(1)}`
         }
         else{
           return `Credits: ${this.credits}`

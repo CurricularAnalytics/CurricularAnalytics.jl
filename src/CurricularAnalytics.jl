@@ -325,6 +325,9 @@ function complexity(c::Curriculum)
     end
     for v in vertices(c.graph)
         c.courses[v].metrics["complexity"] = c.courses[v].metrics["delay factor"] + c.courses[v].metrics["blocking factor"]
+        if c.system_type == quarter
+            c.courses[v].metrics["complexity"] = round((c.courses[v].metrics["complexity"] * 2)/3, digits=1)
+        end
         course_complexity[v] = c.courses[v].metrics["complexity"]
         curric_complexity += course_complexity[v]
     end
