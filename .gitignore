@@ -6,4 +6,3 @@ mkdocs.yml
 temp.csv
 node_modules/
 yarn.lock
-.npmrc
