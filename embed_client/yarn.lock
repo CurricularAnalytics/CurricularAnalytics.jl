@@ -714,7 +714,7 @@
 
 "@orhanabar/vue-Curricular-Analytics@git+ssh://git@gitlab.com:orhanabar/vue-Curricular-Analytics.git":
   version "0.0.1"
-  resolved "git+ssh://git@gitlab.com:orhanabar/vue-Curricular-Analytics.git#a1c68625642b79af9f812e941bf04ae25265322b"
+  resolved "git+ssh://git@gitlab.com:orhanabar/vue-Curricular-Analytics.git#fafbf439aab60ae095d030cba10ed715312dd78e"
   dependencies:
     d3-drag "^1.2.1"
     d3-selection "^1.3.0"
