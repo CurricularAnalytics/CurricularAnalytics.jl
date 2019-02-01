@@ -29,7 +29,7 @@
 </template>
 
 <script>
-  import { Curriculum, buildCurriculum, BaseItem, BaseTerm } from '@unm-idi/vue-curricula'
+  import { Curriculum, buildCurriculum, BaseItem, BaseTerm } from '@orhanabar/vue-Curricular-Analytics'
   const CustomTerm = BaseTerm.extend({
     computed: {
       footer () {
