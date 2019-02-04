@@ -1,6 +1,6 @@
 # file: DegreePlanCreation.jl
  
-function create_degree_plan(curric::Curriculum, name::AbstractString="", create_terms::Function=bin_packing, additional_courses::Array{Course}=Array{Course,1}();
+function create_degree_plan(curric::Curriculum, create_terms::Function=bin_packing, name::AbstractString="", additional_courses::Array{Course}=Array{Course,1}();
     min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
     terms =  create_terms(curric,additional_courses; min_terms=min_terms,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
                                 max_credits_per_term=max_credits_per_term)
@@ -23,6 +23,7 @@ function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{I
     end    
     return req_complete
 end
+
 
 function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
@@ -113,4 +114,106 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
         end
     end
     return terms
+end
+
+function create_terms(curric::Curriculum; term_count::Int, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
+    if !("complexity" in keys(curric.metrics))
+        complexity(curric)
+    end
+    sorted_index = sortperm(curric.metrics["complexity"][2], rev=true)
+    terms = Array{Term}(undef, term_count)
+    curric_total_credit=total_credits(curric)
+    added_credits = 0
+    all_applied_courses = Int[]
+    for current_term in 1:term_count
+        termclasses = Course[]
+        this_term_applied_courses = Int[]
+        total_credits_for_current_term = 0
+        #check if remaining creadits can be added to the remaining terms on ful load
+        if (curric_total_credit-added_credits) <= ((term_count-current_term+1)*max_credits_per_term)
+            for index in sorted_index
+                if !(index in all_applied_courses) && !(index in this_term_applied_courses)
+                    can_be_added = true
+                    if check_requistes(curric, index, all_applied_courses, this_term_applied_courses)
+                        credit_add = curric.courses[index].credit_hours
+                        courses_to_add = [index] 
+                        for ngbr in outneighbors(curric.graph, index)
+                            req_type = curric.courses[ngbr].requisites[curric.courses[index].id]
+                            if req_type == strict_co
+                                can_be_added = check_requistes(curric, ngbr, all_applied_courses, this_term_applied_courses)
+                                if !can_be_added
+                                    break
+                                end
+                                credit_add +=  curric.courses[ngbr].credit_hours
+                                push!(courses_to_add,ngbr)
+                            end
+                        end
+                        if can_be_added && total_credits_for_current_term + credit_add <= max_credits_per_term
+                            total_credits_for_current_term += credit_add
+                            for course_index in courses_to_add
+                                push!(termclasses, curric.courses[course_index])
+                                push!(this_term_applied_courses,course_index)
+                            end
+                        end
+                        #Check if current term is full
+                        if total_credits_for_current_term == max_credits_per_term
+                            #There is no more space for any other course
+                            break
+                        end
+                    end
+                end       
+            end    
+            added_credits += total_credits_for_current_term
+            terms[current_term] = Term(termclasses)
+            for course in this_term_applied_courses
+                push!(all_applied_courses, course) 
+            end
+        else
+            return nothing, false
+        end
+    end
+    if length(all_applied_courses) == length(sorted_index)
+        return terms, true
+    else
+        return nothing, false
+    end    
+end
+
+function fin_min_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
+    min_terms::Int=1, max_terms::Int=10, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
+    for term_count in range(min_terms,max_terms)
+        terms, control = create_terms(curric; term_count=term_count, min_credits_per_term = min_credits_per_term,
+            max_credits_per_term = max_credits_per_term)
+        if control
+            return true, terms, term_count
+        end
+    end
+    println("Unable to create visualization for provided maximum term count")
+    return false, nothing, nothing
+end
+
+function balance_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
+    term_count::Int=1, min_credits_per_term::Int=1, max_credits_per_term::Int=19)
+    for max_credit in range(min_credits_per_term, length=max_credits_per_term-min_credits_per_term+1)
+        terms, control = create_terms(curric; term_count=term_count,  min_credits_per_term = min_credits_per_term,
+            max_credits_per_term = max_credit)
+        if control
+            return true, terms, max_credit
+        end
+    end
+    println("Unable to create visualization for provided maximum term count")
+    return false, nothing, nothing
+end
+
+function bin_packing2(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
+        min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
+    control, terms, min_term_count = fin_min_terms(curric, additional_courses; min_terms = min_terms,max_terms = max_terms, min_credits_per_term = min_credits_per_term, max_credits_per_term = max_credits_per_term)
+    if control
+        control_balance, terms, max_credit = balance_terms(curric, additional_courses;
+            term_count=min_term_count, min_credits_per_term = min_credits_per_term, max_credits_per_term=max_credits_per_term)
+        if control_balance
+            return terms
+        end
+    end
+    return false
 end
