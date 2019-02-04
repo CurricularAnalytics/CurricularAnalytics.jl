@@ -1,0 +1,292 @@
+
+.graph-container {
+  position: relative;
+}
+
+.edit-message {
+  background: $light-gray;
+  color: $dark-gray;
+  padding: 5px;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 6px;
+  width: 100%;
+  border-radius: 2px;
+  line-height: 24px;
+  
+  button {
+    text-transform: uppercase;
+    transition: all 0.25s;
+    border: none;
+    border-radius: 2px;
+    color: white;
+    margin-left: 10px;
+    padding: 3px 7px 4px 5px;
+    background: none;
+    cursor: pointer;
+    float: right;
+    &:before {
+      margin-right: 3px;
+    }
+  }
+
+  button.red {
+    border: 2px solid $red;
+    color: $red;
+
+    &:hover {
+      color: white;
+      background: $red;
+    }
+
+    &:before {
+      font-family: 'FontAwesome', 'Font Awesome 5 Free';
+      font-weight: $font-awesome-size;
+      content: '\f00d';
+    }
+  }
+
+  button.blue {
+    border: 2px solid $blue;
+    color: $blue;
+
+    &:hover {
+      color: white;
+      background: $blue;
+    }
+
+    &:before {
+      font-family: 'FontAwesome', 'Font Awesome 5 Free';
+      font-weight: $font-awesome-size;
+      content: '\f067';
+    }
+  }
+}
+
+.edit-message.important {
+  background: $dark-gray;
+  color: white;
+}
+
+.link {
+  transition: stroke-opacity 0.25s;
+  stroke-width: 1px;
+}
+
+.end-marker {
+  fill: $medium-gray;
+}
+
+.item-cell {
+  fill: $white-gray;
+  opacity: 0.7;
+  rx: 2;
+  ry: 2;
+}
+
+// style graph term
+.graph-term {
+  .term-header {
+    rect {
+      fill: $blue;
+      rx: 2;
+      ry: 2;
+    }
+
+    text {
+      fill: white;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+  }
+}
+
+// style graph item
+.graph-item {
+  transition: opacity 0.25s;
+  cursor: pointer;
+
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+
+  text {
+    fill: $dark-gray;
+    text-anchor: middle;
+    font-weight: bold;
+    dominant-baseline: middle;
+  }
+
+  .item-circle circle {
+    transition: all 0.25s;
+    fill: $light-gray;
+    stroke: $dark-gray;
+    stroke-width: 2px;
+  }
+
+  .item-factor circle {
+    fill: none;
+  }
+
+  .item-factor.blocking circle {
+    stroke-dashoffset: 13;
+  }
+
+  .item-title {
+    tspan:last-child {
+      font-weight: normal;
+      // font-size: 10px;
+    }
+  }
+
+  &:hover,
+  &.this-item {
+    .item-circle circle {
+      fill: $medium-gray;
+    }
+
+    .item-value,
+    .item-edit-icon {
+      fill: $white-gray;
+    }
+  }
+}
+
+.link {
+  stroke: #999;
+}
+
+.graph-term {
+  .term-title {
+    text {
+      font-size: 15px;
+    }
+  }
+
+  .term-footer {
+    rect {
+      fill: none;
+      stroke: $blue;
+      rx: 2;
+      ry: 2;
+      stroke-dasharray: 3, 2;
+    }
+
+    text {
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+  }
+}
+
+.graph-item {
+  text {
+    font-size: 12px;
+  }
+}
+
+// EDITING STYLES
+
+.item-edit-icon {
+  font-size: 15px;
+  font-family: 'FontAwesome', 'Font Awesome 5 Free';
+  font-weight: $font-awesome-size;
+}
+
+.term-add {
+  transition: all 0.25s;
+  position: absolute;
+  right: 3px;
+  top: 0px;
+  height: calc(100% - 7px);
+  width: 150px;
+  background: white;
+  border-radius: 2px;
+  border: 2px dashed $light-gray;
+  color: $medium-gray;
+  cursor: pointer;
+  div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    white-space: nowrap;
+    text-align: center;
+    transform: translate(-50%, -50%);
+  }
+  &:hover {
+    background: $white-gray;
+    border: 2px dashed $medium-gray;
+    color: $dark-gray;
+  }
+}
+
+.term-remove {
+  rect {
+    opacity: 0;
+  }
+
+  path {
+    fill: white;
+  }
+
+  cursor: pointer;
+}
+
+.item-add {
+  rect {
+    transition: fill 0.25s;
+    stroke-width: 2px;
+    stroke: $light-gray;
+    fill: rgba(255, 255, 255, 0);
+    stroke-dasharray: 5 5;
+  }
+
+  text {
+    opacity: 0.5;
+    fill: $blue;
+  }
+
+  circle {
+    opacity: 0.5;
+    transition: stroke 0.25s, fill 0.25s;
+    fill: $light-blue !important;
+    stroke: $blue !important;
+  }
+
+  .item-value {
+    font-family: 'FontAwesome', 'Font Awesome 5 Free';
+    font-weight: $font-awesome-size;
+  }
+
+  .item-title {
+    transition: opacity 0.25s;
+  }
+
+  &.faded {
+    pointer-events: none;
+  }
+
+  &:hover {
+    rect {
+      fill: $white-gray;
+      stroke: $dark-gray;
+    }
+
+    text {
+      fill: $blue !important;
+    }
+
+    .item-title {
+      opacity: 1 !important;
+    }
+  }
+}
+
+.faded {
+  opacity: 0.2;
+}
