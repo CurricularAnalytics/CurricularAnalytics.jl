@@ -11,6 +11,6 @@
   }
 </style>
 
-<style src="@unm-idi/vue-curricula/dist/vue-curricula.min.css"></style>
+<style src="@orhanabar/vue-Curricular-Analytics/dist/vue-Curricular-Analytics.min.css"></style>
 
 <style src="@fortawesome/fontawesome-free/css/solid.min.css"></style>

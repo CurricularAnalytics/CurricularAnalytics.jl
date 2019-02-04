@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.2.0",
-    "@unm-idi/vue-curricula": "^1.1.25",
+    "@orhanabar/vue-Curricular-Analytics": "git+ssh://git@gitlab.com:orhanabar/vue-Curricular-Analytics.git",
+    "@unm-idi/vue-curricula": "^1.1.26",
     "@vue/cli": "^3.2.1",
     "vue": "^2.5.16",
     "vue-router": "^3.0.1",
