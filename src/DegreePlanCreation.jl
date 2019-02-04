@@ -178,8 +178,16 @@ function create_terms(curric::Curriculum; term_count::Int, min_credits_per_term:
         return nothing, false
     end    
 end
-
-function fin_min_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
+"""
+find_min_terms function will find the minimum number terms possible to fit all courses with the respect that all requisite
+    conditions and returns a tuple which contains 3 elements.
+    1- Boolean value which shows if term list created for term count.
+    2- Term list which contains all courses for related term id.
+    3- The term_count is a integer value to show minimum number of terms possible to fit all courses.
+    * Altough this function returns term list, it does not guaranty that each term will have the same number of credit hours.
+    It will put all courses as early term as possible according to the complexity score.
+"""
+function find_min_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     min_terms::Int=1, max_terms::Int=10, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
     for term_count in range(min_terms,max_terms)
         terms, control = create_terms(curric; term_count=term_count, min_credits_per_term = min_credits_per_term,
@@ -191,6 +199,14 @@ function fin_min_terms(curric::Curriculum, additional_courses::Array{Course}=Arr
     println("Unable to create visualization for provided maximum term count")
     return false, nothing, nothing
 end
+
+"""
+balance_terms function will spread all courses to the provided number of terms with minimum number of difference between terms.
+    In other words, balance terms according to the number of credit hours and returns a tuple which contains 3 elements.
+    1- Boolean value which shows if term list created for term count.
+    2- Term list which contains all courses for related term id.
+    3- The max_credit is a integer value to show maximum number of credit hours assigned to any of the list of terms.
+"""
 
 function balance_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     term_count::Int=1, min_credits_per_term::Int=1, max_credits_per_term::Int=19)
@@ -207,7 +223,7 @@ end
 
 function bin_packing2(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
         min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
-    control, terms, min_term_count = fin_min_terms(curric, additional_courses; min_terms = min_terms,max_terms = max_terms, min_credits_per_term = min_credits_per_term, max_credits_per_term = max_credits_per_term)
+    control, terms, min_term_count = find_min_terms(curric, additional_courses; min_terms = min_terms,max_terms = max_terms, min_credits_per_term = min_credits_per_term, max_credits_per_term = max_credits_per_term)
     if control
         control_balance, terms, max_credit = balance_terms(curric, additional_courses;
             term_count=min_term_count, min_credits_per_term = min_credits_per_term, max_credits_per_term=max_credits_per_term)
