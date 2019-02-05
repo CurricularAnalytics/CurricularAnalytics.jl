@@ -1,0 +1,128 @@
+$req-types: (
+  ('prereq', $prereq), 
+  ('coreq', $coreq), 
+  ('strict-coreq', $strict-coreq), 
+  ('pre-coreq-field', $pre-coreq-field), 
+  ('unblocked', $unblocked), 
+  ('unblocked-field', $unblocked-field)
+);
+
+@each $type in $req-types {
+  $selector: nth($type, 1);
+  $color: nth($type, 2);
+  .#{$selector} {
+    background: $color;
+    border-color: darken($color, 15%);
+    &circle,
+    .item-circle circle,
+    circle {
+      stroke: darken($color, 20%);
+      fill: $color;
+    }
+  }
+}
+
+$factor-types: (
+  ('blocking', $blocking), 
+  ('delaying', $delaying)
+);
+
+@each $type in $factor-types {
+  $selector: nth($type, 1);
+  $color: nth($type, 2);
+  .#{$selector} {
+    border-color: $color;
+
+    &,
+    path {
+      stroke-dasharray: 7 5;
+    }
+
+    &,
+    circle,
+    path {
+      stroke: $color;
+      stroke-width: 3px;
+      stroke-opacity: 0.8;
+      stroke-linecap: round;
+    }
+  }
+}
+
+.link {
+  &.coreq,
+  &.strict-coreq {
+    stroke-dasharray: 5, 5;
+  }
+}
+
+.no-association {
+  opacity: 0.3;
+}
+
+.no-association2 {
+  opacity: 0.1;
+}
+
+.legend {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  background: $white-gray;
+  border: 1px solid $light-gray;
+  padding: 10px;
+  background: rgba(250, 250, 250, 0.8);
+  z-index: 10;
+  color: $dark-gray;
+  pointer-events: none;
+
+  div {
+    padding: 2px;
+    text-transform: capitalize;
+  }
+
+  span.legend-text {
+    vertical-align: middle;
+  }
+
+  span.legend-icon {
+    vertical-align: middle;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    margin-right: 2px;
+  }
+
+  svg {
+    vertical-align: middle;
+    display: inline-block;
+    width: 19px;
+    height: 19px;
+    circle {
+      fill: none;
+      stroke-width: 2.3px;
+      stroke-dasharray: 5 4.5;
+    }
+  }
+}
+
+// modal transition
+.legend-enter-active,
+.legend-leave-active {
+  transition: all .25s;
+}
+
+.legend-enter,
+.legend-leave-to {
+  opacity: 0;
+  transform: translateX(50%);
+}
+
+.legend-enter-to,
+.legend-leave {
+  opacity: 1;
+  transform: translateX(0%);
+}

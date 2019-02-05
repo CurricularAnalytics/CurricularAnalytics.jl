@@ -1,0 +1,303 @@
+// item menu styles
+.menu {
+  transition: opacity .25s;
+
+  position: absolute;
+  z-index: 1000;
+  width: 220px;
+  margin-top: 20px;
+  transform: translate(-50%, 0);
+
+  .menu-content-wrap {
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+
+    .menu-content-title {
+      font-weight: bold;
+    }
+  }
+
+  .menu-header {
+    background: $blue;
+    color: white;
+    padding: 10px;
+    border-radius: 2px 2px 0px 0px;
+    
+    .menu-title {
+      display: inline-block;
+      font-weight: bold;
+      vertical-align: middle;
+      line-height: 25px;
+    }
+
+    .menu-title-alt {
+      float: right;
+      font-size: 12px;
+      color: $light-blue;
+      vertical-align: middle;
+      line-height: 25px;
+    }
+  }
+
+  .menu-content {
+    border-radius: 0px 0px 2px 2px;
+    padding: 10px;
+    background: $dark-blue;
+    color: $light-blue;
+    font-size: 14px;
+  }
+
+  .menu-icons {
+    position: absolute;
+    left: 100%;
+    margin-left: 5px;
+    top: 0;
+    cursor: pointer;
+
+    .menu-icon {
+      transition: all 0.25s;
+
+      margin-bottom: 5px;
+      padding: 5px;
+      border-radius: 2px;
+      background: $blue;
+      width: 30px;
+      text-align: center;
+      font-size: 14px;
+      color: white;
+
+      &:before {
+        font-family: 'FontAwesome', 'Font Awesome 5 Free';
+        font-weight: $font-awesome-size;
+      }
+
+      &:hover {
+        background: $dark-blue;
+        color: $light-blue;
+      }
+    }
+
+    .menu-icon-pin {
+      &:before {
+        content: '\f276';
+      }
+  
+      &:hover:before {
+        content: '\f00d';
+      }
+    }
+
+    .menu-icon-confirm {
+      &:before {
+        content: '\f00c';
+      }
+
+      &:hover:before {
+        content: '\f00c';
+      }
+    }
+
+    .menu-icon-remove {
+      &:before {
+        content: '\f1f8';
+      }
+    }
+  }
+
+  &:not(.pinned) {
+    pointer-events: none;
+  }
+
+  &.right .menu-content-wrap {
+    transform: translateX(30%);
+  }
+
+  &.left .menu-content-wrap {
+    transform: translateX(-30%);
+  }
+
+  &.faded-menu:not(:hover):not(.menu-leave-active) {
+    opacity: 0.3;
+  }
+  
+  &:before {
+    content: '';
+    position: absolute;
+    border: 8px solid transparent;
+    border-bottom: 8px solid $blue;
+    top: -16px;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+
+  &.edit {
+
+    &.faded:not(:hover):not(.menu-leave-active) {
+      opacity: 0.9;
+    }
+
+    .menu-content {
+      padding: 0;
+      padding-bottom: 10px;
+      padding-top: 10px;
+
+      .menu-content-title {
+        padding: 10px;
+        padding-top: 0px;
+      }
+
+      .menu-content-divider {
+        border: 1px solid $light-blue;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+
+      .link-add-button {
+        transition: all 0.25s;
+        cursor: pointer;
+        padding: 3px 10px;
+
+        &:before {
+          font-family: 'FontAwesome', 'Font Awesome 5 Free';
+          font-weight: $font-awesome-size;
+          content: '\f055';
+          margin-right: 5px;
+        }
+
+        &:hover {
+          background: $faint-gray;
+        }
+      }
+
+      .menu-links {
+        display: table;
+        width: 100%;
+      }
+
+      .menu-link {
+        transition: all 0.25s;
+        display: table-row;
+        
+        &:hover {
+          background: $faint-gray;
+        }
+
+        .link-cell {
+          display: table-cell;
+          padding-top: 3px;
+          padding-bottom: 3px;
+        }
+
+        .link-title {
+          padding-left: 10px;
+          max-width: 90px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .link-type {
+          text-align: center;
+          // opacity: 0.8;
+          font-style: italic;
+          padding-left: 10px;
+          padding-right: 10px;
+          text-align: right;
+        }
+
+        .link-remove {
+          padding-right: 10px;
+          flex-grow: 1;
+          cursor: pointer;
+
+          &:before {
+            transition: all 0.25s;
+            content: '\f1f8';
+            font-family: 'FontAwesome', 'Font Awesome 5 Free';
+            font-weight: $font-awesome-size;
+          }
+
+          &:hover:before {
+            color: white;
+          }
+        }
+      }
+    }
+
+    .menu-header {
+      background: $blue;
+      color: white;
+      padding: 0px;
+
+      .menu-name {
+        input {
+          font-weight: bold;
+        }
+      }
+    }
+
+    input,
+    button,
+    .menu-label {
+      padding: 10px;
+      font-family: Muli,sans-serif;
+      font-size: 14px;
+    }
+
+    input {
+      background: none;
+      border: none;
+      width: 100%;
+      color: white;
+      padding-left: 80px;
+    }
+
+    .menu-label {
+      background: $faint-gray;
+      position: absolute;
+      width: 70px;
+      top: 0;
+      left: 0;
+      color: $light-gray;
+      pointer-events: none;
+    }
+
+    .menu-input {
+      position: relative;
+    }
+  }
+}
+
+// menu transition
+.menu-enter-active,
+.menu-leave-active {
+  transition: opacity .25s, transform .25s;
+}
+
+.menu-enter,
+.menu-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 10px);
+}
+
+.menu-enter-to,
+.menu-leave {
+  opacity: 1;
+  transform: translate(-50%, 0px);
+}
+
+// menu icons transition
+.menu-icons-enter-active,
+.menu-icons-leave-active {
+  transition: opacity .25s, transform .25s;
+}
+
+.menu-icons-enter,
+.menu-icons-leave-to {
+  opacity: 0;
+  transform: translate(-100%, 0px);
+}
+
+.menu-icons-enter-to,
+.menu-icons-leave {
+  transform: translate(0%, 0px);
+}
