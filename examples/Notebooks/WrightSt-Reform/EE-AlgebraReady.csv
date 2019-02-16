@@ -14,4 +14,4 @@ Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisit
 6,Programming I,,,3,,,3,,,4
 7,Calculus III,,,4,,,4,,,5
 8,Differential Eqs.,,,4,,,3,,,5
-9,Circuits I,,,"6,5,8",,,3,,,6
+9,Circuits I,,,"6;5;8",,,3,,,6
