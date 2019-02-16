@@ -110,12 +110,6 @@ version = "0.5.0"
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
-[[Gurobi]]
-deps = ["Compat", "Libdl", "LinQuadOptInterface", "MathProgBase"]
-git-tree-sha1 = "6a63bfdda26c58edbc04d5334901109e0ce739e7"
-uuid = "2e9cd046-0924-5485-92f1-d5272153d98b"
-version = "0.5.9"
-
 [[HTTP]]
 deps = ["Base64", "Dates", "Distributed", "IniFile", "MbedTLS", "Sockets", "Test"]
 git-tree-sha1 = "b881f69331e85642be315c63d05ed65d6fc8a05b"
@@ -180,12 +174,6 @@ git-tree-sha1 = "c7222c370d5cf6d4e08ae40bddd8c0db6852dfb1"
 uuid = "093fc24a-ae57-5d10-9952-331d41423f4d"
 version = "1.2.0"
 
-[[LinQuadOptInterface]]
-deps = ["Compat", "MathOptInterface"]
-git-tree-sha1 = "d6692a09d0424e34c884cd819b8ed47943eefc20"
-uuid = "f8899e07-120b-5979-ab1d-7b97bb9e1a48"
-version = "0.6.0"
-
 [[LinearAlgebra]]
 deps = ["Libdl"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -202,18 +190,6 @@ version = "0.4.4"
 [[Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
-
-[[MathOptInterface]]
-deps = ["Compat", "Unicode"]
-git-tree-sha1 = "e3c7fb842078f5cd9a21ecb911dc59a4282e3d01"
-uuid = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
-version = "0.8.2"
-
-[[MathProgBase]]
-deps = ["Compat"]
-git-tree-sha1 = "3bf2e534e635df810e5f4b4f1a8b6de9004a0d53"
-uuid = "fdba3010-5040-5b88-9595-932c9decdf73"
-version = "0.7.7"
 
 [[MbedTLS]]
 deps = ["BinaryProvider", "Dates", "Libdl", "Random", "Sockets", "Test"]
