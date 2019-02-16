@@ -121,6 +121,7 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
         c_Credit = typeof(c_Credit) == String ? parse(Int,c_Credit) : c_Credit
         c_Prefix = find_cell(row, Symbol("Prefix"))
         c_Number = find_cell(row, Symbol("Number"))
+        if typeof(c_Number) != String c_Number = string(c_Number) end
         c_Inst = find_cell(row, Symbol("Institution"))
         c_col_name = find_cell(row, Symbol("Canonical Name"))
         learning_outcomes = if c_ID in keys(lo_Course) lo_Course[c_ID] else LearningOutcome[] end
