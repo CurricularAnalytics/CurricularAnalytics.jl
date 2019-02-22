@@ -10,6 +10,6 @@ Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisit
 3,Introductory Calculus w/ Basketry Applications,MA,116,,,,4,,
 4,Basic Basket Forms,BW,111,1,,5,3,,
 5,Basic Basket Forms Lab,BW,111L,,,,1,,
-6,Advanced Basketry,BW,201,"4,5",3,,3,,
+6,Advanced Basketry,BW,201,"4;5",3,,3,,
 7,Basket Materials & Decoration,BW,214,1,,,3,,
 8,Underwater Weaving,BW,301,2,7,,3,,

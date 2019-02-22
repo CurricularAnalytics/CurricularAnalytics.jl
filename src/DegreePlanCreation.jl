@@ -1,5 +1,4 @@
 # file: DegreePlanCreation.jl
- 
 function create_degree_plan(curric::Curriculum, create_terms::Function=bin_packing, name::AbstractString="", additional_courses::Array{Course}=Array{Course,1}();
     min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
     terms =  create_terms(curric,additional_courses; min_terms=min_terms,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
@@ -233,3 +232,4 @@ function bin_packing2(curric::Curriculum, additional_courses::Array{Course}=Arra
     end
     return false
 end
+
