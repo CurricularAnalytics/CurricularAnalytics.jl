@@ -1,9 +1,10 @@
 using JuMP
 using LinearAlgebra
 using Gurobi
+const MOI = JuMP.MathOptInterface
 function find_min_terms_opt(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     min_terms::Int=1, max_terms::Int, max_credits_per_term::Int)
-    m = Model(solver=GurobiSolver())
+    m = Model(with_optimizer(Gurobi.Optimizer))
     courses = curric.courses
     credit = [c.credit_hours for c in curric.courses]
     c_count = length(courses)
@@ -31,28 +32,28 @@ function find_min_terms_opt(curric::Curriculum, additional_courses::Array{Course
         end   
     end
     @objective(m, Min, sum(terms[:]))
-    status = solve(m)
-    output = getvalue(x)
-    optimal_terms = Term[]
-    for j=1:max_terms
-        if sum(dot(credit,output[:,j])) > 0 
-            term = Course[]
-            for course in 1:length(courses)
-                if round(output[course,j]) == 1
-                    push!(term, courses[course])
-                end 
+    status = optimize!(m)
+    output = value.(x)
+    if termination_status(m) == MOI.OPTIMAL
+        optimal_terms = Term[]
+        for j=1:max_terms
+            if sum(dot(credit,output[:,j])) > 0 
+                term = Course[]
+                for course in 1:length(courses)
+                    if round(output[course,j]) == 1
+                        push!(term, courses[course])
+                    end 
+                end
+                push!(optimal_terms, Term(term))
             end
-            push!(optimal_terms, Term(term))
         end
-    end
-    if status == :Optimal
         return true, optimal_terms, length(optimal_terms)
     end
     return false, nothing, nothing
 end
 function balance_terms_opt(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}();       
     min_terms::Int=1, max_terms::Int,min_credits_per_term::Int=1, max_credits_per_term::Int)
-    m = Model(solver=GurobiSolver())
+    m = Model(with_optimizer(Gurobi.Optimizer))
     courses = curric.courses
     credit = [c.credit_hours for c in curric.courses]
     c_count = length(courses)
@@ -66,8 +67,8 @@ function balance_terms_opt(curric::Curriculum, additional_courses::Array{Course}
         #output must include all courses once
         tot[i=1:c_count], sum(x[i,:]) == 1
         #Each term must include more or equal than min credit and less or equal than max credit allowed for a term
-        term[j=1:max_terms], sum(dot(credit,x[:,j])) <= max_credits_per_term
-        term[j=1:max_terms], sum(dot(credit,x[:,j])) >= min_credits_per_term
+        term_upper[j=1:max_terms], sum(dot(credit,x[:,j])) <= max_credits_per_term
+        term_lower[j=1:max_terms], sum(dot(credit,x[:,j])) >= min_credits_per_term
         abs_val[i=2:max_terms], y[i] >= total_credit_term[i]-total_credit_term[i-1]
         abs_val2[i=2:max_terms], y[i] >= -(total_credit_term[i]-total_credit_term[i-1])
     end
@@ -85,23 +86,22 @@ function balance_terms_opt(curric::Curriculum, additional_courses::Array{Course}
         end   
     end
     @objective(m, Min, sum(y[:]))
-    status = solve(m)
-    output = getvalue(x)
-    optimal_terms = Term[]
-    for j=1:max_terms
-        if sum(dot(credit,output[:,j])) > 0 
-            term = Course[]
-            for course in 1:length(courses)
-                if round(output[course,j]) == 1
-                    push!(term, courses[course])
-                end 
+    status = optimize!(m)
+    output = value.(x)
+    if termination_status(m) == MOI.OPTIMAL
+        optimal_terms = Term[]
+        for j=1:max_terms
+            if sum(dot(credit,output[:,j])) > 0 
+                term = Course[]
+                for course in 1:length(courses)
+                    if round(output[course,j]) == 1
+                        push!(term, courses[course])
+                    end 
+                end
+                push!(optimal_terms, Term(term))
             end
-            push!(optimal_terms, Term(term))
         end
-    end
-    if status == :Optimal
         return true, optimal_terms, length(optimal_terms)
     end
     return false, nothing, nothing
 end
-
