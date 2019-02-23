@@ -2,7 +2,12 @@
 ## Note: curriculum was created in 2016-17 and was still used in 2018
 
 # create the courses
-c = Array{Course}(undef,49)
+c = Array{Course}(undef,52)
+
+# pre-plan courses
+c[50] = Course("Foundational Math", 3)
+c[51] = Course("College Algebra", 3)
+c[52] = Course("Trig. & Precalculus", 4)
 
 # term 1
 c[1] = Course("The US to 1877", 3, prefix = "HIST", num = "1377")
@@ -62,6 +67,11 @@ c[47] = Course("Concentration Elective 6", 3)
 c[48] = Course("Concentration Elective 7", 3)
 c[49] = Course("Elective Lab 4", 1)
 
+# pre-plan courses
+add_requisite!(c[50],c[51],pre)
+add_requisite!(c[51],c[52],pre)
+add_requisite!(c[52],c[4],pre)
+
 # term 1
 add_requisite!(c[2],c[8],pre)
 add_requisite!(c[3],c[9],pre)
@@ -118,14 +128,17 @@ curric = Curriculum("University of Houston EE Program", c)
 
 complexity(curric)
 
-terms = Array{Term}(undef, 8)
-terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
-terms[2] = Term([c[7],c[8],c[9],c[10],c[11],c[12]])
-terms[3] = Term([c[13],c[14],c[15],c[16],c[17],c[18]])
-terms[4] = Term([c[19],c[20],c[21],c[22],c[23],c[24]])
-terms[5] = Term([c[25],c[26],c[27],c[28],c[29],c[30]])
-terms[6] = Term([c[31],c[32],c[33],c[34],c[35],c[36]])
-terms[7] = Term([c[37],c[38],c[39],c[40],c[41],c[42]])
-terms[8] = Term([c[43],c[44],c[45],c[46],c[47],c[48],c[49]])
+terms = Array{Term}(undef, 11)
+terms[1] = Term([c[50]])
+terms[2] = Term([c[51]])
+terms[3] = Term([c[52]])
+terms[4] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
+terms[5] = Term([c[7],c[8],c[9],c[10],c[11],c[12]])
+terms[6] = Term([c[13],c[14],c[15],c[16],c[17],c[18]])
+terms[7] = Term([c[19],c[20],c[21],c[22],c[23],c[24]])
+terms[8] = Term([c[25],c[26],c[27],c[28],c[29],c[30]])
+terms[9] = Term([c[31],c[32],c[33],c[34],c[35],c[36]])
+terms[10] = Term([c[37],c[38],c[39],c[40],c[41],c[42]])
+terms[11] = Term([c[43],c[44],c[45],c[46],c[47],c[48],c[49]])
 
 dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)

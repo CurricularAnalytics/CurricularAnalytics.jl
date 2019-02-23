@@ -52,11 +52,11 @@ function course_line(course, term_id)
     course_scoreq = "\""
     for requesite in course.requisites
         if requesite[2] == pre
-            course_prereq = course_prereq * string(requesite[1]) * ","
+            course_prereq = course_prereq * string(requesite[1]) * ";"
         elseif requesite[2] == co
-            course_coreq = course_coreq * string(requesite[1]) * ","
+            course_coreq = course_coreq * string(requesite[1]) * ";"
         elseif requesite[2] == strict_co
-            course_scoreq = course_scoreq * string(requesite[1]) * ","
+            course_scoreq = course_scoreq * string(requesite[1]) * ";"
         end
     end
     course_prereq = chop(course_prereq)
@@ -121,6 +121,7 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
         c_Credit = typeof(c_Credit) == String ? parse(Int,c_Credit) : c_Credit
         c_Prefix = find_cell(row, Symbol("Prefix"))
         c_Number = find_cell(row, Symbol("Number"))
+        if typeof(c_Number) != String c_Number = string(c_Number) end
         c_Inst = find_cell(row, Symbol("Institution"))
         c_col_name = find_cell(row, Symbol("Canonical Name"))
         learning_outcomes = if c_ID in keys(lo_Course) lo_Course[c_ID] else LearningOutcome[] end
@@ -128,27 +129,27 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             println("Course IDs must be unique")
             return false
         else
-            course_dict[c_ID] = Course(c_Name, c_Credit, prefix= c_Prefix, learning_outcomes= learning_outcomes,
-                num= c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID)
+            course_dict[c_ID] = Course(c_Name, c_Credit, prefix=c_Prefix, learning_outcomes=learning_outcomes,
+                num=c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID)
         end
     end
     for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         pre_reqs = find_cell(row, Symbol("Prerequisites"))
         if pre_reqs != ""
-            for pre_req in split(string(pre_reqs), ",")
+            for pre_req in split(string(pre_reqs), ";")
                 add_requisite!(course_dict[parse(Int, pre_req)], course_dict[c_ID], pre)
             end
         end
         co_reqs = find_cell(row, Symbol("Corequisites"))
         if co_reqs != ""
-            for co_req in split(string(co_reqs), ",")
+            for co_req in split(string(co_reqs), ";")
                 add_requisite!(course_dict[parse(Int, co_req)], course_dict[c_ID], co)
             end
         end
         sco_reqs = find_cell(row, Symbol("Strict-Corequisites"))
         if sco_reqs != ""
-            for sco_req in split(string(sco_reqs), ",")
+            for sco_req in split(string(sco_reqs), ";")
                 add_requisite!(course_dict[parse(Int, sco_req)], course_dict[c_ID], strict_co)
             end
         end
@@ -254,7 +255,7 @@ function write_learning_outcomes(curric::Curriculum, csv_file, all_course_lo)
                 lo_desc = lo.description
                 lo_prereq = "\""
                 for requesite in lo.requisites
-                    lo_prereq = lo_prereq*string(requesite[1]) * ","
+                    lo_prereq = lo_prereq*string(requesite[1]) * ";"
                 end
                 lo_prereq = chop(lo_prereq)
                 if length(lo_prereq) > 0
