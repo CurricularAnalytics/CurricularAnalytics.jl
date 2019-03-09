@@ -1,0 +1,54 @@
+Curriculum,"Curriculum",,,,,,,,,
+Degree Plan,"University of California--Los Angeles.csv",,,,,,,,,
+Institution,"",,,,,,,,,
+Degree Type,"BS",,,,,,,,,
+System Type,"quarter",,,,,,,,,
+CIP,"26.0101",,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,"CS 31","","",,,,4,"","",1
+2,"English Composition 3","","",,,,5,"","",1
+3,"Math 31A","","",,,,4,"","",1
+4,"Chemistry and Biochemistry 20A","","","3",,,4,"","",2
+5,"CS 32","","","1",,,4,"","",2
+6,"Math 31B","","","3",,,4,"","",2
+7,"Physics 1A","","","3","6",,5,"","",2
+8,"ECENGR M16","","",,,,4,"","",3
+9,"Math 32A","","","3",,,4,"","",3
+10,"Physics 1B","","","7;6","9",,5,"","",3
+11,"Physics 4A","","","7","10",,2,"","",3
+12,"ECENGR 3","","",,,,4,"","",4
+13,"Math 32B","","","9;6",,,4,"","",4
+14,"Math 33A","","","6",,,4,"","",4
+15,"Physics 1C","","","7;9;10","13;14",,5,"","",4
+16,"ECENGR 10","","","14;10;12","17",,4,"","",5
+17,"ECENGR 11L","","",,,,1,"","",5
+18,"ECENGR 102","","","14","19",,4,"","",5
+19,"Math 33B","","","6",,,4,"","",5
+20,"Physics 4BL","","","7;10",,,2,"","",5
+21,"ECENGR 2","","","15",,,4,"","",6
+22,"ECENGR 110","","","16;8;18","23",,4,"","",6
+23,"ECENGR 111L","","","16;17",,,1,"","",6
+24,"HSSEAS Ethics Course","","",,,,4,"","",6
+25,"HSSEAS GE Elective","","",,,,4,"","",6
+26,"ECENGR 113","","","18",,,4,"","",7
+27,"ECENGR 131A","","","13;19;18",,,4,"","",7
+28,"HSSEAS GE Elective","","",,,,5,"","",7
+29,"ECENGR 101A","","","9;13;15",,,4,"","",8
+30,"CS 33","","","5",,,4,"","",8
+31,"HSSEAS GE Elective","","",,,,5,"","",8
+32,"ECENGR 101B","","","29",,,4,"","",9
+33,"ECENGR 115A","","","22",,,4,"","",9
+34,"ECENGR 121B","","","21",,,4,"","",9
+35,"ECENGR 132A","","","26;27;18",,,4,"","",9
+36,"ECENGR 133A","","","27;1",,,4,"","",10
+37,"ECENGR Design Course","","",,,,4,"","",10
+38,"ECENGR Elective","","",,,,4,"","",10
+39,"Technical Breadth Course","","",,,,4,"","",10
+40,"ECENGR Design Course","","",,,,4,"","",11
+41,"ECENGR Elective","","",,,,4,"","",11
+42,"HSSEAS GE Elective","","",,,,5,"","",11
+43,"Technical Breadth Course","","",,,,4,"","",11
+44,"ECENGR or HSSEAS Elective","","",,,,4,"","",12
+45,"HSSEAS GE Elective","","",,,,5,"","",12
+46,"Technical Breadth Course","","",,,,4,"","",12

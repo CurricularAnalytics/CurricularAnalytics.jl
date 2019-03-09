@@ -1,0 +1,53 @@
+Curriculum,"Curriculum",,,,,,,,,
+Degree Plan,"University of Louisiana--Lafayette.csv",,,,,,,,,
+Institution,"",,,,,,,,,
+Degree Type,"BS",,,,,,,,,
+System Type,"semester",,,,,,,,,
+CIP,"26.0101",,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,"UNIV 100","","",,,,3,"","",1
+2,"EECE 140","","",,,,3,"","",1
+3,"ENGL 101","","",,,,3,"","",1
+4,"MATH 270","","",,,,4,"","",1
+5,"History Elective","","",,,,3,"","",1
+6,"CMPS 150","","",,,,3,"","",2
+7,"ENGL 102","","","3",,,3,"","",2
+8,"MATH 301","","","4",,,4,"","",2
+9,"PHYS 201","","","4",,,4,"","",2
+10,"EECE 240","","","2",,,3,"","",2
+11,"CMPS 260","","","6",,,3,"","",3
+12,"EECE 260","","","6",,,1,"","",3
+13,"EECE 340","","","10","11",,3,"","",3
+14,"MATH 350","","","8",,,3,"","",3
+15,"EECE 355","","","8",,,4,"","",3
+16,"PHYS 202","","","9","14",,4,"","",3
+17,"EECE 342","","","13",,,1,"","",4
+18,"EECE 233","","","2",,,3,"","",4
+19,"EECE 356","","","14;15",,,4,"","",4
+20,"ENGR 218","","","9",,,3,"","",4
+21,"MATH 302","","","8",,,4,"","",4
+22,"Biology Elective","","",,,,3,"","",4
+23,"EECE 380","","","8",,,3,"","",5
+24,"EECE 335","","","14;16",,,3,"","",5
+25,"EECE 461G","","","12;20",,,3,"","",5
+26,"EECE 444","","","19",,,3,"","",5
+27,"EECE 452","","","19",,,3,"","",5
+28,"Natural Sciences Lab","","",,,,1,"","",6
+29,"EECE 353","","","19;24",,,4,"","",6
+30,"EECE 447","","","15",,,3,"","",6
+31,"EECE 344","","","14;16;21",,,3,"","",6
+32,"Electrical Engineering Elective","","",,,,3,"","",6
+33,"Electrical Engineering Lab","","",,,,1,"","",6
+34,"ENGL 365","","","7",,,3,"","",7
+35,"EECE 423","","",,"36",,1,"","",7
+36,"EECE 443","","","23;13;14;29;19;17;8;15;24",,,2,"","",7
+37,"Electrical Engineering Elective","","",,,,3,"","",7
+38,"Electrical Engineering Elective","","",,,,3,"","",7
+39,"Social/Behavioral Sciences Elective","","",,,,3,"","",7
+40,"ECON 430G","","","29;8",,,3,"","",8
+41,"EECE 460","","","36",,,1,"","",8
+42,"Electrical Engineering Elective","","",,,,3,"","",8
+43,"English Literature Elective","","",,,,3,"","",8
+44,"English Literature Elective","","",,,,3,"","",8
+45,"Fine Arts Elective","","",,,,3,"","",8

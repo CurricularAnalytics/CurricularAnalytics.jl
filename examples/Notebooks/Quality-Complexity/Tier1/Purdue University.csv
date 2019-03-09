@@ -1,0 +1,50 @@
+Curriculum,"Curriculum",,,,,,,,,
+Degree Plan,"Purdue University.csv",,,,,,,,,
+Institution,"",,,,,,,,,
+Degree Type,"BS",,,,,,,,,
+System Type,"semester",,,,,,,,,
+CIP,"26.0101",,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,"ENGR 13100","","",,,,2,"","",1
+2,"MA 16500","","",,,,4,"","",1
+3,"CHM 11500","","",,"2",,4,"","",1
+4,"CS 15900","","",,"1",,3,"","",1
+5,"Written Communication Foundational Outcome","","",,,,3,"","",1
+6,"ENGR 13200","","","1",,,2,"","",2
+7,"PHYS 17200","","","2",,,4,"","",2
+8,"MA 16600","","","2",,,4,"","",2
+9,"Foundational GenEd","","",,,,3,"","",2
+10,"Oral Communication Foundational Outcome","","",,,,3,"","",2
+11,"ECE 20000","","",,,,0,"","",3
+12,"ECE 20100","","","7;8;1","16",,3,"","",3
+13,"ECE 20700","","",,"12",,1,"","",3
+14,"PHYS 27200","","","7;8",,,4,"","",3
+15,"Foundational GenEd","","",,,,3,"","",3
+16,"MA 26100","","","8",,,4,"","",3
+17,"ECE 20200","","","12","22",,3,"","",4
+18,"ECE 25500","","","16;12",,,3,"","",4
+19,"ECE 20800","","","13","18",,1,"","",4
+20,"Science Selective","","",,,,3,"","",4
+21,"Foundational GenEd","","",,,,3,"","",4
+22,"MA 26600","","","16",,,3,"","",4
+23,"ECE 30100","","","17;22",,,3,"","",5
+24,"ECE 27000","","","12",,,4,"","",5
+25,"ECE 40000","","",,,,1,"","",5
+26,"Complementary Elective","","",,,,3,"","",5
+27,"Adv. EE Selective","","",,,,3,"","",5
+28,"ECE 30200","","","23;22",,,3,"","",6
+29,"ECE 31100","","","14;22;12",,,3,"","",6
+30,"Adv. EE Selective","","",,,,3,"","",6
+31,"ECE Elective [Adv. Lab]","","",,,,1,"","",6
+32,"Foundational GenEd","","",,,,3,"","",6
+33,"MA 26500","","","16",,,3,"","",6
+34,"ECE 49022","","","24;23;13;29;19;17;28;12;18",,,4,"","",7
+35,"ECE Elective","","",,,,3,"","",7
+36,"Engr. Breadth Elective","","",,,,3,"","",7
+37,"ECE GenEd Elective","","",,,,3,"","",7
+38,"Complementary Elective","","",,,,3,"","",7
+39,"Adv. EE Selective w/Adv Lab","","",,,,4,"","",8
+40,"ECE Elective w/Adv Lab","","",,,,4,"","",8
+41,"ECE GenEd Elective","","",,,,3,"","",8
+42,"Complementary Elective","","",,,,4,"","",8

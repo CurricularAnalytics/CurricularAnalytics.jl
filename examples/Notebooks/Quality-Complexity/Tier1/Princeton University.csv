@@ -1,0 +1,44 @@
+Curriculum,"Curriculum",,,,,,,,,
+Degree Plan,"Princeton University.csv",,,,,,,,,
+Institution,"",,,,,,,,,
+Degree Type,"BS",,,,,,,,,
+System Type,"semester",,,,,,,,,
+CIP,"26.0101",,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,"Math 103","","",,,,4,"","",1
+2,"Physics 103","","",,,,4,"","",1
+3,"Chem 207","","",,"1",,4,"","",1
+4,"Elective: writing requirement","","",,,,4,"","",1
+5,"Math 104","","","1",,,4,"","",2
+6,"Physics 104","","","2",,,4,"","",2
+7,"COS 126","","",,,,4,"","",2
+8,"Elective: humanities/social science","","",,,,4,"","",2
+9,"Elective: humanities/social science","","",,,,4,"","",2
+10,"Math 201","","","5",,,4,"","",3
+11,"ELE 203","","",,,,4,"","",3
+12,"ELE 206","","",,,,4,"","",3
+13,"Elective","","",,,,4,"","",3
+14,"Elective: humanities/social science","","",,,,4,"","",3
+15,"Math 202","","","5",,,4,"","",4
+16,"ELE 201","","",,,,4,"","",4
+17,"ELE 208","","","2;5;6;1",,,4,"","",4
+18,"Elective","","",,,,4,"","",4
+19,"Elective: humanities/social science","","",,,,4,"","",4
+20,"ELE 301","","","16;11",,,4,"","",5
+21,"Departmental Elective","","",,,,4,"","",5
+22,"Upper Level Math Elective","","",,,,4,"","",5
+23,"Elective","","",,,,4,"","",5
+24,"Elective: humanities/social science","","",,,,4,"","",5
+25,"ELE 302","","","12;20",,,4,"","",6
+26,"Departmental Elective","","",,,,4,"","",6
+27,"Technical Elective","","",,,,4,"","",6
+28,"Elective: humanities/social science","","",,,,4,"","",6
+29,"Departmental Elective","","",,,,4,"","",7
+30,"Departmental Elective","","",,,,4,"","",7
+31,"Elective: humanities/social science","","",,,,4,"","",7
+32,"Elective: Independent Research","","",,,,4,"","",7
+33,"Departmental Elective","","",,,,4,"","",8
+34,"Departmental Elective","","",,,,4,"","",8
+35,"Elective","","",,,,4,"","",8
+36,"Elective","","",,,,4,"","",8
