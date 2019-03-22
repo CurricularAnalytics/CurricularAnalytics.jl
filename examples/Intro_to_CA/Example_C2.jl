@@ -39,7 +39,7 @@ else
 end
 
 terms = Array{Term}(undef, 3)
-terms[1] = Term([c[1],[c[2]])
+terms[1] = Term([c[1],c[2]])
 terms[2] = Term([c[3]])
 terms[3] = Term([c[4]])
 
