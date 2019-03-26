@@ -1,0 +1,33 @@
+$white-gray: #f2f2f2;
+$light-gray: #ddd;
+$medium-gray: #888;
+$dark-gray: #444;
+
+// $green: #a0b222;
+$blue: #303e4d;
+$blue-form: #3971A8;
+
+$breakpoint1: 800px;
+
+$red: #FF4136;
+
+$req-green: #2ECC40;
+$req-red: $red;
+$req-yellow: #FFDC00;
+
+$pre-coreq-field: lighten($req-red, 30%);
+$prereq: darken($req-red, 0%);
+$coreq: lighten($req-yellow, 30%);
+$strict-coreq: darken($req-yellow, 0%);
+$unblocked-field: lighten($req-green, 30%);
+$unblocked: darken($req-green, 0%);
+
+$blocking: #df8211;
+$delaying: #286ed7;
+
+$dark-blue: darken($blue, 20%);
+$light-blue: lighten($blue, 60%);
+
+$faint-gray: transparentize($medium-gray, 0.5);
+
+$font-awesome-size: 900;

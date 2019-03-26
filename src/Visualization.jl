@@ -94,7 +94,7 @@ function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, ed
         error("Curriculum is too big to visualize.")
     end
     term_count = num_courses
-    dp = create_degree_plan(curric, max_terms = term_count, max_credits_per_term = max_credits_per_term)
+    dp = create_degree_plan(curric, bin_packing2; max_terms = term_count, max_credits_per_term = max_credits_per_term)
     viz_helper(dp; changed=changed, notebook=notebook, edit=edit, hide_header=true, output_file=output_file, show_delay=show_delay,
                 show_blocking=show_blocking,show_centrality=show_centrality, show_complexity=show_complexity, scale=scale)
 end

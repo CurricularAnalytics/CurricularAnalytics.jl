@@ -1,0 +1,52 @@
+Curriculum,"Curriculum",,,,,,,,,
+Degree Plan,"Georgia Institute of Technology.csv",,,,,,,,,
+Institution,"",,,,,,,,,
+Degree Type,"BS",,,,,,,,,
+System Type,"semester",,,,,,,,,
+CIP,"26.0101",,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,"CHEM 1310","","",,,,4,"","",1
+2,"MATH 1551","","",,,,2,"","",1
+3,"MATH 1553","","",,,,2,"","",1
+4,"CS 1371","","",,,,3,"","",1
+5,"Wellness Elective","","",,,,3,"","",1
+6,"ENGL 1101","","",,,,3,"","",1
+7,"PHYS 2211","","","2",,,4,"","",2
+8,"MATH 1552","","","2",,,4,"","",2
+9,"ECE 2020","","","4",,,3,"","",2
+10,"History/Government Elective","","",,,,3,"","",2
+11,"ENGL 1102","","","6",,,3,"","",2
+12,"PHYS 2212","","","7",,,4,"","",3
+13,"MATH 2552","","","3;8",,,4,"","",3
+14,"ECE 2026","","","4;3;8",,,3,"","",3
+15,"Economics Elective","","",,,,3,"","",3
+16,"Social Sciences Elective","","",,,,3,"","",3
+17,"Science Elective","","",,,,3,"","",4
+18,"MATH 2551","","","3;8",,,4,"","",4
+19,"ECE 2040","","","12",,,3,"","",4
+20,"ECE 2031","","","9",,,2,"","",4
+21,"Programming Elective","","",,"20",,3,"","",4
+22,"Humanities Elective","","",,,,3,"","",5
+23,"ECE 3040","","","18;20;19;1",,,4,"","",5
+24,"ECE 3043","","",,"23",,2,"","",5
+25,"ECE 3025","","","14;19;18",,,3,"","",5
+26,"ECE 3084","","","14;19",,,3,"","",5
+27,"Social Sciences Elective","","",,,,3,"","",5
+28,"ECE/Approved Engineering Elective","","",,,,3,"","",6
+29,"Prob/Stat ECE/App/Engr Elective","","","18",,,3,"","",6
+30,"ECE Elective","","",,,,3,"","",6
+31,"ECE Elective","","",,,,3,"","",6
+32,"ECE 3072","","","19",,,3,"","",6
+33,"Approved Elective","","",,,,3,"","",6
+34,"Engineering Elective","","",,,,3,"","",7
+35,"ECE Elective","","",,,,3,"","",7
+36,"ECE 4011","","","26;25;32;29;15;24",,,2,"","",7
+37,"ECE 4XXX Elective","","",,,,3,"","",7
+38,"ECE 4XXX Lab Elective","","",,,,3,"","",7
+39,"Approved Elective","","",,,,3,"","",7
+40,"Humanities Elective","","",,,,3,"","",8
+41,"ECE 4012","","","36",,,3,"","",8
+42,"ECE 4XXX Elective","","",,,,3,"","",8
+43,"Approved Elective","","",,,,3,"","",8
+44,"Approved Elective","","",,,,3,"","",8

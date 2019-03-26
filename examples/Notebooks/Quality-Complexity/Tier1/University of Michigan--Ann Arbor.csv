@@ -1,0 +1,45 @@
+Curriculum,"Curriculum",,,,,,,,,
+Degree Plan,"University of Michigan--Ann Arbor.csv",,,,,,,,,
+Institution,"",,,,,,,,,
+Degree Type,"BS",,,,,,,,,
+System Type,"semester",,,,,,,,,
+CIP,"26.0101",,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,"Math 115","","",,,,4,"","",1
+2,"ENGR 100","","",,,,4,"","",1
+3,"Chem 210","","",,"4",,4,"","",1
+4,"Chem 211","","",,,,1,"","",1
+5,"Intellectual Breadth","","",,,,4,"","",1
+6,"Math 116","","","1",,,4,"","",2
+7,"ENGR 101","","","1",,,4,"","",2
+8,"Phys 140","","","1","9",,4,"","",2
+9,"Phys 141 (Lab)","","",,,,1,"","",2
+10,"Intellectual Breadth","","",,,,4,"","",2
+11,"Math 216","","","6",,,4,"","",3
+12,"Phys 240","","","8;6","13",,4,"","",3
+13,"Phys 241 (Lab)","","",,,,1,"","",3
+14,"EECS 215","","","7;6","12",,4,"","",3
+15,"Intellectual Breadth","","",,,,4,"","",3
+16,"Math 215","","","6",,,4,"","",4
+17,"Intellectual Breadth","","",,,,4,"","",4
+18,"EECS 216","","","14;11",,,4,"","",4
+19,"EECS 280","","","7",,,4,"","",4
+20,"TCHNCLCM 300","","","2",,,1,"","",4
+21,"EECS 230","","","14;16;12",,,4,"","",5
+22,"EECS 320","","","14;12",,,4,"","",5
+23,"Flexible Technical Elective","","",,,,3,"","",5
+24,"Upper Level EE Technical Elective","","",,,,4,"","",5
+25,"EECS 301","","","18",,,4,"","",6
+26,"Upper Level EE Technical Elective","","",,,,4,"","",6
+27,"Upper Level EE Technical Elective","","",,,,4,"","",6
+28,"Free Elective","","",,,,4,"","",6
+29,"Flexible Technical Elective","","",,,,4,"","",7
+30,"Upper Level EE Technical Elective","","",,,,4,"","",7
+31,"Upper Level EE Technical Elective","","",,,,3,"","",7
+32,"Free Elective","","",,,,4,"","",7
+33,"TCHNCLCM 496","","","20","34",,2,"","",8
+34,"EECS 496","","",,,,2,"","",8
+35,"Flexible Technical Elective","","",,,,3,"","",8
+36,"Major Design Experience","","",,,,4,"","",8
+37,"Free Elective","","",,,,3,"","",8

@@ -26,9 +26,9 @@ More specifically, the data that is expected to follow each keyword provided in 
   * Course Name : the name of the course (required).
   * Prefix : the prefix associated with the course.
   * Number : the number associated with the course.
-  * Prerequisites : a list of all required prerequisite, by Course ID.
-  * Corequisites : a list of all required corequisite, by Course ID.
-  * Strict-Corequisites : a list of all required strict-corequisite, by Course ID.
+  * Prerequisites : a (semicolon separated) list of all required prerequisites, by Course ID.
+  * Corequisites : a (semicolon separated) list of all required corequisites, by Course ID.
+  * Strict-Corequisites : a (semicolon separated) list of all required strict-corequisites, by Course ID.
   * Credit Hours : the number of credit hours associated with the course (required).
   * Institution : the institution offering the course (may be different from the institution offering the curriculum).
   * Canonical Name : the canonical (i.e., common) name used for the course.

@@ -1,0 +1,48 @@
+Curriculum,"Curriculum",,,,,,,,,
+Degree Plan,"Johns Hopkins University.csv",,,,,,,,,
+Institution,"",,,,,,,,,
+Degree Type,"BS",,,,,,,,,
+System Type,"semester",,,,,,,,,
+CIP,"26.0101",,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,"CALC 1","","",,,,4,"","",1
+2,"PHY 1","","",,,,4,"","",1
+3,"PHY LAB 1","","",,,,1,"","",1
+4,"INTRO TO ECE","","",,"1",,3,"","",1
+5,"H&S ELECT","","",,,,3,"","",1
+6,"CALC 2","","","1",,,4,"","",2
+7,"PHY 2","","","2",,,4,"","",2
+8,"PHY LAB 2","","",,,,1,"","",2
+9,"DIGITAL DESIGN FUND","","","2",,,3,"","",2
+10,"H&S ELECT","","",,,,3,"","",2
+11,"CALC 3","","","6",,,4,"","",3
+12,"INTRO TO CHEM","","",,,,3,"","",3
+13,"CIRCUITS","","","2;1",,,4,"","",3
+14,"FIELDS MATTER WAVES","","","7;6",,,3,"","",3
+15,"H&S ELECT","","",,,,3,"","",3
+16,"LINEAR ALGEBRA","","",,,,4,"","",4
+17,"SIGNALS & SYSTEMS","","","13;11","16",,4,"","",4
+18,"INTRO TO JAVA","","",,,,3,"","",4
+19,"INTRO TO VLSI","","","7;9;13;6",,,3,"","",4
+20,"H&S ELECT","","",,,,3,"","",4
+21,"DIFFERNTIAL EQUATIONS","","",,,,4,"","",5
+22,"520414","","","16;17;11",,,3,"","",5
+23,"ECE LAB","","","7;13;1",,,3,"","",5
+24,"CONTROL SYST","","","17",,,3,"","",5
+25,"H&S ELECT","","",,,,3,"","",5
+26,"PROBABILITY & STATISTICS","","",,,,4,"","",6
+27,"PROGRAMABLE DEVICE LAB","","",,,,3,"","",6
+28,"BASIC SCIENCE ELCT","","",,,,3,"","",6
+29,"ELECTIVE","","",,,,3,"","",6
+30,"H&S ELECT","","",,,,3,"","",6
+31,"520415","","","22",,,3,"","",7
+32,"SENIOR DESIGN PROJECT","","","7;6",,,3,"","",7
+33,"520424","","","23;9;18",,,3,"","",7
+34,"DIGITAL SIGNAL PROCESSING","","",,,,4,"","",7
+35,"NON ECE ENGINEERING ELECT","","",,,,3,"","",7
+36,"520465","","",,,,3,"","",8
+37,"SENIOR DESIGN PROJECT","","","7;6",,,3,"","",8
+38,"520425","","","23;9;18",,,3,"","",8
+39,"ELECTIVE","","",,,,3,"","",8
+40,"ENGINERING ELECT","","",,,,3,"","",8

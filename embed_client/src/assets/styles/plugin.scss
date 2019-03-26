@@ -1,0 +1,16 @@
+@import '_variables';
+
+.vue-curricula {
+  * {
+    box-sizing: border-box;
+  }
+
+  @import 'graph';
+  @import 'requisite';
+  @import 'menu';
+
+  position: relative;
+}
+
+@import 'tooltip';
+@import 'attribution';

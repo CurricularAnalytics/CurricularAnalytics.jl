@@ -1,0 +1,54 @@
+Curriculum,University of Kentucky EE Program,,,,,,,,,
+Degree Plan,University of Kentucky EE Program 4-year Plan,,,,,,,,,
+Institution,,,,,,,,,,
+Degree Type,BS,,,,,,,,,
+System Type,semester,,,,,,,,,
+CIP,26.0101,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,Intermediate Algebra,MA,108R,,,,3,,,1
+2,College Algebra,MA,109,1,,,3,,,2
+3,Algebra & Trigonometry,MA ,110,2,,,4,,,3
+2071595408,Engineering Exploration I,EGR,101,,,,1,,,4
+502542156,Fundamentals of Engineering Computing,EGR,102,,,,2,,,4
+2865398329,General University Physics,PHY,231,,"3389674827",,4,,,4
+746915474,General University Physics Lab,PHY,241,,"2865398329",,1,,,4
+858428248,Composition and Communication I,CIS/WRD,110,,,,3,,,4
+3389674827,Calculus I,MA,113,,"3",,4,,,4
+1123828828,Engineering Exploration II,EGR,103,"502542156","3389674827;2865398329;738464693",,2,,,5
+3660518225,Composition and Communication II,CIS/WRD,111,"858428248",,,3,,,5
+2966989896,Calculus II,MA,114,"3389674827",,,4,,,5
+738464693,General College Chemistry I,CHE,105,,,,4,,,5
+1586162741,UK Core - Social Sciences,,,,,,3,,,5
+2193700744,Calculus III,MA,213,"2966989896",,,4,,,6
+24551683,General University Physics,PHY,232,"2865398329","2193700744",,4,,,6
+4109240503,General University Physics Lab,PHY,242,,"24551683",,1,,,6
+1017230148,Circuits I,EE,211,,"24551683;4109240503",,4,,,6
+1416959221,Digital Logic Design,EE,282,"502542156",,,4,,,6
+713164423,Calculus IV,MA,214,"2193700744",,,3,,,7
+2281989961,AC Circuits,EE,223,"1017230148","713164423",,4,,,7
+1647567702,Intro. to Embedded Systems,EE,287,"1416959221","1332377596",,4,,,7
+1332377596,Intro. to Program Design Abstraction and Problem Solving,CS,215,,,,4,,,7
+699408466,UK Core - Humanities,,,,,,3,,,7
+3945639322,Electromechanics,EE,415G,"2281989961;24551683",,,3,,,8
+2950065960,Signals & Systems,EE,421G,"2281989961;713164423",,,3,,,8
+448709314,Elective EE Laboratory 1,,,,,,2,,,8
+16242192,Intro. to Electronics,EE,461G,"2281989961",,,3,,,8
+2756944549,Introductory Probability,MA,320,"2193700744",,,3,,,8
+3654615878,Technical Elective 1,,,,,,3,,,8
+1400716874,Intro. to Engineering Electromagnetics,EE,468G,"2281989961;2193700744",,,4,,,9
+3008452217,Elective EE Laboratory 2,,,,,,2,,,9
+1824271747,Engineering/Science Elective 1,,,,,,3,,,9
+3697264218,Technical Elective 2,,,,,,3,,,9
+1496407185,UK Core - Citizenship - USA,,,,,,3,,,9
+1116551982,EE Capstone Design,EE,490,,,,3,,,10
+1373040133,EE Technical Elective 1,,,,,,3,,,10
+2900608954,EE Technical Elective 2,,,,,,3,,,10
+147960851,Math/Statistics Elective,,,,,,3,,,10
+819264340,UK Core - Global Dynamics,,,,,,3,,,10
+2674820998,EE Capstone Design,EE,491,"1116551982",,,3,,,11
+3472050261,EE Technical Elective 3,,,,,,3,,,11
+3141179749,EE Technical Elective 4,,,,,,3,,,11
+109586583,Supportive Elective,,,,,,3,,,11
+1227973603,Engineering/Science Elective 2,,,,,,3,,,11
+599971617,UK Core - Statistical Inferential Reasoning,,,,,,3,,,11

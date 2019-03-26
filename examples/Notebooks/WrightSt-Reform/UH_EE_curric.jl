@@ -3,6 +3,7 @@
 
 # create the courses
 c = Array{Course}(undef,49)
+
 # term 1
 c[1] = Course("The US to 1877", 3, prefix = "HIST", num = "1377")
 c[2] = Course("First Year Writing I", 3, prefix = "ENGL", num = "1303")
@@ -35,31 +36,31 @@ c[24] = Course("Microprocessors", 3, prefix = "ECE", num = "3436")
 c[25] = Course("Creative Arts Core", 3)
 c[26] = Course("Electronics Lab", 1, prefix = "ECE", num = "3155")
 c[27] = Course("Electronics", 3, prefix = "ECE", num = "3355")
-c[28] = Course("Concentration Elective", 3)
+c[28] = Course("Concentration Elective 1", 3)
 c[29] = Course("Applied EM Waves", 3, prefix = "ECE", num = "3317")
-c[30] = Course("ECE Elective", 3)
+c[30] = Course("ECE Elective 1", 3)
 # term 6
 c[31] = Course("US Gov: Congress, President and Courts", 3, prefix = "POLS", num = "1337")
 c[32] = Course("Engineering Statistics", 3, prefix = "INDE", num = "2333")
-c[33] = Course("Elective Lab", 1)
-c[34] = Course("Concentration Elective", 3)
+c[33] = Course("Elective Lab 1", 1)
+c[34] = Course("Concentration Elective 2", 3)
 c[35] = Course("Numerical Methods", 3, prefix = "ECE", num = "3340")
-c[36] = Course("ECE Elective", 3)
+c[36] = Course("ECE Elective 2", 3)
 # term 7
 c[37] = Course("Microeconomic Principles", 3, prefix = "ECON", num = "2304")
 c[38] = Course("ECE Design I", 3, prefix = "ECE", num = "4335")
-c[39] = Course("Elective Lab", 1)
-c[40] = Course("Concentration Elective", 3)
-c[41] = Course("Concentration Elective", 3)
-c[42] = Course("Tecnical Elective", 3)
+c[39] = Course("Elective Lab 2", 1)
+c[40] = Course("Concentration Elective 3", 3)
+c[41] = Course("Concentration Elective 4", 3)
+c[42] = Course("Technical Elective", 3)
 # term 8
 c[43] = Course("Lang., Phil. & Culture Core", 3)
 c[44] = Course("ECE Design II", 3, prefix = "ECE", num = "4336")
-c[45] = Course("Elective Lab", 1)
-c[46] = Course("Concentration Elective", 3)
-c[47] = Course("Concentration Elective", 3)
-c[48] = Course("Concentration Elective", 3)
-c[49] = Course("Elective Lab", 1)
+c[45] = Course("Elective Lab 3", 1)
+c[46] = Course("Concentration Elective 5", 3)
+c[47] = Course("Concentration Elective 6", 3)
+c[48] = Course("Concentration Elective 7", 3)
+c[49] = Course("Elective Lab 4", 1)
 
 # term 1
 add_requisite!(c[2],c[8],pre)

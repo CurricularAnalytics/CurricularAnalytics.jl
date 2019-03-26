@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+.attribution {
+  font-family: "Nunito";
+  white-space: nowrap;
+  cursor: pointer;
+  text-align: right;
+
+  img {
+    margin-left: 2px;
+    padding-bottom: 3px;
+    height: 30px;
+    vertical-align: middle;
+  }
+
+  a {
+    font-size: 10pt;
+    text-decoration: none;
+    color: #aaa;
+  }
+}
