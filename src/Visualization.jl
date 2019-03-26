@@ -16,7 +16,7 @@ end
 
 # Serve a local embed client on port 8156
 function serve_local_embed_client()
-    @async HTTP.listen(HTTP.Sockets.localhost, LOCAL_EMBED_PORT) do req::HTTP.Request
+    @async HTTP.serve(HTTP.Sockets.localhost, LOCAL_EMBED_PORT) do req::HTTP.Request
         # default render index.html case
         req.target == "/" && return HTTP.Response(200, read(joinpath(LOCAL_EMBED_FOLDER, "index.html")))
 
@@ -70,25 +70,18 @@ function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, ed
                     show_delay::Bool=false, show_blocking::Bool=false, show_centrality::Bool=false, show_complexity::Bool=false, scale::Real=1)
     num_courses = length(curric.courses)
     if num_courses <= 8
-        #term_count = 3
         max_credits_per_term = 12
     elseif num_courses <= 16
-        #term_count = 4
         max_credits_per_term = 15
     elseif num_courses <= 24
-        #term_count = 5
         max_credits_per_term = 18
     elseif num_courses <= 32
-        #term_count = 6
         max_credits_per_term = 18
     elseif num_courses <= 40
-        #term_count = 7
         max_credits_per_term = 21
     elseif num_courses <= 48
-        #term_count = 8
         max_credits_per_term = 23
     elseif num_courses <= 56
-        #term_count = 9
         max_credits_per_term = 26
     else
         error("Curriculum is too big to visualize.")
@@ -152,9 +145,9 @@ function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false
         Blink.AtomShell.install()
     end
     # Data
-    data = prepare_data(plan,edit=edit,hide_header=hide_header, show_delay=show_delay,
-    show_blocking=show_blocking,show_centrality=show_centrality,
-    show_complexity=show_complexity)        
+    data = prepare_data(plan, edit=edit, hide_header=hide_header, show_delay=show_delay,
+                show_blocking=show_blocking, show_centrality=show_centrality,
+                show_complexity=show_complexity)        
 
     # Setup data observation to check for changes being made to curriculum
     s = Scope()
@@ -183,24 +176,24 @@ function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false
     end
 	
 	s(
-            dom"iframe#curriculum"(
-                "", 
-                # iFrame source
-                src=get_embed_url(),
-                # iFrame styles
-                style=Dict(
-                    :width => "100%",
-                    :height => string(Int(scale*100)) * "vh",
-                    :margin => "0",
-                    :padding => "0",
-                    :border => "none"
-                ),
-                events=Dict(
-                    # iFrame onload event
-                    :load => iframe_loaded
-                )
+        dom"iframe#curriculum"(
+            "", 
+            # iFrame source
+            src=get_embed_url(),
+            # iFrame styles
+            style=Dict(
+                :width => "100%",
+                :height => string(Int(scale*100)) * "vh",
+                :margin => "0",
+                :padding => "0",
+                :border => "none"
+            ),
+            events=Dict(
+                # iFrame onload event
+                :load => iframe_loaded
             )
         )
+    )
     if (notebook == true)
         # scoped by WebIO
         s
