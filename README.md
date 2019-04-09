@@ -12,7 +12,7 @@ Documentation for functions in this toolbox is also available via the Julia REPL
 Additional tutorials can be found at [CurricularAnaltyics](http://curricula.academicdashboards.org).
 
 ## Installation
-Installation is straightforward.  First, install the Julia programming language on your computer.  To do this, download Julia here: https://julialang.org, and follow in the instructions for your operating system.
+Installation is straightforward.  First, install the Julia programming language on your computer.  To do this, download Julia here: https://julialang.org, and follow the instructions for your operating system.
 
 Next, enter Pkg mode from within the Julia REPL by typing `]`, and then type:
 ```julia-repl
