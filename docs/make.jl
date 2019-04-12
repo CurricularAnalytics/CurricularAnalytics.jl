@@ -29,7 +29,7 @@ makedocs(
 )
 
 deploydocs(
-    repo    = "github.com/heileman/CurricularAnalytics.jl.git",
+    repo    = "github.com/CurricularAnalytics/CurricularAnalytics.jl.git",
     target  = "build",
 )
 
