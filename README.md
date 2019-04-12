@@ -1,6 +1,6 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Build Status](https://travis-ci.com/CurricularAnalytics/CurricularAnalytics.jl.svg?branch=master)](https://travis-ci.com/CurricularAnalytics/CurricularAnalytics.jl)
+[![Build Status](https://travis-ci.org/CurricularAnalytics/CurricularAnalytics.jl.svg?branch=master)](https://travis-ci.org/CurricularAnalytics/CurricularAnalytics.jl)
 [![DOI](https://zenodo.org/badge/147096983.svg)](https://zenodo.org/badge/latestdoi/147096983)
 
 # CurricularAnalytics.jl
