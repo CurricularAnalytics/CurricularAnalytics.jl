@@ -1,0 +1,15 @@
+Term Count,8,
+Min Credit,1,
+Max Credit,19,
+Objective Order,2;1;3,
+Fixed Courses,,
+Course ID,Term,
+502542156,1,
+2071595408,1,
+1116551982,7,
+Consecutive Terms,,
+Prior Course ID,Next Course ID,
+1116551982,2674820998,
+Term Range,,
+Course Id,Min Term,Max Term
+16242192,7,7

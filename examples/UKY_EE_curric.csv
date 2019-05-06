@@ -5,8 +5,8 @@ System Type,semester,,,,,,,,
 CIP,26.0101,,,,,,,,
 Courses,,,,,,,,,
 Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name
-16242192,Intro. to Electronics,EE,461G,"2281989961",,,3,,Canonical Name
-24551683,General University Physics,PHY,232,"2865398329","2193700744",,4,,Canonical Name
+16242192,Intro. to Electronics,EE,461G,"2281989961",,,3,,
+24551683,General University Physics,PHY,232,"2865398329","2193700744",,4,,
 109586583,Supportive Elective,,,,,,3,,
 147960851,Math/Statistics Elective,,,,,,3,,
 448709314,Elective EE Laboratory 1,,,,,,2,,
