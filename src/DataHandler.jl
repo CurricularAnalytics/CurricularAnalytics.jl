@@ -527,7 +527,6 @@ function prepare_data(degree_plan::DegreePlan; edit::Bool=false, hide_header::Bo
     end
     return dp_dict
 end
-
 function read_Opt_Config(file_path)
     file_path = remove_empty_lines(file_path)
     if typeof(file_path) == Bool && !file_path
@@ -540,7 +539,8 @@ function read_Opt_Config(file_path)
     termCount = 0
     min_credits_per_term = 0
     max_credits_per_term = 0
-    open(file_path) do csv_file        
+    obj_order = []
+    open(file_path) do csv_file  
         read_line = csv_line_reader(readline(csv_file), ',')
         header += 1
         if read_line[1] == "Term Count"
@@ -565,13 +565,13 @@ function read_Opt_Config(file_path)
             println("First line of config file must contain Max Credit")
         end
         if read_line[1] == "Objective Order"
-            obj_order = split(read_line[2])            
+            obj_order = split(read_line[2],";")
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
             println("First line of config file must contain Max Credit")
         end
-        if read_line[1] == "Fixed Courses"
+        if read_line[1] == "Fixed Terms"
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
             if read_line[1] != "Course ID" || read_line[2] != "Term"
@@ -593,7 +593,6 @@ function read_Opt_Config(file_path)
             for row in DataFrames.eachrow(df_fixedCourses)
                 fixedCourses[row[Symbol("Course ID")]] = row[Symbol("Term")]
             end
-            println(fixedCourses)
         end
         if read_line[1] == "Consecutive Terms"
             read_line = csv_line_reader(readline(csv_file), ',')
@@ -617,7 +616,6 @@ function read_Opt_Config(file_path)
             for row in DataFrames.eachrow(df_consecutivePair)
                 consequtiveCourses[row[Symbol("Prior Course ID")]] = row[Symbol("Next Course ID")]
             end
-            println(consequtiveCourses)
         end
         if read_line[1] == "Term Range"
             read_line = csv_line_reader(readline(csv_file), ',')
@@ -641,9 +639,8 @@ function read_Opt_Config(file_path)
             for row in DataFrames.eachrow(df_termRange)
                 termRange[row[Symbol("Course Id")]] = (row[Symbol("Min Term")], row[Symbol("Max Term")])
             end
-            println(termRange)
         end
         
     end
-    return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term
+    return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,obj_order
 end
