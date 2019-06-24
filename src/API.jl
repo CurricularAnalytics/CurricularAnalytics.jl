@@ -1,6 +1,7 @@
 # https://discourse.julialang.org/t/write-a-rest-interface-like-flask/18538/16
 
 # Bukdu v0.4.1
+using CurricularAnalytics
 using Bukdu
 
 struct RESTController <: ApplicationController
@@ -40,11 +41,34 @@ function calculate_metrics(c::RESTController)
     render(JSON, julia_to_json(degreeplan))
 end
 
+function long(c::RESTController)
+    sleep(3)
+    render(JSON, 10)
+end
+
+function short(c::RESTController)
+    render(JSON, 11)
+end
+
 routes() do
     post("/validate", RESTController, validate)
     post("/calculate_metrics", RESTController, calculate_metrics)
+    get("/long", RESTController, long)
+    get("/short", RESTController, short)
     # create degree plan from curriculum
     plug(Plug.Parsers, parsers=[:json])
 end
 
 Bukdu.start(8080)
+
+@async run(`curl 127.0.0.1:8080/long`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
+@async run(`curl 127.0.0.1:8080/short`)
