@@ -60,15 +60,3 @@ routes() do
 end
 
 Bukdu.start(8080)
-
-@async run(`curl 127.0.0.1:8080/long`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
-@async run(`curl 127.0.0.1:8080/short`)
