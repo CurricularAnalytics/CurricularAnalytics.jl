@@ -108,7 +108,7 @@ function read_csv(file_path::AbstractString)
         df_additional_courses = DataFrame()
         if length(read_line) > 0 && read_line[1] == "Additional Courses"
             if !is_dp 
-                println("Only Degree Plan can have additional classes") 
+                println("Only Degree Plan can have additional courses") 
                 return false
             end
             additional_course_start = courses_header+course_count+1
@@ -126,10 +126,10 @@ function read_csv(file_path::AbstractString)
             df_all_courses = df_courses
         end
         
-        if is_dp && any(ismissing.(df_all_courses[Symbol("Term")]))
-            println("All courses in Degree Plan must have Term information")
-            return false
-        end  
+        #if is_dp && any(ismissing.(df_all_courses[Symbol("Term")]))
+        #    println("All courses in Degree Plan must have Term information")
+        #   return false
+        #end  
         df_course_learning_outcomes=""
         if length(read_line)>0 && read_line[1] == "Course Learning Outcomes"
             learning_outcomes_start = additional_course_start+additional_course_count+1
@@ -176,17 +176,17 @@ function read_csv(file_path::AbstractString)
             for course in additional_courses
                 push!(ac_arr, course[2])
             end
-
             curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                 system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-            terms = read_terms(df_all_courses, all_courses, curric.courses)
-            terms_arr = Array{Term}(undef, length(terms))
-            for term in terms
-                terms_arr[term[1]]=Term([class for class in term[2]])
+            terms = read_terms(df_all_courses, all_courses, all_courses_arr)
+            #If some courses has term informations but some does not
+            if isa(terms, Tuple)
+                #Add curriculum to the output tuple
+                output = (terms..., curric, dp_name, ac_arr)
+            else
+                degree_plan = DegreePlan(dp_name, curric, terms, ac_arr)
+                output = degree_plan
             end
-
-            degree_plan = DegreePlan(dp_name, curric, terms_arr, ac_arr)
-            output = degree_plan
         else
             curric_courses = read_all_courses(df_courses, course_learning_outcomes)
             if typeof(curric_courses) == Bool && !curric_courses
@@ -535,6 +535,7 @@ function read_Opt_Config(file_path)
     consequtiveCourses = Dict()
     fixedCourses = Dict()
     termRange = Dict()
+    diffMax = Dict()
     header = 0
     termCount = 0
     min_credits_per_term = 0
@@ -580,7 +581,7 @@ function read_Opt_Config(file_path)
             end
             read_line = csv_line_reader(readline(csv_file), ',')
             course_count = 0
-            while length(read_line) > 0 && read_line[1] != "Consecutive Terms" && read_line[1] != "Term Range" !startswith(read_line[1], "#")
+            while length(read_line) > 0 && read_line[1] != "Consecutive Terms" && read_line[1] != "Term Range" && !startswith(read_line[1], "#")
                 if length(read_line[1]) == 0 || length(read_line[1]) == 0
                     println("Each course must have a Course ID and Term number")
                     return false
@@ -603,7 +604,7 @@ function read_Opt_Config(file_path)
             end
             consecutivePairCount = 0
             read_line = csv_line_reader(readline(csv_file), ',')
-            while length(read_line) > 0 && read_line[1] != "Term Range" !startswith(read_line[1], "#")
+            while length(read_line) > 0 && read_line[1] != "Term Range" && !startswith(read_line[1], "#")
                 if length(read_line[1]) == 0 || length(read_line[1]) == 0
                     println("Each pair must have two Course IDs")
                     return false
@@ -626,7 +627,7 @@ function read_Opt_Config(file_path)
             end
             termRangeCount = 0
             read_line = csv_line_reader(readline(csv_file), ',')
-            while length(read_line) > 0 && read_line[1] != "Term Range" !startswith(read_line[1], "#")
+            while length(read_line) > 0 && read_line[1] != "Different Max Credit For Terms" !startswith(read_line[1], "#")
                 if length(read_line[1]) == 0 || length(read_line[1]) == 0
                     println("Each pair must have two Course IDs")
                     return false
@@ -640,7 +641,29 @@ function read_Opt_Config(file_path)
                 termRange[row[Symbol("Course Id")]] = (row[Symbol("Min Term")], row[Symbol("Max Term")])
             end
         end
-        
+        if read_line[1] == "Different Max Credit For Terms"
+            read_line = csv_line_reader(readline(csv_file), ',')
+            header += 1
+            if read_line[1] != "Term" || read_line[2] != "Max Credit"
+                println("Error detected with Different Max Credit For Terms headers.")
+                return false
+            end
+            diffMaxCount = 0 
+            read_line = csv_line_reader(readline(csv_file), ',')
+            while length(read_line) > 0 && !startswith(read_line[1], "#")
+                if length(read_line[1]) == 0 || length(read_line[1]) == 0
+                    println("There has to be term id and credit hour")
+                    return false
+                end
+                diffMaxCount += 1
+                read_line = csv_line_reader(readline(csv_file), ',')
+            end
+            df_diffMax = CSV.File(file_path, header=header, limit=diffMaxCount) |> DataFrame
+            header += diffMaxCount+1
+            for row in DataFrames.eachrow(df_diffMax)
+                diffMax[row[Symbol("Term")]] = row[Symbol("Max Credit")]
+            end
+        end
     end
-    return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,obj_order
+    return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,obj_order, diffMax
 end

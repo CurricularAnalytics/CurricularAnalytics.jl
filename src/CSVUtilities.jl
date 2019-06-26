@@ -169,22 +169,36 @@ end
 
 function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
     terms = Dict{Int, Array{Course}}()
+    have_term = Course[]
+    not_have_term = Course[]
     for row in DataFrames.eachrow(df_courses)
         c_ID = find_cell(row, Symbol("Course ID"))
         term_ID = find_cell(row, Symbol("Term"))
         for course in course_arr
             if course_dict[c_ID].id == course.id
-                if term_ID in keys(terms)
-                    push!(terms[term_ID],course) 
+                if typeof(row[Symbol("Term")]) != Missing
+                    push!(have_term, course)
+                    if term_ID in keys(terms)
+                        push!(terms[term_ID],course) 
+                    else
+                        terms[term_ID] = [course]
+                    end
                 else
-                    terms[term_ID] = [course]
+                    push!(not_have_term, course)
                 end
                 break
             end            
         end        
-        
-    end    
-    return terms
+    end  
+    terms_arr = Array{Term}(undef, length(terms))
+    for term in terms
+        terms_arr[term[1]]=Term([class for class in term[2]])
+    end
+    if length(not_have_term) == 0
+        return terms_arr
+    else
+        return terms_arr, have_term, not_have_term
+    end
 end
 
 function generate_course_lo(df_learning_outcomes::DataFrame)
