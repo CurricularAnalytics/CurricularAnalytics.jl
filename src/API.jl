@@ -1,7 +1,6 @@
 # https://discourse.julialang.org/t/write-a-rest-interface-like-flask/18538/16
 
 # Bukdu v0.4.1
-using CurricularAnalytics
 using Bukdu
 
 struct RESTController <: ApplicationController
@@ -59,4 +58,4 @@ routes() do
     plug(Plug.Parsers, parsers=[:json])
 end
 
-Bukdu.start(8080)
+Bukdu.start(8080, host="0.0.0.0")
