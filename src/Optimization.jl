@@ -2,6 +2,7 @@ using JuMP
 using MultiJuMP
 using Gurobi
 using LinearAlgebra
+using LightGraphs
 
 include("CSVUtilities.jl")
 
