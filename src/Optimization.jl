@@ -108,7 +108,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     m = Model(solver = GurobiSolver())
     multi = length(obj_order) > 1
     if multi
-        m = multi_model(solver = GurobiSolver(), linear = true)
+        m = multi_model(solver = GurobiSolver(), linear = true);
     end
     println("Number of courses in curriculum: "*string(length(courses)))
     println("Total credit hours: "*string(total_credits(curric)))
