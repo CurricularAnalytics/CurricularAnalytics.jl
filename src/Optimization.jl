@@ -150,6 +150,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         # Each term must include at least the min # of credits and no more than the max # of credits allowed for a term
         term_lower[j=1:termCount], sum(dot(credit,x[:,j])) >= min_credits_per_term
     end
+
     if length(diff_max_credits_per_term) > 0
         for j in 1:termCount
             if j in keys(diff_max_credits_per_term)
@@ -160,11 +161,10 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         end
         
         println("Got through constraint creation (1)")
-        @constraints m begin
-            term_upper[j=1:termCount], sum(dot(credit,x[:,j])) <= diff_max_credits_per_term[j]
-        end
-
-        println("Got through constraint creation (2)")
+        
+        # @constraints m begin
+        #     term_upper[j=1:termCount], sum(dot(credit,x[:,j])) <= diff_max_credits_per_term[j]
+        # end
     end
 
     if length(keys(fixedCourses)) > 0
