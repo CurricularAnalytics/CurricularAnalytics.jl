@@ -646,12 +646,15 @@ function read_Opt_Config(file_path)
             end
         end
         if read_line[1] == "Different Max Credit For Terms"
-            println("Got there")
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
-            if read_line[1] != "Term" || read_line[2] != "Max Credit"
-                println("Error detected with Different Max Credit For Terms headers.")
-                return false
+            if read_line[1] != "Term"
+                println("Line below Different Max Credit must have 'Term' in first col.")
+                return false;
+            end
+            if read_line[2] != "Max Credit"
+                println("Line below Different Max Credit must have 'Max Credit' in second col.")
+                return false;
             end
             diffMaxCount = 0 
             read_line = csv_line_reader(readline(csv_file), ',')
