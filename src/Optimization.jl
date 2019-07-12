@@ -1,123 +1,21 @@
-using MultiJuMP, JuMP
+using MultiJuMP
+using JuMP
 using Gurobi
 using LinearAlgebra
 using LightGraphs
 using CSV
 using DataFrames
+
 include("CSVUtilities.jl")
-#using MathOptInterface
-#const MOI = JuMP.MathOptInterface
-function getVertex(courseID, curric)
+
+# Helper function that provides id in curriculum from course id
+function get_vertex(courseID, curric)
     for course in curric.courses
         if course.id == courseID
             return course.vertex_id[curric.id]
         end
     end
     return 0
-end
-
-function find_min_terms_opt(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
-    min_terms::Int=1, max_terms::Int, max_credits_per_term::Int)
-    m = Model(with_optimizer(Gurobi.Optimizer))
-    courses = curric.courses
-    credit = [c.credit_hours for c in curric.courses]
-    c_count = length(courses)
-    mask = [i for i in 1:max_terms]
-    @variable(m, x[1:c_count, 1:max_terms], Bin)
-    terms = [sum(dot(x[k,:],mask)) for k = 1:c_count]
-    vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in curric.courses)
-    @constraints m begin
-        #output must include all courses once
-        tot[i=1:c_count], sum(x[i,:]) == 1
-        #Each term must include more or equal than min credit and less or equal than max credit allowed for a term
-        term[j=1:max_terms], sum(dot(credit,x[:,j])) <= max_credits_per_term
-    end
-    for c in courses
-        for req in c.requisites
-            if req[2] == pre
-                @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))-1))
-            elseif req[2] == co
-                @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))))
-            elseif req[2] == strict_co
-                @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) == (sum(dot(x[c.vertex_id[curric.id],:],mask))))
-            else
-                println("req type error")
-            end
-        end   
-    end
-    @objective(m, Min, sum(terms[:]))
-    status = optimize!(m)
-    output = value.(x)
-    if termination_status(m) == MOI.OPTIMAL
-        optimal_terms = Term[]
-        for j=1:max_terms
-            if sum(dot(credit,output[:,j])) > 0 
-                term = Course[]
-                for course in 1:length(courses)
-                    if round(output[course,j]) == 1
-                        push!(term, courses[course])
-                    end 
-                end
-                push!(optimal_terms, Term(term))
-            end
-        end
-        return true, optimal_terms, length(optimal_terms)
-    end
-    return false, nothing, nothing
-end
-function balance_terms_opt(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}();       
-    min_terms::Int=1, max_terms::Int,min_credits_per_term::Int=1, max_credits_per_term::Int)
-    m = Model(with_optimizer(Gurobi.Optimizer))
-    courses = curric.courses
-    credit = [c.credit_hours for c in curric.courses]
-    c_count = length(courses)
-    mask = [i for i in 1:max_terms]
-    @variable(m, x[1:c_count, 1:max_terms], Bin)
-    terms = [sum(dot(x[k,:],mask)) for k = 1:c_count]
-    vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in curric.courses)
-    total_credit_term = [sum(dot(credit,x[:,j])) for j=1:max_terms]
-    @variable(m, 0 <= y[1:max_terms] <= max_credits_per_term)
-    @constraints m begin
-        #output must include all courses once
-        tot[i=1:c_count], sum(x[i,:]) == 1
-        #Each term must include more or equal than min credit and less or equal than max credit allowed for a term
-        term_upper[j=1:max_terms], sum(dot(credit,x[:,j])) <= max_credits_per_term
-        term_lower[j=1:max_terms], sum(dot(credit,x[:,j])) >= min_credits_per_term
-        abs_val[i=2:max_terms], y[i] >= total_credit_term[i]-total_credit_term[i-1]
-        abs_val2[i=2:max_terms], y[i] >= -(total_credit_term[i]-total_credit_term[i-1])
-    end
-    for c in courses
-        for req in c.requisites
-            if req[2] == pre
-                @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))-1))
-            elseif req[2] == co
-                @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))))
-            elseif req[2] == strict_co
-                @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) == (sum(dot(x[c.vertex_id[curric.id],:],mask))))
-            else
-                println("req type error")
-            end
-        end   
-    end
-    @objective(m, Min, sum(y[:]))
-    status = optimize!(m)
-    output = value.(x)
-    if termination_status(m) == MOI.OPTIMAL
-        optimal_terms = Term[]
-        for j=1:max_terms
-            if sum(dot(credit,output[:,j])) > 0 
-                term = Course[]
-                for course in 1:length(courses)
-                    if round(output[course,j]) == 1
-                        push!(term, courses[course])
-                    end 
-                end
-                push!(optimal_terms, Term(term))
-            end
-        end
-        return true, optimal_terms, length(optimal_terms)
-    end
-    return false, nothing, nothing
 end
 
 function term_count_obj(m, mask, x, c_count, multi=true)
@@ -129,9 +27,9 @@ function term_count_obj(m, mask, x, c_count, multi=true)
     else
         @objective(m, Min, sum(terms[:]))
         return true
-    end
-    
+    end  
 end
+
 function balance_obj(m, max_credits_per_term,termCount,x,y,credit, multi=true)
     total_credit_term = [sum(dot(credit,x[:,j])) for j=1:termCount]
     @constraints m begin
@@ -194,8 +92,10 @@ function prereq_obj(m, mask, x, graph, total_distance,  multi=true)
 end
 
 function optimize_plan(config_file, curric_file, toxic_score_file= "")
+    
     consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,
-     obj_order, diff_max_credits_per_term= read_Opt_Config(config_file)
+        obj_order, diff_max_credits_per_term = read_Opt_Config(config_file)
+    
     input = read_csv(curric_file)
     curric = []
     courses = []
@@ -206,7 +106,6 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         curric = input
         courses = curric.courses
     end
-    
 
     m = Model(solver = GurobiSolver())
     multi = length(obj_order) > 1
@@ -250,7 +149,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     end
 
     @constraints m begin
-        #Each term must include more or equal than min credit and less or equal than max credit allowed for a term
+        # Each term must include at least the min # of credits and no more than the max # of credits allowed for a term
         term_lower[j=1:termCount], sum(dot(credit,x[:,j])) >= min_credits_per_term
     end
     println(diff_max_credits_per_term)
@@ -271,7 +170,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     if length(keys(fixedCourses)) > 0
         for courseID in keys(fixedCourses)
             if !(courseID in taken_cour_ids)
-                vID = getVertex(courseID, curric)
+                vID = get_vertex(courseID, curric)
                 println(vID)
                 if vID != 0
                     @constraint(m, x[vID,fixedCourses[courseID]] >= 1)
@@ -283,8 +182,8 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     end
     if length(keys(consequtiveCourses)) > 0
         for (first, second) in consequtiveCourses
-            vID_first = getVertex(first, curric)
-            vID_second = getVertex(second, curric)
+            vID_first = get_vertex(first, curric)
+            vID_second = get_vertex(second, curric)
             if vID_first != 0 && vID_second != 0
                 @constraint(m, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
                 @constraint(m, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
@@ -295,7 +194,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     end
     if length(keys(termRange)) > 0
         for (courseID,(lowTerm, highTerm)) in termRange
-            vID_Course = getVertex(courseID, curric)
+            vID_Course = get_vertex(courseID, curric)
             if vID_Course != 0
                 @constraint(m, sum(dot(x[vID_Course,:],mask)) >= lowTerm)
                 @constraint(m, sum(dot(x[vID_Course,:],mask)) <= highTerm)

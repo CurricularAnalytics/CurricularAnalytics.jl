@@ -23,7 +23,6 @@ function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{I
     return req_complete
 end
 
-
 function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
     #println("min_terms $min_terms max $max_terms min_credits_per_term $min_credits_per_term")
@@ -177,6 +176,7 @@ function create_terms(curric::Curriculum; term_count::Int, min_credits_per_term:
         return nothing, false
     end    
 end
+
 """
 find_min_terms function will find the minimum number terms possible to fit all courses with the respect that all requisite
     conditions and returns a tuple which contains 3 elements.
@@ -206,7 +206,6 @@ balance_terms function will spread all courses to the provided number of terms w
     2- Term list which contains all courses for related term id.
     3- The max_credit is a integer value to show maximum number of credit hours assigned to any of the list of terms.
 """
-
 function balance_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     term_count::Int=1, min_credits_per_term::Int=1, max_credits_per_term::Int=19)
     for max_credit in range(min_credits_per_term, length=max_credits_per_term-min_credits_per_term+1)
