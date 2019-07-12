@@ -12,8 +12,8 @@ c[1] = Course("Calculus 1", 3, prefix = "MATH ", num = "1011")
 
 # term 2
 c[2] = Course("Physics I: Mechanics & Heat", 3, prefix = "PHYS", num = "1112")
-c[3] = Course("Calculus 2", 3, prefix = "MATH", num = "1920")
-#test1
+c[3] = Course("Multivariable Calc. for Engineers", 3, prefix = "MATH", num = "1920")
+
 # term 3
 c[4] = Course("Circuits 1", 3, prefix = "EE", num = "2200")
 

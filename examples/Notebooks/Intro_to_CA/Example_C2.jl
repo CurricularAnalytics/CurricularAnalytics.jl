@@ -1,4 +1,4 @@
-## Curriculum assoicated with curricula c1, page 9, Heileman, G. L., Slim, A., Hickman, M.,  and Abdallah, C. T. (2018). 
+## Curriculum assoicated with curricula c2, page 9, Heileman, G. L., Slim, A., Hickman, M.,  and Abdallah, C. T. (2018). 
 ##Curricular Analytics: A Framework for Quantifying the Impact of Curricular Reforms and Pedagogical Innovations 
 ##https://arxiv.org/pdf/1811.09676.pdf
 
@@ -9,22 +9,22 @@ c = Array{Course}(undef, 4)
 
 # term 1
 c[1] = Course("Calculus 1", 3, prefix = "MATH ", num = "1011")
+c[2] = Course("Physics I: Mechanics & Heat", 3, prefix = "PHYS", num = "1112")
 
 # term 2
-c[2] = Course("Physics I: Mechanics & Heat", 3, prefix = "PHYS", num = "1112")
-c[3] = Course("Calculus 2", 3, prefix = "MATH", num = "1920")
-#test1
+c[3] = Course("Multivariable Calc. for Engineers", 3, prefix = "MATH", num = "1920")
+
 # term 3
 c[4] = Course("Circuits 1", 3, prefix = "EE", num = "2200")
 
-# term 1
-add_requisite!(c[1],c[2],pre)
-add_requisite!(c[1],c[3],pre)
-
 # term 2
-add_requisite!(c[2],c[4],pre)
+add_requisite!(c[1],c[3],pre)
+add_requisite!(c[2],c[3],pre)
 
-curric = Curriculum("Example Curricula c1", c)
+# term 3
+add_requisite!(c[3],c[4],pre)
+
+curric = Curriculum("Example Curricula C2", c)
 
 errors = IOBuffer()
 if isvalid_curriculum(curric, errors)
@@ -39,12 +39,12 @@ else
 end
 
 terms = Array{Term}(undef, 3)
-terms[1] = Term([c[1]])
-terms[2] = Term([c[2],c[3]])
+terms[1] = Term([c[1],c[2]])
+terms[2] = Term([c[3]])
 terms[3] = Term([c[4]])
 
 
-dp = DegreePlan("Example Curricula c1", curric, terms)
+dp = DegreePlan("Example Curricula c2", curric, terms)
 
 basic_metrics(dp)
 dp.metrics
