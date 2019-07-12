@@ -225,7 +225,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
             prereq_obj(m, mask, x, curric.graph, total_distance, multi)
         end
     end
-    status = solve(m)
+    status = solve(m);
     if status == :Optimal
         output = getvalue(x)
         if "Balance" in obj_order
