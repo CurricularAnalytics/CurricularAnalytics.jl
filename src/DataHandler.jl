@@ -572,6 +572,7 @@ function read_Opt_Config(file_path)
         else
             println("First line of config file must contain Max Credit")
         end
+        return
         if read_line[1] == "Fixed Terms"
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
