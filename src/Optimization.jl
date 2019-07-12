@@ -3,6 +3,8 @@ using MultiJuMP
 using Gurobi
 using LinearAlgebra
 
+include("CSVUtilities.jl")
+
 # Helper function that provides id in curriculum from course id
 function get_vertex(courseID, curric)
     for course in curric.courses
