@@ -1,12 +1,7 @@
-using MultiJuMP
 using JuMP
+using MultiJuMP
 using Gurobi
 using LinearAlgebra
-using LightGraphs
-using CSV
-using DataFrames
-
-include("CSVUtilities.jl")
 
 # Helper function that provides id in curriculum from course id
 function get_vertex(courseID, curric)
