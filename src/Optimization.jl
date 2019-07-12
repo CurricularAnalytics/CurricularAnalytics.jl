@@ -152,10 +152,14 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     end
     println(diff_max_credits_per_term)
     if length(diff_max_credits_per_term) > 0
+        println("Length greater than 0")
         for j in 1:length(diff_max_credits_per_term)
+            println("Key: " * j)
             if j in keys(diff_max_credits_per_term)
+                println("Key Number " * j * "was found TRUE")
                 @constraint(m, sum(dot(credit,x[:,j])) <= diff_max_credits_per_term[j])
             else
+                println("key Number " * j * "found FALSE")
                 @constraint(m, sum(dot(credit,x[:,j])) <= max_credits_per_term)
             end
         end
