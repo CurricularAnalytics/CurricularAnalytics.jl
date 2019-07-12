@@ -549,28 +549,28 @@ function read_Opt_Config(file_path)
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
-            println("First line of config file must contain term count")
+            println("First line of config file must contain 'Term Count'")
         end
         if read_line[1] == "Min Credit"
             min_credits_per_term = parse(Int, read_line[2])
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
-            println("First line of config file must contain Min Credit")
+            println("Second line of config file must contain 'Min Credit'")
         end
         if read_line[1] == "Max Credit"
             max_credits_per_term = parse(Int, read_line[2])
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
-            println("First line of config file must contain Max Credit")
+            println("Third line of config file must contain 'Max Credit'")
         end
         if read_line[1] == "Objective Order"
             obj_order = split(read_line[2],";")
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
-            println("First line of config file must contain Max Credit")
+            println("Fourth line of config file must contain 'Objective Order'")
         end
         if length(read_line) == 0
             println("End of file")
@@ -646,6 +646,7 @@ function read_Opt_Config(file_path)
             end
         end
         if read_line[1] == "Different Max Credit For Terms"
+            println("Got there")
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
             if read_line[1] != "Term" || read_line[2] != "Max Credit"
