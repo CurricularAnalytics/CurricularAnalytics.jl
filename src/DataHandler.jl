@@ -573,7 +573,6 @@ function read_Opt_Config(file_path)
             println("Fourth line of config file must contain 'Objective Order'")
         end
         if length(read_line) == 0
-            println("End of file")
             return
         end
         if read_line[1] == "Fixed Terms"
