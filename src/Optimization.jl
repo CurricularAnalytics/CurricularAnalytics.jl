@@ -1,5 +1,4 @@
-using JuMP
-using MultiJuMP
+using MultiJuMP, JuMP
 using Gurobi
 using LinearAlgebra
 using LightGraphs
@@ -89,8 +88,7 @@ function prereq_obj(m, mask, x, graph, total_distance,  multi=true)
     end
 end
 
-function optimize_plan(config_file, curric_file, toxic_score_file= "")
-    
+function optimize_plan(config_file, curric_file, toxic_score_file= "")  
     consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,
         obj_order, diff_max_credits_per_term = read_Opt_Config(config_file)
     
@@ -118,6 +116,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     taken_cour_ids = [c.id for c in input[2]]
     credit = [c.credit_hours for c in curric.courses]
     mask = [i for i in 1:termCount]
+    # binary optimzation variables
     @variable(m, x[1:c_count, 1:termCount], Bin)
     @variable(m, 0 <= y[1:termCount] <= max_credits_per_term)
     ts=[]
@@ -211,10 +210,10 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         multim.objectives = objectives
     else
         if obj_order[1] == "Toxicity"
-            toxicity_obj(toxic_score_file, m,c_count, courses ,termCount, x,ts, curric.id, multi)
+            toxicity_obj(toxic_score_file, m, c_count, courses, termCount, x, ts, curric.id, multi)
         end
         if obj_order[1] == "Balance"
-            balance_obj(m,max_credits_per_term, termCount, x,y, credit, multi)
+            balance_obj(m, max_credits_per_term, termCount, x, y, credit, multi)
         end
         if obj_order[1] == "Prereq"
             prereq_obj(m, mask, x, curric.graph, total_distance, multi)
