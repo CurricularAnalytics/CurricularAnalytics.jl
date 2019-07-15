@@ -15,35 +15,35 @@ function get_vertex(courseID, curric)
     return 0
 end
 
-function term_count_obj(m, mask, x, c_count, multi=true)
+function term_count_obj(model, mask, x, c_count, multi=true)
     terms = [sum(dot(x[k,:],mask)) for k = 1:c_count]
     if multi
-        exp = @expression(m, sum(terms[:]))
+        exp = @expression(model, sum(terms[:]))
         obj = SingleObjective(exp, sense = :Min)
         return obj
     else
-        @objective(m, Min, sum(terms[:]))
+        @objective(model, Min, sum(terms[:]))
         return true
     end
 end
 
-function balance_obj(m, max_credits_per_term,termCount,x,y,credit, multi=true)
+function balance_obj(model, max_credits_per_term,termCount,x,y,credit, multi=true)
     total_credit_term = [sum(dot(credit,x[:,j])) for j=1:termCount]
-    @constraints m begin
+    @constraints model begin
         abs_val[i=2:termCount], y[i] >= total_credit_term[i]-total_credit_term[i-1]
         abs_val2[i=2:termCount], y[i] >= -(total_credit_term[i]-total_credit_term[i-1])
     end
     if multi
-        exp = @expression(m, sum(y[:]))
+        exp = @expression(model, sum(y[:]))
         obj = SingleObjective(exp, sense = :Min)
         return obj
     else
-        @objective(m, Min, sum(y[:]))
+        @objective(model, Min, sum(y[:]))
         return true
     end
 end
 
-function toxicity_obj(toxic_score_file, m, c_count, courses, termCount,x,ts, curric_id, multi=true)
+function toxicity_obj(toxic_score_file, model, c_count, courses, termCount,x,ts, curric_id, multi=true)
     toxicFile = readfile(toxic_score_file)
     comboDict = Dict()
     for coursePair in toxicFile[2:end] 
@@ -64,26 +64,26 @@ function toxicity_obj(toxic_score_file, m, c_count, courses, termCount,x,ts, cur
         push!(ts, sum((toxicity_scores .* x[:,j]) .* x[:,j]'))
     end
     if multi
-        exp = @expression(m, sum(ts[:]))
+        exp = @expression(model, sum(ts[:]))
         obj = SingleObjective(exp, sense = :Min)
         return obj
     else
-        @objective(m, Min, sum(ts[:]))
+        @objective(model, Min, sum(ts[:]))
         return true
     end
 
 end
 
-function prereq_obj(m, mask, x, graph, total_distance,  multi=true)
+function prereq_obj(model, mask, x, graph, total_distance,  multi=true)
     for edge in collect(edges(graph))
         push!(total_distance, sum(dot(x[dst(edge),:],mask)) - sum(dot(x[src(edge),:],mask)))
     end
     if multi
-        exp = @expression(m, sum(total_distance[:]))
+        exp = @expression(model, sum(total_distance[:]))
         obj = SingleObjective(exp, sense = :Min)
         return obj
     else
-        @objective(m, Min, sum(total_distance[:]))
+        @objective(model, Min, sum(total_distance[:]))
         return true
     end
 end
@@ -104,10 +104,10 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         courses = curric.courses
     end
 
-    m = Model(solver = GurobiSolver())
+    model = Model(solver = GurobiSolver())
     multi = length(obj_order) > 1  # CHECK: using this as a Boolean?  If so, make explicit
     if multi # CHECK: same as above
-        m = multi_model(solver = GurobiSolver(), linear = true);
+        model = multi_model(solver = GurobiSolver(), linear = true);
     end
     println("Number of courses in curriculum: "*string(length(courses)))
     println("Total credit hours: "*string(total_credits(curric)))
@@ -117,20 +117,20 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     taken_cour_ids = [c.id for c in input[2]]
     credit = [c.credit_hours for c in curric.courses]
     mask = [i for i in 1:termCount]
-    # binary optimzation variables
-    @variable(m, x[1:c_count, 1:termCount], Bin)
-    @variable(m, 0 <= y[1:termCount] <= max_credits_per_term)
+    # Bin refers to JuMP binary optimzation variables
+    @variable(model, x[1:c_count, 1:termCount], Bin)
+    @variable(model, 0 <= y[1:termCount] <= max_credits_per_term)
     ts=[]
     total_distance = []
     for c in courses
         for req in c.requisites
             if !(req[1] in taken_cour_ids)
                 if req[2] == pre
-                    @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))-1))
+                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))-1))
                 elseif req[2] == co
-                    @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))))
+                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))))
                 elseif req[2] == strict_co
-                    @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) == (sum(dot(x[c.vertex_id[curric.id],:],mask))))
+                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) == (sum(dot(x[c.vertex_id[curric.id],:],mask))))
                 else
                     println("requisite type error")
                 end
@@ -140,13 +140,13 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     for idx in 1:c_count
         #output must include all courses once
         if idx in values(vertex_map)
-            @constraint(m, sum(x[idx,:]) == 1)
+            @constraint(model, sum(x[idx,:]) == 1)
         else
-            @constraint(m, sum(x[idx,:]) == 0)
+            @constraint(model, sum(x[idx,:]) == 0)
         end
     end
 
-    @constraints m begin
+    @constraints model begin
         # Each term must include at least the min # of credits and no more than the max # of credits allowed for a term
         term_lower[j=1:termCount], sum(dot(credit,x[:,j])) >= min_credits_per_term
     end
@@ -154,9 +154,9 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     # Each term must have no more than the max number of credits defined via the configuration config_file
     for j in 1:termCount
         if j in keys(diff_max_credits_per_term)
-            @constraint(m, sum(dot(credit,x[:,j])) <= diff_max_credits_per_term[j])
+            @constraint(model, sum(dot(credit,x[:,j])) <= diff_max_credits_per_term[j])
         else
-            @constraint(m, sum(dot(credit, x[:,j])) <= max_credits_per_term)
+            @constraint(model, sum(dot(credit, x[:,j])) <= max_credits_per_term)
         end
     end
 
@@ -178,8 +178,8 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
             vID_first = get_vertex(first, curric)
             vID_second = get_vertex(second, curric)
             if vID_first != 0 && vID_second != 0
-                @constraint(m, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
-                @constraint(m, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
+                @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
+                @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
             else
                 println("Vertex ID cannot be found for course: " * first * " or " * second)
             end
@@ -189,8 +189,8 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         for (courseID,(lowTerm, highTerm)) in termRange
             vID_Course = get_vertex(courseID, curric)
             if vID_Course != 0
-                @constraint(m, sum(dot(x[vID_Course,:],mask)) >= lowTerm)
-                @constraint(m, sum(dot(x[vID_Course,:],mask)) <= highTerm)
+                @constraint(model, sum(dot(x[vID_Course,:],mask)) >= lowTerm)
+                @constraint(model, sum(dot(x[vID_Course,:],mask)) <= highTerm)
             end
         end
     end
@@ -198,29 +198,29 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         objectives =[]
         for objective in obj_order
             if objective == "Toxicity"
-                push!(objectives, toxicity_obj(toxic_score_file, m,c_count, courses ,termCount, x, ts, curric.id, multi))
+                push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses ,termCount, x, ts, curric.id, multi))
             end
             if objective == "Balance"
-                push!(objectives, balance_obj(m,max_credits_per_term, termCount, x, y, credit, multi))
+                push!(objectives, balance_obj(model,max_credits_per_term, termCount, x, y, credit, multi))
             end
             if objective == "Prereq"
-                push!(objectives, prereq_obj(m, mask, x, curric.graph, total_distance, multi))
+                push!(objectives, prereq_obj(model, mask, x, curric.graph, total_distance, multi))
             end
         end
-        multim = get_multidata(m)
+        multim = get_multidata(model)
         multim.objectives = objectives
     else
         if obj_order[1] == "Toxicity"
-            toxicity_obj(toxic_score_file, m, c_count, courses, termCount, x, ts, curric.id, multi)
+            toxicity_obj(toxic_score_file, model, c_count, courses, termCount, x, ts, curric.id, multi)
         end
         if obj_order[1] == "Balance"
-            balance_obj(m, max_credits_per_term, termCount, x, y, credit, multi)
+            balance_obj(model, max_credits_per_term, termCount, x, y, credit, multi)
         end
         if obj_order[1] == "Prereq"
-            prereq_obj(m, mask, x, curric.graph, total_distance, multi)
+            prereq_obj(model, mask, x, curric.graph, total_distance, multi)
         end
     end
-    status = solve(m);
+    status = solve(model);
     if status == :Optimal
         output = getvalue(x)
         if "Balance" in obj_order
