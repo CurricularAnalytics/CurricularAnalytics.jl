@@ -109,8 +109,8 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     if multi # CHECK: same as above
         model = multi_model(solver = GurobiSolver(), linear = true);
     end
-    println("Number of courses in curriculum: "*string(length(courses)))
-    println("Total credit hours: "*string(total_credits(curric)))
+    println("Number of courses in curriculum: $(length(courses))")
+    println("Total credit hours: $(total_credits(curric))")
     
     c_count = length(curric.courses)
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
