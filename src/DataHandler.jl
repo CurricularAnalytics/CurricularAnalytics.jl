@@ -182,7 +182,7 @@ function read_csv(file_path::AbstractString)
             #If some courses has term informations but some does not
             if isa(terms, Tuple)
                 #Add curriculum to the output tuple
-                output = (terms..., curric, dp_name, ac_arr)
+                output = (terms..., curric, dp_name, ac_arr) # ... operator enumrates the terms
             else
                 degree_plan = DegreePlan(dp_name, curric, terms, ac_arr)
                 output = degree_plan
