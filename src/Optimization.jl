@@ -5,7 +5,7 @@ using LightGraphs
 
 include("CSVUtilities.jl")
 
-# Helper function that provides id in curriculum from course id
+# Helper function that provides a vertex id in curriculum from course id
 function get_vertex(courseID, curric)
     for course in curric.courses
         if course.id == courseID
@@ -24,7 +24,7 @@ function term_count_obj(m, mask, x, c_count, multi=true)
     else
         @objective(m, Min, sum(terms[:]))
         return true
-    end  
+    end
 end
 
 function balance_obj(m, max_credits_per_term,termCount,x,y,credit, multi=true)
@@ -88,7 +88,8 @@ function prereq_obj(m, mask, x, graph, total_distance,  multi=true)
     end
 end
 
-function optimize_plan(config_file, curric_file, toxic_score_file= "")  
+function optimize_plan(config_file, curric_file, toxic_score_file= "")
+    # read parameters from the configuration file
     consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,
         obj_order, diff_max_credits_per_term = read_Opt_Config(config_file)
     
@@ -104,8 +105,8 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     end
 
     m = Model(solver = GurobiSolver())
-    multi = length(obj_order) > 1
-    if multi
+    multi = length(obj_order) > 1  # CHECK: using this as a Boolean?  If so, make explicit
+    if multi # CHECK: same as above
         m = multi_model(solver = GurobiSolver(), linear = true);
     end
     println("Number of courses in curriculum: "*string(length(courses)))
@@ -131,7 +132,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
                 elseif req[2] == strict_co
                     @constraint(m, sum(dot(x[vertex_map[req[1]],:],mask)) == (sum(dot(x[c.vertex_id[curric.id],:],mask))))
                 else
-                    println("req type error")
+                    println("requisite type error")
                 end
             end
         end   
@@ -163,9 +164,9 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         for courseID in keys(fixedCourses)
             if !(courseID in taken_cour_ids)
                 vID = get_vertex(courseID, curric)
-                println(vID)
+                println(vID)  # CHECK: extraneous output?
                 if vID != 0
-                    @constraint(m, x[vID,fixedCourses[courseID]] >= 1)
+                    @constraint(m, x[vID,fixedCourses[courseID]] >= 1)  # CHECK: shouldn't this be = 1
                 else
                     println("Vertex ID cannot be found for course: "* courseName)
                 end
@@ -257,6 +258,6 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         end
         visualize(dp, notebook=true)
     else
-        println("not optimal")
+        println("not optimal")  #CHECK: are there possible non-optimal solutions?
     end
 end
