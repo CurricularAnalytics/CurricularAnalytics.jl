@@ -7,7 +7,7 @@ cp(normpath(@__FILE__, "../../CITING.md"), normpath(@__FILE__, "../src/citing.md
 
 makedocs(
     modules     = [CurricularAnalytics],
-    format      = :html,
+    format      = Documenter.HTML(prettyurls = false, canonical ="https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/"),
     sitename    = "CurricularAnalytics.jl",
     doctest     = true,
     pages       = Any[
@@ -24,8 +24,6 @@ makedocs(
         "Citing CurricularAnalytics.jl"             => "citing.md"
     ],
     # Use clean URLs, unless built as a "local" build
-    html_prettyurls = false,       #!("local" in ARGS),
-    html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/", # location of stable documentation site
 )
 
 deploydocs(

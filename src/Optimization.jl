@@ -166,9 +166,9 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
                 vID = get_vertex(courseID, curric)
                 println(vID)  # CHECK: extraneous output?
                 if vID != 0
-                    @constraint(m, x[vID,fixedCourses[courseID]] >= 1)  # CHECK: shouldn't this be = 1
+                    @constraint(m, x[vID,fixedCourses[courseID]] == 1)  # CHECK: shouldn't this be = 1
                 else
-                    println("Vertex ID cannot be found for course: "* courseName)
+                    println("Vertex ID cannot be found for course: $courseName")
                 end
             end
         end
@@ -181,7 +181,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
                 @constraint(m, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
                 @constraint(m, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
             else
-                println("Vertex ID cannot be found for course: "* first * " or " * second)
+                println("Vertex ID cannot be found for course: " * first * " or " * second)
             end
         end
     end
