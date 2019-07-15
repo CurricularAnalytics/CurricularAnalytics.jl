@@ -2,27 +2,27 @@ using JSON
 using CSV
 using DataFrames
 
-"""
-    read_csv(file_path::AbstractString)
-
-Read (i.e., deserialize) a CSV file containing either a curriculum or a degree plan, and returns a corresponding
-`Curriculum` or `DegreePlan` data object.  The required format for curriculum or degree plan CSV files is 
-described in [File Format](@ref).
-
-# Arguments
-- `file_path::AbstractString` : the relative or absolute path to the CSV file.
-
-# Examples:
-```julia-repl
-julia> c = read_csv("./mydata/UBW_curric.csv")
-julia> dp = read_csv("./mydata/UBW_plan.csv")
-```
-"""
-function read_csv(file_path::AbstractString)
-    file_path = remove_empty_lines(file_path)
-    if typeof(file_path) == Bool && !file_path
-        return false
+# Returns a requisite as a string for visualization
+function requisite_to_string(req::Requisite)
+    if req == pre
+        return "prereq"
+    elseif req == co
+        return "coreq"
+    else
+        return "strict-coreq"
     end
+end
+
+# Returns a requisite (enumerated type) from a string
+function string_to_requisite(req::String)
+    if req == "CurriculumPrerequisite"
+        return pre
+    elseif req == "CurriculumCorequisite"
+        return co
+    else
+        return strict_co
+    end
+<<<<<<< HEAD
     dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
     dict_curric_system = Dict("semester"=>semester, "quarter"=>quarter, ""=>semester)
     dp_name = ""
@@ -164,18 +164,40 @@ function read_csv(file_path::AbstractString)
         end  
         
         curric_learning_outcomes = if df_curric_learning_outcomes != "" generate_curric_lo(df_curric_learning_outcomes) else LearningOutcome[] end
+=======
+end
+>>>>>>> 05af9bef295596c83b1fe2daca23dd16b35f9253
 
-        if is_dp
-            all_courses = read_all_courses(df_all_courses,course_learning_outcomes)
-            if typeof(all_courses) == Bool && !all_courses
-                return false
+function prepare_data(degree_curric::DegreePlan; edit::Bool=false, hide_header::Bool=false, show_delay::Bool=true, 
+                        show_blocking::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true)
+    dp_dict = Dict{String,Any}()
+    dp_dict["options"] = Dict{String, Any}()
+    dp_dict["options"]["edit"] = edit
+    dp_dict["options"]["hideTerms"] = hide_header
+    dp_dict["curriculum"] = Dict{String, Any}()
+    dp_dict["curriculum"]["dp_name"] = degree_curric.name
+    dp_dict["curriculum"]["name"] = degree_curric.curriculum.name
+    dp_dict["curriculum"]["institution"] = degree_curric.curriculum.institution
+    dp_dict["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
+    for i = 1:degree_curric.num_terms
+        current_term = Dict{String, Any}()
+        current_term["id"] = i
+        current_term["name"] = "Term $i"
+        current_term["curriculum_items"] = Dict{String, Any}[]
+        for course in degree_curric.terms[i].courses
+            current_course = Dict{String, Any}()
+            current_course["id"] = course.id
+            current_course["nameSub"] = course.name
+            current_course["name"] =  course.prefix * " " * course.num
+            current_course["credits"] = course.credit_hours
+            current_course["curriculum_requisites"] = Dict{String, Any}[]
+            if !show_complexity
+                delete!(course.metrics, "complexity")
             end
-            all_courses_arr = [course[2] for course in all_courses]
-            additional_courses = read_courses(df_additional_courses,all_courses)  
-            ac_arr = Course[]
-            for course in additional_courses
-                push!(ac_arr, course[2])
+            if !show_centrality
+                delete!(course.metrics, "centrality")
             end
+<<<<<<< HEAD
             curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
                                 system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
             terms = read_terms(df_all_courses, all_courses, all_courses_arr)
@@ -191,200 +213,138 @@ function read_csv(file_path::AbstractString)
             curric_courses = read_all_courses(df_courses, course_learning_outcomes)
             if typeof(curric_courses) == Bool && !curric_courses
                 return false
+=======
+            if !show_delay
+                delete!(course.metrics, "delay factor")
             end
-            curric_courses_arr = [course[2] for course in curric_courses] 
-            curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
-                                    system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
-            output = curric            
+            if !show_blocking
+                delete!(course.metrics, "blocking factor")
+            end
+            current_course["metrics"] = course.metrics
+            current_course["nameCanonical"] = course.canonical_name
+            for req in collect(keys(course.requisites))
+                current_req = Dict{String, Any}()
+                current_req["source_id"] = req
+                current_req["target_id"] = course.id
+                # Parse the Julia requisite type to the required type for the visualization
+                current_req["type"] = requisite_to_string(course.requisites[req])
+                push!(current_course["curriculum_requisites"], current_req)
+>>>>>>> 05af9bef295596c83b1fe2daca23dd16b35f9253
+            end
+            push!(current_term["curriculum_items"], current_course)
         end
+        push!(dp_dict["curriculum"]["curriculum_terms"], current_term)
     end
-    # Current file is the temp file created by remove_empty_lines(), remove the file.
-    if file_path[end-8:end] == "_temp.csv"
-        GC.gc()
-        rm(file_path)
-    end
-    return output
-
+    return dp_dict
 end
 
-"""
-    write_csv(c::Curriculum, file_path::AbstractString)
-
-Write (i.e., serialize) a `Curriculum` data object to disk as a CSV file. To read 
-(i.e., deserialize) a curriculum CSV file, use the corresponding `read_csv` function.
-The file format used to store curricula is described in [File Format](@ref).
-
-# Arguments
-- `c::Curriculum` : the `Curriculum` data object to be serialized.
-- `file_path::AbstractString` : the absolute or relative path where the CSV file will be stored.
-
-# Examples:
-```julia-repl
-julia> write_csv(c, "./mydata/UBW_curric.csv")
-```
-"""
-function write_csv(curric::Curriculum, file_path::AbstractString)
-    dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
-    dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
-    open(file_path, "w") do csv_file
-        # Write Curriculum Name
-        curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
-        write(csv_file, curric_name)
-
-        # Write Institution Name
-        curric_ins = "\nInstitution," * string(curric.institution) * ",,,,,,,,,"
-        write(csv_file, curric_ins)
-
-        # Write Degree Type
-        curric_dtype="\nDegree Type," * string(dict_curric_degree_type[curric.degree_type]) * ",,,,,,,,,"
-        write(csv_file, curric_dtype)
-
-        # Write System Type (Semester or Quarter)
-        curric_stype="\nSystem Type," * string(dict_curric_system[curric.system_type]) * ",,,,,,,,,"
-        write(csv_file, curric_stype)
-
-        # Write CIP Code
-        curric_CIP="\nCIP," * string(curric.CIP) * ",,,,,,,,,"
-        write(csv_file, curric_CIP)
-
-        # Define the course header, 10 columns of data for each course
-        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
-        # Write Course Section and Course Header
-        write(csv_file, "\nCourses,,,,,,,,,,") 
-        write(csv_file, course_header) 
-
-        # Define dict to store all course learning outcomes
-        all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
-        # Iterate through each course in the curriculum
-        for course in curric.courses
-            # Write the current course to the CSV
-            write(csv_file, course_line(course,""))
-            # Check if the course has learning outcomes, if it does store them
-            if length(course.learning_outcomes) > 0
-                all_course_lo[course.id] = course.learning_outcomes
+function json_to_julia(json_tuple::NamedTuple)
+    # Create an array "terms" with elements equal to the number of terms from the file
+    num_terms = length(json_tuple.curriculum_terms)
+    terms = Array{Term}(undef, num_terms)
+    all_courses = Array{Course}(undef, 0)
+    courses_dict = Dict{Int, Course}()
+    # For every term
+    for i = 1:num_terms
+        # Grab the current term
+        current_term = json_tuple[:curriculum_terms][i]
+        # Create an array of course objects for the current term
+        courses = Array{Course}(undef, 0)
+        # For each course in the current term
+        for course in current_term[:curriculum_items]
+            # Check if nameSub is defined on the current course
+            if(:nameSub in keys(json_tuple.curriculum_terms[2][:curriculum_items][1]))
+                # If it is, use nameSub as the course name when constructing the course object
+                current_course = Course(course[:nameSub], course[:credits])
+            else
+                # Otherwise, just use the normal course :name
+                current_course = Course(course[:name], course[:credits])
             end
+            # Push each Course object to the array of courses
+            push!(courses, current_course)
+            push!(all_courses, current_course)
+            courses_dict[course.id] = current_course
         end
-        
-        # Write course and curriculum learning outcomes, if any
-        write_learning_outcomes(curric, csv_file, all_course_lo)
-    end
-    return true
-end
 
-# TODO - Reduce duplicated code between this and the curriculum version of the function
-"""
-    write_csv(dp::DegreePlan, file_path::AbstractString)
-
-Write (i.e., serialize) a `DegreePlan` data object to disk as a CSV file. To read 
-(i.e., deserialize) a degree plan CSV file, use the corresponding `read_csv` function.
-The file format used to store degree plans is described in [File Format](@ref).
-
-# Arguments
-- `dp::DegreePlan` : the `DegreePlan` data object to be serialized.
-- `file_path::AbstractString` : the absolute or relative path where the CSV file will be stored. 
-
-# Examples:
-```julia-repl
-julia> write_csv(dp, "./mydata/UBW_plan.csv")
-```
-"""
-function write_csv(original_plan::DegreePlan, file_path::AbstractString)
-    dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
-    dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
-    open(file_path, "w") do csv_file
-        # Grab a copy of the curriculum
-        curric = original_plan.curriculum
-        
-        # Write Curriculum Name
-        curric_name = "Curriculum," * "\""*string(curric.name) *"\""* ",,,,,,,,,"
-        write(csv_file, curric_name)
-        
-        # Write Degree Plan Name
-        dp_name = "\nDegree Plan," * "\""*string(original_plan.name) *"\""* ",,,,,,,,,"
-        write(csv_file, dp_name)
-
-        # Write Institution Name
-        curric_ins = "\nInstitution," * "\""*string(curric.institution) *"\""* ",,,,,,,,,"
-        write(csv_file, curric_ins) 
-
-        # Write Degree Type
-        curric_dtype = "\nDegree Type," *"\""* string(dict_curric_degree_type[curric.degree_type]) * "\""*",,,,,,,,,"
-        write(csv_file,curric_dtype) 
-
-        # Write System Type (Semester or Quarter)
-        curric_stype = "\nSystem Type," * "\""*string(dict_curric_system[curric.system_type]) * "\""*",,,,,,,,,"
-        write(csv_file, curric_stype) 
-        
-        # Write CIP Code
-        curric_CIP = "\nCIP," * "\""*string(curric.CIP) * "\""*",,,,,,,,,"
-        write(csv_file, curric_CIP)
-
-        # Define the course header, 11 columns of data for each course
-        course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
-        # Write Course Section and Course Header
-        write(csv_file, "\nCourses,,,,,,,,,,") 
-        write(csv_file, course_header) 
-
-        # Iterate through each term and each course in the term and write them to the degree plan
-        for (term_id, term) in enumerate(original_plan.terms)
-            for course in term.courses
-                if !isdefined(original_plan, :additional_courses) || !find_courses(original_plan.additional_courses, course.id)
-                    write(csv_file, course_line(course, term_id)) 
+        # For each course object create its requisites
+        for course in current_term[:curriculum_items]
+            # If the course has requisites
+            if !isempty(course[:curriculum_requisites])
+                # For each requisite of the course
+                for req in course[:curriculum_requisites]
+                    # Create the requisite relationship
+                    source = courses_dict[req[:source_id]]
+                    target = courses_dict[req[:target_id]]
+                    add_requisite!(source, target, string_to_requisite(req[:type]))
                 end
             end
         end
-
-        # Define dict to store all course learning outcomes
-        all_course_lo = Dict{Int, Array{LearningOutcome, 1}}()
-        # Check if the original plan has additional courses defined
-        if isdefined(original_plan, :additional_courses)
-            # Write the additional courses section of the CSV
-            write(csv_file, "\nAdditional Courses,,,,,,,,,,")
-            write(csv_file, course_header) 
-            # Iterate through each term
-            for (term_id, term) in enumerate(original_plan.terms)
-                # Iterate through each course in the current term
-                for course in term.courses
-                    # Check if the current course is an additional course, if so, write it here
-                    if find_courses(original_plan.additional_courses, course.id)
-                        write(csv_file, course_line(course, term_id)) 
-                    end
-                    # Check if the current course has learning outcomes, if so store them
-                    if length(course.learning_outcomes) > 0
-                        all_course_lo[course.id] = course.learning_outcomes
-                    end
-                end
-            end
-        end
-
-        # Write course and curriculum learning outcomes, if any
-        write_learning_outcomes(curric, csv_file, all_course_lo)        
+        # Set the current term to be a Term object
+        terms[i] = Term(courses)
     end
-    return true
+    curric = Curriculum("Underwater Basket Weaving", all_courses)
+    degreeplan = DegreePlan("My Plan", curric, terms)
+    return degreeplan
 end
 
-function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString)
+function julia_to_json(degreeplan::DegreePlan)
+    json_dp = Dict{String, Any}()
+    json_dp["curriculum"] = Dict{String, Any}()
+    json_dp["curriculum"]["name"] = degreeplan.name
+    json_dp["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
+    for i = 1:degreeplan.num_terms
+        current_term = Dict{String, Any}()
+        current_term["id"] = i
+        current_term["name"] = "Term $i"
+        current_term["curriculum_items"] = Dict{String, Any}[]
+        for course in degreeplan.terms[i].courses
+            current_course = Dict{String, Any}()
+            current_course["id"] = course.id
+            current_course["name"] = course.name
+            # current_course["nameSub"] = course.name
+            # current_course["name"] =  course.prefix * " " * course.num
+            # current_course["prefix"] =  course.prefix
+            # current_course["num"] = course.num
+            current_course["credits"] = course.credit_hours
+            current_course["curriculum_requisites"] = Dict{String, Any}[]
+            current_course["metrics"] = course.metrics
+            for req in collect(keys(course.requisites))
+                current_req = Dict{String, Any}()
+                current_req["source_id"] = req
+                current_req["target_id"] = course.id
+                # Parse the Julia requisite type to the required type for the visualization
+                current_req["type"] = requisite_to_string(course.requisites[req])
+                push!(current_course["curriculum_requisites"], current_req)
+            end
+            push!(current_term["curriculum_items"], current_course)
+        end
+        push!(json_dp["curriculum"]["curriculum_terms"], current_term)
+    end
+    return json_dp
+end
+
+function update_curric(original_curric::DegreePlan, edited_curric::Dict{String,Any}, file_path::AbstractString)
     dict_requisite = Dict("prereq"=>pre, "coreq"=>co, "strict-coreq"=>strict_co)
     # Requisites might be updated by interface
     # Get all original courses without any requisite
-    original_curriculum = original_plan.curriculum
-    is_dp = original_plan.name != "" || isdefined(original_plan, :additional_courses) 
+    original_curriculum = original_curric.curriculum
+    is_dp = original_curric.name != "" || isdefined(original_curric, :additional_courses) 
     original_courses = Dict{Int,Course}()
     new_courses_IDs = Dict{String,Int}()
     new_courses =  Dict{Int,Course}()
-    for term in original_plan.terms
+    for term in original_curric.terms
         for course in term.courses
             course.requisites = Dict{Int, Requisite}()
             original_courses[course.id] = course
         end
     end    
-    num_terms = length(edited_plan["curriculum_terms"])
+    num_terms = length(edited_curric["curriculum_terms"])
     terms = Array{Term}(undef, num_terms)
     all_courses = Array{Course}(undef, 0)
     courses_dict = Dict{Int, Course}()
     for i = 1:num_terms
         # grab the current term
-        current_term = edited_plan["curriculum_terms"][i]
+        current_term = edited_curric["curriculum_terms"][i]
         # create an array of course objects with length equal to the number of courses
         courses = Array{Course}(undef, 0)    
         # for each course in the current term
@@ -393,8 +353,7 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
             current_course = ""        
             if typeof(course["id"]) == String && !(course["id"] in keys(new_courses_IDs))
                 c_credit = typeof(course["credits"]) == String ? parse(Int,course["credits"]) : course["credits"]
-                current_course = Course(course["nameSub"], c_credit, prefix=split(course["name"], " ")[1],
-                                            num = split(course["name"], " ")[end])
+                current_course = Course(course["nameSub"], c_credit, prefix=split(course["name"], " ")[1], num = split(course["name"], " ")[end])
                 new_courses_IDs[course["id"]] = current_course.id
                 new_courses[current_course.id] = current_course    
             else
@@ -443,7 +402,7 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
     curric_courses = Course[]
     additional_courses = Course[]
     for course in all_courses
-        if isdefined(original_plan, :additional_courses) && find_courses(original_plan.additional_courses, course.id)
+        if isdefined(original_curric, :additional_courses) && find_courses(original_curric.additional_courses, course.id)
             push!(additional_courses,course)
             push!(curric_courses,course)
         elseif find_courses(original_curriculum.courses,course.id)
@@ -458,11 +417,12 @@ function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, f
                         degree_type = original_curriculum.degree_type, system_type = original_curriculum.system_type, 
                         institution = original_curriculum.institution, CIP=original_curriculum.CIP, id=original_curriculum.id)
     if is_dp
-        degree_plan = DegreePlan(original_plan.name, curric, terms, additional_courses)
-        write_csv(degree_plan, file_path)
+        degree_curric = DegreePlan(original_curric.name, curric, terms, additional_courses)
+        write_csv(degree_curric, file_path)
     else
         write_csv(curric, file_path)
     end
+<<<<<<< HEAD
 end
 
 # Returns a requisite as a string for visualization
@@ -674,3 +634,6 @@ function read_Opt_Config(file_path)
     end
     return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,obj_order, diffMax
 end
+=======
+end
+>>>>>>> 05af9bef295596c83b1fe2daca23dd16b35f9253
