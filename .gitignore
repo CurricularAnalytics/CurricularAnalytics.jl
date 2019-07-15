@@ -6,4 +6,8 @@ mkdocs.yml
 temp.csv
 node_modules/
 yarn.lock
+<<<<<<< HEAD
 Dockerfile
+=======
+Dockerfile
+>>>>>>> 05af9bef295596c83b1fe2daca23dd16b35f9253

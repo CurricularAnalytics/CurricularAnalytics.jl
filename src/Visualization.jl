@@ -1,5 +1,7 @@
-using Blink, JSON, WebIO, HTTP
-import HTTP.Messages
+using JSON
+using WebIO
+using HTTP
+using Blink
 
 const LOCAL_EMBED_PORT = 8156
 const LOCAL_EMBED_FOLDER = joinpath(dirname(pathof(CurricularAnalytics)),"..","embed_client","dist")

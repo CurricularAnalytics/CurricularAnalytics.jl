@@ -14,6 +14,8 @@ using DataStructures
 using Printf
 using Markdown
 using Documenter
+using CSV
+using DataFrames
 
 include("DataTypes.jl")
 include("DegreePlanCreation.jl")
@@ -29,7 +31,11 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
         complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
         read_csv, create_degree_plan, bin_packing, add_lo_requisite!, update_plan, write_csv,
+<<<<<<< HEAD
         find_min_terms, balance_terms, balance_terms_opt, find_min_terms_opt, read_Opt_Config
+=======
+        find_min_terms, balance_terms, balance_terms_opt, find_min_terms_opt, json_to_julia, julia_to_json
+>>>>>>> 05af9bef295596c83b1fe2daca23dd16b35f9253
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
 """
