@@ -14,8 +14,6 @@ using DataStructures
 using Printf
 using Markdown
 using Documenter
-using CSV
-using DataFrames
 
 include("DataTypes.jl")
 include("DegreePlanCreation.jl")
