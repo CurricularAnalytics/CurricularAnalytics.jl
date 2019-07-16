@@ -16,7 +16,7 @@ function get_vertex(courseID, curric)
 end
 
 function term_count_obj(model, mask, x, c_count, multi=true)
-    terms = [sum(dot(x[k,:],mask)) for k = 1:c_count]
+    terms = [sum(dot(x[k,:], mask)) for k = 1:c_count]
     if multi
         exp = @expression(model, sum(terms[:]))
         obj = SingleObjective(exp, sense = :Min)
@@ -27,11 +27,11 @@ function term_count_obj(model, mask, x, c_count, multi=true)
     end
 end
 
-function balance_obj(model, max_credits_per_term,termCount,x,y,credit, multi=true)
-    total_credit_term = [sum(dot(credit,x[:,j])) for j=1:termCount]
+function balance_obj(model, max_credits_per_term, termCount, x, y, credit, multi=true)
+    total_credit_term = [sum(dot(credit, x[:,j])) for j = 1:termCount]
     @constraints model begin
-        abs_val[i=2:termCount], y[i] >= total_credit_term[i]-total_credit_term[i-1]
-        abs_val2[i=2:termCount], y[i] >= -(total_credit_term[i]-total_credit_term[i-1])
+        abs_val[i = 2:termCount], y[i] >= total_credit_term[i] - total_credit_term[i-1]
+        abs_val2[i = 2:termCount], y[i] >= -(total_credit_term[i] - total_credit_term[i-1])
     end
     if multi
         exp = @expression(model, sum(y[:]))
@@ -43,19 +43,19 @@ function balance_obj(model, max_credits_per_term,termCount,x,y,credit, multi=tru
     end
 end
 
-function toxicity_obj(toxic_score_file, model, c_count, courses, termCount,x,ts, curric_id, multi=true)
+function toxicity_obj(toxic_score_file, model, c_count, courses, termCount, x, ts, curric_id, multi=true)
     toxicFile = readfile(toxic_score_file)
     comboDict = Dict()
     for coursePair in toxicFile[2:end] 
         coursePair = split(coursePair, ",")
-        comboDict[replace(coursePair[1], " "=> "")*"_"*replace(coursePair[2], " "=> "")] = parse(Float64,coursePair[9])+1
+        comboDict[replace(coursePair[1], " " => "") * "_" * replace(coursePair[2], " " => "")] = parse(Float64,coursePair[9]) + 1
     end
     toxicity_scores = zeros((c_count, c_count))
     for course in courses
         for innerCourse in courses
             if course != innerCourse 
-                if course.prefix*course.num*"_"*innerCourse.prefix*innerCourse.num in keys(comboDict)
-                    toxicity_scores[course.vertex_id[curric_id],innerCourse.vertex_id[curric_id]] = comboDict[course.prefix*course.num*"_"*innerCourse.prefix*innerCourse.num]
+                if course.prefix * course.num * "_" * innerCourse.prefix * innerCourse.num in keys(comboDict)
+                    toxicity_scores[course.vertex_id[curric_id], innerCourse.vertex_id[curric_id]] = comboDict[course.prefix * course.num * "_" * innerCourse.prefix * innerCourse.num]
                 end
             end
         end
@@ -76,7 +76,7 @@ end
 
 function prereq_obj(model, mask, x, graph, total_distance,  multi=true)
     for edge in collect(edges(graph))
-        push!(total_distance, sum(dot(x[dst(edge),:],mask)) - sum(dot(x[src(edge),:],mask)))
+        push!(total_distance, sum(dot(x[dst(edge), :], mask)) - sum(dot(x[src(edge), :], mask)))
     end
     if multi
         exp = @expression(model, sum(total_distance[:]))
@@ -88,6 +88,8 @@ function prereq_obj(model, mask, x, graph, total_distance,  multi=true)
     end
 end
 
+# Should be able to pass the curriculum as an object. Currently can only be passed as a file. 
+# Configuration options should be passable via args, not just as a file.
 function optimize_plan(config_file, curric_file, toxic_score_file= "")
     # read parameters from the configuration file
     consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,
@@ -109,6 +111,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     if multi # CHECK: same as above
         model = multi_model(solver = GurobiSolver(), linear = true);
     end
+
     println("Number of courses in curriculum: $(length(courses))")
     println("Total credit hours: $(total_credits(curric))")
     
@@ -181,7 +184,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
                 @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
                 @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
             else
-                println("Vertex ID cannot be found for course: " * first * " or " * second)
+                println("Vertex ID cannot be found for course: $(first) or $(second)")
             end
         end
     end
