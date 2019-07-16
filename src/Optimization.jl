@@ -29,16 +29,18 @@ end
 
 function balance_obj(model, max_credits_per_term, termCount, x, y, credit, multi=true)
     total_credit_term = [sum(dot(credit,x[:,j])) for j=1:termCount]
+    # Work around for absoluate value: when y was declared as a variable, it was constratined to be >= 0, so only 
+    # one of these two constaints will be "active," i.e, the one that is >= 0.
     @constraints model begin
-        abs_val[i=2:termCount], y[i-1] >= total_credit_term[i] - total_credit_term[i-1]
-        abs_val2[i=2:termCount], y[i-1] >= -(total_credit_term[i] - total_credit_term[i-1])
+        diff1[i=1:termCount, j=1:termCount], y[i,j] >= total_credit_term[i] - total_credit_term[j]
+        diff2[i=1:termCount, j=1:termCount], y[i,j] >= -(total_credit_term[i] - total_credit_term[j])
     end
     if multi
-        exp = @expression(model, sum(y[:]))
+        exp = @expression(model, sum(y))
         obj = SingleObjective(exp, sense = :Min)
         return obj
     else
-        @objective(model, Min, sum(y[:]))
+        @objective(model, Min, sum(y))
         return true
     end
 end
@@ -118,8 +120,8 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
     credit = [c.credit_hours for c in curric.courses]
     mask = [i for i in 1:termCount]
     # Bin specifes binary optimzation variables in JuMP.
-    @variable(model, x[1:c_count, 1:termCount], Bin)
-    @variable(model, y[1:termCount-1] >= 0)
+    @variable(model, x[1:c_count, 1:termCount], Bin) # Assignment variables
+    @variable(model, y[1:termCount, 1:termCount] >= 0) # Variables used for balanced curriculum objective function.
     ts=[]
     total_distance = []
     for c in courses
@@ -137,12 +139,12 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
             end
         end   
     end
-    for idx in 1:c_count
+    for i in 1:c_count
         # Output must include all courses once.
-        if idx in values(vertex_map)
-            @constraint(model, sum(x[idx,:]) == 1)
+        if i in values(vertex_map)
+            @constraint(model, sum(x[i,:]) == 1)
         else
-            @constraint(model, sum(x[idx,:]) == 0)
+            @constraint(model, sum(x[i,:]) == 0)
         end
     end
 
@@ -195,7 +197,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         end
     end
     if multi
-        objectives =[]
+        objectives = []
         for objective in obj_order
             if objective == "Toxicity"
                 push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses ,termCount, x, ts, curric.id, multi))
