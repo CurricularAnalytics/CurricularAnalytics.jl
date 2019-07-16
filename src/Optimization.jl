@@ -78,7 +78,7 @@ end
 
 function prereq_obj(model, mask, x, graph, total_distance,  multi=true)
     for edge in edges(graph)
-        push!(total_distance, sum(dot(x[dst(edge),:],mask)) - sum(dot(x[src(edge),:],mask)))
+        push!(total_distance, sum(dot(x[dst(edge),:], mask)) - sum(dot(x[src(edge),:], mask)))
     end
     if multi == true  # Multi-objective optimization
         exp = @expression(model, sum(total_distance[:]))
@@ -117,24 +117,26 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
     end
     
     c_count = length(curric.courses)
+    # Create a map from course ID in curriculum to vertex ID of course in the curriculum graph.
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
-    taken_cour_ids = [c.id for c in input[2]]
+    taken_course_ids = [c.id for c in input[2]]
     credit = [c.credit_hours for c in curric.courses]
+    # mask is used to determine the term that a course is in, by taking dot product with a row of the x matrix
     mask = [i for i in 1:termCount]
     # Bin specifes binary optimzation variables in JuMP.
-    @variable(model, x[1:c_count, 1:termCount], Bin) # Assignment variables
+    @variable(model, x[1:c_count, 1:termCount], Bin) # Assignment variables: course-to-term assignment
     @variable(model, y[1:termCount, 1:termCount] >= 0) # Variables used for balanced curriculum objective function.
     ts=[]
     total_distance = []
     for c in courses
         for req in c.requisites
-            if !(req[1] in taken_cour_ids)
+            if !(req[1] in taken_course_ids)
                 if req[2] == pre
-                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))-1))
+                    @constraint(model, dot(x[vertex_map[req[1]],:], mask) <= sum(dot(x[c.vertex_id[curric.id],:], mask))-1) # Constraints cannot use "<", so need to subtract 1 for pre
                 elseif req[2] == co
-                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))))
+                    @constraint(model, dot(x[vertex_map[req[1]],:], mask) <= sum(dot(x[c.vertex_id[curric.id],:], mask)))
                 elseif req[2] == strict_co
-                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) == (sum(dot(x[c.vertex_id[curric.id],:],mask))))
+                    @constraint(model, dot(x[vertex_map[req[1]],:], mask) == sum(dot(x[c.vertex_id[curric.id],:], mask)))
                 else
                     println("requisite type error")
                 end
@@ -164,9 +166,10 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         end
     end
 
+    # Constrain fixed courses to their assigned terms
     if length(keys(fixedCourses)) > 0
         for courseID in keys(fixedCourses)
-            if !(courseID in taken_cour_ids)
+            if !(courseID in taken_course_ids)
                 vID = get_vertex(courseID, curric)
                 if vID != 0
                     @constraint(model, x[vID,fixedCourses[courseID]] == 1)  # GLH: changed from >= to == 
@@ -177,27 +180,30 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         end
     end
 
+    # Constrain courses specified as consecutive to consecutive terms 
     if length(keys(consecutiveCourses)) > 0
         for (first, second) in consecutiveCourses
             vID_first = get_vertex(first, curric)
             vID_second = get_vertex(second, curric)
             if vID_first != 0 && vID_second != 0
-                @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
-                @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
+                @constraint(model, sum(dot(x[vID_second,:], mask)) - sum(dot(x[vID_first,:], mask)) == 1)
             else
-                println("Vertex ID cannot be found for course: $first or $second")
+                println("Vertex ID cannot be found for either course $first or $second")
             end
         end
     end
+
+    # Constrain courses to specified term range 
     if length(keys(termRange)) > 0
         for (courseID,(lowTerm, highTerm)) in termRange
             vID_Course = get_vertex(courseID, curric)
             if vID_Course != 0
-                @constraint(model, sum(dot(x[vID_Course,:],mask)) >= lowTerm)
-                @constraint(model, sum(dot(x[vID_Course,:],mask)) <= highTerm)
+                @constraint(model, sum(dot(x[vID_Course,:], mask)) >= lowTerm)
+                @constraint(model, sum(dot(x[vID_Course,:], mask)) <= highTerm)
             end
         end
     end
+
     if multi
         objectives = []
         for objective in obj_order
