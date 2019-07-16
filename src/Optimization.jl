@@ -5,7 +5,7 @@ using LightGraphs
 
 include("CSVUtilities.jl")
 
-# Helper function that provides a vertex id in curriculum from course id
+# Helper function that finds the vertex id of a course in a curriculum.
 function get_vertex(courseID, curric)
     for course in curric.courses
         if course.id == courseID
@@ -28,10 +28,10 @@ function term_count_obj(model, mask, x, c_count, multi=true)
 end
 
 function balance_obj(model, max_credits_per_term, termCount, x, y, credit, multi=true)
-    total_credit_term = [sum(dot(credit, x[:,j])) for j = 1:termCount]
+    total_credit_term = [sum(dot(credit,x[:,j])) for j=1:termCount]
     @constraints model begin
-        abs_val[i = 2:termCount], y[i] >= total_credit_term[i] - total_credit_term[i-1]
-        abs_val2[i = 2:termCount], y[i] >= -(total_credit_term[i] - total_credit_term[i-1])
+        abs_val[i=2:termCount], y[i-1] >= total_credit_term[i] - total_credit_term[i-1]
+        abs_val2[i=2:termCount], y[i-1] >= -(total_credit_term[i] - total_credit_term[i-1])
     end
     if multi
         exp = @expression(model, sum(y[:]))
@@ -75,14 +75,14 @@ function toxicity_obj(toxic_score_file, model, c_count, courses, termCount, x, t
 end
 
 function prereq_obj(model, mask, x, graph, total_distance,  multi=true)
-    for edge in collect(edges(graph))
-        push!(total_distance, sum(dot(x[dst(edge), :], mask)) - sum(dot(x[src(edge), :], mask)))
+    for edge in edges(graph)
+        push!(total_distance, sum(dot(x[dst(edge),:],mask)) - sum(dot(x[src(edge),:],mask)))
     end
-    if multi
+    if multi == true  # Multi-objective optimization
         exp = @expression(model, sum(total_distance[:]))
         obj = SingleObjective(exp, sense = :Min)
         return obj
-    else
+    else 
         @objective(model, Min, sum(total_distance[:]))
         return true
     end
@@ -90,39 +90,38 @@ end
 
 # Should be able to pass the curriculum as an object. Currently can only be passed as a file. 
 # Configuration options should be passable via args, not just as a file.
-function optimize_plan(config_file, curric_file, toxic_score_file= "")
+function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
     # read parameters from the configuration file
-    consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,
+    consecutiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,
         obj_order, diff_max_credits_per_term = read_Opt_Config(config_file)
     
-    input = read_csv(curric_file)
+    input = read_csv(curric_degree_file)
     curric = []
     courses = []
-    if isa(input, Tuple)
+    if isa(input, Tuple)  # Input is a degree plan
         curric = input[4]
         courses = input[3]
-    else
+    else # Input is a curriculum
         curric = input
         courses = curric.courses
     end
 
-    model = Model(solver = GurobiSolver())
-    multi = length(obj_order) > 1  # CHECK: using this as a Boolean?  If so, make explicit
-    if multi # CHECK: same as above
-        model = multi_model(solver = GurobiSolver(), linear = true);
+    # Construct the model and use the Groubi solver.
+    length(obj_order) > 1 ? multi = true : multi = false  # Multi-objective optimization?
+    if multi == true
+        model = multi_model(solver = GurobiSolver(OutputFlag=0), linear = true) # Supress the output of the solver w/ OutputFlag=0.
+    else
+        model = Model(solver = GurobiSolver(OutputFlag=0))
     end
-
-    println("Number of courses in curriculum: $(length(courses))")
-    println("Total credit hours: $(total_credits(curric))")
     
     c_count = length(curric.courses)
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
     taken_cour_ids = [c.id for c in input[2]]
     credit = [c.credit_hours for c in curric.courses]
     mask = [i for i in 1:termCount]
-    # Bin refers to JuMP binary optimzation variables
+    # Bin specifes binary optimzation variables in JuMP.
     @variable(model, x[1:c_count, 1:termCount], Bin)
-    @variable(model, 0 <= y[1:termCount] <= max_credits_per_term)
+    @variable(model, y[1:termCount-1] >= 0)
     ts=[]
     total_distance = []
     for c in courses
@@ -141,7 +140,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         end   
     end
     for idx in 1:c_count
-        #output must include all courses once
+        # Output must include all courses once.
         if idx in values(vertex_map)
             @constraint(model, sum(x[idx,:]) == 1)
         else
@@ -167,24 +166,24 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         for courseID in keys(fixedCourses)
             if !(courseID in taken_cour_ids)
                 vID = get_vertex(courseID, curric)
-                println(vID)  # CHECK: extraneous output?
                 if vID != 0
-                    @constraint(model, x[vID,fixedCourses[courseID]] == 1)  # changed from >= to == 
+                    @constraint(model, x[vID,fixedCourses[courseID]] == 1)  # GLH: changed from >= to == 
                 else
                     println("Vertex ID cannot be found for course: $courseName")
                 end
             end
         end
     end
-    if length(keys(consequtiveCourses)) > 0
-        for (first, second) in consequtiveCourses
+
+    if length(keys(consecutiveCourses)) > 0
+        for (first, second) in consecutiveCourses
             vID_first = get_vertex(first, curric)
             vID_second = get_vertex(second, curric)
             if vID_first != 0 && vID_second != 0
                 @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
                 @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
             else
-                println("Vertex ID cannot be found for course: $(first) or $(second)")
+                println("Vertex ID cannot be found for course: $first or $second")
             end
         end
     end
@@ -223,7 +222,7 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
             prereq_obj(model, mask, x, curric.graph, total_distance, multi)
         end
     end
-    status = solve(model);
+    status = solve(model)
     if status == :Optimal
         output = getvalue(x)
         if "Balance" in obj_order
@@ -235,13 +234,14 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         if "Prereq" in obj_order
             println(sum(getvalue(total_distance)))
         end
-        #println(ts)
         optimal_terms = Term[]
-        if isa(input, Tuple)
+        # Add the courses that have already been taken to the degree plan. 
+        if isa(input, Tuple)  # Input is a degree plan, with courses already taken specified in first terms.
             optimal_terms = input[1]
         end
+        # Fill in the remaining terms as determined by the optimization algorithm.
         for j=1:termCount
-            if sum(dot(credit,output[:,j])) > 0 
+            if sum(dot(credit, output[:,j])) > 0 
                 term = Course[]
                 for course_id in keys(vertex_map)
                     if round(output[vertex_map[course_id],j]) == 1
@@ -259,8 +259,8 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         if isa(input, Tuple)
             dp = DegreePlan(input[5], curric, optimal_terms, input[6])
         end
-        visualize(dp, notebook=true)
+        return dp
     else
-        println("not optimal")  #CHECK: are there possible non-optimal solutions?
+        return # An optimal solution was not found.
     end
 end
