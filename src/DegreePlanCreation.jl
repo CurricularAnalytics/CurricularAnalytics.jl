@@ -1,9 +1,14 @@
 # file: DegreePlanCreation.jl
 function create_degree_plan(curric::Curriculum, create_terms::Function=bin_packing, name::AbstractString="", additional_courses::Array{Course}=Array{Course,1}();
-    min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
-    terms =  create_terms(curric,additional_courses; min_terms=min_terms,max_terms=max_terms, min_credits_per_term=min_credits_per_term,
+    min_terms::Int=1, max_terms::Int=8, min_credits_per_term::Int=3, max_credits_per_term::Int=19)
+    terms =  create_terms(curric, additional_courses; min_terms=min_terms, max_terms=max_terms, min_credits_per_term=min_credits_per_term,
                                 max_credits_per_term=max_credits_per_term)
-    return DegreePlan(name, curric, terms)
+    if terms == false
+        println("Unable to create degree plan")
+        return
+    else
+        return DegreePlan(name, curric, terms)
+    end
 end
 
 function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{Int}, current_term::Array{Int})
@@ -25,15 +30,7 @@ end
 
 function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
-    #println("min_terms $min_terms max $max_terms min_credits_per_term $min_credits_per_term")
-    #println("max_credits_per_term $max_credits_per_term $total_terms")
-    #total number of credits
     curric_total_credit=total_credits(curric)
-    #Even though the max credit is set, the algorithim will fill in free courses that optimally fill the term, up to the maximum 
-    #credits desired by the student or allowed by the university 
-    #round to average credit per term
-    #make a function to calculate extra(2 in this case)
-    #calculate average credit after each term
     if !("complexity" in keys(curric.metrics))
         complexity(curric)
     end
@@ -44,20 +41,16 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
         termclasses = Course[]
         this_term_applied_courses = Int[]
         total_credits_for_current_term = 0
-        #Find upper limit of average credit for remaining terms to balance the credit hours of terms
+        # Find upper limit of average credit for remaining terms to balance the credit hours of terms
         avrg_credit_remaining = floor(Int, (curric_total_credit + min_terms - current_term)/ (min_terms-current_term + 1))
-        #println("avrg_credit_remaining $avrg_credit_remaining")
-        #println("$curric_total_credit $avrg_credit_remaining")
-        #check if upper limit of average credit hours for remaining terms exceeds the maximum credit 
-        #If exceed, there is no possible way of fitting remaining classses.
-        #Therefor, try againg after increasing term count
+        # Check if upper limit of average credit hours for remaining terms exceeds the maximum credits per term.
+        # If it does, there is no way to fit remaining classses in, so try again after increasing the number of terms.
         if avrg_credit_remaining  < max_credits_per_term
-            #go through all courses to add in current term according to the complexity score
+            # Go through all courses to add in current term according to the complexity score
             for index in sorted_index
-                #if current course is already added to the previous terms ignore
+                # Ignore if current course was already added to a previous term
                 if !(index in all_applied_courses) && !(index in this_term_applied_courses)
-                    #find vertex and send vertex id
-                    #Control reqs 
+                    # Make sure requisites are satisfied
                     can_be_added = true
                     if check_requistes(curric, index, all_applied_courses, this_term_applied_courses)
                         credit_add = curric.courses[index].credit_hours
@@ -74,27 +67,27 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
                                 push!(courses_to_add,ngbr)
                             end
                         end
-                        #add current course if we still have enough credit 
+                        # Add current course if it does not overflow the bin 
                         if can_be_added && total_credits_for_current_term + credit_add <= avrg_credit_remaining
                             total_credits_for_current_term += credit_add
                             for course_index in courses_to_add
                                 push!(termclasses, curric.courses[course_index])
-                                #also keep indexes of this term's classes
-                                push!(this_term_applied_courses,course_index)
+                                # Track indicies of current term's courses
+                                push!(this_term_applied_courses, course_index)
                             end
                         end
-                        #control if there is any credit to add other course
+                        # Any credit remaining?
                         if total_credits_for_current_term == avrg_credit_remaining
                             break
                         end
                     end
                 end       
             end    
-            #Substract credits of added courses
+            # Substract credits of added courses
             curric_total_credit = curric_total_credit - total_credits_for_current_term
-            #Create term
+            # Create term
             terms[current_term] = Term(termclasses)
-            #Before starting to a new term, add all indexes of this term's classes
+            # Before starting a new term, add all indices of the current term's classes
             for course_in_term in this_term_applied_courses
                 push!(all_applied_courses, course_in_term) 
             end
@@ -102,13 +95,12 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
     end
     if length(all_applied_courses) != length(sorted_index)
         if min_terms < max_terms
-            # the following print statement can be uncommented for debugging purposes
-            #println("Unable to create a $min_terms term plan, attempting a $(min_terms+1) term plan")
+            # The following print statement can be uncommented for debugging purposes
+            # println("Unable to create a $min_terms term plan, attempting a $(min_terms+1) term plan")
             return bin_packing(curric, additional_courses; min_terms=min_terms+1, max_terms=max_terms, min_credits_per_term=min_credits_per_term,
              max_credits_per_term=max_credits_per_term)
         else 
-            println("Unable to create visualization")
-            return false
+            return false  # The algorithm failed.
         end
     end
     return terms
@@ -127,8 +119,8 @@ function create_terms(curric::Curriculum; term_count::Int, min_credits_per_term:
         termclasses = Course[]
         this_term_applied_courses = Int[]
         total_credits_for_current_term = 0
-        #check if remaining creadits can be added to the remaining terms on ful load
-        if (curric_total_credit-added_credits) <= ((term_count-current_term+1)*max_credits_per_term)
+        #  Can remaining credits be added to the remaining terms?
+        if (curric_total_credit - added_credits) <= ((term_count - current_term+1) * max_credits_per_term)
             for index in sorted_index
                 if !(index in all_applied_courses) && !(index in this_term_applied_courses)
                     can_be_added = true
@@ -195,7 +187,6 @@ function find_min_terms(curric::Curriculum, additional_courses::Array{Course}=Ar
             return true, terms, term_count
         end
     end
-    println("Unable to create visualization for provided maximum term count")
     return false, nothing, nothing
 end
 
@@ -215,12 +206,11 @@ function balance_terms(curric::Curriculum, additional_courses::Array{Course}=Arr
             return true, terms, max_credit
         end
     end
-    println("Unable to create visualization for provided maximum term count")
     return false, nothing, nothing
 end
 
 function bin_packing2(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
-        min_terms::Int=1, max_terms::Int=1, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
+        min_terms::Int=1, max_terms::Int=8, min_credits_per_term::Int=3, max_credits_per_term::Int=19)
     control, terms, min_term_count = find_min_terms(curric, additional_courses; min_terms = min_terms,max_terms = max_terms, min_credits_per_term = min_credits_per_term, max_credits_per_term = max_credits_per_term)
     if control
         control_balance, terms, max_credit = balance_terms(curric, additional_courses;

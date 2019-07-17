@@ -5,7 +5,7 @@ using LightGraphs
 
 include("CSVUtilities.jl")
 
-# Helper function that finds the vertex id of a course in a curriculum.
+# Helper function that uses the course ID to find the vertex id of taht course in a curriculum graph.
 function get_vertex(courseID, curric)
     for course in curric.courses
         if course.id == courseID
@@ -15,6 +15,7 @@ function get_vertex(courseID, curric)
     return 0
 end
 
+# Objective function for creating a degree plan with a minimal number of terms
 function term_count_obj(model, mask, x, c_count, multi=true)
     terms = [sum(dot(x[k,:], mask)) for k = 1:c_count]
     if multi
@@ -27,9 +28,10 @@ function term_count_obj(model, mask, x, c_count, multi=true)
     end
 end
 
+# Objective function for balancing credit hours as evenly as possible across a degree plan
 function balance_obj(model, max_credits_per_term, termCount, x, y, credit, multi=true)
     total_credit_term = [sum(dot(credit,x[:,j])) for j=1:termCount]
-    # Work around for absoluate value: when y was declared as a variable, it was constratined to be >= 0, so only 
+    # Work around for computing absoluate value: when y was declared as a variable, it was constratined to be >= 0, so only 
     # one of these two constaints will be "active," i.e, the one that is >= 0.
     @constraints model begin
         diff1[i=1:termCount, j=1:termCount], y[i,j] >= total_credit_term[i] - total_credit_term[j]
@@ -45,6 +47,7 @@ function balance_obj(model, max_credits_per_term, termCount, x, y, credit, multi
     end
 end
 
+# Objective function for minimizing toxic course combinations in a degree plan
 function toxicity_obj(toxic_score_file, model, c_count, courses, termCount, x, ts, curric_id, multi=true)
     toxicFile = readfile(toxic_score_file)
     comboDict = Dict()
@@ -76,16 +79,18 @@ function toxicity_obj(toxic_score_file, model, c_count, courses, termCount, x, t
 
 end
 
-function prereq_obj(model, mask, x, graph, total_distance,  multi=true)
+# Objective function for minimizing the number of terms between pre- and post-requisites in a degree plan (i.e., keep prerequisites
+# as close as possible to the follow-on courses that require them.)
+function req_distance_obj(model, mask, x, graph, distance,  multi=true)
     for edge in edges(graph)
-        push!(total_distance, sum(dot(x[dst(edge),:], mask)) - sum(dot(x[src(edge),:], mask)))
+        push!(distance, sum(dot(x[dst(edge),:], mask)) - sum(dot(x[src(edge),:], mask)))
     end
     if multi == true  # Multi-objective optimization
-        exp = @expression(model, sum(total_distance[:]))
+        exp = @expression(model, sum(distance[:]))
         obj = SingleObjective(exp, sense = :Min)
         return obj
     else 
-        @objective(model, Min, sum(total_distance[:]))
+        @objective(model, Min, sum(distance[:]))
         return true
     end
 end
@@ -121,13 +126,13 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
     taken_course_ids = [c.id for c in input[2]]
     credit = [c.credit_hours for c in curric.courses]
-    # mask is used to determine the term that a course is in, by taking dot product with a row of the x matrix
+    # The mask vector is used to determine the term that a course is in, via dot product with a row of the x matrix
     mask = [i for i in 1:termCount]
     # Bin specifes binary optimzation variables in JuMP.
     @variable(model, x[1:c_count, 1:termCount], Bin) # Assignment variables: course-to-term assignment
     @variable(model, y[1:termCount, 1:termCount] >= 0) # Variables used for balanced curriculum objective function.
     ts=[]
-    total_distance = []
+    distance = []
     for c in courses
         for req in c.requisites
             if !(req[1] in taken_course_ids)
@@ -143,8 +148,9 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
             end
         end   
     end
+
+    # Degree plan must include all courses once.
     for i in 1:c_count
-        # Output must include all courses once.
         if i in values(vertex_map)
             @constraint(model, sum(x[i,:]) == 1)
         else
@@ -152,8 +158,8 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         end
     end
 
+    # Each term must include at least the min # of credits and no more than the max # of credits allowed for a term
     @constraints model begin
-        # Each term must include at least the min # of credits and no more than the max # of credits allowed for a term
         term_lower[j=1:termCount], sum(dot(credit,x[:,j])) >= min_credits_per_term
     end
 
@@ -161,12 +167,12 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
     for j in 1:termCount
         if j in keys(diff_max_credits_per_term)
             @constraint(model, sum(dot(credit,x[:,j])) <= diff_max_credits_per_term[j])
-        else
+        else  # Use this if a different amount was not specified for a given term
             @constraint(model, sum(dot(credit, x[:,j])) <= max_credits_per_term)
         end
     end
 
-    # Constrain fixed courses to their assigned terms
+    # Fixed courses must appear in their assigned terms
     if length(keys(fixedCourses)) > 0
         for courseID in keys(fixedCourses)
             if !(courseID in taken_course_ids)
@@ -180,7 +186,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         end
     end
 
-    # Constrain courses specified as consecutive to consecutive terms 
+    # Courses specified as consecutive must appear in consecutive terms 
     if length(keys(consecutiveCourses)) > 0
         for (first, second) in consecutiveCourses
             vID_first = get_vertex(first, curric)
@@ -193,7 +199,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         end
     end
 
-    # Constrain courses to specified term range 
+    # Courses specified to appear in a range must appear in that term range 
     if length(keys(termRange)) > 0
         for (courseID,(lowTerm, highTerm)) in termRange
             vID_Course = get_vertex(courseID, curric)
@@ -214,7 +220,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
                 push!(objectives, balance_obj(model,max_credits_per_term, termCount, x, y, credit, multi))
             end
             if objective == "Prereq"
-                push!(objectives, prereq_obj(model, mask, x, curric.graph, total_distance, multi))
+                push!(objectives, req_distance_obj(model, mask, x, curric.graph, distance, multi))
             end
         end
         multim = get_multidata(model)
@@ -227,7 +233,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
             balance_obj(model, max_credits_per_term, termCount, x, y, credit, multi)
         end
         if obj_order[1] == "Prereq"
-            prereq_obj(model, mask, x, curric.graph, total_distance, multi)
+            req_distance_obj(model, mask, x, curric.graph, distance, multi)
         end
     end
     status = solve(model)
@@ -240,7 +246,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
             println(sum(getvalue(ts)))
         end
         if "Prereq" in obj_order
-            println(sum(getvalue(total_distance)))
+            println(sum(getvalue(distance)))
         end
         optimal_terms = Term[]
         # Add the courses that have already been taken to the degree plan. 
