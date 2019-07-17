@@ -91,8 +91,8 @@ julia> Course("Calculus with Applications", 4, prefix="MA", num="112", canonical
 ```
 """
 mutable struct Course
-    id::Int                            # Unique course id
-    vertex_id::Dict{Int, Int}          # The vertex id of the course w/in a curriculum graph, stored as 
+    id::Int                             # Unique course id
+    vertex_id::Dict{Int, Int}           # The vertex id of the course w/in a curriculum graph, stored as 
                                         #  (curriculum_id, vertex_id)
     name::AbstractString                # Name of the course, e.g., Introduction to Psychology
     credit_hours::Int                   # Number of credit hours associated with course. For the
