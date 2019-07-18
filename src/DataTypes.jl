@@ -95,7 +95,7 @@ mutable struct Course
     vertex_id::Dict{Int, Int}           # The vertex id of the course w/in a curriculum graph, stored as 
                                         #  (curriculum_id, vertex_id)
     name::AbstractString                # Name of the course, e.g., Introduction to Psychology
-    credit_hours::Int                   # Number of credit hours associated with course. For the
+    credit_hours::Real                   # Number of credit hours associated with course. For the
                                         #  purpose of analytics, variable credits are not supported
     prefix::AbstractString              # Typcially a department prefix, e.g., PSY
     num::AbstractString                 # Course number, e.g., 101, or 302L
@@ -107,7 +107,7 @@ mutable struct Course
     metrics::Dict{String, Any}          # Course-related metrics
 
     # Constructor
-    function Course(name::AbstractString, credit_hours::Int; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
+    function Course(name::AbstractString, credit_hours::Real; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
                     num::AbstractString="", institution::AbstractString="", canonical_name::AbstractString="", id::Int=0)
         this = new()
         this.name = name
@@ -238,7 +238,7 @@ mutable struct Curriculum
     CIP::AbstractString                 # CIP code associated with the curriculum
     courses::Array{Course}              # Array of required courses in curriculum
     num_courses::Int                    # Number of required courses in curriculum
-    credit_hours::Int                   # Total number of credit hours in required curriculum
+    credit_hours::Real                   # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
                                         # of the curriculum
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the curriculum
@@ -358,7 +358,7 @@ where c1, c2, ... are `Course` data objects
 mutable struct Term
     courses::Array{Course}              # The courses associated with a term in a degree plan
     num_courses::Int                    # The number of courses in the Term
-    credit_hours::Int                   # The number of credit hours associated with the term
+    credit_hours::Real                   # The number of credit hours associated with the term
     metrics::Dict{String, Any}          # Course-related metrics
 
     # Constructor
@@ -406,7 +406,7 @@ mutable struct DegreePlan
                                         # of the degre plan
     terms::Array{Term}                  # The terms associated with the degree plan
     num_terms::Int                      # Number of terms in the degree plan
-    credit_hours::Int                   # Total number of credit hours in the degree plan
+    credit_hours::Real                   # Total number of credit hours in the degree plan
     metrics::Dict{String, Any}          # Dergee Plan-related metrics
 
     # Constructor
