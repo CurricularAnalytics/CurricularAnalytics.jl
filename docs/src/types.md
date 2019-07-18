@@ -1,6 +1,6 @@
 # CurricularAnalytics.jl Data Types
 
-This section describes the basic data types associated with the CurricularAnalytics.jl toolbox. These are used to construct courses (with associated learning outcomes), curricula and degree plans. 
+This section describes the basic data types associated with the CurricularAnalytics.jl toolbox. These are used to construct courses (with associated learning outcomes), curricula and degree plans.
 
 ## Courses
 

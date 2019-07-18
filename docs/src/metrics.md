@@ -8,7 +8,7 @@ A number of predefined metrics that have been defined for curricula and degree p
 CurricularAnalytics
 ```
 
-### Blocking Factor 
+### Blocking Factor
 
 The blocking factor is an important curriculum-based metric because it measures the extent to which one course blocks the ability to take other courses in the curriculum. That is, a course with a high blocking factor acts as a gateway to many other courses in the curriculum. Students who are unable to pass the gateway course will be blocked from taking many other courses in the curriculum.
 
