@@ -76,7 +76,6 @@ function toxicity_obj(toxic_score_file, model, c_count, courses, termCount, x, t
         @objective(model, Min, sum(ts[:]))
         return true
     end
-
 end
 
 # Objective function for minimizing the number of terms between pre- and post-requisites in a degree plan (i.e., keep prerequisites

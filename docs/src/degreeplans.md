@@ -4,9 +4,9 @@ As mentioned previously, many different degree plans can be created for a given 
 
 Given that we can create many different degree plans for a curriculum, we are interested in finding those plans that best suit the needs and backgrounds of particular students.  For instance, a transfer student with existing college credits will require a different degree plan than a new student who has no prior college credit.  Similarly, a student may not have the background necessary to take the first math course in a curriculum, necessitating the addition of a prerequisite math class as a part of that student's degree plan, etc.
 
-Below we describe a number of different techniques for creating degree plans.  In [Basic Degree Plans](@ref) we describe a number of straightforward techniques that can be used to create degree plans that are minimally feasible (feasible degree plans are defined below).
+Below we describe a number of different techniques for creating degree plans.  In [Basic Degree Plans](@ref) we describe some simple techniques that can be used to create degree plans that are minimally feasible (feasible degree plans are defined below).
 
-The methods decribed in [Optimized Degree Plans](@ref) are more sophisticated, and make use of optimization techniques that allow you to build in more constraints and objectives as a part of the degree plan construction process.  In order to use these you must install additional Julia optimiztion packages as well as solver.  For installation instructions see ... 
+The methods decribed in [Optimized Degree Plans](@ref) are more sophisticated, and make use of optimization techniques that allow you to build in more constraints and objectives as a part of the degree plan construction process.  
 
 ## Basic Degree Plans
 
@@ -17,7 +17,9 @@ In order to be considered *minimally feasible*, a degree plan $P$ for a curricul
 
 ## Optimized Degree Plans
 
-Assume a curriculum consisting of $n$ courses is organized over $m$ terms. The degree plan creation process involves the partitioning of the $n$ courses in a curriculum into $m$ disjoint sets. Thus, we can represent a degree plan an $n \times m$ binary-valued assignment matrix $x$, where
+The Curricular Analytics Toolbox also allows you to create customized degree plans according to various user-specifed criteria.  These features make use of the [JuMP](https://github.com/JuliaOpt/JuMP.jl) domain-specific language for specifying optimization problems in Julia, and calls the [Gurobi](https://www.gurobi.com) solver in order to solve the optimzaton problems.  In order to use these features you must first install JuMP and Gurobi.  For installation instructions see ... 
+
+A brief overview of how we have structured the degree plan creation process as an optimzation problem is provided next.  Assume a curriculum consisting of $n$ courses is organized over $m$ terms. The degree plan creation process involves a partitioning of the $n$ courses in a curriculum into $m$ disjoint sets. Thus, we can represent a degree plan an $n \times m$ binary-valued assignment matrix $x$, where
 
 ```math
   x_{ij} = \left\{
@@ -35,24 +37,56 @@ The two conditions required for a degree plan to be minimally feasible can be ex
   \mbox{Constraint 1:} \ \ \sum_{j=1}^m  x_{ij} = 1, \ \ \ \ i = 1 \ldots n.
 ```
 
-If we let $T_i$ denote the term that course $i$ is assigned to, i.e., $T_i = j \iff x_{ij} = 1$, then the second condition, which requires the assignment to satisfy all requisites, yeilds three constraints depending upon the requisite type.  If course $a$ is a *requisite* for course $b$, then:
+If we let $T_i$ denote the term that course $i$ is assigned to, i.e., $T_i = j \iff x_{ij} = 1$, then the second condition, which requires the assignment to satisfy all requisites, yeilds three constraints depending upon the requisite type.  That is, if course $a$ is a *requisite* for course $b$, then:
 
 ```math
   \mbox{Constraint 2 (prerequisite):} \ \ T_a \ < \ T_b, \\
   \mbox{Constraint 3 (co-requisite):} \ \ T_a \ \leq \ T_b, \\
-  \mbox{Constraint 4 (strict co-requisite):} \ \ T_a \ = \ T_b. \\
+  \mbox{Constraint 4 (strict co-requisite):} \ \ T_a \ = \ T_b. 
 ```
 
 Note that $T_i$ can be obtained from the assignment matrix using:
 
 ```math
- T_i = sum_{j=1}^m j \cdot x_{ij}.
+ T_i = \sum_{j=1}^m j \cdot x_{ij}. 
+```
+
+In order to guide the optimzation algorihms towards usable soluations, additional constraints are required.  In partciular, it is necessarey to specify the maximum number of terms you would like the degree plan to contain (call this $\alpha$), as well as the minimum ($\beta$) and maximum ($\gamma$) number of credit hours allowed in each term.  These may be expressed as the following constraints:
+
+```math
+  \mbox{Constraint 5:} \ \ m \ < \ \alpha , \\
+  \mbox{Constraint 6:} \ \sum_{i=1}^n x_{ij} \ \ge \ \beta, \ \ \ \ j = 1, \ldots, m. \\
+  \mbox{Constraint 7:} \ \sum_{i=1}^n x_{ij} \ \leq \ \gamma, \ \ \ \ j = 1, \ldots, m. 
 ```
 
 ### Objective Functions
 
-Balanced curriculum objective
+A number of different objective functions have been defined for use in creating degree plans optimized around particular criteria.  Furthemore, this toolbox supports a multi-objetive framework, allowing more than one of these objective functions to be simultaneously applied while creating degree plans.  
+
+For a single objective function $f(x)$, the optimzation problem can be stated as:
+```math
+\min f(x), \\
+\mbox{subject to: Constraints} \ \ 1-7.
+```
+
+For multiple objective functions $f_1(x), f(_2(x), \ldots$  the mulit-objective optimzation problem can be stated as:
+```math
+\min \left\{ f_1(x), \ f_2(x), \ \ldots \right\}, \\
+\mbox{subject to: Constraints} \ \ 1-7.
+```
+
+The currently supported objective functions are described next.
+
+**Balanced curriculum objective.**  The goal of this objective function is to create degree plans that have roughly the same number of credit hours in every term.  This can be expressed as:
 
 ```math
-\min \left( \sum_{i=1}^m \sum_{j=1}^m |T_i - T_j| \right)
+\min \left( \sum_{i=1}^m \sum_{j=1}^m \left\vert T_i - T_j\right\vert \right).
 ```
+
+**Requisite distance objective.**  The goal of this objective function is to create degree plans where the pre- and co-requisites for every course $c$ in a curriculum appears as close as possible to the term in which $c$ appears in the degree plan.  Consider a curriculum graph $G = (V,E)$.  The objective function can then be expressed as
+
+```math
+  min\left( \left\vert T_j - T_i \right\vert \right) \ \  \forall e = (i,j) \in E.
+```
+
+**Toxic course avoidance objerctive.**  For some students, it is the case that certain courses have a toxic impact on other courses in the curriculum, if they are taken together in the same term.  That is, course $a$ has a toxic impact on course $b$ if a student is less likely to pass course $b$ if it is taken in the same term as course $aa$.  The goal of this objective function is to schedule courses so that toxic course combinations do not appear in the same term in the degree plan.
