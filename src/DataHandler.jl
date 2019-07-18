@@ -162,18 +162,18 @@ function read_csv(file_path::AbstractString)
         curric_learning_outcomes = if df_curric_learning_outcomes != "" generate_curric_lo(df_curric_learning_outcomes) else LearningOutcome[] end
 
         if is_dp
-            all_courses = read_all_courses(df_all_courses,course_learning_outcomes)
+            all_courses = read_all_courses(df_all_courses, course_learning_outcomes)
             if typeof(all_courses) == Bool && !all_courses
                 return false
             end
             all_courses_arr = [course[2] for course in all_courses]
-            additional_courses = read_courses(df_additional_courses,all_courses)  
+            additional_courses = read_courses(df_additional_courses, all_courses)  
             ac_arr = Course[]
             for course in additional_courses
                 push!(ac_arr, course[2])
             end
             curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
-                                system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
+                                    system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
             terms = read_terms(df_all_courses, all_courses, all_courses_arr)
             #If some courses has term informations but some does not
             if isa(terms, Tuple)
@@ -668,5 +668,5 @@ function read_Opt_Config(file_path)
             end
         end
     end
-    return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,obj_order, diffMax
+    return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term, obj_order, diffMax
 end
