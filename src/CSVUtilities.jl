@@ -118,8 +118,8 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
         c_ID = row[Symbol("Course ID")]
         c_Name = find_cell(row, Symbol("Course Name"))
         c_Credit = row[Symbol("Credit Hours")] 
-        c_Credit = typeof(c_Credit) == String ? parse(Int,c_Credit) : c_Credit
-        c_Prefix = find_cell(row, Symbol("Prefix"))
+        c_Credit = typeof(c_Credit) == String ? parse(Float64, c_Credit) : c_Credit
+        c_Prefix = string(find_cell(row, Symbol("Prefix")))
         c_Number = find_cell(row, Symbol("Number"))
         if typeof(c_Number) != String c_Number = string(c_Number) end
         c_Inst = find_cell(row, Symbol("Institution"))
