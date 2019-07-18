@@ -281,9 +281,8 @@ end
 
 # This version of the optimize_plan function allows the user to pass pass the curriculum as an object (type: Curriculum)
 # The user can also provide the configuration options via keyword args rather than a CSV file.
-
 """
-optimize_plan(c::Curriculum, termCount::Int, min_credits_per_term::Int, max_credits_per_term::Int, 
+    optimize_plan(c::Curriculum, termCount::Int, min_credits_per_term::Int, max_credits_per_term::Int, 
       obj_order::Array{String, 1}; diff_max_credits_per_term::Array{UInt, 1}, fixedCourses::Dict,
       consecutiveCourses::Dict, termRange::Dict, prior_courses::Array{Term, 1})
 
