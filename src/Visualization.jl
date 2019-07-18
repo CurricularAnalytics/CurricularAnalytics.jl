@@ -3,6 +3,8 @@ using WebIO
 using HTTP
 using Blink
 
+import HTTP.Messages
+
 const LOCAL_EMBED_PORT = 8156
 const LOCAL_EMBED_FOLDER = joinpath(dirname(pathof(CurricularAnalytics)),"..","embed_client","dist")
 
