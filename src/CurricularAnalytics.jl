@@ -22,6 +22,7 @@ include("DegreePlanAnalytics.jl")
 include("CSVUtilities.jl")
 include("DataHandler.jl")
 include("Visualization.jl")
+include("Optimization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
         EdgeClass, LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, 
@@ -30,7 +31,7 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
         read_csv, create_degree_plan, bin_packing, add_lo_requisite!, update_plan, write_csv,
         find_min_terms, balance_terms, balance_terms_opt, find_min_terms_opt, read_Opt_Config, 
-        json_to_julia, julia_to_json
+        optimize_plan, json_to_julia, julia_to_json
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
 """

@@ -281,6 +281,34 @@ end
 
 # This version of the optimize_plan function allows the user to pass pass the curriculum as an object (type: Curriculum)
 # The user can also provide the configuration options via keyword args rather than a CSV file.
+
+"""
+optimize_plan(c::Curriculum, termCount::Int, min_credits_per_term::Int, max_credits_per_term::Int, 
+      obj_order::Array{String, 1}; diff_max_credits_per_term::Array{UInt, 1}, fixedCourses::Dict,
+      consecutiveCourses::Dict, termRange::Dict, prior_courses::Array{Term, 1})
+
+Using the curriculum `c` supplied as input, returns a degree plan optimzed according to the various 
+optimization criteria that have been specified as well as the objective functions that have been selected.
+
+If an optimzied plan cannot be constructed (i.e., the constraints are such that an optimal solution is infeasible),
+`nothing` is returned, and the solver returns a message indicating that the problems is infeasible.  In these cases,
+you may wish to experiment with the constraint values.
+
+# Arguments
+- `curric::Curriculum` : the curriculum the degree plan will be created from.
+- `termCount::Int : the maximum number of terms in the degree plan.
+- `min_credits_per_term::Int` : the minimum number of credits allowed in each term.
+- max_credits_per_term::Int`: the minimum number of credits allowed in each term.
+- obj_order::Array{String, 1} : the order in which the objective functions shoud be evaluated.  Allowable strings are:
+  * `Balance` - the balanced curriculum objective described above.
+  * `Prereq` - the requisite distnace objective described above.
+  * `Toxicity` - the toxic course avoidance objective described above.
+- `diff_max_credits_per_term::Array{UInt, 1}` :  
+- `fixedCourses::Dict=Dict()` :
+- `consecutiveCourses::Dict=Dict()`: 
+- `termRange::Dict=Dict()` : 
+- `prior_courses::Array{Term, 1}` : 
+"""
 function optimize_plan(curric::Curriculum, termCount::Int, min_credits_per_term::Int, max_credits_per_term::Int, 
                         obj_order::Array{String, 1}; diff_max_credits_per_term::Array{UInt, 1}=Array{UInt}(undef, 0), fixedCourses::Dict=Dict(),
                         consecutiveCourses::Dict=Dict(), termRange::Dict=Dict(), prior_courses::Array{Term, 1}=Array{Term}(undef, 0))

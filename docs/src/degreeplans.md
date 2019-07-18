@@ -96,3 +96,9 @@ Let $-1 \leq \aleph_{ij} \leq 1$ denote the toxic impact that course $i$ has on 
 ```math
 \min \left( \sum_{t=1}^m \sum_{i=1}^n \sum_{j=1}^n  \aleph_{ij} \cdot x_{ik} \cdot x_{jk} \right).
 ```
+
+The `optimize_plan` function in the toolbox implements the optimziation problems described above.
+
+```@docs
+optimize_plan
+```
