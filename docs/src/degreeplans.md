@@ -51,12 +51,12 @@ Note that $T_i$ can be obtained from the assignment matrix using:
  T_i = \sum_{j=1}^m j \cdot x_{ij}. 
 ```
 
-In order to guide the optimzation algorihms towards usable soluations, additional constraints are required.  In partciular, it is necessarey to specify the maximum number of terms you would like the degree plan to contain (call this $\alpha$), as well as the minimum ($\beta$) and maximum ($\gamma$) number of credit hours allowed in each term.  These may be expressed as the following constraints:
+In order to guide the optimzation algorithms towards reasonable soluations, additional constraints are required.  In partciular, it is necessarey to specify the maximum number of terms you would like the degree plan to contain, denoted $\alpha$, as well as the minimum and maximum  number of credit hours allowed in each term, denoted $\beta$ and $\gamma$, respectively.  If we let $c_i$ denote the number of credit hours associated with course $i$, then these conditions may be expressed as the following constraints:
 
 ```math
   \mbox{Constraint 5:} \ \ m \ < \ \alpha , \\
-  \mbox{Constraint 6:} \ \sum_{i=1}^n x_{ij} \ \ge \ \beta, \ \ \ \ j = 1, \ldots, m. \\
-  \mbox{Constraint 7:} \ \sum_{i=1}^n x_{ij} \ \leq \ \gamma, \ \ \ \ j = 1, \ldots, m. 
+  \mbox{Constraint 6:} \ \sum_{i=1}^n c_i \cdot x_{ij} \ \ge \ \beta, \ \ \ \ j = 1, \ldots, m. \\
+  \mbox{Constraint 7:} \ \sum_{i=1}^n c_i \cdot x_{ij} \ \leq \ \gamma, \ \ \ \ j = 1, \ldots, m.
 ```
 
 ### Objective Functions
@@ -71,7 +71,7 @@ For a single objective function $f(x)$, the optimzation problem can be stated as
 
 For multiple objective functions $f_1(x), f(_2(x), \ldots$  the mulit-objective optimzation problem can be stated as:
 ```math
-\min \left\{ f_1(x), \ f_2(x), \ \ldots \right\}, \\
+\min \left\{ f_1(x), \ f_2(x), \ldots \right\}, \\
 \mbox{subject to: Constraints} \ \ 1-7.
 ```
 
@@ -83,10 +83,16 @@ The currently supported objective functions are described next.
 \min \left( \sum_{i=1}^m \sum_{j=1}^m \left\vert T_i - T_j\right\vert \right).
 ```
 
-**Requisite distance objective.**  The goal of this objective function is to create degree plans where the pre- and co-requisites for every course $c$ in a curriculum appears as close as possible to the term in which $c$ appears in the degree plan.  Consider a curriculum graph $G = (V,E)$.  The objective function can then be expressed as
+**Requisite distance objective.**  The goal of this objective function is to create degree plans where the pre- and co-requisites for every course $c$ in a curriculum appears as close as possible to the term in which $c$ appears in the degree plan.  Consider a curriculum graph $G = (V,E)$.  The objective function can then be expressed as:
 
 ```math
   min\left( \left\vert T_j - T_i \right\vert \right) \ \  \forall e = (i,j) \in E.
 ```
 
-**Toxic course avoidance objerctive.**  For some students, it is the case that certain courses have a toxic impact on other courses in the curriculum, if they are taken together in the same term.  That is, course $a$ has a toxic impact on course $b$ if a student is less likely to pass course $b$ if it is taken in the same term as course $aa$.  The goal of this objective function is to schedule courses so that toxic course combinations do not appear in the same term in the degree plan.
+**Toxic course avoidance objective.**  For some students, it is the case that certain courses have a toxic impact on other courses in the curriculum if they are taken together in the same term.  That is, course $a$ has a toxic impact on course $b$ if a student is less likely to pass course $b$ if it is taken in the same term as course $a$.  The goal of this objective function is to schedule courses so that toxic course combinations do not appear in the same term in the degree plan.
+
+Let $-1 \leq \aleph_{ij} \leq 1$ denote the toxic impact that course $i$ has on course $j$ if they are taken together in the same term.  (Note: negative values of $\aleph_{ij}$ actually indicate that course $i$ has a synergistic impact on course $j$.) The objective function for toxic course avoidance can then be expressed as:
+
+```math
+\min \left( \sum_{t=1}^m \sum_{i=1}^n \sum_{j=1}^n  \aleph_{ij} \cdot x_{ik} \cdot x_{jk} \right).
+```
