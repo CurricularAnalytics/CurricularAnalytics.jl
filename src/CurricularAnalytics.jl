@@ -315,7 +315,6 @@ in part (b) will be slightly more difficult to complete than the one in part (a)
 that course ``v_1`` in part (a) has the highest individual course complexity, but the combination of 
 courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
 ``v_3`` in that curriculum, has a higher combined complexity.
-
 """
 function complexity(c::Curriculum)
     course_complexity = Array{Number, 1}(undef, c.num_courses)
