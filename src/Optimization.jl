@@ -336,9 +336,9 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
     mask = [i for i in 1:term_count]
     # Bin specifes binary optimzation variables in JuMP.
     @variable(model, x[1:c_count, 1:term_count], Bin)
-    @variable(model, y[1:term_count-1] >= 0)
-    ts = []
-    total_distance = []
+    @variable(model, y[1:term_count, 1:term_count] >= 0) # Variables used for balanced curriculum objective function.
+    ts=[]
+    distance = []
     # Iterate through all courses and create basic requisite constraints
     for c in courses
         for req in c.requisites
@@ -416,16 +416,14 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
     if multi
         objectives = []
         for objective in obj_order
+            println("OBJECTIVE: $objective")
             if objective == "Toxicity"
                 push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses ,term_count, x, ts, curric.id, multi))
-            end
-            if objective == "Balance"
+            elseif objective == "Balance"
                 push!(objectives, balance_obj(model,max_cpt, term_count, x, y, credit, multi))
-            end
-            if objective == "Prereq"
-                push!(objectives, prereq_obj(model, mask, x, curric.graph, total_distance, multi))
-            end
-            if haskey(custom_objectives, objective)
+            elseif objective == "Prereq"
+                push!(objectives, req_distance_obj(model, mask, x, curric.graph, distance, multi))
+            elseif haskey(custom_objectives, objective)
                 push!(objectives, custom_objectives[objective])
             end
         end
@@ -439,7 +437,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
             balance_obj(model, max_cpt, term_count, x, y, credit, multi)
         end
         if obj_order[1] == "Prereq"
-            prereq_obj(model, mask, x, curric.graph, total_distance, multi)
+            req_distance_obj(model, mask, x, curric.graph, distance, multi)
         end
     end
     status = solve(model)
@@ -452,7 +450,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
             println(sum(getvalue(ts)))
         end
         if "Prereq" in obj_order
-            println(sum(getvalue(total_distance)))
+            println(sum(getvalue(distance)))
         end
 
         # Create array that will hold the optimized terms for the degree plan
