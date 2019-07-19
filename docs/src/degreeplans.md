@@ -94,7 +94,7 @@ The currently supported objective functions are described next.
 Let $-1 \leq \aleph_{ij} \leq 1$ denote the toxic impact that course $i$ has on course $j$ if they are taken together in the same term.  (Note: negative values of $\aleph_{ij}$ actually indicate that course $i$ has a synergistic impact on course $j$.) The objective function for toxic course avoidance can then be expressed as:
 
 ```math
-\min \left( \sum_{t=1}^m \sum_{i=1}^n \sum_{j=1}^n  \aleph_{ij} \cdot x_{ik} \cdot x_{jk} \right).
+\min \left( \sum_{t=1}^m \sum_{i=1}^n \sum_{j=1}^n  \aleph_{ij} \cdot x_{it} \cdot x_{jt} \right).
 ```
 
 The `optimize_plan` function in the toolbox implements the optimziation problems described above.
