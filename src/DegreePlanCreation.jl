@@ -180,7 +180,7 @@ find_min_terms function will find the minimum number terms possible to fit all c
 """
 function find_min_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     min_terms::Int=1, max_terms::Int=10, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
-    for term_count in range(min_terms,max_terms)
+    for term_count in range(min_terms, stop=max_terms)
         terms, control = create_terms(curric; term_count=term_count, min_credits_per_term = min_credits_per_term,
             max_credits_per_term = max_credits_per_term)
         if control
