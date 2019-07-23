@@ -86,21 +86,25 @@ The currently supported objective functions are described next.
 **Balanced curriculum objective.**  The goal of this objective function is to create degree plans that have roughly the same number of credit hours in every term.  This can be expressed as:
 
 ```math
-\min \left( \sum_{i=1}^m \sum_{j=1}^m \left\vert \theta_i - \theta_j\right\vert \right).
+f(x) = \min \left( \sum_{i=1}^m \sum_{j=1}^m \left\vert \theta_i(x) - \theta_j(x)\right\vert \right).
 ```
+
+which may be rewritten as a linear objective function so that integer linear programming may be applied.
 
 **Requisite distance objective.**  The goal of this objective function is to create degree plans where the pre- and co-requisites for every course $c$ in a curriculum appears as close as possible to the term in which $c$ appears in the degree plan.  Consider a curriculum graph $G = (V,E)$.  The objective function can then be expressed as:
 
 ```math
-  min\left( \left\vert T_j - T_i \right\vert \right) \ \  \forall e = (i,j) \in E.
+  f(x) = min\left( \left\vert T_j(x) - T_i(x) \right\vert \right) \ \  \forall e = (i,j) \in E.
 ```
+
+which may be rewritten as a linear objective function so that integer linear programming may be applied.
 
 **Toxic course avoidance objective.**  For some students, it is the case that certain courses have a toxic impact on other courses in the curriculum if they are taken together in the same term.  That is, course $a$ has a toxic impact on course $b$ if a student is less likely to pass course $b$ if it is taken in the same term as course $a$.  The goal of this objective function is to schedule courses so that toxic course combinations do not appear in the same term in the degree plan.
 
-Let $-1 \leq \aleph_{ij} \leq 1$ denote the toxic impact that course $i$ has on course $j$ if they are taken together in the same term.  (Note: negative values of $\aleph_{ij}$ actually indicate that course $i$ has a synergistic impact on course $j$.) The objective function for toxic course avoidance can then be expressed as:
+Let $-1 \leq \aleph_{ij} \leq 1$ denote the toxic impact that course $i$ has on course $j$ if they are taken together in the same term.  (Note: negative values of $\aleph_{ij}$ actually indicate that course $i$ has a synergistic impact on course $j$.) A quadratic objective function for toxic course avoidance can then be expressed as:
 
 ```math
-\min \left( \sum_{t=1}^m \sum_{i=1}^n \sum_{j=1}^n  \aleph_{ij} \cdot x_{it} \cdot x_{jt} \right).
+f(x) = \min \left( \sum_{t=1}^m \sum_{i=1}^n \sum_{j=1}^n  \aleph_{ij} \cdot x_{it} \cdot x_{jt} \right).
 ```
 
 The `optimize_plan` function in the toolbox implements the optimziation problems described above.
