@@ -51,12 +51,18 @@ Note that $T_i$ can be obtained from the assignment matrix using:
  T_i = \sum_{j=1}^m j \cdot x_{ij}. 
 ```
 
-In order to guide the optimzation algorithms towards reasonable soluations, additional constraints are required.  In partciular, it is necessarey to specify the maximum number of terms you would like the degree plan to contain, denoted $\alpha$, as well as the minimum and maximum  number of credit hours allowed in each term, denoted $\beta$ and $\gamma$, respectively.  If we let $c_i$ denote the number of credit hours associated with course $i$, then these conditions may be expressed as the following constraints:
+In order to guide the optimzation algorithms towards reasonable soluations, additional constraints are required.  In partciular, it is necessarey to specify the maximum number of terms you would like the degree plan to contain, denoted $\alpha$, as well as the minimum and maximum  number of credit hours allowed in each term, denoted $\beta$ and $\gamma$ respectively. If we let $c_i$ denote the number of credit hours associated with course $i$, and $\theta_j$ the number of credit hours in term $j$, then
+
+```math
+ \theta_j = \sum_{i=1}^n c_i \cdot x_{ij}, \ \ \ \ j = 1, \ldots, m,
+```
+
+ and the aforementioned conditions may be expressed as the following constraints:
 
 ```math
   \mbox{Constraint 5:} \ \ m \ < \ \alpha , \\
-  \mbox{Constraint 6:} \ \sum_{i=1}^n c_i \cdot x_{ij} \ \ge \ \beta, \ \ \ \ j = 1, \ldots, m. \\
-  \mbox{Constraint 7:} \ \sum_{i=1}^n c_i \cdot x_{ij} \ \leq \ \gamma, \ \ \ \ j = 1, \ldots, m.
+  \mbox{Constraint 6:} \ \theta_j \ \ge \ \beta, \ \ \ \ j = 1, \ldots, m. \\
+  \mbox{Constraint 7:} \ \theta_j \ \leq \ \gamma, \ \ \ \ j = 1, \ldots, m.
 ```
 
 ### Objective Functions
@@ -80,7 +86,7 @@ The currently supported objective functions are described next.
 **Balanced curriculum objective.**  The goal of this objective function is to create degree plans that have roughly the same number of credit hours in every term.  This can be expressed as:
 
 ```math
-\min \left( \sum_{i=1}^m \sum_{j=1}^m \left\vert T_i - T_j\right\vert \right).
+\min \left( \sum_{i=1}^m \sum_{j=1}^m \left\vert \theta_i - \theta_j\right\vert \right).
 ```
 
 **Requisite distance objective.**  The goal of this objective function is to create degree plans where the pre- and co-requisites for every course $c$ in a curriculum appears as close as possible to the term in which $c$ appears in the degree plan.  Consider a curriculum graph $G = (V,E)$.  The objective function can then be expressed as:
