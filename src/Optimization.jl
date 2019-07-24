@@ -423,7 +423,6 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
     if multi
         objectives = []
         for objective in obj_order
-            println("OBJECTIVE: $objective")
             if objective == "Toxicity"
                 push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses ,term_count, x, ts, curric.id, multi))
             elseif objective == "Balance"
