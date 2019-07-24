@@ -207,7 +207,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         end
     end
 
-    if multi
+    if multi == true
         objectives = []
         for objective in obj_order
             if objective == "Toxicity"
