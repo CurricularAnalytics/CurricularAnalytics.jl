@@ -3,6 +3,8 @@ using Gurobi
 using LinearAlgebra
 using LightGraphs
 
+include("CSVUtilities.jl")
+
 # Helper function that uses the course ID to find the vertex id of taht course in a curriculum graph.
 function get_vertex(courseID, curric)
     for course in curric.courses
