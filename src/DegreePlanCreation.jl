@@ -13,7 +13,7 @@ end
 
 function check_requistes(curric::Curriculum, index::Int, previous_terms::Array{Int}, current_term::Array{Int})
     req_complete = true
-    #find all inneighbors of current node
+    # find all inneighbors of vertex with index supplied as input
     inngbr = inneighbors(curric.graph, index)
     for ngbr in inngbr
         req_type = curric.courses[index].requisites[curric.courses[ngbr].id]
@@ -34,7 +34,7 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
     if !("complexity" in keys(curric.metrics))
         complexity(curric)
     end
-    sorted_index = sortperm(curric.metrics["complexity"][2], rev=true)
+    sorted_index = sortperm(curric.metrics["complexity"][2], rev=true)  # returns a permutation vector
     terms = Array{Term}(undef, min_terms)
     all_applied_courses = Int[]
     for current_term in 1:min_terms
@@ -45,7 +45,7 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
         avrg_credit_remaining = floor(Int, (curric_total_credit + min_terms - current_term)/ (min_terms-current_term + 1))
         # Check if upper limit of average credit hours for remaining terms exceeds the maximum credits per term.
         # If it does, there is no way to fit remaining classses in, so try again after increasing the number of terms.
-        if avrg_credit_remaining  < max_credits_per_term
+        if avrg_credit_remaining < max_credits_per_term
             # Go through all courses to add in current term according to the complexity score
             for index in sorted_index
                 # Ignore if current course was already added to a previous term
@@ -64,7 +64,7 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
                                     break
                                 end
                                 credit_add +=  curric.courses[ngbr].credit_hours
-                                push!(courses_to_add,ngbr)
+                                push!(courses_to_add, ngbr)
                             end
                         end
                         # Add current course if it does not overflow the bin 
@@ -100,7 +100,7 @@ function bin_packing(curric::Curriculum, additional_courses::Array{Course}=Array
             return bin_packing(curric, additional_courses; min_terms=min_terms+1, max_terms=max_terms, min_credits_per_term=min_credits_per_term,
              max_credits_per_term=max_credits_per_term)
         else 
-            return false  # The algorithm failed.
+            return false  # No solution, the degree plans requires more terms than max_terms
         end
     end
     return terms
@@ -175,7 +175,7 @@ find_min_terms function will find the minimum number terms possible to fit all c
     1- Boolean value which shows if term list created for term count.
     2- Term list which contains all courses for related term id.
     3- The term_count is a integer value to show minimum number of terms possible to fit all courses.
-    * Altough this function returns term list, it does not guaranty that each term will have the same number of credit hours.
+    * Altough this function returns term list, it does not guarantee that each term will have the same number of credit hours.
     It will put all courses as early term as possible according to the complexity score.
 """
 function find_min_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
