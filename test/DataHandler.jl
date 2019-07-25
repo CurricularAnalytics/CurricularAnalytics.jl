@@ -3,9 +3,9 @@
 @testset "DataHandler Tests" begin
 
 # test the data file format used for curricula
-# uncomment for Travis
-#dp = read_csv("degree_plan.csv")
-curric = read_csv("./test/curriculum.csv")
+# uncomment for top for local test
+# curric = read_csv("./test/curriculum.csv")
+curric = read_csv("./curriculum.csv")
 
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
@@ -110,9 +110,9 @@ end
 # TODO: add learning outcomes
 
 # test the data file format used for degree plans
-# uncomment for Travis
-#dp = read_csv("degree_plan.csv")
-dp = read_csv("./test/degree_plan.csv")
+# uncomment for local test
+# dp = read_csv("./test/degree_plan.csv")
+dp = read_csv("degree_plan.csv")
 @test dp.name == "4-Term Plan"
 @test dp.curriculum.name == "Underwater Basket Weaving"
 @test dp.curriculum.institution == "ACME State University"
