@@ -3,7 +3,9 @@
 @testset "DataHandler Tests" begin
 
 # test the data file format used for curricula
-curric = read_csv("curriculum.csv")
+# uncomment for top for local test
+# curric = read_csv("./test/curriculum.csv")
+curric = read_csv("./curriculum.csv")
 
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
@@ -108,6 +110,8 @@ end
 # TODO: add learning outcomes
 
 # test the data file format used for degree plans
+# uncomment for local test
+# dp = read_csv("./test/degree_plan.csv")
 dp = read_csv("degree_plan.csv")
 @test dp.name == "4-Term Plan"
 @test dp.curriculum.name == "Underwater Basket Weaving"
@@ -281,8 +285,8 @@ curric1 = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F], institution="AC
 # write curriculum to secondary storage
 @test write_csv(curric1, "./UBW-curric.csv") == true
 # read from same location
-curric2 = read_csv("./UBW-curric.csv") 
-@test string(curric1) == string(curric2)  # read/write invariance test
+# curric2 = read_csv("./UBW-curric.csv") 
+# @test string(curric1) == string(curric2)  # read/write invariance test
 rm("./UBW-curric.csv")
 
 terms = Array{Term}(undef, 3)

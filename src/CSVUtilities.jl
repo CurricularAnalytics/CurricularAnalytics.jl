@@ -118,8 +118,8 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
         c_ID = row[Symbol("Course ID")]
         c_Name = find_cell(row, Symbol("Course Name"))
         c_Credit = row[Symbol("Credit Hours")] 
-        c_Credit = typeof(c_Credit) == String ? parse(Int,c_Credit) : c_Credit
-        c_Prefix = find_cell(row, Symbol("Prefix"))
+        c_Credit = typeof(c_Credit) == String ? parse(Float64, c_Credit) : c_Credit
+        c_Prefix = string(find_cell(row, Symbol("Prefix")))
         c_Number = find_cell(row, Symbol("Number"))
         if typeof(c_Number) != String c_Number = string(c_Number) end
         c_Inst = find_cell(row, Symbol("Institution"))
@@ -167,7 +167,7 @@ function read_courses(df_courses::DataFrame, all_courses::Dict{Int,Course})
     return course_dict
 end
 
-function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
+function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
     terms = Dict{Int, Array{Course}}()
     have_term = Course[]
     not_have_term = Course[]
@@ -179,7 +179,7 @@ function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course
                 if typeof(row[Symbol("Term")]) != Missing
                     push!(have_term, course)
                     if term_ID in keys(terms)
-                        push!(terms[term_ID],course) 
+                        push!(terms[term_ID], course) 
                     else
                         terms[term_ID] = [course]
                     end
@@ -192,7 +192,7 @@ function read_terms(df_courses::DataFrame,course_dict::Dict{Int, Course}, course
     end  
     terms_arr = Array{Term}(undef, length(terms))
     for term in terms
-        terms_arr[term[1]]=Term([class for class in term[2]])
+        terms_arr[term[1]] = Term([class for class in term[2]])
     end
     if length(not_have_term) == 0
         return terms_arr
