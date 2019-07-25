@@ -22,7 +22,6 @@ include("DegreePlanAnalytics.jl")
 include("CSVUtilities.jl")
 include("DataHandler.jl")
 include("Visualization.jl")
-include("Optimization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co,
         EdgeClass, LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, 
@@ -31,7 +30,13 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
         read_csv, create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, 
         update_plan, write_csv, find_min_terms, balance_terms, balance_terms_opt, find_min_terms_opt, 
-        read_Opt_Config, optimize_plan, json_to_julia, julia_to_json
+        read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_optimization
+
+function init_optimization()
+    println("In order to use the optimization functions you must first install the Gurobi Optimizer \n
+                Please see - https://www.gurobi.com/products/gurobi-optimizer/")
+    include("src/Optimization.jl")
+end
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
 """
