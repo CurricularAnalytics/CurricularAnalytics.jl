@@ -125,11 +125,7 @@ function read_csv(file_path::AbstractString)
         else
             df_all_courses = df_courses
         end
-        
-        #if is_dp && any(ismissing.(df_all_courses[Symbol("Term")]))
-        #    println("All courses in Degree Plan must have Term information")
-        #   return false
-        #end  
+         
         df_course_learning_outcomes=""
         if length(read_line)>0 && read_line[1] == "Course Learning Outcomes"
             learning_outcomes_start = additional_course_start+additional_course_count+1
@@ -166,23 +162,23 @@ function read_csv(file_path::AbstractString)
         curric_learning_outcomes = if df_curric_learning_outcomes != "" generate_curric_lo(df_curric_learning_outcomes) else LearningOutcome[] end
 
         if is_dp
-            all_courses = read_all_courses(df_all_courses,course_learning_outcomes)
+            all_courses = read_all_courses(df_all_courses, course_learning_outcomes)
             if typeof(all_courses) == Bool && !all_courses
                 return false
             end
             all_courses_arr = [course[2] for course in all_courses]
-            additional_courses = read_courses(df_additional_courses,all_courses)  
+            additional_courses = read_courses(df_additional_courses, all_courses)  
             ac_arr = Course[]
             for course in additional_courses
                 push!(ac_arr, course[2])
             end
             curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
-                                system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
+                                    system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
             terms = read_terms(df_all_courses, all_courses, all_courses_arr)
             #If some courses has term informations but some does not
             if isa(terms, Tuple)
                 #Add curriculum to the output tuple
-                output = (terms..., curric, dp_name, ac_arr)
+                output = (terms..., curric, dp_name, ac_arr) # ... operator enumrates the terms
             else
                 degree_plan = DegreePlan(dp_name, curric, terms, ac_arr)
                 output = degree_plan
@@ -549,28 +545,31 @@ function read_Opt_Config(file_path)
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
-            println("First line of config file must contain term count")
+            println("First line of config file must contain 'Term Count'")
         end
         if read_line[1] == "Min Credit"
             min_credits_per_term = parse(Int, read_line[2])
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
-            println("First line of config file must contain Min Credit")
+            println("Second line of config file must contain 'Min Credit'")
         end
         if read_line[1] == "Max Credit"
             max_credits_per_term = parse(Int, read_line[2])
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
-            println("First line of config file must contain Max Credit")
+            println("Third line of config file must contain 'Max Credit'")
         end
         if read_line[1] == "Objective Order"
             obj_order = split(read_line[2],";")
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
         else
-            println("First line of config file must contain Max Credit")
+            println("Fourth line of config file must contain 'Objective Order'")
+        end
+        if length(read_line) == 0
+            return
         end
         if read_line[1] == "Fixed Terms"
             read_line = csv_line_reader(readline(csv_file), ',')
@@ -644,9 +643,13 @@ function read_Opt_Config(file_path)
         if read_line[1] == "Different Max Credit For Terms"
             read_line = csv_line_reader(readline(csv_file), ',')
             header += 1
-            if read_line[1] != "Term" || read_line[2] != "Max Credit"
-                println("Error detected with Different Max Credit For Terms headers.")
-                return false
+            if read_line[1] != "Term"
+                println("Line below Different Max Credit must have 'Term' in first col.")
+                return false;
+            end
+            if read_line[2] != "Max Credit"
+                println("Line below Different Max Credit must have 'Max Credit' in second col.")
+                return false;
             end
             diffMaxCount = 0 
             read_line = csv_line_reader(readline(csv_file), ',')
@@ -665,5 +668,5 @@ function read_Opt_Config(file_path)
             end
         end
     end
-    return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term,obj_order, diffMax
+    return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term, obj_order, diffMax
 end

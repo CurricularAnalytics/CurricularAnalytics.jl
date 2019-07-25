@@ -1,6 +1,6 @@
 # Curricular Analytics Toolbox
 
-[CurricularAnalytics.jl](https://github.com/heileman/CurricularAnalytics.jl) is a toolbox for studying, analyzing and comparing academic program curricula and their associated degree plans. The toolbox was built using the [Julia programming language](http://julialang.org). For assistance in installing the toolbox, see the [Installation](@ref) section. We welcome contributions and usage examples. If you would like to contribute to the toolbox, please see the [Contributor Guide](@ref). To cite this toolbox, please see [How to Cite CurricularAnalytics.jl](@ref).
+[CurricularAnalytics.jl](https://github.com/CurricularAnalytics/CurricularAnalytics.jl) is a toolbox for studying, analyzing and comparing academic program curricula and their associated degree plans. The toolbox was built using the [Julia programming language](http://julialang.org). For assistance in installing the toolbox, see the [Installation](@ref) section. We welcome contributions and usage examples. If you would like to contribute to the toolbox, please see the [Contributor Guide](@ref). To cite this toolbox, please see [How to Cite CurricularAnalytics.jl](@ref).
 
 ## Terminology
 
@@ -16,7 +16,7 @@ In order to attain the learning outcomes associated with course ``B``, a student
 
 A *degree plan* is a term-by-term arrangement for taking all of the courses in a curriculum, layed out so as to satisfy all requisite relationships. A *term* is typically offered either in the semester (two terms/academic year) or quarter (three terms/academic year) format. It is common for schools to offer two-year degree plans for associates degrees and four-year degree plans for bachelors degrees.
 
-There is a one-to-many relationship a curriculum and the degree plans that satisfy the curriculum. I.e., many different degree plans can be constructed to satisfy a single curriculum. Furthermore, it is likely that some of these degree plans are better suited to the needs of particular students. In addition, it is important to note that a degree plan may contain more courses than are stipulated in a curriculum. For instance, a student may not have the background necessary to take the first math course in a curriculum, necessitating the addition of a prerequisite math class as a part of the degree plan.
+There is a one-to-many relationship between a curriculum and the degree plans that satisfy the curriculum. I.e., many different degree plans can be constructed to satisfy a single curriculum. Furthermore, it is likely that some of these degree plans are better suited to the needs of particular students. In addition, it is important to note that a degree plan may contain more courses than are stipulated in a curriculum. For instance, a student may not have the background necessary to take the first math course in a curriculum, necessitating the addition of a prerequisite math class as a part of the degree plan. 
 
 ### -- Example --
 
@@ -43,7 +43,7 @@ The toolbox represents curricula as graphs, allowing various graph-theoretic mea
 
 The basic data types used in the CurricularAnalytics.jl libraries are described in [CurricularAnalytics.jl Data Types](@ref). This section also describes a number of convenient functions that can be used to create curricula and degree plans. Functions that can be used to read and write curricula and degree plans to/from permanent storage are described in [Reading/Writing Curricula & Degree Plans](@ref).
 
-Metrics that have been developed to quantify the complexity of curricula and degree plans are described in [Metrics](@ref). Functions that can be used to study degree plans, and to create degree plans according to various optimization criteria are described in [Optimizing Degree Plans](@ref).
+Metrics that have been developed to quantify the complexity of curricula and degree plans are described in [Metrics](@ref). Functions that can be used to study degree plans, and to create degree plans according to various constraints and optimization criteria are described in [Creating Degree Plans](@ref).
 
 Visualization-related functions are described in [Visualizing Curricula and Degree Plans](@ref).
 
