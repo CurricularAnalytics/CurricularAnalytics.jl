@@ -99,7 +99,7 @@ which may be rewritten as a linear objective function so that integer linear pro
 
 which may be rewritten as a linear objective function so that integer linear programming may be applied.
 
-**Toxic course avoidance objective.**  For some students, it is the case that certain courses have a toxic impact on other courses in the curriculum if they are taken together in the same term.  That is, course $a$ has a toxic impact on course $b$ if a student is less likely to pass course $b$ if it is taken in the same term as course $a$.  The goal of this objective function is to schedule courses so that toxic course combinations do not appear in the same term in the degree plan.
+**Toxic course combination avoidance objective.**  For some students, it is the case that certain courses have a toxic impact on other courses in the curriculum if they are taken together in the same term.  That is, course $a$ has a toxic impact on course $b$ if a student is less likely to pass course $b$ if it is taken in the same term as course $a$.  The goal of this objective function is to schedule courses so that toxic course combinations do not appear in the same term in the degree plan.
 
 Let $-1 \leq \aleph_{ij} \leq 1$ denote the toxic impact that course $i$ has on course $j$ if they are taken together in the same term.  (Note: negative values of $\aleph_{ij}$ actually indicate that course $i$ has a synergistic impact on course $j$.) A quadratic objective function for toxic course avoidance can then be expressed as:
 
