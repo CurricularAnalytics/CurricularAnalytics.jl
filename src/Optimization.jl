@@ -206,8 +206,6 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         curric = input
         courses = curric.courses
     end
-    
-
     m = Model(solver = GurobiSolver())
     multi = length(obj_order) > 1
     if multi
@@ -218,7 +216,10 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
     
     c_count = length(curric.courses)
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
-    taken_cour_ids = [c.id for c in input[2]]
+    taken_cour_ids = []
+    if isa(input, Tuple)
+        taken_cour_ids = [c.id for c in input[2]]
+    end
     credit = [c.credit_hours for c in curric.courses]
     mask = [i for i in 1:termCount]
     @variable(m, x[1:c_count, 1:termCount], Bin)
@@ -364,8 +365,9 @@ function optimize_plan(config_file, curric_file, toxic_score_file= "")
         if isa(input, Tuple)
             dp = DegreePlan(input[5], curric, optimal_terms, input[6])
         end
-        visualize(dp, notebook=true)
+        return dp
     else
         println("not optimal")
+        return false
     end
 end
