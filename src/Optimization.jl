@@ -100,7 +100,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
     # read parameters from the configuration file
     consec_courses, fix_courses, term_range, term_count, min_cpt, max_cpt,
         obj_order, diff_max_cpt = read_Opt_Config(config_file)
-    
+    println("done")
     input = read_csv(curric_degree_file)
     curric = []
     courses = []
@@ -111,33 +111,19 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         curric = input
         courses = curric.courses
     end
-<<<<<<< HEAD
-    m = Model(solver = GurobiSolver())
+    model = Model(solver = GurobiSolver())
     multi = length(obj_order) > 1
     if multi
-        m = multi_model(solver = GurobiSolver(), linear = true)
-=======
-
-    # Construct the model and use the Groubi solver.
-    length(obj_order) > 1 ? multi = true : multi = false  # Multi-objective optimization?
-    if multi == true
-        model = multi_model(solver = GurobiSolver(OutputFlag=0), linear = true) # Supress the output of the solver w/ OutputFlag=0.
-    else
-        model = Model(solver = GurobiSolver(OutputFlag=0))
->>>>>>> dca6345cd00877ce859a0230c2556840d96dd973
+        model = multi_model(solver = GurobiSolver(), linear = true)
     end
     
     c_count = length(curric.courses)
     # Create a map from course ID in curriculum to vertex ID of course in the curriculum graph.
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
-<<<<<<< HEAD
-    taken_cour_ids = []
+    taken_course_ids = []
     if isa(input, Tuple)
-        taken_cour_ids = [c.id for c in input[2]]
+        taken_course_ids = [c.id for c in input[2]]
     end
-=======
-    taken_course_ids = [c.id for c in input[2]]
->>>>>>> dca6345cd00877ce859a0230c2556840d96dd973
     credit = [c.credit_hours for c in curric.courses]
     # The mask vector is used to determine the term that a course is in, via dot product with a row of the x matrix
     mask = [i for i in 1:term_count]
@@ -287,225 +273,8 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
             dp = DegreePlan(input[5], curric, optimal_terms, input[6])
         end
         return dp
-<<<<<<< HEAD
     else
         println("not optimal")
         return false
-=======
-    else
-        return # An optimal solution was not found.
-    end
-end
-
-
-# This version of the optimize_plan function allows the user to pass pass the curriculum as an object (type: Curriculum)
-# The user can also provide the configuration options via keyword args rather than a CSV file.
-"""
-    optimize_plan(c::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, 
-      obj_order::Array{String, 1}; diff_max_cpt::Array{UInt, 1}, fix_courses::Dict,
-      consec_courses::Dict, term_range::Dict, prior_courses::Array{Term, 1})
-
-Using the curriculum `c` supplied as input, returns a degree plan optimzed according to the various 
-optimization criteria that have been specified as well as the objective functions that have been selected.
-
-If an optimzied plan cannot be constructed (i.e., the constraints are such that an optimal solution is infeasible),
-`nothing` is returned, and the solver returns a message indicating that the problems is infeasible.  In these cases,
-you may wish to experiment with the constraint values.
-
-# Arguments
-- `curric::Curriculum` : the curriculum the degree plan will be created from.
-- `term_count::Int` : the maximum number of terms in the degree plan.
-- `min_cpt::Int` : the minimum number of credits allowed in each term.
-- `max_cpt::Int`: the minimum number of credits allowed in each term.
-- `obj_order::Array{String, 1}` : the order in which the objective functions shoud be evaluated.  Allowable strings are:
-  * `Balance` - the balanced curriculum objective described above.
-  * `Prereq` - the requisite distnace objective described above.
-  * `Toxicity` - the toxic course avoidance objective described above.
-- `diff_max_cpt::Array{UInt, 1}` :  specify particular terms that may deviate from the `max_cpt` specified previously.
-- `fix_courses::Dict(Int, Int)` : specify courses that should be assigned to particular terms in `(course_id, term)` 
-    format.
-- `consec_courses::Dict(Int, Int)`: specify pairs of courses that should appear in consecutive terms in `(course_id, course_id)` format.
-- `term_range::Dict(Int, (Int, Int))` : specify courses that should in a particular range of terms in `(course_id, (low_range, high_range))` format.
-- `prior_courses::Array{Term, 1}` : specify courses that were already completed in prior terms.
-
-# Example
-```julia-repl
-julia> curric = read_csv("path/to/curric.csv")
-julia> dp = optimize_plan(curric, 8, 6, 18, ["Balance", "Prereq"])
-```
-"""
-function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, 
-                        obj_order::Array{String, 1}; diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), fix_courses::Dict=Dict(),
-                        consec_courses::Dict=Dict(), term_range::Dict=Dict(), prior_courses::Array{Term, 1}=Array{Term}(undef, 0))
-    
-    # toxicity_scores::AbstractString (This is the file containing toxicity scores, but does it neccessarily need to be a file? 
-    # In theory it could be a dictionary or some similar data structure. 
-
-    # Construct the model and use the Groubi solver.
-    length(obj_order) > 1 ? multi = true : multi = false  # Multi-objective optimization?
-    if multi == true
-        model = multi_model(solver = GurobiSolver(OutputFlag=0), linear = true) # Supress the output of the solver w/ OutputFlag=0.
-    else
-        model = Model(solver = GurobiSolver(OutputFlag=0))
-    end
-
-    # Gather the taken course IDs from prior_courses
-    taken_course_ids = []
-    for term in prior_courses
-        for course in term.courses
-            push!(taken_course_ids, course.id)
-        end
-    end
-    
-    courses = curric.courses
-    c_count = length(curric.courses)
-    vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
-    credit = [c.credit_hours for c in curric.courses]
-    mask = [i for i in 1:term_count]
-    # Bin specifes binary optimzation variables in JuMP.
-    @variable(model, x[1:c_count, 1:term_count], Bin)
-    @variable(model, y[1:term_count, 1:term_count] >= 0) # Variables used for balanced curriculum objective function.
-    ts=[]
-    distance = []
-    # Iterate through all courses and create basic requisite constraints
-    for c in courses
-        for req in c.requisites
-            if !(req[1] in prior_courses)
-                if req[2] == pre
-                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))-1))
-                elseif req[2] == co
-                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) <= (sum(dot(x[c.vertex_id[curric.id],:],mask))))
-                elseif req[2] == strict_co
-                    @constraint(model, sum(dot(x[vertex_map[req[1]],:],mask)) == (sum(dot(x[c.vertex_id[curric.id],:],mask))))
-                else
-                    println("requisite type error")
-                end
-            end
-        end   
-    end
-    for idx in 1:c_count
-        # Output must include all courses once.
-        if idx in values(vertex_map)
-            @constraint(model, sum(x[idx,:]) == 1)
-        else
-            @constraint(model, sum(x[idx,:]) == 0)
-        end
-    end
-    
-    # Each term must include at least the min # of credits and no more than the max # of credits allowed for a term
-    @constraints model begin
-        term_lower[j=1:term_count], sum(dot(credit,x[:,j])) >= min_cpt
-    end
-
-    # Each term must have no more than the max number of credits defined via the configuration config_file
-    for j in 1:term_count
-        if j in keys(diff_max_cpt)
-            @constraint(model, sum(dot(credit,x[:,j])) <= diff_max_cpt[j])
-        else
-            @constraint(model, sum(dot(credit, x[:,j])) <= max_cpt)
-        end
-    end
-
-    if length(keys(fix_courses)) > 0
-        for courseID in keys(fix_courses)
-            if !(courseID in prior_courses)
-                vID = get_vertex(courseID, curric)
-                if vID != 0
-                    @constraint(model, x[vID,fix_courses[courseID]] == 1)  # GLH: changed from >= to == 
-                else
-                    println("Vertex ID cannot be found for course: $courseName")
-                end
-            end
-        end
-    end
-
-    if length(keys(consec_courses)) > 0
-        for (first, second) in consec_courses
-            vID_first = get_vertex(first, curric)
-            vID_second = get_vertex(second, curric)
-            if vID_first != 0 && vID_second != 0
-                @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
-                @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
-            else
-                println("Vertex ID cannot be found for course: $first or $second")
-            end
-        end
-    end
-    if length(keys(term_range)) > 0
-        for (courseID,(lowTerm, highTerm)) in term_range
-            vID_Course = get_vertex(courseID, curric)
-            if vID_Course != 0
-                @constraint(model, sum(dot(x[vID_Course,:],mask)) >= lowTerm)
-                @constraint(model, sum(dot(x[vID_Course,:],mask)) <= highTerm)
-            end
-        end
-    end
-
-    if multi
-        objectives = []
-        for objective in obj_order
-            if objective == "Toxicity"
-                push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses ,term_count, x, ts, curric.id, multi))
-            elseif objective == "Balance"
-                push!(objectives, balance_obj(model,max_cpt, term_count, x, y, credit, multi))
-            elseif objective == "Prereq"
-                push!(objectives, req_distance_obj(model, mask, x, curric.graph, distance, multi))
-            elseif haskey(custom_objectives, objective)
-                push!(objectives, custom_objectives[objective])
-            end
-        end
-        multim = get_multidata(model)
-        multim.objectives = objectives
-    else
-        if obj_order[1] == "Toxicity"
-            toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric.id, multi)
-        end
-        if obj_order[1] == "Balance"
-            balance_obj(model, max_cpt, term_count, x, y, credit, multi)
-        end
-        if obj_order[1] == "Prereq"
-            req_distance_obj(model, mask, x, curric.graph, distance, multi)
-        end
-    end
-    status = solve(model)
-    if status == :Optimal
-        output = getvalue(x)
-        if "Balance" in obj_order
-            println(sum(getvalue(y)))
-        end
-        if "Toxicity" in obj_order
-            println(sum(getvalue(ts)))
-        end
-        if "Prereq" in obj_order
-            println(sum(getvalue(distance)))
-        end
-
-        # Create array that will hold the optimized terms for the degree plan
-        optimal_terms = Array{Term}(undef, 0)
-        # If there are prior courses (terms), then put them at the beginning of the optimized terms array
-        if length(prior_courses) > 0
-            optimal_terms = prior_courses # Add the courses that have already been taken to the degree plan. 
-        end
-        # Fill in the remaining terms as determined by the optimization algorithm.
-        for j=1:term_count
-            if sum(dot(credit, output[:,j])) > 0 
-                term = Course[]
-                for course_id in keys(vertex_map)
-                    if round(output[vertex_map[course_id],j]) == 1
-                        for c in courses
-                            if c.id == course_id
-                                push!(term, c)
-                            end
-                        end
-                    end 
-                end
-                push!(optimal_terms, Term(term))
-            end
-        end
-        dp = DegreePlan("", curric, optimal_terms)
-        return dp
-    else
-        return # An optimal solution was not found.
->>>>>>> dca6345cd00877ce859a0230c2556840d96dd973
     end
 end
