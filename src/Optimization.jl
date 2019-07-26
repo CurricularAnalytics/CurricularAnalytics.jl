@@ -272,7 +272,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         if isa(input, Tuple)
             dp = DegreePlan(input[5], curric, optimal_terms, input[6])
         end
-        return dp
+        visualize(dp, notebook=true)
     else
         return # An optimal solution was not found.
     end
