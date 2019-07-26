@@ -666,11 +666,6 @@ function read_Opt_Config(file_path)
             for row in DataFrames.eachrow(df_diffMax)
                 diffMax[row[Symbol("Term")]] = row[Symbol("Max Credit")]
             end
-            for term_id in 1:termCount
-                if !(term_id in keys(diffMax))
-                    diffMax[term_id] = max_credits_per_term
-                end
-            end
         end
     end
     return consequtiveCourses, fixedCourses, termRange, termCount, min_credits_per_term, max_credits_per_term, obj_order, diffMax

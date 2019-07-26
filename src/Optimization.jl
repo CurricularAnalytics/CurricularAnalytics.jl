@@ -111,12 +111,6 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         curric = input
         courses = curric.courses
     end
-<<<<<<< HEAD
-    m = Model(solver = GurobiSolver())
-    multi = length(obj_order) > 1
-    if multi
-        m = multi_model(solver = GurobiSolver(), linear = true)
-=======
 
     # Construct the model and use the Groubi solver.
     length(obj_order) > 1 ? multi = true : multi = false  # Multi-objective optimization?
@@ -124,20 +118,12 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
         model = multi_model(solver = GurobiSolver(OutputFlag=0), linear = true) # Supress the output of the solver w/ OutputFlag=0.
     else
         model = Model(solver = GurobiSolver(OutputFlag=0))
->>>>>>> dca6345cd00877ce859a0230c2556840d96dd973
     end
     
     c_count = length(curric.courses)
     # Create a map from course ID in curriculum to vertex ID of course in the curriculum graph.
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
-<<<<<<< HEAD
-    taken_cour_ids = []
-    if isa(input, Tuple)
-        taken_cour_ids = [c.id for c in input[2]]
-    end
-=======
     taken_course_ids = [c.id for c in input[2]]
->>>>>>> dca6345cd00877ce859a0230c2556840d96dd973
     credit = [c.credit_hours for c in curric.courses]
     # The mask vector is used to determine the term that a course is in, via dot product with a row of the x matrix
     mask = [i for i in 1:term_count]
@@ -287,11 +273,6 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
             dp = DegreePlan(input[5], curric, optimal_terms, input[6])
         end
         return dp
-<<<<<<< HEAD
-    else
-        println("not optimal")
-        return false
-=======
     else
         return # An optimal solution was not found.
     end
@@ -506,6 +487,5 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         return dp
     else
         return # An optimal solution was not found.
->>>>>>> dca6345cd00877ce859a0230c2556840d96dd973
     end
 end
