@@ -1,4 +1,8 @@
-using Blink, JSON, WebIO, HTTP
+using JSON
+using WebIO
+using HTTP
+using Blink
+
 import HTTP.Messages
 
 const LOCAL_EMBED_PORT = 8156

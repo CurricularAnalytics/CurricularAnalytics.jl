@@ -28,8 +28,15 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         total_credits, requisite_type, Term, DegreePlan, dfs, longest_path, long_paths,
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality,
         complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
-        read_csv, create_degree_plan, bin_packing, add_lo_requisite!, update_plan, write_csv,
-        find_min_terms, balance_terms, balance_terms_opt, find_min_terms_opt, read_Opt_Config
+        read_csv, create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, 
+        update_plan, write_csv, find_min_terms, balance_terms, balance_terms_opt, find_min_terms_opt, 
+        read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_optimization
+
+function init_optimization()
+    println("In order to use the optimization functions you must first install the Gurobi Optimizer \n
+                Please see - https://www.gurobi.com/products/gurobi-optimizer/")
+    include("src/Optimization.jl")
+end
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
 """
@@ -313,7 +320,6 @@ in part (b) will be slightly more difficult to complete than the one in part (a)
 that course ``v_1`` in part (a) has the highest individual course complexity, but the combination of 
 courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
 ``v_3`` in that curriculum, has a higher combined complexity.
-
 """
 function complexity(c::Curriculum)
     course_complexity = Array{Number, 1}(undef, c.num_courses)
