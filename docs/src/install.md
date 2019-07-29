@@ -9,7 +9,7 @@ The CurricularAnalytics.jl toolbox contains sophisticated visualization capabili
 
 ## Additional Requirements
 
-If you plan to use the optimization capabilities built into the degree plan creation functions, you must install the [Gurobi Solver](https://www.gurobi.com/products/gurobi-optimizer/). Gurobi is a commercial product, and requires a license key. However, [academic licenses](https://www.gurobi.com/downloads/end-user-license-agreement-academic/) are available at no cost.
+If you plan to use the optimization capabilities built into the degree plan creation functions, you must install the [Gurobi Optimizer](https://www.gurobi.com/downloads/gurobi-optimizer-eula/). Gurobi is a commercial product, and requires a license key. However, [academic licenses](https://www.gurobi.com/downloads/end-user-license-agreement-academic/) are available at no cost.
 
 After installing the Gurobi Solver you must run the following command in the Julia REPL by typing `]`, and then:
 ```julia-repl
