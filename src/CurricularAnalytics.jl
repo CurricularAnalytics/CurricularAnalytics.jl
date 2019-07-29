@@ -33,8 +33,7 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_optimization
 
 function init_optimization()
-    println("In order to use the optimization functions you must first install the Gurobi Optimizer \n
-                Please see - https://www.gurobi.com/products/gurobi-optimizer/")
+    println("In order to use the optimization functions you must first install the Gurobi Optimizer \n Please see - https://www.gurobi.com/downloads/gurobi-optimizer-eula/")
     include("src/Optimization.jl")
 end
 
@@ -69,7 +68,7 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     cycles = simplecycles(g)
     if size(cycles,1) != 0
         validity = false
-        write(error_msg, "\nCurriculum $(c.name) has requisite cycles:\n")
+        write(error_msg, "\nCurriculum \'$(c.name)\' has requisite cycles:\n")
         for cyc in cycles
             write(error_msg, "(")
             for (i,v) in enumerate(cyc)
@@ -84,7 +83,7 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
         extran_errors = IOBuffer()
         if extraneous_requisites(c, extran_errors)
             validity = false
-            write(error_msg, "\nCurriculum $(c.name) has extraneous requisites:\n")
+            write(error_msg, "\nCurriculum \'$(c.name)\' has extraneous requisites:\n")
             write(error_msg, String(take!(extran_errors)))
         end
     end
