@@ -95,7 +95,7 @@ function read_csv(file_path::AbstractString)
             course_count += 1
             read_line = csv_line_reader(readline(csv_file), ',')
         end
-        df_courses = CSV.File(file_path, header=courses_header, limit=course_count-1) |> DataFrame
+        df_courses = CSV.File(file_path, header = courses_header, limit = course_count-1, silencewarnings = true) |> DataFrame
         if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID")))
             println("All courses must have a unique Course ID")
             return false
@@ -120,7 +120,7 @@ function read_csv(file_path::AbstractString)
             end     
         end
         if additional_course_count > 1
-            df_additional_courses = CSV.File(file_path, header=additional_course_start, limit=additional_course_count-1) |> DataFrame
+            df_additional_courses = CSV.File(file_path, header = additional_course_start, limit = additional_course_count-1, silencewarnings = true) |> DataFrame
             df_all_courses = vcat(df_courses,df_additional_courses)
         else
             df_all_courses = df_courses
@@ -135,7 +135,7 @@ function read_csv(file_path::AbstractString)
                 read_line = csv_line_reader(readline(csv_file), ',')
             end  
             if learning_outcomes_count > 1
-                df_course_learning_outcomes = CSV.File(file_path, header=learning_outcomes_start, limit=learning_outcomes_count-1) |> DataFrame
+                df_course_learning_outcomes = CSV.File(file_path, header = learning_outcomes_start, limit = learning_outcomes_count-1, silencewarnings = true) |> DataFrame
             end
         end    
         course_learning_outcomes = Dict{Int, Array{LearningOutcome}}()
@@ -155,7 +155,7 @@ function read_csv(file_path::AbstractString)
                 read_line = csv_line_reader(readline(csv_file), ',')
             end            
             if learning_outcomes_count > 1
-                df_curric_learning_outcomes = CSV.File(file_path, header=curric_learning_outcomes_start, limit=curric_learning_outcomes_count-1) |> DataFrame
+                df_curric_learning_outcomes = CSV.File(file_path, header = curric_learning_outcomes_start, limit = curric_learning_outcomes_count-1, silencewarnings = true) |> DataFrame
             end
         end  
         
@@ -588,7 +588,7 @@ function read_Opt_Config(file_path)
                 course_count += 1
                 read_line = csv_line_reader(readline(csv_file), ',')
             end
-            df_fixedCourses = CSV.File(file_path, header=header, limit=course_count) |> DataFrame
+            df_fixedCourses = CSV.File(file_path, header = header, limit = course_count, silencewarnings = true) |> DataFrame
             header += course_count+1
             for row in DataFrames.eachrow(df_fixedCourses)
                 fixedCourses[row[Symbol("Course ID")]] = row[Symbol("Term")]
@@ -611,7 +611,7 @@ function read_Opt_Config(file_path)
                 consecutivePairCount += 1
                 read_line = csv_line_reader(readline(csv_file), ',')
             end
-            df_consecutivePair = CSV.File(file_path, header=header, limit=consecutivePairCount) |> DataFrame
+            df_consecutivePair = CSV.File(file_path, header = header, limit = consecutivePairCount, silencewarnings = true) |> DataFrame
             header += consecutivePairCount+1
             for row in DataFrames.eachrow(df_consecutivePair)
                 consequtiveCourses[row[Symbol("Prior Course ID")]] = row[Symbol("Next Course ID")]
@@ -634,7 +634,7 @@ function read_Opt_Config(file_path)
                 termRangeCount += 1
                 read_line = csv_line_reader(readline(csv_file), ',')
             end
-            df_termRange = CSV.File(file_path, header=header, limit=termRangeCount) |> DataFrame
+            df_termRange = CSV.File(file_path, header = header, limit = termRangeCount, silencewarnings = true) |> DataFrame
             header += termRangeCount+1
             for row in DataFrames.eachrow(df_termRange)
                 termRange[row[Symbol("Course Id")]] = (row[Symbol("Min Term")], row[Symbol("Max Term")])
@@ -661,7 +661,7 @@ function read_Opt_Config(file_path)
                 diffMaxCount += 1
                 read_line = csv_line_reader(readline(csv_file), ',')
             end
-            df_diffMax = CSV.File(file_path, header=header, limit=diffMaxCount) |> DataFrame
+            df_diffMax = CSV.File(file_path, header = header, limit = diffMaxCount, silencewarnings = true) |> DataFrame
             header += diffMaxCount+1
             for row in DataFrames.eachrow(df_diffMax)
                 diffMax[row[Symbol("Term")]] = row[Symbol("Max Credit")]
