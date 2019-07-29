@@ -269,7 +269,14 @@ mutable struct Curriculum
         create_graph!(this)
         this.metrics = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
-        return this
+        errors = IOBuffer()
+        if(isvalid_curriculum(this, errors))
+            return this
+        else
+            printstyled("WARNING: Curriculum was created, but is invalid:", color = :yellow)
+            println(String(take!(errors)))
+            return this
+        end
     end
 end
 

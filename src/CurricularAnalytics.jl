@@ -68,7 +68,7 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     cycles = simplecycles(g)
     if size(cycles,1) != 0
         validity = false
-        write(error_msg, "\nCurriculum $(c.name) has requisite cycles:\n")
+        write(error_msg, "\nCurriculum \'$(c.name)\' has requisite cycles:\n")
         for cyc in cycles
             write(error_msg, "(")
             for (i,v) in enumerate(cyc)
@@ -83,7 +83,7 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
         extran_errors = IOBuffer()
         if extraneous_requisites(c, extran_errors)
             validity = false
-            write(error_msg, "\nCurriculum $(c.name) has extraneous requisites:\n")
+            write(error_msg, "\nCurriculum \'$(c.name)\' has extraneous requisites:\n")
             write(error_msg, String(take!(extran_errors)))
         end
     end
