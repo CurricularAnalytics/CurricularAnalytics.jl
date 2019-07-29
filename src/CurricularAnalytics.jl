@@ -33,8 +33,7 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_optimization
 
 function init_optimization()
-    println("In order to use the optimization functions you must first install the Gurobi Optimizer \n
-                Please see - https://www.gurobi.com/products/gurobi-optimizer/")
+    println("In order to use the optimization functions you must first install the Gurobi Optimizer \n Please see - https://www.gurobi.com/downloads/gurobi-optimizer-eula/")
     include("src/Optimization.jl")
 end
 
