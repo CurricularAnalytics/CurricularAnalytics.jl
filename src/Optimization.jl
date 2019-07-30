@@ -123,7 +123,10 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
     c_count = length(curric.courses)
     # Create a map from course ID in curriculum to vertex ID of course in the curriculum graph.
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
-    taken_course_ids = [c.id for c in input[2]]
+    taken_course_ids = []
+    if isa(input, Tuple)
+        taken_course_ids = [c.id for c in input[2]]
+    end
     credit = [c.credit_hours for c in curric.courses]
     # The mask vector is used to determine the term that a course is in, via dot product with a row of the x matrix
     mask = [i for i in 1:term_count]
