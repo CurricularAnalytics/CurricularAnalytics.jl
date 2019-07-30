@@ -32,9 +32,11 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         update_plan, write_csv, find_min_terms, balance_terms, balance_terms_opt, find_min_terms_opt, 
         read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_optimization
 
-function init_optimization()
-    println("In order to use the optimization functions you must first install the Gurobi Optimizer \n Please see - https://www.gurobi.com/downloads/gurobi-optimizer-eula/")
-    include("src/Optimization.jl")
+function init_opt()
+    println("In order to use the optimization functions in this toolbox you must first install the Gurobi Optimizer,\n  
+             please see: https://www.gurobi.com/downloads/gurobi-optimizer/. \n 
+             Free acacdemic licenses are available: https://www.gurobi.com/downloads/end-user-license-agreement-academic/.\n")
+    include("Optimization.jl")
 end
 
 # Check if a curriculum graph has requisite cycles or extraneous requsities.
