@@ -30,7 +30,7 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         complexity, compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics,
         read_csv, create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, 
         update_plan, write_csv, find_min_terms, balance_terms, balance_terms_opt, find_min_terms_opt, 
-        read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_optimization
+        read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_opt
 
 function init_opt()
     println("\n ************************************************************************\n In order to use the optimization functions in this toolbox you must first install the Gurobi Optimizer;\n please see: www.gurobi.com/downloads/gurobi-optimizer \n\n Note that free acacdemic licenses for the Gurobi Optimizer are available.\n ************************************************************************\n\n")
