@@ -1,7 +1,7 @@
 name = "CurricularAnalytics"
 uuid = "593ffa3d-269e-5d81-88bc-c3b6809c35a6"
 authors = ["Greg Heileman <gregheileman@gmail.com>", "Hayden Free <hayden.free@uky.edu>", "Orhan Abar <orhan.abar@uky.edu>", "Will Thompson <wgthompson@uky.edu>"]
-version = "0.4.0"
+version = "0.5.0"
 
 [deps]
 Blink = "ad839575-38b3-5650-b840-f874b8c74a25"
@@ -23,4 +23,5 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 WebIO = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
 
 [compat]
+JuMP = "~0.18.5"
 julia = "1.0, 1.1"
