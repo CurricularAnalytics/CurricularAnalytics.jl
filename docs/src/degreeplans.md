@@ -13,11 +13,11 @@ The methods decribed in [Optimized Degree Plans](@ref) are more sophisticated, a
 In order to be considered *minimally feasible*, a degree plan $P$ for a curriculum $C$ must satisfy two conditions:
 
 1. Every course in the curriculum $C$ must appear in one and only one term in the degree plan $P$.  (Note: $P$ may contain courses that are not in $C$.)
-2. The requisite relationships between the courses in $P$ must be respected across the terms in $P$.  That is, if course ``a`` is a prerequisite for course ``a`` in the curriculum, then course ``a`` must appear in the degree plan $P$ in an earlier term than course ``b``.
+2. The requisite relationships between the courses in $P$ must be respected across the terms in $P$.  That is, if course ``a`` is a prerequisite for course ``b`` in the curriculum, then course ``a`` must appear in the degree plan $P$ in an earlier term than course ``b``.
 
 ## Optimized Degree Plans
 
-The Curricular Analytics Toolbox also allows you to create customized degree plans according to various user-specifed criteria.  These features make use of the [JuMP](https://github.com/JuliaOpt/JuMP.jl) domain-specific language for specifying optimization problems in Julia, and calls the [Gurobi](https://www.gurobi.com) solver in order to solve the optimzaton problems.  In order to use these features you must first install JuMP and Gurobi.  For installation instructions see ... 
+The Curricular Analytics Toolbox also allows you to create customized degree plans according to various user-specifed criteria.  These features make use of the [JuMP](https://github.com/JuliaOpt/JuMP.jl) domain-specific language for specifying optimization problems in Julia, and calls the [Gurobi](https://www.gurobi.com) solver in order to solve the optimzaton problems.  In order to use these features you must first install JuMP and Gurobi.  For installation instructions see [Additional Requirements](@ref) in the Installation section.
 
 A brief overview of how we have structured the degree plan creation process as an optimzation problem is provided next.  Assume a curriculum consisting of $n$ courses is organized over $m$ terms. The degree plan creation process involves a partitioning of the $n$ courses in a curriculum into $m$ disjoint sets. Thus, we can represent a degree plan an $n \times m$ binary-valued assignment matrix $x$, where
 
