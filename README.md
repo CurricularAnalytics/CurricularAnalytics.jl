@@ -9,7 +9,7 @@
 ## Documentation
 Full documentation is available at [GitHub Pages](https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/).
 Documentation for functions in this toolbox is also available via the Julia REPL help system.
-Additional tutorials can be found at [Curricular Analytics Notebooks site](https://github.com/CurricularAnalytics/CA-Notebooks).
+Additional tutorials can be found at the [Curricular Analytics Notebooks](https://github.com/CurricularAnalytics/CA-Notebooks) site.
 
 ## Installation
 Installation is straightforward.  First, install the Julia programming language on your computer.  To do this, download Julia here: https://julialang.org, and follow the instructions for your operating system.
