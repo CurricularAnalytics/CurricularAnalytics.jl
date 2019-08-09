@@ -57,12 +57,19 @@ The following function can be used to ensure that a constructed degree plan is v
 isvalid_degree_plan
 ```
 
-A sophisticated visualization capability for degree plans is described in [Visualizing Curricula and Degree Plans](@ref).
-To see the terms and courses associated with a degree plan within the Julia console use:
+To find the term where a given course is located within a degree plan use:
+
+```@docs
+find_term
+```
+
+To see the terms and courses associated with a degree plan use:
 
 ```@docs
 print_plan
 ```
+
+A sophisticated visualization capability for viewing degree plans is described in [Visualizing Curricula and Degree Plans](@ref).
 
 ### -- Example --
 

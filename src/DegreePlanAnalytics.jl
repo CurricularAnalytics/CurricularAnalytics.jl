@@ -91,24 +91,6 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
     return validity 
 end
 
-# ugly print of degree plan 
-"""
-    print_plan(plan::DegreePlan) 
-
-Ugly print out of a degree plan to the Julia console.
-"""
-function print_plan(plan::DegreePlan)
-    println("\nDegree Plan: $(plan.name) for $(plan.curriculum.degree_type) in $(plan.curriculum.name)\n")
-    println(" $(plan.credit_hours) credit hours")
-    for i = 1:plan.num_terms
-        println(" Term $i courses:")
-        for j in plan.terms[i].courses
-            println(" $(j.name) ")
-        end
-        println("\n")
-    end
-end
-
 # Basic metrics for degree plans, based soley on credits
 """
     basic_metrics(plan::DegreePlan)
@@ -184,8 +166,7 @@ rd_{v_i}^p = \\sum{(v_i, v_j) \\in E} (T_i - T_j).
 ```
 
 In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
-Thus, a degree plan that minimizes these distances is desirable.  A optimization function that minimizes requisite distances 
-is decribed in [Optimized Degree Plans]@ref.
+The requisite distance metric computed by this function will be stored in the associated `Course` data object.
 """
 function requisite_distance(plan::DegreePlan, course::Course)
     distance = 0
@@ -193,9 +174,8 @@ function requisite_distance(plan::DegreePlan, course::Course)
     for req in keys(course.requisites)
         distance = distance + (term - find_term(plan, course_from_id(req, plan.curriculum)))
     end 
-    return distance
+    return course.metrics["requisite distance"] = distance
 end
-
 
 """
     requisite_distance(plan::DegreePlan)
@@ -212,13 +192,13 @@ rd^p = \\sum_{v_i \\in V} = rd_{v_i}^p
 
 In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.  
 Thus, a degree plan that minimizes these distances is desirable.  A optimization function that minimizes requisite 
-distances is decribed in [Optimized Degree Plans]@ref.
-
+distances across all courses in a degree plan is described in [Optimized Degree Plans]@ref.
+The requisite distance metric computed by this function will be stored in the associated `DegreePlan` data object.
 """
 function requisite_distance(plan::DegreePlan)
     distance = 0
     for c in plan.curriculum.courses
         distance = distance + requisite_distance(plan, c)
     end
-    return distance
+    return plan.metrics["requisite distance"] = distance
 end

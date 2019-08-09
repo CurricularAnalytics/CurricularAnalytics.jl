@@ -441,6 +441,8 @@ mutable struct DegreePlan
 end
 
 """
+    find_term(plan::DegreePlan, course::Course)
+    
 In degree plan `plan`, find the term in which course `course` appears.  If `course` in not in the degree plan an
 error message is provided.
 """
@@ -451,4 +453,22 @@ function find_term(plan::DegreePlan, course::Course)
         end
     end
     write(error_msg, "Course $(course.name) is not in the degree plan")
+end
+
+# ugly print of degree plan 
+"""
+    print_plan(plan::DegreePlan) 
+
+Ugly print out of a degree plan to the Julia console.
+"""
+function print_plan(plan::DegreePlan)
+    println("\nDegree Plan: $(plan.name) for $(plan.curriculum.degree_type) in $(plan.curriculum.name)\n")
+    println(" $(plan.credit_hours) credit hours")
+    for i = 1:plan.num_terms
+        println(" Term $i courses:")
+        for j in plan.terms[i].courses
+            println(" $(j.name) ")
+        end
+        println("\n")
+    end
 end
