@@ -69,9 +69,11 @@ To see the terms and courses associated with a degree plan use:
 print_plan
 ```
 
-A sophisticated visualization capability for viewing degree plans is described in [Visualizing Curricula and Degree Plans](@ref).
+The ability to create degree plans that satsify very "goodness" criteria is described in more detail in [Creating Degree Plans](@ref).
 
-### -- Example --
+A sophisticated visualization capability for viewing degree plans is described in [Visualizing Curricula and Degree Plans](@ref).  An example of how to use capability is shown below.
+
+### Examples:
 
 The following commands will produce the visualization shown below:
 

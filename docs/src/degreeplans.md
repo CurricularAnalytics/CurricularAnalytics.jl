@@ -109,6 +109,46 @@ f(x) = \min \left( \sum_{t=1}^m \sum_{i=1}^n \sum_{j=1}^n  \aleph_{ij} \cdot x_{
 
 The `optimize_plan` function in the toolbox implements the optimziation problems described above.
 
-```@docs
-optimize_plan
+```julia
+optimize_plan(c::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, obj_order::Array{String, 1}; diff_max_cpt::Array{UInt, 1}, fix_courses::Dict, consec_courses::Dict, term_range::Dict, prior_courses::Array{Term, 1})
+```
+
+Using the curriculum `c` supplied as input, returns a degree plan optimzed according to the various 
+optimization criteria that have been specified as well as the objective functions that have been selected.
+
+If an optimzied plan cannot be constructed (i.e., the constraints are such that an optimal solution is infeasible),
+`nothing` is returned, and the solver returns a message indicating that the problems is infeasible.  In these cases,
+you may wish to experiment with the constraint values.
+
+#### Arguments
+
+Required: 
+
+- `curric::Curriculum` : the curriculum the degree plan will be created from.
+- `term_count::Int` : the maximum number of terms in the degree plan.
+- `min_cpt::Int` : the minimum number of credits allowed in each term.
+- `max_cpt::Int`: the minimum number of credits allowed in each term.
+- `obj_order::Array{String, 1}` : the order in which the objective functions shoud be evaluated.  Allowable strings are:
+  + `Balance` : the balanced curriculum objective described above.
+  + `Prereq` : the requisite distnace objective described above.
+  + `Toxicity` : the toxic course avoidance objective described above.
+
+Keyword:
+
+- `diff_max_cpt::Array{UInt, 1}` :  specify particular terms that may deviate from the `max_cpt` specified previously.
+- `fix_courses::Dict(Int, Int)` : specify courses that should be assigned to particular terms in `(course_id, term)` 
+    format.
+- `consec_courses::Dict(Int, Int)`: specify pairs of courses that should appear in consecutive terms in `(course_id, course_id)` format.
+- `term_range::Dict(Int, (Int, Int))` : specify courses that should in a particular range of terms in `(course_id, (low_range, high_range))` format.
+- `prior_courses::Array{Term, 1}` : specify courses that were already completed in prior terms.
+
+#### Examples:
+
+```julia-repl
+julia> curric = read_csv("path/to/curric.csv")
+julia> dp = optimize_plan(curric, 8, 6, 18, ["Balance", "Prereq"])
+```
+
+```@raw html
+<a href="https://github.com/CurricularAnalytics/CurricularAnalytics.jl/blob/master/src/Optimization.jl" target="_blank">source</a>
 ```
