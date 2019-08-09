@@ -366,7 +366,7 @@ mutable struct Term
     courses::Array{Course}              # The courses associated with a term in a degree plan
     num_courses::Int                    # The number of courses in the Term
     credit_hours::Real                  # The number of credit hours associated with the term
-    metrics::Dict{String, Any}          # Course-related metrics
+    metrics::Dict{String, Any}          # Term-related metrics
 
     # Constructor
     function Term(courses::Array{Course})
@@ -438,4 +438,17 @@ mutable struct DegreePlan
         this.metrics = Dict{String, Any}()
         return this
     end
+end
+
+"""
+In degree plan `plan`, find the term in which course `course` appears.  If `course` in not in the degree plan an
+error message is provided.
+"""
+function find_term(plan::DegreePlan, course::Course)
+    for (i, term) in enumerate(plan.terms)
+        if course in term.courses
+            return i
+        end
+    end
+    write(error_msg, "Course $(course.name) is not in the degree plan")
 end
