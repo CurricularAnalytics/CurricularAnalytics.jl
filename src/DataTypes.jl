@@ -31,8 +31,8 @@ mutable struct LearningOutcome
     description::AbstractString         # A description of the learning outcome
     hours::Int                          # number of class hours that should be devoted
                                         # to the learning outcome
-    requisites::Dict{Int, Requisite} # List of requisites, in
-                                                 #(requisite_learning_outcome, requisite_type) format
+    requisites::Dict{Int, Requisite}    # List of requisites, in
+                                        #(requisite_learning_outcome, requisite_type) format
     metrics::Dict{String, Any}          # Learning outcome-related metrics
 
     # Constructor
@@ -50,8 +50,7 @@ end
 
 
 #"""
-#    add_lo_requisite!(rlo, tlo, requisite_type)
-#
+#add_lo_requisite!(rlo, tlo, requisite_type)
 #Add learning outcome rlo as a requisite, of type requisite_type, for target learning 
 #outcome tlo.
 #"""
@@ -93,10 +92,10 @@ julia> Course("Calculus with Applications", 4, prefix="MA", num="112", canonical
 mutable struct Course
     id::Int                             # Unique course id
     vertex_id::Dict{Int, Int}           # The vertex id of the course w/in a curriculum graph, stored as 
-                                        #  (curriculum_id, vertex_id)
+                                        # (curriculum_id, vertex_id)
     name::AbstractString                # Name of the course, e.g., Introduction to Psychology
-    credit_hours::Real                   # Number of credit hours associated with course. For the
-                                        #  purpose of analytics, variable credits are not supported
+    credit_hours::Real                  # Number of credit hours associated with course. For the
+                                        # purpose of analytics, variable credits are not supported
     prefix::AbstractString              # Typcially a department prefix, e.g., PSY
     num::AbstractString                 # Course number, e.g., 101, or 302L
     institution::AbstractString         # Institution offering the course
@@ -238,7 +237,7 @@ mutable struct Curriculum
     CIP::AbstractString                 # CIP code associated with the curriculum
     courses::Array{Course}              # Array of required courses in curriculum
     num_courses::Int                    # Number of required courses in curriculum
-    credit_hours::Real                   # Total number of credit hours in required curriculum
+    credit_hours::Real                  # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
                                         # of the curriculum
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the curriculum
@@ -246,7 +245,8 @@ mutable struct Curriculum
 
     # Constructor
     function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
-        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101", id::Int=0, sortby_ID::Bool=true)
+                        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101", 
+                        id::Int=0, sortby_ID::Bool=true)
         this = new()
         this.name = name
         this.degree_type = degree_type
@@ -365,8 +365,8 @@ where c1, c2, ... are `Course` data objects
 mutable struct Term
     courses::Array{Course}              # The courses associated with a term in a degree plan
     num_courses::Int                    # The number of courses in the Term
-    credit_hours::Real                   # The number of credit hours associated with the term
-    metrics::Dict{String, Any}          # Course-related metrics
+    credit_hours::Real                  # The number of credit hours associated with the term
+    metrics::Dict{String, Any}          # Term-related metrics
 
     # Constructor
     function Term(courses::Array{Course})
@@ -413,7 +413,7 @@ mutable struct DegreePlan
                                         # of the degre plan
     terms::Array{Term}                  # The terms associated with the degree plan
     num_terms::Int                      # Number of terms in the degree plan
-    credit_hours::Real                   # Total number of credit hours in the degree plan
+    credit_hours::Real                  # Total number of credit hours in the degree plan
     metrics::Dict{String, Any}          # Dergee Plan-related metrics
 
     # Constructor
@@ -437,5 +437,129 @@ mutable struct DegreePlan
         end
         this.metrics = Dict{String, Any}()
         return this
+    end
+end
+
+# Check if a degree plan is valid.
+# Print error_msg using println(String(take!(error_msg))), where error_msg is the buffer returned by this function
+"""
+    isvalid_degree_plan(plan::DegreePlan, errors::IOBuffer)
+
+Tests whether or not the degree plan `plan` is valid.  Returns a boolean value, with `true` indicating the 
+degree plan is valid, and `false` indicating it is not.
+
+If `plan` is not valid, the reason(s) why are written to the `errors` buffer. To view these 
+reasons, use:
+
+```julia-repl
+julia> errors = IOBuffer()
+julia> isvalid_degree_plan(plan, errors)
+julia> println(String(take!(errors)))
+```
+
+There are two reasons why a curriculum graph might not be valid:
+
+- Requisites not satsified : A prerequisite for a course occurs in a later term than the course itself.
+- Incomplete plan : There are course in the curriculum not included in the degree plan.
+- Redundant plan : The same course appears in the degree plan multiple times. 
+
+"""
+function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
+    validity = true
+    # All requisite relationships are satisfied?
+    #  -no backwards pointing requisites 
+    for i in 2:plan.num_terms
+        for c in plan.terms[i].courses
+            for j in i-1:-1:1
+                for k in plan.terms[j].courses
+                    for l in keys(k.requisites) 
+                        if l == c.id 
+                            validity = false
+                            write(error_msg, "\n-Invalid requisite: $(c.name) in term $i is a requisite for $(k.name) in term $j")
+                        end
+                    end 
+                end
+            end
+        end
+    end
+    #  -requisites within the same term must be corequisites
+    for i in 1:plan.num_terms
+        for c in plan.terms[i].courses
+            for r in plan.terms[i].courses
+                if c == r
+                    continue
+                elseif haskey(c.requisites, r.id) 
+                    if c.requisites[r.id] == pre
+                        validity = false
+                        write(error_msg, "\n-Invalid prerequisite: $(r.name) in term $i is a prerequisite for $(c.name) in the same term")
+                    end
+                end
+            end
+        end
+    end
+    #  -TODO: strict co-requisites must be in the same term
+    # All courses in the curriculum are in the degree plan?
+    curric_classes = Set()
+    dp_classes = Set()
+    for i in plan.curriculum.courses
+        push!(curric_classes, i.id)  
+    end
+    for i = 1:plan.num_terms
+        for j in plan.terms[i].courses
+            push!(dp_classes, j.id)
+        end
+    end
+    if length(setdiff(curric_classes, dp_classes)) > 0
+        validity = false
+        for i in setdiff(curric_classes, dp_classes)
+            c = course_from_id(i, plan.curriculum)
+            write(error_msg, "\n-Degree plan is missing required course: $(c.name)")
+        end
+    end
+    # Is a course in the degree plan multiple times?
+    dp_classes = Set()
+    for i = 1:plan.num_terms
+        for j in plan.terms[i].courses
+            if in(j.id, dp_classes)
+                validity = false
+                write(error_msg, "\n-Course $(j.name) is listed multiple times in degree plan")
+            else
+                push!(dp_classes, j.id)
+            end
+        end
+    end 
+    return validity 
+end
+
+"""
+    find_term(plan::DegreePlan, course::Course)
+
+In degree plan `plan`, find the term in which course `course` appears.  If `course` in not in the degree plan an
+error message is provided.
+"""
+function find_term(plan::DegreePlan, course::Course)
+    for (i, term) in enumerate(plan.terms)
+        if course in term.courses
+            return i
+        end
+    end
+    write(error_msg, "Course $(course.name) is not in the degree plan")
+end
+
+# ugly print of degree plan 
+"""
+    print_plan(plan::DegreePlan) 
+
+Ugly print out of a degree plan to the Julia console.
+"""
+function print_plan(plan::DegreePlan)
+    println("\nDegree Plan: $(plan.name) for $(plan.curriculum.degree_type) in $(plan.curriculum.name)\n")
+    println(" $(plan.credit_hours) credit hours")
+    for i = 1:plan.num_terms
+        println(" Term $i courses:")
+        for j in plan.terms[i].courses
+            println(" $(j.name) ")
+        end
+        println("\n")
     end
 end

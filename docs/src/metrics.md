@@ -60,6 +60,16 @@ complexity
 
 ## Degree Plan Metrics
 
+The aforementioned curricular complexity metrics are independent of how a curriculum is layed out as a degree plan.  That is, the curricular metrics will not change as different degree plans are created.  Degree plan metrics are related to the manner in which courses in the curriculum are laid out across the terms in the degree plan.  These metrics are used in the creation of optimal degree plans as described in [Optimzed Degree Plans]@ref.
+
+A set of basic statistics associated with the distribution of credit hours in a degree plan can be obtained by using:
+
 ```@docs
 basic_metrics
+```
+
+A degree plan metric that is based upon the separation of courses and their pre- and co-requisites in a degree plan is described next.
+
+```@docs
+requisite_distance
 ```
