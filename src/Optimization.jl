@@ -5,7 +5,7 @@ using LightGraphs
 
 include("CSVUtilities.jl")
 
-# Helper function that uses the course ID to find the vertex id of taht course in a curriculum graph.
+# Helper function that uses the course ID to find the vertex id of a course in a curriculum graph.
 function get_vertex(courseID, curric)
     for course in curric.courses
         if course.id == courseID
@@ -282,8 +282,8 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
 end
 
 
-# This version of the optimize_plan function allows the user to pass pass the curriculum as an object (type: Curriculum)
-# The user can also provide the configuration options via keyword args rather than a CSV file.
+# This version of the optimize_plan function allows the user to pass the curriculum as an object (type: Curriculum).
+# Additional configuration options may be supplied via keyword arguments.
 """
     optimize_plan(c::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, 
       obj_order::Array{String, 1}; diff_max_cpt::Array{UInt, 1}, fix_courses::Dict,
@@ -376,12 +376,12 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         end
     end
     
-    # Each term must include at least the min # of credits and no more than the max # of credits allowed for a term
+    # Each term must include at least the min number of credits 
     @constraints model begin
         term_lower[j=1:term_count], sum(dot(credit,x[:,j])) >= min_cpt
     end
 
-    # Each term must have no more than the max number of credits defined via the configuration config_file
+    # Each term must have no more than the max number of credits 
     for j in 1:term_count
         if j in keys(diff_max_cpt)
             @constraint(model, sum(dot(credit,x[:,j])) <= diff_max_cpt[j])
@@ -429,7 +429,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         objectives = []
         for objective in obj_order
             if objective == "Toxicity"
-                push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses ,term_count, x, ts, curric.id, multi))
+                push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses, term_count, x, ts, curric.id, multi))
             elseif objective == "Balance"
                 push!(objectives, balance_obj(model,max_cpt, term_count, x, y, credit, multi))
             elseif objective == "Prereq"
@@ -466,7 +466,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
 
         # Create array that will hold the optimized terms for the degree plan
         optimal_terms = Array{Term}(undef, 0)
-        # If there are prior courses (terms), then put them at the beginning of the optimized terms array
+        # If there are prior courses (i.e., terms exist), then put them at the beginning of the optimized terms array
         if length(prior_courses) > 0
             optimal_terms = prior_courses # Add the courses that have already been taken to the degree plan. 
         end
