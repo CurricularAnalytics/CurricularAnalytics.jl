@@ -1,7 +1,7 @@
 
 # File: GraphAlgs.jl
 
-# Depth-first search, returns edge classification using EdgeClass
+# Depth-first search, returns edge classification using EdgeClass, as well as the discovery and finish time for each vertex.
 function dfs(g::AbstractGraph{T}) where T
     time = 0
     # discover and finish times
@@ -35,9 +35,25 @@ function dfs(g::AbstractGraph{T}) where T
     return edge_type, d, f
 end # end dfs
 
-function topological_sort(g::AbstractGraph{T}) where T
+# In a DFS of a DAG, sorting the vertices according to their finish times in the DFS will yeild a topological sorting of the 
+# DAG vertices. This function returns the indicies of the vertiecs in the DAG in topological sort order.
+# If component_order is set to true, the largest components in the graph will appear at the beginning of the topological ordering.
+function topological_sort(g::AbstractGraph{T}, component_order=false) where T
     edges_type, d, f = dfs(g)
-    return sortperm(f, rev=true)
+    topo_order = sortperm(f, rev=true)
+    if component_order == true
+        reorder = []
+        wcc = weakly_connected_components(g)
+        sort!(wcc, lt = (x,y) -> size(x) > size(y)) # order components by size
+        for component in wcc
+            sort!(component, lt = (x,y) -> indexin(x, topo_order)[1] < indexin(y, topo_order)[1]) # topological sort within each component 
+            for i in component
+                push!(reorder, i) # add verteix indicies to the end of the reorder array
+            end
+        end
+        topo_order = reorder
+    end
+    return topo_order
 end
 
 # transpose of DAG
