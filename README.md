@@ -9,7 +9,7 @@
 ## Documentation
 Full documentation is available at [GitHub Pages](https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/).
 Documentation for functions in this toolbox is also available via the Julia REPL help system.
-Additional tutorials can be found at [CurricularAnaltyics](http://curricula.academicdashboards.org).
+Additional tutorials can be found at the [Curricular Analytics Notebooks](https://github.com/CurricularAnalytics/CA-Notebooks) site.
 
 ## Installation
 Installation is straightforward.  First, install the Julia programming language on your computer.  To do this, download Julia here: https://julialang.org, and follow the instructions for your operating system.
@@ -20,7 +20,7 @@ Next, open the Julia application that you just installed. It should look similar
 
 Then enter Pkg mode from within Julia by typing `]`, and then type:
 ```julia-repl
-(v1.1) pkg> add CurricularAnalytics
+  pkg> add CurricularAnalytics
 ```
 This will install the toolbox, along with the other Julia packages needed to run it.
 
