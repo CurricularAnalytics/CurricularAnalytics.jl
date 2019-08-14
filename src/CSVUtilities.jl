@@ -61,24 +61,24 @@ function course_line(course, term_id)
     end
     course_prereq = chop(course_prereq)
     if length(course_prereq) > 0
-        course_prereq=course_prereq * "\""
+        course_prereq = course_prereq * "\""
     end
     course_coreq = chop(course_coreq)
     if length(course_coreq) > 0
-        course_coreq=course_coreq * "\""
+        course_coreq = course_coreq * "\""
     end
     course_scoreq = chop(course_scoreq)
     if length(course_scoreq) > 0
-        course_scoreq=course_scoreq * "\""
+        course_scoreq = course_scoreq * "\""
     end                           
     course_chours = course.credit_hours
     course_inst = course.institution
     course_canName = course.canonical_name
     course_term = typeof(term_id) == Int ? string(term_id) : term_id
     c_line= "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\""  *
-                    string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
-                    string(course_scoreq) * "," * string(course_chours) *",\""* string(course_inst) * "\",\"" *
-                    string(course_canName) * "\"," * course_term
+                   string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
+                   string(course_scoreq) * "," * string(course_chours) *",\""* string(course_inst) * "\",\"" *
+                   string(course_canName) * "\"," * course_term
     return c_line 
 end
 
@@ -103,7 +103,7 @@ function csv_line_reader(line::AbstractString, delimeter::Char=',')
 end
 
 function find_cell(row, header)
-    if !(header in names(row))
+    if !(header in names(row)) #I assume this means if header is not in names 
         return ""
     elseif typeof(row[header]) == Missing
         return ""
@@ -113,7 +113,7 @@ function find_cell(row, header)
 end
 
 function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{LearningOutcome}}=Dict{Int, Array{LearningOutcome}}())
-    course_dict= Dict{Int, Course}()
+    course_dict = Dict{Int, Course}()
     for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         c_Name = find_cell(row, Symbol("Course Name"))
@@ -121,7 +121,9 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
         c_Credit = typeof(c_Credit) == String ? parse(Float64, c_Credit) : c_Credit
         c_Prefix = string(find_cell(row, Symbol("Prefix")))
         c_Number = find_cell(row, Symbol("Number"))
-        if typeof(c_Number) != String c_Number = string(c_Number) end
+        if typeof(c_Number) != String 
+            c_Number = string(c_Number) 
+        end
         c_Inst = find_cell(row, Symbol("Institution"))
         c_col_name = find_cell(row, Symbol("Canonical Name"))
         learning_outcomes = if c_ID in keys(lo_Course) lo_Course[c_ID] else LearningOutcome[] end
@@ -130,7 +132,7 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             return false
         else
             course_dict[c_ID] = Course(c_Name, c_Credit, prefix=c_Prefix, learning_outcomes=learning_outcomes,
-                num=c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID)
+                                       num=c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID)
         end
     end
     for row in DataFrames.eachrow(df_courses)
@@ -175,8 +177,8 @@ function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course}, cours
         c_ID = find_cell(row, Symbol("Course ID"))
         term_ID = find_cell(row, Symbol("Term"))
         for course in course_arr
-            if course_dict[c_ID].id == course.id
-                if typeof(row[Symbol("Term")]) != Missing
+            if course_dict[c_ID].id == course.id                #This could be simplified with logic 
+                if typeof(row[Symbol("Term")]) != Missing       #operations rather than four if statemnts
                     push!(have_term, course)
                     if term_ID in keys(terms)
                         push!(terms[term_ID], course) 
@@ -276,9 +278,8 @@ function write_learning_outcomes(curric::Curriculum, csv_file, all_course_lo)
                    lo_prereq = lo_prereq * "\""
                 end
                 lo_hours = lo.hours
-                lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * ",\"" * string(lo_name) * "\",\"" * string(lo_desc) * "\",\"" *
-                                string(lo_prereq) * "\"," * string(lo_hours) * ",,,,,"
-                
+                lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * ",\"" * string(lo_name) * "\",\"" * 
+                          string(lo_desc) * "\",\"" * string(lo_prereq) * "\"," * string(lo_hours) * ",,,,,"
                 write(csv_file, lo_line) 
             end
         end
