@@ -10,7 +10,7 @@ function dfs(g::AbstractGraph{T}) where T
     edge_type = Dict{Edge,EdgeClass}()
     for s in vertices(g)
         if d[s] == 0  # undiscovered
-            # nested function definition, shares variable space w/ outer function
+            # a closure, shares variable space w/ outer function
             function dfs_visit(s)
                 d[s] = time += 1  # discovered
                 for n in neighbors(g, s)
@@ -28,35 +28,62 @@ function dfs(g::AbstractGraph{T}) where T
                     end
                 end
                 f[s] = time += 1  # finished
-            end # end dfs_visit nested function
-            dfs_visit(s)  # call the nested function
+            end # end closure
+            dfs_visit(s)  # call the closure
         end
     end
     return edge_type, d, f
 end # end dfs
 
 # In a DFS of a DAG, sorting the vertices according to their finish times in the DFS will yeild a topological sorting of the 
-# DAG vertices. This function returns the indicies of the vertiecs in the DAG in topological sort order.
-# If component_order is set to true, the largest components in the graph will appear at the beginning of the topological ordering.
-function topological_sort(g::AbstractGraph{T}, component_order=false) where T
+# DAG vertices. 
+ """
+    topological_sort(g; <keyword arguments>)
+
+Perform a topoloical sort on graph `g`, returning the weakly connected components of the graph, each in topological sort order.
+If the `sort` keyword agrument is supplied, the components will be sorted according to their size, in either ascending or 
+descending order.  If two or more components have the same size, the one with the smallest vertex ID in the first position of the 
+topological sort will appear first.
+```
+
+# Arguments
+Required:
+- `g::AbstractGraph` : input graph.
+Keyword:
+- `sort::String` : sort weakly connected components according to their size, allowable 
+strings: `ascending`, `descending`.
+"""
+function topological_sort(g::AbstractGraph{T}; sort::String="") where T
     edges_type, d, f = dfs(g)
     topo_order = sortperm(f, rev=true)
-    if component_order == true
-        reorder = []
-        wcc = weakly_connected_components(g)
-        sort!(wcc, lt = (x,y) -> size(x) > size(y)) # order components by size
-        for component in wcc
-            sort!(component, lt = (x,y) -> indexin(x, topo_order)[1] < indexin(y, topo_order)[1]) # topological sort within each component 
-            for i in component
-                push!(reorder, i) # add verteix indicies to the end of the reorder array
-            end
-        end
-        topo_order = reorder
+    wcc = weakly_connected_components(g)
+    if sort == "descending"
+        sort!(wcc, lt = (x,y) -> size(x) != size(y) ? size(x) > size(y) : x[1] < y[1]) # order components by size, if same size, by lower index
+    elseif sort == "ascending"
+        sort!(wcc, lt = (x,y) -> size(x) != size(y) ? size(x) < size(y) : x[1] < y[1]) # order components by size, if same size, by lower index
     end
-    return topo_order
+    reorder = [] 
+    for component in wcc
+        sort!(component, lt = (x,y) -> indexin(x, topo_order)[1] < indexin(y, topo_order)[1]) # topological sort within each component 
+        for i in component
+            push!(reorder, i) # add verteix indicies to the end of the reorder array
+        end
+    end
+    return wcc
 end
 
 # transpose of DAG
+"""
+    gad(g)
+
+Returns the transpose of directed acyclic graph (DAG) `g`, i.e., a DAG identical to `g`, except the direction
+of all edges is reversed.  If `g` is not a DAG, and error is thrown.
+```
+
+# Arguments
+Required:
+- `g::SimpleDiGraph` : input graph.
+"""
 function gad(g::AbstractGraph{T}) where T
     @assert typeof(g) == SimpleDiGraph{T}
     return SimpleDiGraph(transpose(adjacency_matrix(g)))
