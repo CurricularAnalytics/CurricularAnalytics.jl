@@ -56,7 +56,7 @@ julia> println(String(take!(errors)))
 
 There are two reasons why a curriculum graph might not be valid:
 - Cycles : If a curriculum graph contains a directed cycle, it is not possible to complete the curriculum.
-- Extraneous Requisites : These are redundant requisites that introduce spurious complexity.
+- Extraneous Requisites : These are redundant requisites that may introduce spurious complexity.
   If a curriculum has the prerequisite relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ 
   and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are *not* co-requisites, then \$c_1 
   \\rightarrow c_3\$ is redundant and therefore extraneous.   
@@ -98,6 +98,7 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
     que = Queue{Int}()
     components = weakly_connected_components(g)
     extraneous = false
+    str = "" # create an empty string to hold any error messages
     for wcc in components
         if length(wcc) > 1  # only consider components with more than one vertex
             for u in wcc
@@ -125,7 +126,10 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                                 end
                             end
                             if remove == true
-                                write(error_msg, "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n")
+                                temp_str = "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n"
+                                if !occursin(temp_str, str)
+                                    str = str * temp_str
+                                end
                                 extraneous = true
                             end
                         end
@@ -133,6 +137,9 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                 end
             end
         end
+    end
+    if extraneous == true
+        write(error_msg, str)
     end
     return extraneous
 end
