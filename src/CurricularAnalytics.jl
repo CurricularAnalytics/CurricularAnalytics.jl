@@ -388,4 +388,102 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
     return report
 end
 
+
+# Basic metrics for a currciulum.
+"""
+    basic_metrics(c::Curriculum)
+
+Compute the basic metrics associated with curriculum `c`, and return an IO buffer containing these metrics.  The basic 
+metrics are also stored in the `metrics` dictionary associated with the curriculum. 
+
+The basic metrics computed include:
+
+- number of credit hours : 
+- number of courses : The total number of terms (semesters or quarters) in the degree plan, ``m``.
+- blocking factor :
+- centrality :
+- delay factor :
+- curricular complexity :
+
+```julia-repl
+julia> metrics = basic_metrics(curriculum)
+julia> println(String(take!(metrics)))
+julia> # The metrics are also stored in a dictonary that can be accessed as follows
+julia> curriculum.metrics
+```
+
+"""
+function basic_metrics(curric::Curriculum)
+    buf = IOBuffer()
+    complexity(curric), centrality(curric)  # compute all curricular metrics
+    max_bf = 0; max_df = 0; max_cc = 0; max_cent = 0
+    max_bf_courses = Array{Course,1}(); max_df_courses = Array{Course,1}(); max_cc_courses = Array{Course,1}(); max_cent_courses = Array{Course,1}()
+    for c in curric.courses
+        if c.metrics["blocking factor"] == max_bf
+            push!(max_bf_courses, c)
+        elseif  c.metrics["blocking factor"] > max_bf
+            max_bf = c.metrics["blocking factor"]
+            max_bf_courses = Array{Course,1}()
+            push!(max_bf_courses, c)
+        end
+        if c.metrics["delay factor"] == max_df
+            push!(max_df_courses, c)
+        elseif  c.metrics["delay factor"] > max_df
+            max_df = c.metrics["delay factor"]
+            max_df_courses = Array{Course,1}()
+            push!(max_df_courses, c)
+        end
+        if c.metrics["complexity"] == max_cc
+            push!(max_cc_courses, c)
+        elseif  c.metrics["complexity"] > max_cc
+            max_cc = c.metrics["complexity"]
+            max_cc_courses = Array{Course,1}()
+            push!(max_cc_courses, c)
+        end
+        if c.metrics["centrality"] == max_cent
+            push!(max_cent_courses, c)
+        elseif  c.metrics["centrality"] > max_cent
+            max_cent = c.metrics["centrality"]
+            max_cent_courses = Array{Course,1}()
+            push!(max_cent_courses, c)
+        end
+    end
+    write(buf, "\nCurriculum: $(curric.name)\n")
+    write(buf, "  credit hours = $(curric.credit_hours)\n")
+    write(buf, "  number of courses = $(curric.num_courses)")
+    write(buf, "\n  Blocking Factor --\n")
+    write(buf, "    entire curriculum = $(curric.metrics["blocking factor"][1])\n")
+    write(buf, "    max. value = $(max_bf), ")
+    write(buf, "for course(s): ")
+    write(buf, "$(max_bf_courses[1].prefix) $(max_bf_courses[1].num) $(max_bf_courses[1].name)")
+    for c in max_bf_courses[2:end]
+        write(buf, ", $(c.prefix) $(c.num) $(c.name)")
+    end
+    write(buf, "\n  Centrality --\n")
+    write(buf, "    entire curriculum = $(curric.metrics["centrality"][1])\n")
+    write(buf, "    max. value = $(max_cent), ") 
+    write(buf, "for course(s): ")
+    write(buf, "$(max_cent_courses[1].prefix) $(max_cent_courses[1].num) $(max_cent_courses[1].name)")
+    for c in max_cent_courses[2:end]
+        write(buf, ", $(c.prefix) $(c.num) $(c.name)")
+    end
+    write(buf, "\n  Delay Factor --\n")
+    write(buf, "    entire curriculum = $(curric.metrics["delay factor"][1])\n")
+    write(buf, "    max. value = $(max_df), ") 
+    write(buf, "for course(s): ")
+    write(buf, "$(max_df_courses[1].prefix) $(max_df_courses[1].num) $(max_df_courses[1].name)")
+    for c in max_df_courses[2:end]
+        write(buf, ", $(c.prefix) $(c.num) $(c.name)")
+    end
+    write(buf, "\n  Complexity --\n")
+    write(buf, "    entire curriculum = $(curric.metrics["complexity"][1])\n")
+    write(buf, "    max. value = $(max_cc), ") 
+    write(buf, "for course(s): ")
+    write(buf, "$(max_cc_courses[1].prefix) $(max_cc_courses[1].num) $(max_cc_courses[1].name)")
+    for c in max_cc_courses[2:end]
+        write(buf, ", $(c.prefix) $(c.num) $(c.name)")
+    end
+    return buf
+end
+
 end # module

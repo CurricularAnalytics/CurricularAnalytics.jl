@@ -1,11 +1,12 @@
 #File DegreePlanAnalytics.jl
 
-# Basic metrics for degree plans, based soley on credits
+# Basic metrics for a degree plan, based soley on credits
 """
     basic_metrics(plan::DegreePlan)
 
-Computes basic metrics associated with degree plan `plan`.  These metrics are primarily concerned with how credits 
-hours are distributed across the terms in a plan.
+Compute the basic metrics associated with degree plan `plan`, and return an IO buffer containing these metrics.  The baseic 
+metrics are primarily concerned with how credits hours are distributed across the terms in a plan.  The basic metrics are 
+also stored in the `metrics` dictionary associated with the degree plan. 
 
 The basic metrics computed include:
 
@@ -16,24 +17,30 @@ The basic metrics computed include:
 - max. credit term : The earliest term in the degree plan that has the maximum number of credit hours.
 - min. credit term : The earliest term in the degree plan that has the minimum number of credit hours.
 - avg. credits per term : The average number of credit hours per term in the degree plan, ``\\overline{ch}``.
-- credit hour variance : The term-by-term credit hour variance, ``\\sigma^2``.  If ``ch_i`` denotes the number 
+- term credit hour std. dev. : The standard deviation of credit hours across all terms ``\\sigma``.  If ``ch_i`` denotes the number 
    of credit hours in term ``i``, then
 
 ```math
-\\sigma^2 = \\sum_{i=1}^m {(ch_i - \\overline{ch})^2 \\over m}
+\\sigma = \\sqrt{\\sum_{i=1}^m {(ch_i - \\overline{ch})^2 \\over m}}
 ```
 
 To view the basic degree plan metrics associated with degree plan `plan` in the Julia console use:
 
 ```julia-repl
-julia> basic_metrics(plan)
+julia> metrics = basic_metrics(plan)
+julia> println(String(take!(metrics)))
+julia> # The metrics are also stored in a dictonary that can be accessed as follows
 julia> plan.metrics
 ```
 
 """
 function basic_metrics(plan::DegreePlan)
-    plan.metrics["number of terms"] = plan.num_terms
+    buf = IOBuffer()
+    write(buf, "\nCurriculum: $(plan.curriculum.name)\nDegree Plan: $(plan.name)\n")
     plan.metrics["total credit hours"] = plan.credit_hours
+    write(buf, "  total credit hours = $(plan.credit_hours)\n")
+    plan.metrics["number of terms"] = plan.num_terms
+    write(buf, "  number of terms = $(plan.num_terms)\n")
     max = 0
     min = plan.credit_hours
     max_term = 0
@@ -53,11 +60,15 @@ function basic_metrics(plan::DegreePlan)
         var = var + (plan.terms[i].credit_hours - avg)^2
     end
     plan.metrics["max. credits in a term"] = max
-    plan.metrics["min. credits in a term"] = min
     plan.metrics["max. credit term"] = max_term
+    write(buf, "  max. credits in a term = $(max), in term $(max_term)\n")
+    plan.metrics["min. credits in a term"] = min
     plan.metrics["min. credit term"] = min_term
+    write(buf, "  min. credits in a term = $(min), in term $(min_term)\n")
     plan.metrics["avg. credits per term"] = avg
-    plan.metrics["credit hour variance"] = var/plan.num_terms
+    plan.metrics["term credit hour std. dev."] = sqrt(var/plan.num_terms)
+    write(buf, "  avg. credits per term = $(avg), with std. dev. = $(plan.metrics["term credit hour std. dev."])\n")
+    return buf
  end
 
  # Degree plan metrics based upon the distance between requsites and the classes that require them.
