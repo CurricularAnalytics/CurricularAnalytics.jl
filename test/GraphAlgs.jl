@@ -14,8 +14,10 @@ add_edge!(g, 7, 8)
 add_edge!(g, 7, 11)
 
 # topological sort w/ no ordering by component size
-@test topological_sort(g) == [12, 9, 7, 11, 8, 4, 2, 6, 10, 5, 3, 1]
-# topological sort w/ ordering by component size
-@test topological_sort(g, true) == [4, 2, 6, 10, 5, 3, 7, 11, 8, 1, 9, 12]
+@test topological_sort(g) == [[1], [4, 2, 6, 10, 5, 3], [7, 11, 8], [9], [12]]
+# topological sort w/ ordering by component size in descenting order
+@test topological_sort(g, sort = "descending") == [[4, 2, 6, 10, 5, 3], [7, 11, 8], [1], [9], [12]]
+# topological sort w/ ordering by component size in ascending order
+@test topological_sort(g, sort = "ascending") == [[1], [9], [12], [7, 11, 8], [4, 2, 6, 10, 5, 3]]
 
 end;

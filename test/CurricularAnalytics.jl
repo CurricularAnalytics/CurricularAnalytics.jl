@@ -16,7 +16,7 @@ add_requisite!(A,A,pre)
 
 curric = Curriculum("Cycle", [A])
 
-# Test curriculum validity 
+# Test is_valid_curriculum() 
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == false
 #@test String(take!(errors)) == "\nCurriculum Cycle contains the following requisite cycles:\n(A)\n"
@@ -40,9 +40,9 @@ add_requisite!(b,c,pre)
 add_requisite!(d,c,co)
 add_requisite!(a,b,pre)
 
-curric = Curriculum("Extraneous", [a,b,c,d],sortby_ID=false)
+curric = Curriculum("Extraneous", [a, b, c, d], sortby_ID=false)
 
-# Test curriculum validity 
+# Test is_valid_curriculum() 
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == false
 #@test String(take!(errors)) == "\nCurriculum Extraneous contains the following extraneous requisites:\nCourse C has redundant requisite: A"
@@ -74,7 +74,7 @@ add_requisite!(D,F,pre)
 
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786",sortby_ID=false)
 
-# Test curriculum validity 
+# Test is_valid_curriculum() 
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == true
 
@@ -117,7 +117,7 @@ add_requisite!(G,F,pre)
 
 curric = Curriculum("Postmodern Basket Weaving", [A,B,C,D,E,F,G], sortby_ID=false)
 
-# Test curriculum validity 
+# Test is_valid_curriculum() 
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == true
 
@@ -126,6 +126,8 @@ errors = IOBuffer()
 @test blocking_factor(curric) == (16, [6, 3, 4, 2, 0, 0, 1])
 @test centrality(curric) == (49, [0, 9, 12, 18, 0, 0, 10])
 @test complexity(curric) == (48.0, [11.0, 8.0, 8.0, 7.0, 3.0, 5.0, 6.0])
+
+
 
 ###################################################
 #8-vertex test curriculum - valid
@@ -155,6 +157,28 @@ add_requisite!(D,F,pre)
 
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786",sortby_ID=false)
 
-# Test curriculum validity
+# Test is_valid_curriculum()
+errors = IOBuffer()
+@test isvalid_curriculum(curric, errors) == true
 
+# Test basic_metrics()
+basic_metrics(curric)
+@test curric.credit_hours == 22
+@test curric.num_courses == 8
+@test curric.metrics["blocking factor"] == (8, [2, 2, 1, 3, 0, 0, 0, 0])
+@test curric.metrics["delay factor"] == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
+@test curric.metrics["centrality"] == (9, [0, 0, 9, 0, 0, 0, 0, 0])
+@test curric.metrics["complexity"] == (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
+@test curric.metrics["max. blocking factor"] == 3
+@test length(curric.metrics["max. blocking factor courses"]) == 1
+@test curric.metrics["max. blocking factor courses"][1].name == "Basic Basket Forms Lab"
+@test curric.metrics["max. centrality"] == 9
+@test length(curric.metrics["max. centrality courses"]) == 1
+@test curric.metrics["max. centrality courses"][1].name == "Basic Basket Forms"
+@test curric.metrics["max. delay factor"] == 3.0
+@test length(curric.metrics["max. delay factor courses"]) == 5
+@test curric.metrics["max. delay factor courses"][1].name == "Introduction to Baskets"
+@test curric.metrics["max. complexity"] == 6.0
+@test length(curric.metrics["max. complexity courses"]) == 1
+@test curric.metrics["max. complexity courses"][1].name == "Basic Basket Forms Lab"
 end;

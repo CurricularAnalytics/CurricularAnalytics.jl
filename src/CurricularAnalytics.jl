@@ -388,7 +388,6 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
     return report
 end
 
-
 # Basic metrics for a currciulum.
 """
     basic_metrics(c::Curriculum)
@@ -398,12 +397,14 @@ metrics are also stored in the `metrics` dictionary associated with the curricul
 
 The basic metrics computed include:
 
-- number of credit hours : 
-- number of courses : The total number of terms (semesters or quarters) in the degree plan, ``m``.
-- blocking factor :
-- centrality :
-- delay factor :
-- curricular complexity :
+- number of credit hours : The total number of credit hours in the curriculum.
+- number of courses : The total courses in the curriculum.
+- blocking factor : The blocking factor of the entire curriculum, and of each course in the curriculum.
+- centrality : The centrality measure associated with the entire curriculum, and of each course in the curriculum.
+- delay factor : The delay factor of the entire curriculum, and of each course in the curriculum.
+- curricular complexity : The curricular complexity of the entire curriculum, and of each course in the curriculum.
+
+Complete descriptions of these metrics are provided above.
 
 ```julia-repl
 julia> metrics = basic_metrics(curriculum)
@@ -411,7 +412,6 @@ julia> println(String(take!(metrics)))
 julia> # The metrics are also stored in a dictonary that can be accessed as follows
 julia> curriculum.metrics
 ```
-
 """
 function basic_metrics(curric::Curriculum)
     buf = IOBuffer()
@@ -447,6 +447,14 @@ function basic_metrics(curric::Curriculum)
             max_cent_courses = Array{Course,1}()
             push!(max_cent_courses, c)
         end
+        curric.metrics["max. blocking factor"] = max_bf
+        curric.metrics["max. blocking factor courses"] = max_bf_courses
+        curric.metrics["max. centrality"] = max_cent
+        curric.metrics["max. centrality courses"] = max_cent_courses
+        curric.metrics["max. delay factor"] = max_df
+        curric.metrics["max. delay factor courses"] = max_df_courses
+        curric.metrics["max. complexity"] = max_cc
+        curric.metrics["max. complexity courses"] = max_cc_courses
     end
     write(buf, "\nCurriculum: $(curric.name)\n")
     write(buf, "  credit hours = $(curric.credit_hours)\n")
