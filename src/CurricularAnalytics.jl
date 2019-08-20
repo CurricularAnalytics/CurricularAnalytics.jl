@@ -26,6 +26,7 @@ include("Visualization.jl")
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, 
         LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, 
         Term, DegreePlan, find_term, course_from_id, dfs, topological_sort, longest_path, long_paths, 
+        gad, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, 
         isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, 
         compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics, read_csv, create_degree_plan, 
         bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, find_min_terms, 

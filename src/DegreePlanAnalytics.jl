@@ -2,11 +2,15 @@
 
 # Basic metrics for a degree plan, based soley on credits
 """
-    basic_metrics(plan::DegreePlan)
+    basic_metrics(plan)
 
 Compute the basic metrics associated with degree plan `plan`, and return an IO buffer containing these metrics.  The baseic 
 metrics are primarily concerned with how credits hours are distributed across the terms in a plan.  The basic metrics are 
-also stored in the `metrics` dictionary associated with the degree plan. 
+also stored in the `metrics` dictionary associated with the degree plan.
+
+# Arguments
+Required:
+- `plan::DegreePlan` : a valid degree plan (see [Degree Plans](@ref)). 
 
 The basic metrics computed include:
 
@@ -32,7 +36,6 @@ julia> println(String(take!(metrics)))
 julia> # The metrics are also stored in a dictonary that can be accessed as follows
 julia> plan.metrics
 ```
-
 """
 function basic_metrics(plan::DegreePlan)
     buf = IOBuffer()
@@ -73,10 +76,18 @@ function basic_metrics(plan::DegreePlan)
 
  # Degree plan metrics based upon the distance between requsites and the classes that require them.
  """
-    requisite_distance(plan::DegreePlan, course::Int)
+    requisite_distance(DegreePlan, course::Int)
 
 For a given degree plan `plan` and course `course`, this function computes the total distance between `course` and 
-each of its requisites.  The distance between a course a requisite is given by the number of terms that separate 
+each of its requisites.  
+
+# Arguments
+Required:
+- `plan::DegreePlan` : a valid degree plan (see [Degree Plans](@ref)).
+- `course::Int` : the vertex ID of a course in the curriclum graph `plan.curriculum.graph`.
+
+
+The distance between a course a requisite is given by the number of terms that separate 
 the course from its requisite in the degree plan.  If we let ``T_i^p`` denote the term in degree plan ``p`` that course ``c_i`` 
 appears in, then for a degree plan with underlying curriculum graph ``G_c = (V,E)``, the requisite distance for course 
 ``c_i`` in degree plan ``p``, denoted ``rd_{v_i}^p``, is:
@@ -101,9 +112,15 @@ end
     requisite_distance(plan::DegreePlan)
 
 For a given degree plan `plan`, this function computes the total distance between all courses in the degree plan, and 
-the requisites for those courses.  The distance between a course a requisite is given by the number of terms that 
-separate the course from its requisite in the degree plan.  If ``rd_{v_i}^p`` denotes the requisite distance 
-between course ``c_i`` and its requisites in degree plan ``p``, then the total requisite distance for a degree plan, 
+the requisites for those courses.  
+
+# Arguments
+Required:
+- `plan::DegreePlan` : a valid degree plan (see [Degree Plans](@ref)).   
+
+The distance between a course a requisite is given by the number of terms that separate the course from 
+its requisite in the degree plan.  If ``rd_{v_i}^p`` denotes the requisite distance between course 
+``c_i`` and its requisites in degree plan ``p``, then the total requisite distance for a degree plan, 
 denoted ``rd^p``, is given by:
 
 ```math
