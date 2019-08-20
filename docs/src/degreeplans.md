@@ -15,7 +15,7 @@ In order to be considered *minimally feasible*, a degree plan $P$ for a curricul
 1. Every course in the curriculum $C$ must appear in one and only one term in the degree plan $P$.  (Note: $P$ may contain courses that are not in $C$.)
 2. The requisite relationships between the courses in $P$ must be respected across the terms in $P$.  That is, if course ``a`` is a prerequisite for course ``b`` in the curriculum, then course ``a`` must appear in the degree plan $P$ in an earlier term than course ``b``.
 
-## Optimized Degree Plans
+## Optimized-Degree-Plans
 
 The Curricular Analytics Toolbox also allows you to create customized degree plans according to various user-specifed criteria.  These features make use of the [JuMP](https://github.com/JuliaOpt/JuMP.jl) domain-specific language for specifying optimization problems in Julia, and calls the [Gurobi](https://www.gurobi.com) solver in order to solve the optimzaton problems.  In order to use these features you must first install JuMP and Gurobi.  For installation instructions see [Additional Requirements](@ref) in the Installation section.
 
