@@ -1,5 +1,7 @@
 # Graph Algs tests
 
+using LightGraphs
+
 @testset "GraphAlgs Tests" begin
 
 # 12-vertex test diagraph with 5 components 
