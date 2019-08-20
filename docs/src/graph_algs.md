@@ -12,5 +12,6 @@ reachable_from_subgraph
 reachable_to
 reachable_to_subgraph
 reach
+reach_subgraph
 topological_sort
 ```

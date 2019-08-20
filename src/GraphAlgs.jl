@@ -194,7 +194,7 @@ end
 
 # The set of all vertices reachable to and reachable from vertex s
 """
-    reachable(g, v)
+    reach(g, v)
 
 Returns the reach of vertex `v` in `g`, ie., the set of all vertices in `g` that can 
 reach vertex `v` and can be reached from `v`.
@@ -210,7 +210,7 @@ end
 
 # Subgraph induced by the reach of a vertex
 """
-    reachable_subgraph(g, v)
+    reach_subgraph(g, v)
 
 Returns a subgraph in `g` consisting of vertex `v ` and all vertices that can reach `v`, as 
 well as all vertices that `v` can reach.  In addition, a vector is returned that maps the 
