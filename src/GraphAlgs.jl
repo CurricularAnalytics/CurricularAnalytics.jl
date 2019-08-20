@@ -2,6 +2,33 @@
 # File: GraphAlgs.jl
 
 # Depth-first search, returns edge classification using EdgeClass, as well as the discovery and finish time for each vertex.
+"""
+dfs(g)
+
+Perform a depth-first traversal of input graph `g`.
+
+# Arguments
+Required:
+- `g::AbstractGraph` : input graph.
+
+This function returns the classification of each edge in graph `g`, as well as the order in which vertices are
+first discovered during a depth-first search traversal, and when the processing from that vertex is completed
+during the depth-first traverlsa.  According to the vertex discovery and finish times, each edge in `g` will be 
+classified as one of:
+ - *tree edge* : Any collection of edges in `g` that form a forest. Every vertex is either a single-vertex tree 
+ with respect to such a collection, or is part of some larger tree through its connection to another vertex via a 
+ tree edge. This collection is not unique defined on `g`.
+ - *back edge* : Given a collection of tree edges, back edges are those edges that connect some descendent vertex 
+ in a tree to an ancestor vertex in the same tree.
+ - *forward edge* : Given a collection of tree edges, forward edges are those that are incident from an ancestor 
+ in a tree, and incident to an descendent in the same tree.
+ - *cross edge* : Given a collection of tree edges, cross edges are those that are adjacent between vertices in 
+ two different trees, or between vertices in two different subtrees in the same tree.
+
+```julia-repl
+julia> edges, discover, finish = dfs(g)
+```
+"""
 function dfs(g::AbstractGraph{T}) where T
     time = 0
     # discover and finish times
@@ -44,11 +71,11 @@ Perform a topoloical sort on graph `g`, returning the weakly connected component
 If the `sort` keyword agrument is supplied, the components will be sorted according to their size, in either ascending or 
 descending order.  If two or more components have the same size, the one with the smallest vertex ID in the first position of the 
 topological sort will appear first.
-```
 
 # Arguments
 Required:
 - `g::AbstractGraph` : input graph.
+
 Keyword:
 - `sort::String` : sort weakly connected components according to their size, allowable 
 strings: `ascending`, `descending`.
@@ -78,7 +105,6 @@ end
 
 Returns the transpose of directed acyclic graph (DAG) `g`, i.e., a DAG identical to `g`, except the direction
 of all edges is reversed.  If `g` is not a DAG, and error is thrown.
-```
 
 # Arguments
 Required:
@@ -90,6 +116,16 @@ function gad(g::AbstractGraph{T}) where T
 end
 
 # The set of all vertices in the graph reachable from vertex s
+"""
+    reachable_from(g, s)
+
+Returns the the set of all vertices in `g` that are reachable from vertex `s`.
+
+# Arguments
+Required:
+- `g::AbstractGraph` : acylic input graph. 
+- `s::Int` : index of the source vertex in `g`.
+"""
 function reachable_from(g::AbstractGraph{T}, s::Int, vlist::Array=Array{Int64,1}()) where T
     for v in neighbors(g, s)
         if findfirst(isequal(v), vlist) == nothing  # v is not in vlist
@@ -101,28 +137,55 @@ function reachable_from(g::AbstractGraph{T}, s::Int, vlist::Array=Array{Int64,1}
 end
 
 # The subgraph induced by vertex s and the vertices reachable from vertex s
-#
-# usage:
-# julia> sg_data = reachable_from_subgraph(g,v)
-#   Returns the subgraph of `g` induced by the vertices reachable from `v`
-#   along with a vector mapping the new vertices to the old ones.
-#   (the  vertex `i` in the subgraph corresponds to the vertex `vmap[i]` in `g`.)
-#
-# julia> sg, vmap = reachable_from_subgraph(g,v)
-#   Returns the subgraph of `g` induced by the vertices reachable from `v`
-#   as a LightGraph object stored in sg
+"""
+    reachable_from_subgraph(g, s)
+
+Returns the subgraph induced by `s` in `g` (i.e., a graph object consisting of vertex 
+`s` and all vertices reachable from vertex `s` in`g`), as well as a vector mapping the vertex
+IDs in the subgraph to their IDs in the orginal graph `g`.
+
+```julia-rep
+    sg, vmap = reachable_from_subgraph(g, s)
+````
+"""
 function reachable_from_subgraph(g::AbstractGraph{T}, s::Int) where T
     vertices = reachable_from(g, s)
     push!(vertices, s)  # add the source vertex to the reachable set
-        induced_subgraph(g, vertices)
-#    end
+    induced_subgraph(g, vertices)
 end
 
 # The set of all vertices in the graph that can reach vertex s
-function reachable_to(g::AbstractGraph{T}, s::Int) where T
-   reachable_from(gad(g), s)  # vertices reachable from s in the transpose graph
-end
+"""
+    reachable_to(g, t)
 
+Returns the set of all vertices in `g` that can reach target vertex `t` through any path.
+
+# Arguments
+Required:
+- `g::AbstractGraph` : acylic input graph. 
+- `t::Int` : index of the target vertex in `g`. 
+"""
+function reachable_to(g::AbstractGraph{T}, t::Int) where T
+    reachable_from(gad(g), t)  # vertices reachable from s in the transpose graph
+ end
+
+# The subgraph induced by vertex s and the vertices that can reach s
+"""
+    reachable_to_subgraph(g, t)
+
+Returns a subgraph in `g` consisting of vertex `t` and all vertices that can reach 
+vertex `t` in`g`, as well as a vector mapping the vertex IDs in the subgraph to their IDs 
+in the orginal graph `g`.
+
+# Arguments
+Required:
+- `g::AbstractGraph` : acylic input graph. 
+- `t::Int` : index of the target vertex in `g`. 
+
+```julia-rep
+    sg, vmap = reachable_to(g, t)
+````
+"""
 function reachable_to_subgraph(g::AbstractGraph{T}, s::Int) where T
     vertices = reachable_to(g, s)
     push!(vertices, s)  # add the source vertex to the reachable set
@@ -130,19 +193,61 @@ function reachable_to_subgraph(g::AbstractGraph{T}, s::Int) where T
 end
 
 # The set of all vertices reachable to and reachable from vertex s
-function reach(g::AbstractGraph{T}, s::Int) where T
-    union(reachable_to(g,s),reachable_from(g,s))
+"""
+    reachable(g, v)
+
+Returns the reach of vertex `v` in `g`, ie., the set of all vertices in `g` that can 
+reach vertex `v` and can be reached from `v`.
+
+# Arguments
+Required:
+- `g::AbstractGraph` : acylic input graph. 
+- `v::Int` : index of a vertex in `g`. 
+"""
+function reach(g::AbstractGraph{T}, v::Int) where T
+    union(reachable_to(g, v), reachable_from(g, v))
 end
 
-function reach_subgraph(g::AbstractGraph{T}, s::Int) where T
-    vertices = reach(g, s)
-    push!(vertices, s)  # add the source vertex to the reachable set
+# Subgraph induced by the reach of a vertex
+"""
+    reachable_subgraph(g, v)
+
+Returns a subgraph in `g` consisting of vertex `v ` and all vertices that can reach `v`, as 
+well as all vertices that `v` can reach.  In addition, a vector is returned that maps the 
+vertex IDs in the subgraph to their IDs in the orginal graph `g`.
+
+# Arguments
+Required:
+- `g::AbstractGraph` : acylic input graph. 
+- `v::Int` : index of a vertex in `g`. 
+
+```julia-rep
+    sg, vmap = reachable_to(g, v)
+````
+"""
+function reach_subgraph(g::AbstractGraph{T}, v::Int) where T
+    vertices = reach(g, v)
+    push!(vertices, v)  # add the source vertex to the reachable set
     induced_subgraph(g, vertices)
 end
 
-# The longest path from vertx s to any other vertex in a DAG G (not necessarily unique,
-# i.e., there can be more than one longest path between two vertices)
+# The longest path from vertx s to any other vertex in a DAG G (not necessarily unique).
 # Note: in a DAG G, longest paths in G = shortest paths in -G
+"""
+    longest_path(g, s)
+    
+The longest path from vertx s to any other vertex in a acyclic graph `g`.  The longest path
+is not necessarily unique, i.e., there can be more than one longest path between two vertices.
+
+ # Arguments
+Required:
+- `g::AbstractGraph` : acylic input graph. 
+- `s::Int` : index of the source vertex in `g`. 
+
+```julia-repl
+julia> path = longest_paths(g, s)
+```
+"""
 function longest_path(g::AbstractGraph{T}, s::Int) where T
     if is_cyclic(g)
         error("longest_path(): input graph has cycles")
@@ -159,10 +264,25 @@ function longest_path(g::AbstractGraph{T}, s::Int) where T
     return lp
 end
 
-# Enumerate all unique long paths in a DAG G, where a long path must include a
-# source vertex (in-degree zero) and a different sink vertex (out-degree zero),
-# i.e., must be a path containing at least two vertices
+# all long paths in a graph
+"""
+    long_paths(g)
+
+ Enumerate all of the unique long paths in acyclic graph `g`, where a "long path" must include a 
+ source vertex (a vertex with in-degree zero) and a different sink vertex (a vertex with out-degree 
+ zero).  I.e., a long path is any path containing at least two vertices.  This function returns 
+ an array of these long paths, where each path consists of an array of vertex IDs.
+
+ # Arguments
+Required:
+- `g::AbstractGraph` : acylic input graph. 
+
+```julia-repl
+julia> paths = long_paths(g)
+```
+"""
 function long_paths(g::AbstractGraph{T}) where T
+    # check that g is acyclic
     if is_cyclic(g)
         error("long_paths(): input graph has cycles")
     end
