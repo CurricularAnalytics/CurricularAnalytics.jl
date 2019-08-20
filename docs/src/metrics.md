@@ -58,15 +58,27 @@ As an example of the structural complexity metric, consider the same four-course
 complexity
 ```
 
+### Basic Metrics (Curriculum)
+
+All of the predefined metrics for a given curriculum described above will be computed and stored in the curriculum's `metric` dictionary by using the following function.
+
+```@docs
+basic_metrics(::Curriculum)
+```
+
 ## Degree Plan Metrics
 
 The aforementioned curricular complexity metrics are independent of how a curriculum is layed out as a degree plan.  That is, the curricular metrics will not change as different degree plans are created.  Degree plan metrics are related to the manner in which courses in the curriculum are laid out across the terms in the degree plan.  These metrics are used in the creation of optimal degree plans as described in [Optimzed Degree Plans]@ref.
 
+### Basic Metrics (Degree Plans)
+
 A set of basic statistics associated with the distribution of credit hours in a degree plan can be obtained by using:
 
 ```@docs
-basic_metrics
+basic_metrics(::DegreePlan)
 ```
+
+### Requisite Distance
 
 A degree plan metric that is based upon the separation of courses and their pre- and co-requisites in a degree plan is described next.
 
