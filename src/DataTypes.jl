@@ -259,7 +259,7 @@ mutable struct Curriculum
         end
         this.CIP = CIP
         if sortby_ID
-            this.courses = sort(collect(courses), by=c->c.id)
+            this.courses = sort(collect(courses), by = c -> c.id)
         else
             this.courses = courses
         end
