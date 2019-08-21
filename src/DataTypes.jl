@@ -269,19 +269,14 @@ mutable struct Curriculum
         this.metrics = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
         errors = IOBuffer()
-        if isvalid_curriculum(this, errors)
-            return this
-        else
+        if !(isvalid_curriculum(this, errors))
             printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
             println(String(take!(errors)))
-            return this
-        end
-        # extraneous requisites are only checked if the curriculum is valid
-        if extraneous_requisites(this, errors)
-            printstyled("WARNING: Curriculum contains extraneous requisite(s).\n A list of extraneous requisites can be obtained by using the extraneous_requisites() function.", color = :yellow)
+        elseif extraneous_requisites(this, errors)  # extraneous requisites only checked if the curriculum is valid
+            printstyled("WARNING: Curriculum contains extraneous requisite(s).\n List the extraneous requisites using the extraneous_requisites() function.", color = :yellow)
             take!(errors)  # flush the error buffer
-            return this
         end
+        return this
     end
 end
 
