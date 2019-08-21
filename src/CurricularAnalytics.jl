@@ -361,6 +361,30 @@ function complexity(c::Curriculum)
     return c.metrics["complexity"] = curric_complexity, course_complexity
 end
 
+# Find all fo the longest paths in a curriculum.
+"""
+    longest_paths(c)
+    
+Finds longest paths in curriculum `c`, and returns an array of course arrays, where
+each course array contains the courses in a longest path.
+
+ # Arguments
+Required:
+- `c::Curriculum` : a valid curriculum. 
+
+```julia-repl
+julia> paths = longest_paths(c)
+```
+"""
+function longest_paths(c::Curriculum)
+    lps = Array{Array{Course,1},1}()
+    for path in longest_paths(c.graph)
+       c_path = courses_from_vertices(c, path)
+       push!(lps, c_path)
+    end
+    return c.metrics["longest paths"] = lps
+end
+
 # Compare the metrics associated with two curricula
 # to print out the report, use: println(String(take!(report))), where report is the IOBuffer returned by this function
 function compare_curricula(c1::Curriculum, c2::Curriculum)
@@ -402,24 +426,24 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
     return report
 end
 
-# Create a path as an array of courses from a path provided as vertex IDs.
+# Create a list of courses or course names from a array of vertex IDs.
 # The array returned can be (keyword arguments):
 #   -course data objects : object
 #   -the names of courses : name
 #   -the full names of courses (prefix, number, name) : fullname
-function courses_from_vertices(curriculum::Curriculum, path::Array{Int,1}; course::String="object")
+function courses_from_vertices(curriculum::Curriculum, vertices::Array{Int,1}; course::String="object")
     if course == "object"
-        course_path = Course[]
+        course_list = Course[]
     else
-        course_path = String[]
+        course_list = String[]
     end
-    for i in path
-        c = curriculum.courses[i]
-        course == "object" ? push!(course_path, c) : nothing
-        course == "name" ? push!(course_path, "$(c.name)") : nothing
-        course == "fullname" ? push!(course_path, "$(c.prefix) $(c.num) - $(c.name)") : nothing
+    for v in vertices
+        c = curriculum.courses[v]
+        course == "object" ? push!(course_list, c) : nothing
+        course == "name" ? push!(course_list, "$(c.name)") : nothing
+        course == "fullname" ? push!(course_list, "$(c.prefix) $(c.num) - $(c.name)") : nothing
     end
-    return course_path
+    return course_list
 end
 
 # Basic metrics for a currciulum.
@@ -449,7 +473,7 @@ julia> curriculum.metrics
 """
 function basic_metrics(curric::Curriculum)
     buf = IOBuffer()
-    complexity(curric), centrality(curric)  # compute all curricular metrics
+    complexity(curric), centrality(curric), longest_paths(curric)  # compute all curricular metrics
     max_bf = 0; max_df = 0; max_cc = 0; max_cent = 0
     max_bf_courses = Array{Course,1}(); max_df_courses = Array{Course,1}(); max_cc_courses = Array{Course,1}(); max_cent_courses = Array{Course,1}()
     for c in curric.courses
@@ -490,6 +514,8 @@ function basic_metrics(curric::Curriculum)
         curric.metrics["max. complexity"] = max_cc
         curric.metrics["max. complexity courses"] = max_cc_courses
     end
+    # write metrics to IO buffer
+    write(buf, "\n$(curric.institution) ")
     write(buf, "\nCurriculum: $(curric.name)\n")
     write(buf, "  credit hours = $(curric.credit_hours)\n")
     write(buf, "  number of courses = $(curric.num_courses)")
@@ -497,35 +523,48 @@ function basic_metrics(curric::Curriculum)
     write(buf, "    entire curriculum = $(curric.metrics["blocking factor"][1])\n")
     write(buf, "    max. value = $(max_bf), ")
     write(buf, "for course(s): ")
-    write(buf, "$(max_bf_courses[1].prefix) $(max_bf_courses[1].num) $(max_bf_courses[1].name)")
-    for c in max_bf_courses[2:end]
-        write(buf, ", $(c.prefix) $(c.num) $(c.name)")
-    end
+    write_course_names(buf, max_bf_courses)
     write(buf, "\n  Centrality --\n")
     write(buf, "    entire curriculum = $(curric.metrics["centrality"][1])\n")
     write(buf, "    max. value = $(max_cent), ") 
     write(buf, "for course(s): ")
-    write(buf, "$(max_cent_courses[1].prefix) $(max_cent_courses[1].num) $(max_cent_courses[1].name)")
-    for c in max_cent_courses[2:end]
-        write(buf, ", $(c.prefix) $(c.num) $(c.name)")
-    end
+    write_course_names(buf, max_cent_courses)
     write(buf, "\n  Delay Factor --\n")
     write(buf, "    entire curriculum = $(curric.metrics["delay factor"][1])\n")
     write(buf, "    max. value = $(max_df), ") 
     write(buf, "for course(s): ")
-    write(buf, "$(max_df_courses[1].prefix) $(max_df_courses[1].num) $(max_df_courses[1].name)")
-    for c in max_df_courses[2:end]
-        write(buf, ", $(c.prefix) $(c.num) $(c.name)")
-    end
+    write_course_names(buf, max_df_courses)
     write(buf, "\n  Complexity --\n")
     write(buf, "    entire curriculum = $(curric.metrics["complexity"][1])\n")
     write(buf, "    max. value = $(max_cc), ") 
     write(buf, "for course(s): ")
-    write(buf, "$(max_cc_courses[1].prefix) $(max_cc_courses[1].num) $(max_cc_courses[1].name)")
-    for c in max_cc_courses[2:end]
-        write(buf, ", $(c.prefix) $(c.num) $(c.name)")
+    write_course_names(buf, max_cc_courses)
+    write(buf, "\n  Longest Path(s) --\n")
+    write(buf, "    length = $(length(curric.metrics["longest paths"][1])), number of paths = $(length(curric.metrics["longest paths"])), path(s):\n")
+    for path in curric.metrics["longest paths"]
+        write(buf, "    ")
+        write_course_names(buf, path, separator=" -> ")
+        write(buf, "\n")
     end
     return buf
+end
+
+function write_course_names(buf::IOBuffer, courses::Array{Course,1}; separator::String=", ")
+    if length(courses) == 1
+      write_course_name(buf, courses[1])
+    else
+      for c in courses[1:end-1]
+        write_course_name(buf, c)
+        write(buf, separator)
+      end
+        write_course_name(buf, courses[end])
+    end
+end
+
+function write_course_name(buf::IOBuffer, c::Course)
+    !isempty(c.prefix) ? write(buf, "$(c.prefix) ") : nothing
+    !isempty(c.num) ? write(buf, "$(c.pnum) - ") : nothing
+    write(buf, "$(c.name)")  # name is a required item
 end
 
 end # module
