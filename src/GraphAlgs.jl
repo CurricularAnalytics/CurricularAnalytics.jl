@@ -272,7 +272,9 @@ function all_paths(g::AbstractGraph{T}) where T
                     x[1] = u # put new neighbor at the head of array, replacing an in-neighbor
                 end
                 if length(inneighbors(g, u)) == 0  # reached a source vertex, done with path
-                    push!(paths, x)
+                    if !(x in paths)
+                      push!(paths, x)
+                    end
                 else
                     enqueue!(que, copy(x))
                 end
@@ -319,7 +321,8 @@ end
 """
     longest_paths(g)
     
-Finds the length of the longest path in `g`, and returns all paths in `g` of that length.
+Finds the set of longest paths in `g`, and returns an array of vertex arrays, where each vertex
+array contains the vertices in a longest path.
 
  # Arguments
 Required:
@@ -335,10 +338,11 @@ function longest_paths(g::AbstractGraph{T}) where T
     end
     lps = Array[]
     max = 0
-    for path in all_paths(g)
+    paths = all_paths(g)
+    for path in paths  # find length of longest path
         length(path) > max ? max = length(path) : nothing
     end
-    for path in all_paths(g)
+    for path in paths
         length(path) == max ? push!(lps, path) : nothing
     end
     return lps

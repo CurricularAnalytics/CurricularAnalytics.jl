@@ -273,7 +273,7 @@ mutable struct Curriculum
             printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
             println(String(take!(errors)))
         elseif extraneous_requisites(this, errors)  # extraneous requisites only checked if the curriculum is valid
-            printstyled("WARNING: Curriculum contains extraneous requisite(s).\n List the extraneous requisites using the extraneous_requisites() function.", color = :yellow)
+            printstyled("WARNING: $(this.institution) Curriculum: $(this.name) contains extraneous requisite(s).\n You may list extraneous requisites using the extraneous_requisites() function.\n\n", color = :yellow)
             take!(errors)  # flush the error buffer
         end
         return this
