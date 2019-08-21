@@ -563,7 +563,7 @@ end
 
 function write_course_name(buf::IOBuffer, c::Course)
     !isempty(c.prefix) ? write(buf, "$(c.prefix) ") : nothing
-    !isempty(c.num) ? write(buf, "$(c.pnum) - ") : nothing
+    !isempty(c.num) ? write(buf, "$(c.num) - ") : nothing
     write(buf, "$(c.name)")  # name is a required item
 end
 

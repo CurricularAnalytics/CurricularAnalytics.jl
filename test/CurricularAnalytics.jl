@@ -82,7 +82,7 @@ errors = IOBuffer()
 # Test analytics 
 @test delay_factor(curric) == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
 @test blocking_factor(curric) == (8, [2, 2, 1, 3, 0, 0, 0, 0])
-@test centrality(curric) == (9, [0, 0, 9, 0, 0, 0, 0, 0])
+@test centrality(curric) == (3, [0, 0, 3, 0, 0, 0, 0, 0])
 @test complexity(curric) == (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
 
 # Curric: 7-vertex test curriculum - valid
@@ -170,12 +170,12 @@ basic_metrics(curric)
 @test curric.num_courses == 8
 @test curric.metrics["blocking factor"] == (8, [2, 2, 1, 3, 0, 0, 0, 0])
 @test curric.metrics["delay factor"] == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
-@test curric.metrics["centrality"] == (9, [0, 0, 9, 0, 0, 0, 0, 0])
+@test curric.metrics["centrality"] == (3, [0, 0, 3, 0, 0, 0, 0, 0])
 @test curric.metrics["complexity"] == (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
 @test curric.metrics["max. blocking factor"] == 3
 @test length(curric.metrics["max. blocking factor courses"]) == 1
 @test curric.metrics["max. blocking factor courses"][1].name == "Basic Basket Forms Lab"
-@test curric.metrics["max. centrality"] == 9
+@test curric.metrics["max. centrality"] == 3
 @test length(curric.metrics["max. centrality courses"]) == 1
 @test curric.metrics["max. centrality courses"][1].name == "Basic Basket Forms"
 @test curric.metrics["max. delay factor"] == 3.0
