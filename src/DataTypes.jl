@@ -48,7 +48,6 @@ mutable struct LearningOutcome
     end
 end
 
-
 #"""
 #add_lo_requisite!(rlo, tlo, requisite_type)
 #Add learning outcome rlo as a requisite, of type requisite_type, for target learning 
@@ -270,11 +269,17 @@ mutable struct Curriculum
         this.metrics = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
         errors = IOBuffer()
-        if(isvalid_curriculum(this, errors))
+        if isvalid_curriculum(this, errors)
             return this
         else
-            printstyled("WARNING: Curriculum was created, but is invalid:", color = :yellow)
+            printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
             println(String(take!(errors)))
+            return this
+        end
+        # extraneous requisites are only checked if the curriculum is valid
+        if extraneous_requisites(this, errors)
+            printstyled("WARNING: Curriculum contains extraneous requisite(s).\n A list of extraneous requisites can be obtained by using the extraneous_requisites() function.", color = :yellow)
+            take!(errors)  # flush the error buffer
             return this
         end
     end
@@ -294,13 +299,18 @@ function map_vertex_ids(curriculum::Curriculum)
     return mapped_ids
 end
 
-# Determine the course ID associated with a vertex in a curriculum graph.
-function course_from_id(id::Int, curriculum::Curriculum)
+# Return the course associated with a course id in a curriculum
+function course_from_id(curriculum::Curriculum, id::Int)
     for c in curriculum.courses
         if c.id == id
             return c
         end
     end
+end
+
+# Return the course associated with a vertex id in a curriculum graph
+function course_from_vertex(curriculum::Curriculum, vertex::Int)
+    c = curriculum.courses[vertex]
 end
 
 # The total number of credit hours in a curriculum
@@ -515,7 +525,7 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
     if length(setdiff(curric_classes, dp_classes)) > 0
         validity = false
         for i in setdiff(curric_classes, dp_classes)
-            c = course_from_id(i, plan.curriculum)
+            c = course_from_id(plan.curriculum, i)
             write(error_msg, "\n-Degree plan is missing required course: $(c.name)")
         end
     end
