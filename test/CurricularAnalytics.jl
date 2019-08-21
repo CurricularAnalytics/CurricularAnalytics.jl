@@ -16,7 +16,7 @@ add_requisite!(A,A,pre)
 
 curric = Curriculum("Cycle", [A])
 
-# Test is_valid_curriculum() 
+# Test isvalid_curriculum() 
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == false
 #@test String(take!(errors)) == "\nCurriculum Cycle contains the following requisite cycles:\n(A)\n"
@@ -42,9 +42,9 @@ add_requisite!(a,b,pre)
 
 curric = Curriculum("Extraneous", [a, b, c, d], sortby_ID=false)
 
-# Test is_valid_curriculum() 
+# Test extraneous_requisites() 
 errors = IOBuffer()
-@test isvalid_curriculum(curric, errors) == false
+@test extraneous_requisites(curric, errors) == true
 #@test String(take!(errors)) == "\nCurriculum Extraneous contains the following extraneous requisites:\nCourse C has redundant requisite: A"
 
 # 8-vertex test curriculum - valid
@@ -74,9 +74,10 @@ add_requisite!(D,F,pre)
 
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786",sortby_ID=false)
 
-# Test is_valid_curriculum() 
+# Test isvalid_curriculum() and extraneous_requisites()
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == true
+@test extraneous_requisites(curric, errors) == false
 
 # Test analytics 
 @test delay_factor(curric) == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
@@ -117,9 +118,10 @@ add_requisite!(G,F,pre)
 
 curric = Curriculum("Postmodern Basket Weaving", [A,B,C,D,E,F,G], sortby_ID=false)
 
-# Test is_valid_curriculum() 
+# Test isvalid_curriculum() and extraneous_requisites()
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == true
+@test extraneous_requisites(curric, errors) == false
 
 # Test analytics 
 @test delay_factor(curric) == (32.0, [5.0, 5.0, 4.0, 5.0, 3.0, 5.0, 5.0])
@@ -157,9 +159,10 @@ add_requisite!(D,F,pre)
 
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786",sortby_ID=false)
 
-# Test is_valid_curriculum()
+# Test isvalid_curriculum() and extraneous_requisites()
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == true
+@test extraneous_requisites(curric, errors) == false
 
 # Test basic_metrics()
 basic_metrics(curric)

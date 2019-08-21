@@ -23,11 +23,11 @@ include("CSVUtilities.jl")
 include("DataHandler.jl")
 include("Visualization.jl")
 
-export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, 
-        LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, 
-        Term, DegreePlan, find_term, course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths,
-        gad, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph,
-        isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, 
+export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, LearningOutcome, 
+        Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
+        course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
+        reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
+        extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices,
         compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics, read_csv, create_degree_plan, 
         bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, find_min_terms, 
         balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, optimize_plan, 
@@ -38,16 +38,16 @@ function init_opt()
     include(dirname(pathof(CurricularAnalytics)) * "/Optimization.jl")
 end
 
-# Check if a curriculum graph has requisite cycles or extraneous requsities.
+# Check if a curriculum graph has requisite cycles.
 """
     isvalid_curriculum(c::Curriculum, errors::IOBuffer)
 
-Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid.  Returns 
-a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it 
-is not.
+Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e., 
+whether or not it contains a requisite cycle.  Returns  a boolean value, with `true` indicating the 
+curriculum is valid, and `false` indicating it is not.
 
-If ``G_c`` is not valid, the reason(s) why are written to the `errors` buffer. To view these 
-reasons, use:
+If ``G_c`` is not valid, the requisite cycle(s) are written to the `errors` buffer. To view these 
+cycles, use:
 
 ```julia-repl
 julia> errors = IOBuffer()
@@ -55,12 +55,8 @@ julia> isvalid_curriculum(c, errors)
 julia> println(String(take!(errors)))
 ```
 
-There are two reasons why a curriculum graph might not be valid:
-- Cycles : If a curriculum graph contains a directed cycle, it is not possible to complete the curriculum.
-- Extraneous Requisites : These are redundant requisites that may introduce spurious complexity.
-  If a curriculum has the prerequisite relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ 
-  and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are *not* co-requisites, then \$c_1 
-  \\rightarrow c_3\$ is redundant and therefore extraneous.   
+A curriculum graph is not valid if it contains a directed cycle; in this case it is not possible to complete 
+the curriculum.  
 """
 function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     g = c.graph
@@ -69,7 +65,8 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     cycles = simplecycles(g)
     if size(cycles,1) != 0
         validity = false
-        write(error_msg, "\nCurriculum \'$(c.name)\' has requisite cycles:\n")
+        c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
+        write(error_msg, " curriculum \'$(c.name)\' has requisite cycles:\n")
         for cyc in cycles
             write(error_msg, "(")
             for (i,v) in enumerate(cyc)
@@ -80,19 +77,33 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
                 end
             end
         end
-    else # no cycles, can now check for extraneous requisites
-        extran_errors = IOBuffer()
-        if extraneous_requisites(c, extran_errors)
-            validity = false
-            write(error_msg, "\nCurriculum \'$(c.name)\' has extraneous requisites:\n")
-            write(error_msg, String(take!(extran_errors)))
-        end
     end
     return validity
 end
 
+## refactoring this out of the function above, to reduce warning outputs -- use extraneous_requisites() in its place
+#else # no cycles, can now check for extraneous requisites
+#        extran_errors = IOBuffer()
+#        if extraneous_requisites(c, extran_errors)
+#            validity = false
+#            c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
+#            write(error_msg, " curriculum \'$(c.name)\' has extraneous requisites:\n")
+#            write(error_msg, String(take!(extran_errors)))
+#        end
+#    end
+#    return validity
+#end
+
+"""
+    function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
+       
+Determines whether or not a curriculum `c` contains extraneous requisites, and returns them.  Extraneous requisites
+are redundant requisites that may introduce spurious complexity.  For examokem, if a curriculum has the prerequisite 
+relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are 
+*not* co-requisites, then \$c_1 \\rightarrow c_3\$ is redundant and therefore extraneous.
+"""
 function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
-    if is_cyclic(c.graph) # error condition should no occur, as cycles are checked in isvalid_curriculum()
+    if is_cyclic(c.graph) # error condition should not occur, as cycles are checked in isvalid_curriculum()
         error("\nExtraneous requisities are due to cycles in the curriculum graph")
     end
     g = c.graph
@@ -140,6 +151,8 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
         end
     end
     if extraneous == true
+        c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
+        write(error_msg, " curriculum \'$(c.name)\' has extraneous requisites:\n")
         write(error_msg, str)
     end
     return extraneous
@@ -387,6 +400,26 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
         end
     end
     return report
+end
+
+# Create a path as an array of courses from a path provided as vertex IDs.
+# The array returned can be (keyword arguments):
+#   -course data objects : object
+#   -the names of courses : name
+#   -the full names of courses (prefix, number, name) : fullname
+function courses_from_vertices(curriculum::Curriculum, path::Array{Int,1}; course::String="object")
+    if course == "object"
+        course_path = Course[]
+    else
+        course_path = String[]
+    end
+    for i in path
+        c = curriculum.courses[i]
+        course == "object" ? push!(course_path, c) : nothing
+        course == "name" ? push!(course_path, "$(c.name)") : nothing
+        course == "fullname" ? push!(course_path, "$(c.prefix) $(c.num) - $(c.name)") : nothing
+    end
+    return course_path
 end
 
 # Basic metrics for a currciulum.
