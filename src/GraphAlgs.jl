@@ -231,40 +231,7 @@ function reach_subgraph(g::AbstractGraph{T}, v::Int) where T
     induced_subgraph(g, vertices)
 end
 
-# The longest path from vertx s to any other vertex in a DAG G (not necessarily unique).
-# Note: in a DAG G, longest paths in G = shortest paths in -G
-"""
-    longest_path(g, s)
-    
-The longest path from vertx s to any other vertex in a acyclic graph `g`.  The longest path
-is not necessarily unique, i.e., there can be more than one longest path between two vertices.
-
- # Arguments
-Required:
-- `g::AbstractGraph` : acylic graph. 
-- `s::Int` : index of the source vertex in `g`. 
-
-```julia-repl
-julia> path = longest_paths(g, s)
-```
-"""
-function longest_path(g::AbstractGraph{T}, s::Int) where T
-    if is_cyclic(g)
-        error("longest_path(): input graph has cycles")
-    end
-    lp = Array{Edge}[]
-    max = 0
-    # shortest path from s to all vertices in -G
-    for path in enumerate_paths(dijkstra_shortest_paths(g, s, -weights(g), allpaths=true))
-        if length(path) > max
-            lp = path
-            max = length(path)
-        end
-    end
-    return lp
-end
-
-# findall long paths in a graph
+# find all paths in a graph
 """
     all_paths(g)
 
@@ -313,4 +280,66 @@ function all_paths(g::AbstractGraph{T}) where T
         end
     end
     return paths
+end
+
+# The longest path from vertx s to any other vertex in a DAG G (not necessarily unique).
+# Note: in a DAG G, longest paths in G = shortest paths in -G
+"""
+    longest_path(g, s)
+    
+The longest path from vertx s to any other vertex in a acyclic graph `g`.  The longest path
+is not necessarily unique, i.e., there can be more than one longest path between two vertices.
+
+ # Arguments
+Required:
+- `g::AbstractGraph` : acylic graph. 
+- `s::Int` : index of the source vertex in `g`. 
+
+```julia-repl
+julia> path = longest_paths(g, s)
+```
+"""
+function longest_path(g::AbstractGraph{T}, s::Int) where T
+    if is_cyclic(g)
+        error("longest_path(): input graph has cycles")
+    end
+    lp = Array{Edge}[]
+    max = 0
+    # shortest path from s to all vertices in -G
+    for path in enumerate_paths(dijkstra_shortest_paths(g, s, -weights(g), allpaths=true))
+        if length(path) > max
+            lp = path
+            max = length(path)
+        end
+    end
+    return lp
+end
+
+# Find all fo the longest paths in an acyclic graph.
+"""
+    longest_paths(g)
+    
+Finds the length of the longest path in `g`, and returns all paths in `g` of that length.
+
+ # Arguments
+Required:
+- `g::AbstractGraph` : acylic graph. 
+
+```julia-repl
+julia> paths = longest_paths(g)
+```
+"""
+function longest_paths(g::AbstractGraph{T}) where T
+    if is_cyclic(g)
+        error("longest_paths(): input graph has cycles")
+    end
+    lps = Array[]
+    max = 0
+    for path in all_paths(g)
+        length(path) > max ? max = length(path) : nothing
+    end
+    for path in all_paths(g)
+        length(path) == max ? push!(lps, path) : nothing
+    end
+    return lps
 end
