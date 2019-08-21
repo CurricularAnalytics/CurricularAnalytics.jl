@@ -5,8 +5,8 @@ This toolbox makes use of a number of the graph algorithms provided in the [Ligh
 ```@docs
 dfs
 gad
+all_paths
 longest_path
-long_paths
 reachable_from
 reachable_from_subgraph
 reachable_to
