@@ -179,7 +179,7 @@ in the orginal graph `g`.
 
 # Arguments
 Required:
-- `g::AbstractGraph` : acylic input graph. 
+- `g::AbstractGraph` : acylic graph. 
 - `t::Int` : index of the target vertex in `g`. 
 
 ```julia-rep
@@ -201,7 +201,7 @@ reach vertex `v` and can be reached from `v`.
 
 # Arguments
 Required:
-- `g::AbstractGraph` : acylic input graph. 
+- `g::AbstractGraph` : acylic graph. 
 - `v::Int` : index of a vertex in `g`. 
 """
 function reach(g::AbstractGraph{T}, v::Int) where T
@@ -218,7 +218,7 @@ vertex IDs in the subgraph to their IDs in the orginal graph `g`.
 
 # Arguments
 Required:
-- `g::AbstractGraph` : acylic input graph. 
+- `g::AbstractGraph` : acylic graph. 
 - `v::Int` : index of a vertex in `g`. 
 
 ```julia-rep
@@ -241,7 +241,7 @@ is not necessarily unique, i.e., there can be more than one longest path between
 
  # Arguments
 Required:
-- `g::AbstractGraph` : acylic input graph. 
+- `g::AbstractGraph` : acylic graph. 
 - `s::Int` : index of the source vertex in `g`. 
 
 ```julia-repl
@@ -264,33 +264,33 @@ function longest_path(g::AbstractGraph{T}, s::Int) where T
     return lp
 end
 
-# all long paths in a graph
+# findall long paths in a graph
 """
-    long_paths(g)
+    all_paths(g)
 
- Enumerate all of the unique long paths in acyclic graph `g`, where a "long path" must include a 
+ Enumerate all of the unique paths in acyclic graph `g`, where a path in this case must include a 
  source vertex (a vertex with in-degree zero) and a different sink vertex (a vertex with out-degree 
- zero).  I.e., a long path is any path containing at least two vertices.  This function returns 
- an array of these long paths, where each path consists of an array of vertex IDs.
+ zero).  I.e., a path is this case must contain at least two vertices.  This function returns 
+ an array of these paths, where each path consists of an array of vertex IDs.
 
  # Arguments
 Required:
-- `g::AbstractGraph` : acylic input graph. 
+- `g::AbstractGraph` : acylic graph. 
 
 ```julia-repl
-julia> paths = long_paths(g)
+julia> paths = all_paths(g)
 ```
 """
-function long_paths(g::AbstractGraph{T}) where T
+function all_paths(g::AbstractGraph{T}) where T
     # check that g is acyclic
     if is_cyclic(g)
-        error("long_paths(): input graph has cycles")
+        error("all_paths(): input graph has cycles")
     end
     que = Queue{Array}()
     paths = Array[]
     sinks = Int[]
     for v in vertices(g)
-        if (length(outneighbors(g,v)) == 0) && (length(inneighbors(g,v)) > 0) # consider only sink vertices with an in-degree
+        if (length(outneighbors(g,v)) == 0) && (length(inneighbors(g,v)) > 0) # consider only sink vertices with a non-zero in-degree
             push!(sinks, v)
         end
     end
