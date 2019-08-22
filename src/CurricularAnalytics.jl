@@ -14,6 +14,7 @@ using DataStructures
 using Printf
 using Markdown
 using Documenter
+using Requires
 
 include("DataTypes.jl")
 include("DegreePlanCreation.jl")
@@ -33,9 +34,9 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, optimize_plan, 
         json_to_julia, julia_to_json, init_opt
 
-function init_opt()
-    println("\n ************************************************************************\n In order to use the optimization functions in this toolbox you must first install the Gurobi Optimizer;\n please see: www.gurobi.com/downloads/gurobi-optimizer \n\n Note that free acacdemic licenses for the Gurobi Optimizer are available.\n ************************************************************************\n\n")
-    include(dirname(pathof(CurricularAnalytics)) * "/Optimization.jl")
+function __init__()
+    @require Gurobi="2e9cd046-0924-5485-92f1-d5272153d98b" using .Gurobi
+    @require Gurobi="2e9cd046-0924-5485-92f1-d5272153d98b" include("Optimization.jl")
 end
 
 # Check if a curriculum graph has requisite cycles.
