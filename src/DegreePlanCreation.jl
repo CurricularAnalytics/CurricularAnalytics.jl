@@ -169,15 +169,15 @@ function create_terms(curric::Curriculum; term_count::Int, min_credits_per_term:
     end    
 end
 
-"""
-find_min_terms function will find the minimum number terms possible to fit all courses with the respect that all requisite
-    conditions and returns a tuple which contains 3 elements.
-    1- Boolean value which shows if term list created for term count.
-    2- Term list which contains all courses for related term id.
-    3- The term_count is a integer value to show minimum number of terms possible to fit all courses.
-    * Altough this function returns term list, it does not guarantee that each term will have the same number of credit hours.
-    It will put all courses as early term as possible according to the complexity score.
-"""
+#"""
+#find_min_terms function will find the minimum number terms possible to fit all courses with the respect that all requisite
+#    conditions and returns a tuple which contains 3 elements.
+#    1- Boolean value which shows if term list created for term count.
+#    2- Term list which contains all courses for related term id.
+#    3- The term_count is a integer value to show minimum number of terms possible to fit all courses.
+#    * Altough this function returns term list, it does not guarantee that each term will have the same number of credit hours.
+#    It will put all courses as early term as possible according to the complexity score.
+#"""
 function find_min_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     min_terms::Int=1, max_terms::Int=10, min_credits_per_term::Int=5, max_credits_per_term::Int=19)
     for term_count in range(min_terms, stop=max_terms)
@@ -190,13 +190,13 @@ function find_min_terms(curric::Curriculum, additional_courses::Array{Course}=Ar
     return false, nothing, nothing
 end
 
-"""
-balance_terms function will spread all courses to the provided number of terms with minimum number of difference between terms.
-    In other words, balance terms according to the number of credit hours and returns a tuple which contains 3 elements.
-    1- Boolean value which shows if term list created for term count.
-    2- Term list which contains all courses for related term id.
-    3- The max_credit is a integer value to show maximum number of credit hours assigned to any of the list of terms.
-"""
+#"""
+#balance_terms function will spread all courses to the provided number of terms with minimum number of difference between terms.
+#    In other words, balance terms according to the number of credit hours and returns a tuple which contains 3 elements.
+#    1- Boolean value which shows if term list created for term count.
+#    2- Term list which contains all courses for related term id.
+#    3- The max_credit is a integer value to show maximum number of credit hours assigned to any of the list of terms.
+#"""
 function balance_terms(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
     term_count::Int=1, min_credits_per_term::Int=1, max_credits_per_term::Int=19)
     for max_credit in range(min_credits_per_term, length=max_credits_per_term-min_credits_per_term+1)

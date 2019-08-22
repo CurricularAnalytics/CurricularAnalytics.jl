@@ -6,7 +6,7 @@ The ability to read/write curricula and degree plans to disk is greatly facilita
 
 The *CSV file format* stores data as comma-separated values in a text file, allowing data to be presented in tabular form. You can open CSV files with either a text editor or by using your favorite spreadsheet program. The sections below describe the CSV file formats used for curricula and degree plans, as well as functions that can be used to read/write these CSV files.
 
-### Curricula
+### Curricula Files
 
 The CSV file format used to store curricula is shown below:
 ![file format for curricula](./curriculum-format.png)
@@ -38,7 +38,7 @@ Below is an example curriculum file that uses the aforedescribed format:
 A link to this CSV file can be found [here](./curriculum-ex.csv), and a visualization of this curriculum, created using the function described in [Visualization Functions](@ref), is as follows:
 ![visualization of example curriculum](./curriculum-ex-viz.png)
 
-### Degree Plans
+### Degree Plan Files
 
 The CSV file format used to store degree plans is shown below:
 ![file format for curricula](./degree-plan-format.png)

@@ -23,10 +23,11 @@ include("CSVUtilities.jl")
 include("DataHandler.jl")
 include("Visualization.jl")
 
-export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, 
-        LearningOutcome, Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, 
-        Term, DegreePlan, find_term, course_from_id, dfs, longest_path, long_paths, 
-        isvalid_curriculum, extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, 
+export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, LearningOutcome, 
+        Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
+        course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
+        reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
+        extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices,
         compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics, read_csv, create_degree_plan, 
         bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, find_min_terms, 
         balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, optimize_plan, 
@@ -37,16 +38,16 @@ function init_opt()
     include(dirname(pathof(CurricularAnalytics)) * "/Optimization.jl")
 end
 
-# Check if a curriculum graph has requisite cycles or extraneous requsities.
+# Check if a curriculum graph has requisite cycles.
 """
     isvalid_curriculum(c::Curriculum, errors::IOBuffer)
 
-Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid.  Returns 
-a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it 
-is not.
+Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e., 
+whether or not it contains a requisite cycle.  Returns  a boolean value, with `true` indicating the 
+curriculum is valid, and `false` indicating it is not.
 
-If ``G_c`` is not valid, the reason(s) why are written to the `errors` buffer. To view these 
-reasons, use:
+If ``G_c`` is not valid, the requisite cycle(s) are written to the `errors` buffer. To view these 
+cycles, use:
 
 ```julia-repl
 julia> errors = IOBuffer()
@@ -54,12 +55,8 @@ julia> isvalid_curriculum(c, errors)
 julia> println(String(take!(errors)))
 ```
 
-There are two reasons why a curriculum graph might not be valid:
-- Cycles : If a curriculum graph contains a directed cycle, it is not possible to complete the curriculum.
-- Extraneous Requisites : These are redundant requisites that introduce spurious complexity.
-  If a curriculum has the prerequisite relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ 
-  and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are *not* co-requisites, then \$c_1 
-  \\rightarrow c_3\$ is redundant and therefore extraneous.   
+A curriculum graph is not valid if it contains a directed cycle; in this case it is not possible to complete 
+the curriculum.  
 """
 function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     g = c.graph
@@ -68,7 +65,8 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     cycles = simplecycles(g)
     if size(cycles,1) != 0
         validity = false
-        write(error_msg, "\nCurriculum \'$(c.name)\' has requisite cycles:\n")
+        c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
+        write(error_msg, " curriculum \'$(c.name)\' has requisite cycles:\n")
         for cyc in cycles
             write(error_msg, "(")
             for (i,v) in enumerate(cyc)
@@ -79,25 +77,40 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
                 end
             end
         end
-    else # no cycles, can now check for extraneous requisites
-        extran_errors = IOBuffer()
-        if extraneous_requisites(c, extran_errors)
-            validity = false
-            write(error_msg, "\nCurriculum \'$(c.name)\' has extraneous requisites:\n")
-            write(error_msg, String(take!(extran_errors)))
-        end
     end
     return validity
 end
 
+## refactoring this out of the function above, to reduce warning outputs -- use extraneous_requisites() in its place
+#else # no cycles, can now check for extraneous requisites
+#        extran_errors = IOBuffer()
+#        if extraneous_requisites(c, extran_errors)
+#            validity = false
+#            c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
+#            write(error_msg, " curriculum \'$(c.name)\' has extraneous requisites:\n")
+#            write(error_msg, String(take!(extran_errors)))
+#        end
+#    end
+#    return validity
+#end
+
+"""
+    function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
+       
+Determines whether or not a curriculum `c` contains extraneous requisites, and returns them.  Extraneous requisites
+are redundant requisites that may introduce spurious complexity.  For examokem, if a curriculum has the prerequisite 
+relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are 
+*not* co-requisites, then \$c_1 \\rightarrow c_3\$ is redundant and therefore extraneous.
+"""
 function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
-    if is_cyclic(c.graph) # error condition should no occur, as cycles are checked in isvalid_curriculum()
+    if is_cyclic(c.graph) # error condition should not occur, as cycles are checked in isvalid_curriculum()
         error("\nExtraneous requisities are due to cycles in the curriculum graph")
     end
     g = c.graph
     que = Queue{Int}()
     components = weakly_connected_components(g)
     extraneous = false
+    str = "" # create an empty string to hold any error messages
     for wcc in components
         if length(wcc) > 1  # only consider components with more than one vertex
             for u in wcc
@@ -125,7 +138,10 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                                 end
                             end
                             if remove == true
-                                write(error_msg, "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n")
+                                temp_str = "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n"
+                                if !occursin(temp_str, str)
+                                    str = str * temp_str
+                                end
                                 extraneous = true
                             end
                         end
@@ -133,6 +149,11 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                 end
             end
         end
+    end
+    if extraneous == true
+        c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
+        write(error_msg, " curriculum \'$(c.name)\' has extraneous requisites:\n")
+        write(error_msg, str)
     end
     return extraneous
 end
@@ -254,7 +275,7 @@ where ``\\#(p)`` denotes the number of vertices in the directed path ``p`` in ``
 """
 function centrality(c::Curriculum, course::Int)
     cent = 0; g = c.graph
-    for path in long_paths(g)  # all long paths in g
+    for path in all_paths(g)  
         # conditions: path length is greater than 2, target course must be in the path, the target vertex 
         # cannot be the first or last vertex in the path
         if (in(course,path) && length(path) > 2 && path[1] != course && path[end] != course)
@@ -340,6 +361,30 @@ function complexity(c::Curriculum)
     return c.metrics["complexity"] = curric_complexity, course_complexity
 end
 
+# Find all fo the longest paths in a curriculum.
+"""
+    longest_paths(c)
+    
+Finds longest paths in curriculum `c`, and returns an array of course arrays, where
+each course array contains the courses in a longest path.
+
+ # Arguments
+Required:
+- `c::Curriculum` : a valid curriculum. 
+
+```julia-repl
+julia> paths = longest_paths(c)
+```
+"""
+function longest_paths(c::Curriculum)
+    lps = Array{Array{Course,1},1}()
+    for path in longest_paths(c.graph)
+       c_path = courses_from_vertices(c, path)
+       push!(lps, c_path)
+    end
+    return c.metrics["longest paths"] = lps
+end
+
 # Compare the metrics associated with two curricula
 # to print out the report, use: println(String(take!(report))), where report is the IOBuffer returned by this function
 function compare_curricula(c1::Curriculum, c2::Curriculum)
@@ -379,6 +424,147 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
         end
     end
     return report
+end
+
+# Create a list of courses or course names from a array of vertex IDs.
+# The array returned can be (keyword arguments):
+#   -course data objects : object
+#   -the names of courses : name
+#   -the full names of courses (prefix, number, name) : fullname
+function courses_from_vertices(curriculum::Curriculum, vertices::Array{Int,1}; course::String="object")
+    if course == "object"
+        course_list = Course[]
+    else
+        course_list = String[]
+    end
+    for v in vertices
+        c = curriculum.courses[v]
+        course == "object" ? push!(course_list, c) : nothing
+        course == "name" ? push!(course_list, "$(c.name)") : nothing
+        course == "fullname" ? push!(course_list, "$(c.prefix) $(c.num) - $(c.name)") : nothing
+    end
+    return course_list
+end
+
+# Basic metrics for a currciulum.
+"""
+    basic_metrics(c::Curriculum)
+
+Compute the basic metrics associated with curriculum `c`, and return an IO buffer containing these metrics.  The basic 
+metrics are also stored in the `metrics` dictionary associated with the curriculum. 
+
+The basic metrics computed include:
+
+- number of credit hours : The total number of credit hours in the curriculum.
+- number of courses : The total courses in the curriculum.
+- blocking factor : The blocking factor of the entire curriculum, and of each course in the curriculum.
+- centrality : The centrality measure associated with the entire curriculum, and of each course in the curriculum.
+- delay factor : The delay factor of the entire curriculum, and of each course in the curriculum.
+- curricular complexity : The curricular complexity of the entire curriculum, and of each course in the curriculum.
+
+Complete descriptions of these metrics are provided above.
+
+```julia-repl
+julia> metrics = basic_metrics(curriculum)
+julia> println(String(take!(metrics)))
+julia> # The metrics are also stored in a dictonary that can be accessed as follows
+julia> curriculum.metrics
+```
+"""
+function basic_metrics(curric::Curriculum)
+    buf = IOBuffer()
+    complexity(curric), centrality(curric), longest_paths(curric)  # compute all curricular metrics
+    max_bf = 0; max_df = 0; max_cc = 0; max_cent = 0
+    max_bf_courses = Array{Course,1}(); max_df_courses = Array{Course,1}(); max_cc_courses = Array{Course,1}(); max_cent_courses = Array{Course,1}()
+    for c in curric.courses
+        if c.metrics["blocking factor"] == max_bf
+            push!(max_bf_courses, c)
+        elseif  c.metrics["blocking factor"] > max_bf
+            max_bf = c.metrics["blocking factor"]
+            max_bf_courses = Array{Course,1}()
+            push!(max_bf_courses, c)
+        end
+        if c.metrics["delay factor"] == max_df
+            push!(max_df_courses, c)
+        elseif  c.metrics["delay factor"] > max_df
+            max_df = c.metrics["delay factor"]
+            max_df_courses = Array{Course,1}()
+            push!(max_df_courses, c)
+        end
+        if c.metrics["complexity"] == max_cc
+            push!(max_cc_courses, c)
+        elseif  c.metrics["complexity"] > max_cc
+            max_cc = c.metrics["complexity"]
+            max_cc_courses = Array{Course,1}()
+            push!(max_cc_courses, c)
+        end
+        if c.metrics["centrality"] == max_cent
+            push!(max_cent_courses, c)
+        elseif  c.metrics["centrality"] > max_cent
+            max_cent = c.metrics["centrality"]
+            max_cent_courses = Array{Course,1}()
+            push!(max_cent_courses, c)
+        end
+        curric.metrics["max. blocking factor"] = max_bf
+        curric.metrics["max. blocking factor courses"] = max_bf_courses
+        curric.metrics["max. centrality"] = max_cent
+        curric.metrics["max. centrality courses"] = max_cent_courses
+        curric.metrics["max. delay factor"] = max_df
+        curric.metrics["max. delay factor courses"] = max_df_courses
+        curric.metrics["max. complexity"] = max_cc
+        curric.metrics["max. complexity courses"] = max_cc_courses
+    end
+    # write metrics to IO buffer
+    write(buf, "\n$(curric.institution) ")
+    write(buf, "\nCurriculum: $(curric.name)\n")
+    write(buf, "  credit hours = $(curric.credit_hours)\n")
+    write(buf, "  number of courses = $(curric.num_courses)")
+    write(buf, "\n  Blocking Factor --\n")
+    write(buf, "    entire curriculum = $(curric.metrics["blocking factor"][1])\n")
+    write(buf, "    max. value = $(max_bf), ")
+    write(buf, "for course(s): ")
+    write_course_names(buf, max_bf_courses)
+    write(buf, "\n  Centrality --\n")
+    write(buf, "    entire curriculum = $(curric.metrics["centrality"][1])\n")
+    write(buf, "    max. value = $(max_cent), ") 
+    write(buf, "for course(s): ")
+    write_course_names(buf, max_cent_courses)
+    write(buf, "\n  Delay Factor --\n")
+    write(buf, "    entire curriculum = $(curric.metrics["delay factor"][1])\n")
+    write(buf, "    max. value = $(max_df), ") 
+    write(buf, "for course(s): ")
+    write_course_names(buf, max_df_courses)
+    write(buf, "\n  Complexity --\n")
+    write(buf, "    entire curriculum = $(curric.metrics["complexity"][1])\n")
+    write(buf, "    max. value = $(max_cc), ") 
+    write(buf, "for course(s): ")
+    write_course_names(buf, max_cc_courses)
+    write(buf, "\n  Longest Path(s) --\n")
+    write(buf, "    length = $(length(curric.metrics["longest paths"][1])), number of paths = $(length(curric.metrics["longest paths"])), path(s):\n")
+    for path in curric.metrics["longest paths"]
+        write(buf, "    ")
+        write_course_names(buf, path, separator=" -> ")
+        write(buf, "\n")
+    end
+    return buf
+end
+
+function write_course_names(buf::IOBuffer, courses::Array{Course,1}; separator::String=", ")
+    if length(courses) == 1
+      write_course_name(buf, courses[1])
+    else
+      for c in courses[1:end-1]
+        write_course_name(buf, c)
+        write(buf, separator)
+      end
+        write_course_name(buf, courses[end])
+    end
+end
+
+function write_course_name(buf::IOBuffer, c::Course)
+    !isempty(c.prefix) ? write(buf, "$(c.prefix) ") : nothing
+    !isempty(c.num) ? write(buf, "$(c.num) - ") : nothing
+    write(buf, "$(c.name)")  # name is a required item
 end
 
 end # module
