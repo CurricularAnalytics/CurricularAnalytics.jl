@@ -48,7 +48,6 @@ mutable struct LearningOutcome
     end
 end
 
-
 #"""
 #add_lo_requisite!(rlo, tlo, requisite_type)
 #Add learning outcome rlo as a requisite, of type requisite_type, for target learning 
@@ -259,7 +258,7 @@ mutable struct Curriculum
         end
         this.CIP = CIP
         if sortby_ID
-            this.courses = sort(collect(courses), by=c->c.id)
+            this.courses = sort(collect(courses), by = c -> c.id)
         else
             this.courses = courses
         end
@@ -270,13 +269,14 @@ mutable struct Curriculum
         this.metrics = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
         errors = IOBuffer()
-        if(isvalid_curriculum(this, errors))
-            return this
-        else
-            printstyled("WARNING: Curriculum was created, but is invalid:", color = :yellow)
+        if !(isvalid_curriculum(this, errors))
+            printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
             println(String(take!(errors)))
-            return this
+        elseif extraneous_requisites(this, errors)  # extraneous requisites only checked if the curriculum is valid
+            printstyled("WARNING: $(this.institution) Curriculum: $(this.name) contains extraneous requisite(s).\n You may list extraneous requisites using the extraneous_requisites() function.\n\n", color = :yellow)
+            take!(errors)  # flush the error buffer
         end
+        return this
     end
 end
 
@@ -285,6 +285,7 @@ end
 #    # if courses array is empty, no new courses were added
 #end
 
+# Map course IDs to vertex IDs in an underlying curriculum graph.
 function map_vertex_ids(curriculum::Curriculum)
     mapped_ids = Dict{Int, Int}()
     for c in curriculum.courses
@@ -293,7 +294,8 @@ function map_vertex_ids(curriculum::Curriculum)
     return mapped_ids
 end
 
-function course_from_id(id::Int, curriculum::Curriculum)
+# Return the course associated with a course id in a curriculum
+function course_from_id(curriculum::Curriculum, id::Int)
     for c in curriculum.courses
         if c.id == id
             return c
@@ -301,6 +303,12 @@ function course_from_id(id::Int, curriculum::Curriculum)
     end
 end
 
+# Return the course associated with a vertex id in a curriculum graph
+function course_from_vertex(curriculum::Curriculum, vertex::Int)
+    c = curriculum.courses[vertex]
+end
+
+# The total number of credit hours in a curriculum
 function total_credits(curriculum::Curriculum)
     total_credits = 0
     for c in curriculum.courses
@@ -512,7 +520,7 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
     if length(setdiff(curric_classes, dp_classes)) > 0
         validity = false
         for i in setdiff(curric_classes, dp_classes)
-            c = course_from_id(i, plan.curriculum)
+            c = course_from_id(plan.curriculum, i)
             write(error_msg, "\n-Degree plan is missing required course: $(c.name)")
         end
     end
