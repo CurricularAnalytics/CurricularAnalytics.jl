@@ -19,6 +19,7 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 MultiJuMP = "f6097e2c-3ba3-5605-a9a8-3a277acb490f"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 WebIO = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
 
