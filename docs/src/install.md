@@ -1,19 +1,38 @@
 # Installation
 
-Installation is straightforward.  Enter Pkg mode in the Julia REPL by typing `]`, and then type:
-```julia-repl
-pkg> add CurricularAnalytics
-```
+Installation is straightforward.  First, install the Julia programming language on your computer.  To do this, download Julia here: https://julialang.org, and follow the instructions for your operating system.
 
-The CurricularAnalytics.jl toolbox contains sophisticated visualization capabilities. In order to use them, you must first install the [Blink.jl](http://junolab.org/Blink.jl/latest/) package.  Blink.jl is a Julia wrapper that leverages the [Electron](https://electronjs.org) framework to perform the actual visualizations. Blink.jl should install automatically when you install the CurricularAnalytics.jl toolbox, and Electron will also install automatically upon first use of the visualization functions.
+Next, open the Julia application that you just installed. It should look similar to the image below. This interface is referred to as the `Julia REPL`.
+
+![Julia termain](https://s3.amazonaws.com/curricularanalytics.jl/julia-command-line.png)
+
+Next, enter Pkg mode from within Julia by hitting the `]` key, and then type:
+```julia-repl
+  pkg> add CurricularAnalytics
+```
+This will install the toolbox, along with the other Julia packages needed to run it. To load and use the toolbox, hit the `backspace` key to return to the Julia REPL. Now type:
+```julia-repl
+  julia> using CurricularAnalytics
+```
+The toolbox must be loaded again via `using CurricularAnalytics` every time you restart Julia.
 
 ## Additional Requirements
 
 If you plan to use the optimization capabilities built into the degree plan creation functions, you must install the [Gurobi Optimizer](https://www.gurobi.com/downloads/gurobi-optimizer-eula/). Gurobi is a commercial product, and requires a license key. However, [academic licenses](https://www.gurobi.com/downloads/end-user-license-agreement-academic/) are available at no cost.
 
-After installing the Gurobi Solver you must run the following command in the Julia REPL by typing `]`, and then:
+After installing the Gurobi Solver you must run the following command in Pkg mode in the Julia REPL by hitting `]`, and then:
 ```julia-repl
-pkg> add Gurobi
+  pkg> add Gurobi
+```
+Back in the normal Julia REPL, which can be returned to from Pkg mode by hitting `backspace`, you must know run the following:
+```julia-repl
+  julia> using Gurobi
+```
+This final command, `using Gurobi`, should be run every time you restart Julia. No further steps are necessary, and you may now utilize the optimization functionality of the toolbox.
+
+ To load the toolbox and Gurobi at the same time you can run: 
+```julia-repl
+  julia> using CurricularAnalytics, Gurobi
 ```
 
 ## Windows Specific Steps
