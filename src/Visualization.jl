@@ -2,6 +2,7 @@ using JSON
 using WebIO
 using HTTP
 using Blink
+using StatsPlots
 
 import HTTP.Messages
 
@@ -214,4 +215,28 @@ function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false
         )
         return w
     end
+end
+
+# Applies to scalar-valued metrics
+function metric_histogram(curricula::Array{Curriculum,1}, metric_name::AbstractString, num_bins::Int; title::AbstractString="", 
+                           xlabel::AbstractString="", ylabel::AbstractString="")
+    metric_values = Array{Real,1}() 
+    xlower = 0
+    xupper = 0
+    for c in curricula
+        if haskey(c.metrics, metric_name)
+            if typeof(c.metrics[metric_name]) == Float64
+                value = c.metrics[metric_name]
+            elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+                value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
+            end
+            push!(metric_values, value)
+            (value < xlower) ? xlower = value : nothing
+            (value > xupper) ? xupper = value : nothing
+        else
+            error("metric_histogram(): $(metric_name) does not exist in the metric dictionary of $(c.name)")
+        end
+    end
+    StatsPlots.histogram(metric_values, nbins=num_bins, title=title, xlabel=xlabel, ylabel=ylabel, xlim=(xlower, xupper), 
+                         ylim=(0, length(curricula)), legend=false, alpha=0.7, color=:dodgerblue3)
 end
