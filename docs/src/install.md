@@ -22,7 +22,7 @@ If you plan to use the optimization capabilities built into the degree plan crea
 
 After installing the Gurobi Solver you must run the following command in Pkg mode in the Julia REPL by hitting `]`, and then:
 ```julia-repl
-pkg> add Gurobi
+  pkg> add Gurobi
 ```
 Back in the normal Julia REPL, which can be returned to from Pkg mode by hitting `backspace`, you must know run the following:
 ```julia-repl
