@@ -550,9 +550,9 @@ function basic_metrics(curric::Curriculum)
     write(buf, "for course(s): ")
     write_course_names(buf, max_cc_courses)
     write(buf, "\n  Longest Path(s) --\n")
-    write(buf, "    length = $(length(curric.metrics["longest paths"][1])), number of paths = $(length(curric.metrics["longest paths"])), path(s):\n")
-    for path in curric.metrics["longest paths"]
-        write(buf, "    ")
+    write(buf, "    length = $(length(curric.metrics["longest paths"][1])), number of paths = $(length(curric.metrics["longest paths"]))\n    path(s):\n")
+    for (i, path) in enumerate(curric.metrics["longest paths"])
+        write(buf, "    path $i = ")
         write_course_names(buf, path, separator=" -> ")
         write(buf, "\n")
     end
