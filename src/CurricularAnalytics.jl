@@ -96,22 +96,26 @@ end
 #end
 
 """
-    function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
+    function extraneous_requisites(c::Curriculum; print=false)
        
 Determines whether or not a curriculum `c` contains extraneous requisites, and returns them.  Extraneous requisites
-are redundant requisites that may introduce spurious complexity.  For examokem, if a curriculum has the prerequisite 
+are redundant requisites that are unnecessary in a curriculum.  For example, if a curriculum has the prerequisite 
 relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are 
 *not* co-requisites, then \$c_1 \\rightarrow c_3\$ is redundant and therefore extraneous.
 """
-function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
-    if is_cyclic(c.graph) # error condition should not occur, as cycles are checked in isvalid_curriculum()
-        error("\nExtraneous requisities are due to cycles in the curriculum graph")
+function extraneous_requisites(c::Curriculum; print=false)
+    if is_cyclic(c.graph) 
+        error("\nCurriculm graph has cycles, extraneous requisities cannot be determined.")
     end
+    if print == true
+        msg = IOBuffer()
+    end
+    redundant_reqs = Array{Array{Int,1},1}()
     g = c.graph
     que = Queue{Int}()
     components = weakly_connected_components(g)
     extraneous = false
-    str = "" # create an empty string to hold any error messages
+    str = "" # create an empty string to hold messages
     for wcc in components
         if length(wcc) > 1  # only consider components with more than one vertex
             for u in wcc
@@ -139,9 +143,11 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                                 end
                             end
                             if remove == true
-                                temp_str = "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n"
-                                if !occursin(temp_str, str)
-                                    str = str * temp_str
+                                if findfirst(x -> x == [c.courses[u].id, c.courses[v].id], redundant_reqs) == nothing  # make sure redundant requisite wasn't previously found
+                                    push!(redundant_reqs, [c.courses[u].id, c.courses[v].id])
+                                    if print == true
+                                        str = str * "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n"
+                                    end
                                 end
                                 extraneous = true
                             end
@@ -151,12 +157,15 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
             end
         end
     end
-    if extraneous == true
-        c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
-        write(error_msg, " curriculum \'$(c.name)\' has extraneous requisites:\n")
-        write(error_msg, str)
+    if (extraneous == true) && (print == true)
+        c.institution != "" ? write(msg, "\n$(c.institution): ") : "\n"
+        write(msg, "curriculum $(c.name) has extraneous requisites:\n")
+        write(msg, str)
     end
-    return extraneous
+    if print == true
+        println(String(take!(msg)))
+    end
+    return redundant_reqs
 end
 
 # Compute the blocking factor of a course

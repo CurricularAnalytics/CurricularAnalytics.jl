@@ -44,8 +44,8 @@ curric = Curriculum("Extraneous", [a, b, c, d], sortby_ID=false)
 
 # Test extraneous_requisites() 
 errors = IOBuffer()
-@test extraneous_requisites(curric, errors) == true
-#@test String(take!(errors)) == "\nCurriculum Extraneous contains the following extraneous requisites:\nCourse C has redundant requisite: A"
+@test length(extraneous_requisites(curric)) == 1
+
 
 # 8-vertex test curriculum - valid
 #
@@ -77,7 +77,7 @@ curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution=
 # Test isvalid_curriculum() and extraneous_requisites()
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == true
-@test extraneous_requisites(curric, errors) == false
+@test length(extraneous_requisites(curric)) == 0
 
 # Test analytics 
 @test delay_factor(curric) == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
@@ -121,7 +121,7 @@ curric = Curriculum("Postmodern Basket Weaving", [A,B,C,D,E,F,G], sortby_ID=fals
 # Test isvalid_curriculum() and extraneous_requisites()
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == true
-@test extraneous_requisites(curric, errors) == false
+@test length(extraneous_requisites(curric)) == 0
 
 # Test analytics 
 @test delay_factor(curric) == (32.0, [5.0, 5.0, 4.0, 5.0, 3.0, 5.0, 5.0])
@@ -162,7 +162,7 @@ curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution=
 # Test isvalid_curriculum() and extraneous_requisites()
 errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == true
-@test extraneous_requisites(curric, errors) == false
+@test length(extraneous_requisites(curric)) == 0
 
 # Test basic_metrics()
 basic_metrics(curric)
