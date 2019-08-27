@@ -28,8 +28,8 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
         course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
-        extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices,
-        compare_curricula, isvalid_degree_plan, print_plan, visualize, metric_histogram, basic_metrics, read_csv, 
+        extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices, compare_curricula,
+        isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, basic_metrics, read_csv, 
         create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, 
         find_min_terms, balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, 
         optimize_plan, json_to_julia, julia_to_json, init_opt
