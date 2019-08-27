@@ -244,7 +244,6 @@ end
 # Applies to scalar-valued metrics
 function metric_boxplot(series_labels::Array{String,2}, curricula::Array{Array{Curriculum,1},1}, metric_name::AbstractString; title::AbstractString="", 
              ylabel::AbstractString="")
-    metric_values = Array{Real,1}() 
     if length(series_labels) != length(curricula)
         error("metric_boxplot(): the number of series_labels and the number of curricula series do not match")
     end
