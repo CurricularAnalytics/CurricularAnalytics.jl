@@ -240,3 +240,30 @@ function metric_histogram(curricula::Array{Curriculum,1}, metric_name::AbstractS
     StatsPlots.histogram(metric_values, nbins=num_bins, title=title, xlabel=xlabel, ylabel=ylabel, xlim=(xlower, xupper), 
                          ylim=(0, length(curricula)), legend=false, alpha=0.7, color=:dodgerblue3)
 end
+
+# Applies to scalar-valued metrics
+function metric_boxplot(series_labels::Array{String,2}, curricula::Array{Array{Curriculum,1},1}, metric_name::AbstractString; title::AbstractString="", 
+             ylabel::AbstractString="")
+    metric_values = Array{Real,1}() 
+    if length(series_labels) != length(curricula)
+        error("metric_boxplot(): the number of series_labels and the number of curricula series do not match")
+    end
+    series_ary = Array{Array{Real,1},1}()  # array of series arrays
+    for series in curricula
+        tmp_series = Array{Real,1}()
+        for c in series
+            if haskey(c.metrics, metric_name)
+                if typeof(c.metrics[metric_name]) == Float64
+                    value = c.metrics[metric_name]
+                elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+                    value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
+                end
+                push!(tmp_series, value)
+            else
+                error("metric_boxplot(): $(metric_name) does not exist in the metric dictionary of $(c.name)")
+            end
+        end
+        append!(series_ary, [tmp_series])
+    end
+    StatsPlots.boxplot(series_labels, series_ary, title=title, ylabel=ylabel, legend=false, alpha=0.7, color=:dodgerblue3)
+end
