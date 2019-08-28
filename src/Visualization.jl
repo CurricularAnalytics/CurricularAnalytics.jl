@@ -218,11 +218,14 @@ function viz_helper(plan::DegreePlan; changed, notebook, edit, hide_header=false
 end
 
 # Applies to scalar-valued metrics
-function metric_histogram(curricula::Array{Curriculum,1}, metric_name::AbstractString, num_bins::Int; title::AbstractString="", 
-                           xlabel::AbstractString="", ylabel::AbstractString="")
+function metric_histogram(curricula::Array{Curriculum,1}, metric_name::AbstractString; nbins::Int=5, title::AbstractString="", 
+                           xlabel::AbstractString="", ylabel::AbstractString="", xlim::Tuple{Int64,Int64}=(0,0), ylim::Tuple{Int64,Int64}=(0,0),
+                           legend=false, alpha=0.7, color=:dodgerblue3)
     metric_values = Array{Real,1}() 
-    xlower = 0
-    xupper = 0
+    if xlim == (0,0) 
+        xlower = 0
+        xupper = 0
+    end
     for c in curricula
         if haskey(c.metrics, metric_name)
             if typeof(c.metrics[metric_name]) == Float64
@@ -231,19 +234,31 @@ function metric_histogram(curricula::Array{Curriculum,1}, metric_name::AbstractS
                 value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
             end
             push!(metric_values, value)
-            (value < xlower) ? xlower = value : nothing
-            (value > xupper) ? xupper = value : nothing
+            if (@isdefined xlower) == true
+                (value < xlower) ? xlower = value : nothing
+                (value > xupper) ? xupper = value : nothing
+            end
         else
             error("metric_histogram(): $(metric_name) does not exist in the metric dictionary of $(c.name)")
         end
     end
-    StatsPlots.histogram(metric_values, nbins=num_bins, title=title, xlabel=xlabel, ylabel=ylabel, xlim=(xlower, xupper), 
-                         ylim=(0, length(curricula)), legend=false, alpha=0.7, color=:dodgerblue3)
+    if xlim == (0,0) 
+        x_lim = (xlower, xupper)
+    else
+        x_lim = xlim
+    end
+    if ylim == (0,0)
+        y_lim = (0, length(curricula)/2)
+    else 
+        y_lim = ylim
+    end
+    StatsPlots.histogram(metric_values, nbins=nbins, title=title, xlabel=xlabel, ylabel=ylabel, xlim=x_lim, ylim=y_lim, legend=legend, 
+                     alpha=alpha, color=color)
 end
 
 # Applies to scalar-valued metrics
 function metric_boxplot(series_labels::Array{String,2}, curricula::Array{Array{Curriculum,1},1}, metric_name::AbstractString; title::AbstractString="", 
-             ylabel::AbstractString="")
+             ylabel::AbstractString="", legend=false, alpha=0.7, color=:dodgerblue3)
     if length(series_labels) != length(curricula)
         error("metric_boxplot(): the number of series_labels and the number of curricula series do not match")
     end
@@ -264,5 +279,5 @@ function metric_boxplot(series_labels::Array{String,2}, curricula::Array{Array{C
         end
         append!(series_ary, [tmp_series])
     end
-    StatsPlots.boxplot(series_labels, series_ary, title=title, ylabel=ylabel, legend=false, alpha=0.7, color=:dodgerblue3)
+    StatsPlots.boxplot(series_labels, series_ary, title=title, ylabel=ylabel, legend=legend, alpha=alpha, color=color)
 end
