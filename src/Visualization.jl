@@ -258,7 +258,7 @@ end
 
 # Applies to scalar-valued metrics
 function metric_boxplot(series_labels::Array{String,2}, curricula::Array{Array{Curriculum,1},1}, metric_name::AbstractString; title::AbstractString="", 
-             ylabel::AbstractString="", legend=false, alpha=0.7, color=:dodgerblue3)
+                        xlabel::AbstractString="", ylabel::AbstractString="", legend=false, alpha=0.7, color=:dodgerblue3)
     if length(series_labels) != length(curricula)
         error("metric_boxplot(): the number of series_labels and the number of curricula series do not match")
     end
@@ -279,5 +279,5 @@ function metric_boxplot(series_labels::Array{String,2}, curricula::Array{Array{C
         end
         append!(series_ary, [tmp_series])
     end
-    StatsPlots.boxplot(series_labels, series_ary, title=title, ylabel=ylabel, legend=legend, alpha=alpha, color=color)
+    StatsPlots.boxplot(series_labels, series_ary, title=title, xlabel=xlabel, ylabel=ylabel, legend=legend, alpha=alpha, color=color)
 end
