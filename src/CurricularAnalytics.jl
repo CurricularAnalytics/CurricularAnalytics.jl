@@ -29,7 +29,7 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
         extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices, compare_curricula,
-        isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, basic_metrics, read_csv, 
+        isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, basic_metrics, basic_statistics, read_csv, 
         create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, 
         find_min_terms, balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, 
         optimize_plan, json_to_julia, julia_to_json, init_opt
@@ -557,6 +557,50 @@ function basic_metrics(curric::Curriculum)
         write(buf, "\n")
     end
     return buf
+end
+
+function basic_statistics(curricula::Array{Curriculum,1}, metric_name::AbstractString)
+    buf = IOBuffer()
+    # set initial values used to find min and max metric values
+    total_metric = 0; STD_metric = 0
+    if haskey(curricula[1].metrics, metric_name)
+        if typeof(curricula[1].metrics[metric_name]) == Float64
+            max_metric = curricula[1].metrics[metric_name]; min_metric = curricula[1].metrics[metric_name];
+        elseif typeof(curricula[1].metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+            max_metric = curricula[1].metrics[metric_name][1]; min_metric = curricula[1].metrics[metric_name][1];  # metric where total curricular metric as well as course-level metrics are stored in an array
+        end
+    end
+    for c in curricula
+        if !haskey(c.metrics, metric_name)
+            error("metric $metric_name does not exist in curriculum $(c.name)")
+        end
+        basic_metrics(c)
+        if typeof(c.metrics[metric_name]) == Float64
+            value = c.metrics[metric_name]
+        elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+            value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
+        end
+        total_metric += value
+        value > max_metric ? max_metric = value : nothing 
+        value < min_metric ? min_metric = value : nothing 
+    end
+    avg_metric = total_metric / length(curricula)
+    for c in curricula
+        if typeof(c.metrics[metric_name]) == Float64
+            value = c.metrics[metric_name]
+        elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+            value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
+        end
+        STD_metric = (value - avg_metric)^2
+    end
+    STD_metric = sqrt(STD_metric / length(curricula))
+    write(buf, "\n Metric -- $metric_name")
+    write(buf, "\n  Number of curricula = $(length(curricula))")
+    write(buf, "\n  Mean = $avg_metric")
+    write(buf, "\n  STD = $STD_metric")
+    write(buf, "\n  Max. = $max_metric")
+    write(buf, "\n  Min. = $min_metric")
+    return(buf)
 end
 
 function write_course_names(buf::IOBuffer, courses::Array{Course,1}; separator::String=", ")
