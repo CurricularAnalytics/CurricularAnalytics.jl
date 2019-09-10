@@ -14,6 +14,7 @@ using DataStructures
 using Printf
 using Markdown
 using Documenter
+using Requires
 
 include("DataTypes.jl")
 include("DegreePlanCreation.jl")
@@ -27,15 +28,15 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
         course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
-        extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices,
-        compare_curricula, isvalid_degree_plan, print_plan, visualize, basic_metrics, read_csv, create_degree_plan, 
-        bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, find_min_terms, 
-        balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, optimize_plan, 
-        json_to_julia, julia_to_json, init_opt
+        extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices, compare_curricula,
+        isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, basic_metrics, basic_statistics, read_csv, 
+        create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, 
+        find_min_terms, balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, 
+        optimize_plan, json_to_julia, julia_to_json, init_opt
 
-function init_opt()
-    println("\n ************************************************************************\n In order to use the optimization functions in this toolbox you must first install the Gurobi Optimizer;\n please see: www.gurobi.com/downloads/gurobi-optimizer \n\n Note that free acacdemic licenses for the Gurobi Optimizer are available.\n ************************************************************************\n\n")
-    include(dirname(pathof(CurricularAnalytics)) * "/Optimization.jl")
+function __init__()
+    @require Gurobi="2e9cd046-0924-5485-92f1-d5272153d98b" using .Gurobi
+    @require Gurobi="2e9cd046-0924-5485-92f1-d5272153d98b" include("Optimization.jl")
 end
 
 # Check if a curriculum graph has requisite cycles.
@@ -95,22 +96,26 @@ end
 #end
 
 """
-    function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
+    function extraneous_requisites(c::Curriculum; print=false)
        
 Determines whether or not a curriculum `c` contains extraneous requisites, and returns them.  Extraneous requisites
-are redundant requisites that may introduce spurious complexity.  For examokem, if a curriculum has the prerequisite 
+are redundant requisites that are unnecessary in a curriculum.  For example, if a curriculum has the prerequisite 
 relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are 
 *not* co-requisites, then \$c_1 \\rightarrow c_3\$ is redundant and therefore extraneous.
 """
-function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
-    if is_cyclic(c.graph) # error condition should not occur, as cycles are checked in isvalid_curriculum()
-        error("\nExtraneous requisities are due to cycles in the curriculum graph")
+function extraneous_requisites(c::Curriculum; print=false)
+    if is_cyclic(c.graph) 
+        error("\nCurriculm graph has cycles, extraneous requisities cannot be determined.")
     end
+    if print == true
+        msg = IOBuffer()
+    end
+    redundant_reqs = Array{Array{Int,1},1}()
     g = c.graph
     que = Queue{Int}()
     components = weakly_connected_components(g)
     extraneous = false
-    str = "" # create an empty string to hold any error messages
+    str = "" # create an empty string to hold messages
     for wcc in components
         if length(wcc) > 1  # only consider components with more than one vertex
             for u in wcc
@@ -138,9 +143,11 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
                                 end
                             end
                             if remove == true
-                                temp_str = "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n"
-                                if !occursin(temp_str, str)
-                                    str = str * temp_str
+                                if findfirst(x -> x == [c.courses[u].id, c.courses[v].id], redundant_reqs) == nothing  # make sure redundant requisite wasn't previously found
+                                    push!(redundant_reqs, [c.courses[u].id, c.courses[v].id])
+                                    if print == true
+                                        str = str * "-$(c.courses[v].name) has redundant requisite $(c.courses[u].name)\n"
+                                    end
                                 end
                                 extraneous = true
                             end
@@ -150,12 +157,15 @@ function extraneous_requisites(c::Curriculum, error_msg::IOBuffer)
             end
         end
     end
-    if extraneous == true
-        c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
-        write(error_msg, " curriculum \'$(c.name)\' has extraneous requisites:\n")
-        write(error_msg, str)
+    if (extraneous == true) && (print == true)
+        c.institution != "" ? write(msg, "\n$(c.institution): ") : "\n"
+        write(msg, "curriculum $(c.name) has extraneous requisites:\n")
+        write(msg, str)
     end
-    return extraneous
+    if print == true
+        println(String(take!(msg)))
+    end
+    return redundant_reqs
 end
 
 # Compute the blocking factor of a course
@@ -540,13 +550,57 @@ function basic_metrics(curric::Curriculum)
     write(buf, "for course(s): ")
     write_course_names(buf, max_cc_courses)
     write(buf, "\n  Longest Path(s) --\n")
-    write(buf, "    length = $(length(curric.metrics["longest paths"][1])), number of paths = $(length(curric.metrics["longest paths"])), path(s):\n")
-    for path in curric.metrics["longest paths"]
-        write(buf, "    ")
+    write(buf, "    length = $(length(curric.metrics["longest paths"][1])), number of paths = $(length(curric.metrics["longest paths"]))\n    path(s):\n")
+    for (i, path) in enumerate(curric.metrics["longest paths"])
+        write(buf, "    path $i = ")
         write_course_names(buf, path, separator=" -> ")
         write(buf, "\n")
     end
     return buf
+end
+
+function basic_statistics(curricula::Array{Curriculum,1}, metric_name::AbstractString)
+    buf = IOBuffer()
+    # set initial values used to find min and max metric values
+    total_metric = 0; STD_metric = 0
+    if haskey(curricula[1].metrics, metric_name)
+        if typeof(curricula[1].metrics[metric_name]) == Float64
+            max_metric = curricula[1].metrics[metric_name]; min_metric = curricula[1].metrics[metric_name];
+        elseif typeof(curricula[1].metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+            max_metric = curricula[1].metrics[metric_name][1]; min_metric = curricula[1].metrics[metric_name][1];  # metric where total curricular metric as well as course-level metrics are stored in an array
+        end
+    end
+    for c in curricula
+        if !haskey(c.metrics, metric_name)
+            error("metric $metric_name does not exist in curriculum $(c.name)")
+        end
+        basic_metrics(c)
+        if typeof(c.metrics[metric_name]) == Float64
+            value = c.metrics[metric_name]
+        elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+            value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
+        end
+        total_metric += value
+        value > max_metric ? max_metric = value : nothing 
+        value < min_metric ? min_metric = value : nothing 
+    end
+    avg_metric = total_metric / length(curricula)
+    for c in curricula
+        if typeof(c.metrics[metric_name]) == Float64
+            value = c.metrics[metric_name]
+        elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+            value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
+        end
+        STD_metric = (value - avg_metric)^2
+    end
+    STD_metric = sqrt(STD_metric / length(curricula))
+    write(buf, "\n Metric -- $metric_name")
+    write(buf, "\n  Number of curricula = $(length(curricula))")
+    write(buf, "\n  Mean = $avg_metric")
+    write(buf, "\n  STD = $STD_metric")
+    write(buf, "\n  Max. = $max_metric")
+    write(buf, "\n  Min. = $min_metric")
+    return(buf)
 end
 
 function write_course_names(buf::IOBuffer, courses::Array{Course,1}; separator::String=", ")

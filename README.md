@@ -11,22 +11,29 @@ Full documentation is available at [GitHub Pages](https://curricularanalytics.gi
 Documentation for functions in this toolbox is also available via the Julia REPL help system.
 Additional tutorials can be found at the [Curricular Analytics Notebooks](https://github.com/CurricularAnalytics/CA-Notebooks) site.
 
-## Installation
+# Installation
+
 Installation is straightforward.  First, install the Julia programming language on your computer.  To do this, download Julia here: https://julialang.org, and follow the instructions for your operating system.
 
-Next, open the Julia application that you just installed. It should look similar to the image below. 
+Next, open the Julia application that you just installed. It should look similar to the image below. This interface is referred to as the `Julia REPL`.
 
 ![Julia termain](https://s3.amazonaws.com/curricularanalytics.jl/julia-command-line.png)
 
-Then enter Pkg mode from within Julia by typing `]`, and then type:
+Next, enter Pkg mode from within Julia by hitting the `]` key, and then type:
 ```julia-repl
   pkg> add CurricularAnalytics
 ```
-This will install the toolbox, along with the other Julia packages needed to run it.
+This will install the toolbox, along with the other Julia packages needed to run it. To load and use the toolbox, hit the `backspace` key to return to the Julia REPL. Now type:
+```julia-repl
+  julia> using CurricularAnalytics
+```
+The toolbox must be loaded again via `using CurricularAnalytics` every time you restart Julia.
+
+For more information about installing the toolbox, including the steps neccessary to utilize degree plan optimization, please see the [INSTALLING.md](https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/install.html)
 
 ## Supported Versions
 * CurricularAnalytics master will be maintained/enhanced to work with the latest stable version of Julia.
-* Julia 1.0 & 1.1: CurricularAnalytics v0.5.0 is the latest version guaranteed to work with Julia 1.0 and 1.1.
+* Julia 1.0 & 1.1: CurricularAnalytics v0.5.3 is the latest version guaranteed to work with Julia 1.0 and 1.1.
 * Later versions: Some functionality might not work with prerelease / unstable / nightly versions of Julia. If you run into a problem, please file an issue.
 
 # Contributing and Reporting Bugs

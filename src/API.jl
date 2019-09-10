@@ -6,6 +6,10 @@ struct RESTController <: ApplicationController
     conn::Conn
 end
 
+function healthcheck(c::RESTController)
+    render(JSON, "Healthy")
+end
+
 function validate(c::RESTController)
     @info :PAYLOAD (c.params.curriculum)
     @info "Validating recieved degree plan..."
@@ -30,6 +34,7 @@ function calculate_metrics(c::RESTController)
 end
 
 routes() do
+    get("/healthcheck", RESTController, healthcheck)
     post("/validate", RESTController, validate)
     post("/matrics", RESTController, calculate_metrics)
     # create degree plan from curriculum
