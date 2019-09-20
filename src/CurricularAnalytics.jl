@@ -29,10 +29,10 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
         extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices, compare_curricula,
-        isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, basic_metrics, basic_statistics, read_csv, 
-        create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, 
-        find_min_terms, balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, 
-        optimize_plan, json_to_julia, julia_to_json, init_opt
+        similarity, isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, basic_metrics, 
+        basic_statistics, read_csv, create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, 
+        update_plan, write_csv, find_min_terms, balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, 
+        read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_opt
 
 function __init__()
     @require Gurobi="2e9cd046-0924-5485-92f1-d5272153d98b" using .Gurobi
@@ -96,7 +96,7 @@ end
 #end
 
 """
-    function extraneous_requisites(c::Curriculum; print=false)
+    extraneous_requisites(c::Curriculum; print=false)
        
 Determines whether or not a curriculum `c` contains extraneous requisites, and returns them.  Extraneous requisites
 are redundant requisites that are unnecessary in a curriculum.  For example, if a curriculum has the prerequisite 
@@ -373,7 +373,7 @@ end
 
 # Find all fo the longest paths in a curriculum.
 """
-    longest_paths(c)
+    longest_paths(c::Curriculum)
     
 Finds longest paths in curriculum `c`, and returns an array of course arrays, where
 each course array contains the courses in a longest path.
@@ -619,6 +619,52 @@ function write_course_name(buf::IOBuffer, c::Course)
     !isempty(c.prefix) ? write(buf, "$(c.prefix) ") : nothing
     !isempty(c.num) ? write(buf, "$(c.num) - ") : nothing
     write(buf, "$(c.name)")  # name is a required item
+end
+
+"""
+    similarity(c1, c2; strict)
+
+Compute how similar curriculum `c1` is to curriculum `c2`.  The similarity metric is computed by comparing how many courses in
+`c1` are also in `c2`, divided by the total number of courses in `c2`.  Thus, for two curricula, this metric is not symmetric. A 
+similarity value of `1` indicates that `c1` and `c2` are identical, whil a value of `0` means that none of the courses in `c1` 
+are in `c2`. 
+
+# Arguments
+Required:
+- `c1::Curriculum` : the target curriculum. 
+- `c2::Curriculum` : the curriculum serving as the basis for comparison.
+
+Keyword:
+- `strict::Bool` : if true (default), two courses are considered the same if every field in the two courses are the same; if false, 
+two courses are conisdred the same if they have the same course name, or if they have the same course prefix and number.
+
+```julia-repl
+julia> similarity(curric1, curric2)
+```
+"""
+function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
+    if c2.num_courses == 0
+        error("Curriculum $(c2.name) does not have any courses, similarity cannot be computed")
+    end
+    if (c1 == c2) return 1 end
+    matches = 0
+    if strict == true
+        for course in c1.courses
+            if course in c2.courses
+                matches += 1
+            end 
+        end
+    else  # strict == false
+        for course in c1.courses
+            for basis_course in c2.courses 
+                if (basis_course.name == course.name) || (basis_course.prefix == course.prefix && basis_course.number == course.number)
+                    matches += 1
+                    continue
+                end
+            end 
+        end
+    end
+    return matches/c2.num_courses
 end
 
 end # module
