@@ -26,7 +26,7 @@ include("Visualization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, LearningOutcome, 
         Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
-        course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
+        course_from_id, course_from_vertex, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
         extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices, compare_curricula,
         similarity, isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, basic_metrics, 
@@ -665,6 +665,24 @@ function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
         end
     end
     return matches/c2.num_courses
+end
+
+function dead_end(curric::Curriculum, prefixes::Array{String,1})
+    dead_ends = Array{Course,1}()
+    paths = all_paths(curric.graph)
+    for p in paths
+        course = course_from_vertex(curric, p[end])
+        if course.prefix in prefixes
+            if !(course in dead_ends)
+                push!(dead_ends, course)
+            end
+        end
+    end
+    if length(dead_ends) == 0
+        return nothing
+    else
+        return dead_ends
+    end
 end
 
 end # module
