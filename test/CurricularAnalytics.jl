@@ -61,9 +61,9 @@ A = Course("Introduction to Baskets", 3, institution="ACME State University", pr
 B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education")
 C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I")
 D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory")
-E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="CS", num="300", canonical_name="Baskets II")
+E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="BW", num="300", canonical_name="Baskets II")
 F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials")
-G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core")
+G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="HU", num="101", canonical_name="Humanitites Core")
 H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective")
 
 add_requisite!(A,C,pre)
@@ -146,9 +146,9 @@ A = Course("Introduction to Baskets", 3, institution="ACME State University", pr
 B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education")
 C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I")
 D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory")
-E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="CS", num="300", canonical_name="Baskets II")
+E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="BW", num="300", canonical_name="Baskets II")
 F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials")
-G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core")
+G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="HU", num="101", canonical_name="Humanitites Core")
 H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective")
 
 add_requisite!(A,C,pre)
@@ -190,3 +190,14 @@ end;
 curric_mod = Curriculum("Underwater Basket Weaving (no elective)", [A,B,C,D,E,F,G], institution="ACME State University", CIP="445786",sortby_ID=false)
 @test similarity(curric_mod, curric) == 0.875
 @test similarity(curric, curric_mod) == 1.0
+
+# Test dead_end()
+@test dead_end(curric, ["BW"]) == nothing
+I = Course("Calculus I", 4, institution="ACME State University", prefix="MA", num="110", canonical_name="Calculus I")
+J = Course("Calculus II", 4, institution="ACME State University", prefix="MA", num="210", canonical_name="Calculus II")
+add_requisite!(I,J,pre)
+curric_de = Curriculum("Underwater Basket Weaving (w/ Calc)", [A,B,C,D,E,F,G,H,I,J], institution="ACME State University", CIP="445786",sortby_ID=false)
+de = dead_end(curric_de, ["BW"])
+@test length(de) == 1
+@test de[1] == J
+
