@@ -96,7 +96,7 @@ end
 
 # Should be able to pass the curriculum as an object. Currently can only be passed as a file. 
 # Configuration options should be passable via args, not just as a file.
-function optimize_plan(config_file, curric_degree_file, toxic_score_file= "")
+function optimize_plan(config_file, curric_degree_file, toxic_score_file="")
     # read parameters from the configuration file
     consec_courses, fix_courses, term_range, term_count, min_cpt, max_cpt,
         obj_order, diff_max_cpt = read_Opt_Config(config_file)
@@ -305,6 +305,7 @@ you may wish to experiment with the constraint values.
   * `Balance` - the balanced curriculum objective described above.
   * `Prereq` - the requisite distnace objective described above.
   * `Toxicity` - the toxic course avoidance objective described above.
+- `toxic_score_file::String`: file path to toxicity scores CSV
 - `diff_max_cpt::Array{UInt, 1}` :  specify particular terms that may deviate from the `max_cpt` specified previously.
 - `fix_courses::Dict(Int, Int)` : specify courses that should be assigned to particular terms in `(course_id, term)` 
     format.
@@ -319,8 +320,9 @@ julia> dp = optimize_plan(curric, 8, 6, 18, ["Balance", "Prereq"])
 ```
 """
 function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, 
-                        obj_order::Array{String, 1}; diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), fix_courses::Dict=Dict(),
-                        consec_courses::Dict=Dict(), term_range::Dict=Dict(), prior_courses::Array{Term, 1}=Array{Term}(undef, 0))
+                        obj_order::Array{String, 1}; toxic_score_file::String = "", diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), 
+                        fix_courses::Dict=Dict(), consec_courses::Dict=Dict(), term_range::Dict=Dict(), 
+                        prior_courses::Array{Term, 1}=Array{Term}(undef, 0))
     
     # toxicity_scores::AbstractString (This is the file containing toxicity scores, but does it neccessarily need to be a file? 
     # In theory it could be a dictionary or some similar data structure. 
