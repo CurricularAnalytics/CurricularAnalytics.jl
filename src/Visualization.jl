@@ -3,6 +3,7 @@ using WebIO
 using HTTP
 using Blink
 using StatsPlots
+using LinearAlgebra
 
 import HTTP.Messages
 
@@ -107,11 +108,9 @@ Visualize a degree plan.
 
 # Arguments
 Required:
-
 - `degree_plan::DegreePlan` : the degree plan to visualize.
 
 Keyword:
-
 - `changed` : callback function argument, called whenever the degree plan is modified through the interface.
      Default is `nothing`.
 - `notebook` : a Boolean argument, if set to `true`, Blink will not create a new window for the visualization, which allows it to be displayed in the output cell of a Jupyter notebook.
@@ -280,4 +279,46 @@ function metric_boxplot(series_labels::Array{String,2}, curricula::Array{Array{C
         append!(series_ary, [tmp_series])
     end
     StatsPlots.boxplot(series_labels, series_ary, title=title, xlabel=xlabel, ylabel=ylabel, legend=legend, alpha=alpha, color=color)
+end
+
+"""
+    homology(curricula; <keyword arguments>))
+
+Given a collection of `Curriculum` data objects as input, provide a visulaization that shows how similar each 
+curriculum is (in terms of shared courses) to every other curriculum in the collection.  With the default color scheme,
+lighter colors indicate hihger similarity, with the color on the main diagonal (the similarity of a curriculum to itself)
+indicating maximal similarity.
+
+# Arguments
+Required:
+- `curricula::Array{Curriculum,1}` : the collection of curricula that will be analzyed for similarity.
+
+Keyword:
+- `title::AbstractString` : the title that will appear above the visualization, default is the empty string.
+- `xlabel::AbstractString` : the label below the x-axis, default is the empty string.
+- `ylabel::AbstractString` : the label below the x-axis, default is the empty string.
+- `color::Symbol` : the color gradient used to plot similarity values, default is the symbol `:thermal`.  Other color schemes symbols
+- `legend::Bool` : display a plot legend, default is `false`.
+
+To see the color libraries avaiable to you, type:
+```julia-repl
+julia> clibraries()
+```
+Then pick one of these color libraries, and use the following function to see the color scheme symbols available in that library, e.g.,
+```julia-repl
+julia> showlibrary(:cmocean)
+```
+"""
+function homology(curricula::Array{Curriculum,1}; title::AbstractString="", xlabel::AbstractString="", ylabel::AbstractString="", 
+                  color::Symbol=:thermal, legend::Bool=true)
+    similarity_matrix = Matrix{Float64}(I, length(curricula), length(curricula))
+    for i = 1:length(curricula)
+        for j = 1:length(curricula)
+            if (i == j) continue end
+            similarity_matrix[i,j] = similarity(curricula[i], curricula[j])
+            similarity_matrix[j,i] = similarity(curricula[j], curricula[i])
+        end
+    end
+    Plots.heatmap(similarity_matrix, title=title, xlabel=xlabel, ylabel=ylabel, color=color, legend=legend)
+    return similarity_matrix
 end

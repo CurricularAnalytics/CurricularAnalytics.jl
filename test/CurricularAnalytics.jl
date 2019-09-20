@@ -185,3 +185,8 @@ basic_metrics(curric)
 @test length(curric.metrics["max. complexity courses"]) == 1
 @test curric.metrics["max. complexity courses"][1].name == "Basic Basket Forms Lab"
 end;
+
+# Test similarity()
+curric_mod = Curriculum("Underwater Basket Weaving (no elective)", [A,B,C,D,E,F,G], institution="ACME State University", CIP="445786",sortby_ID=false)
+@test similarity(curric_mod, curric) == 0.875
+@test similarity(curric, curric_mod) == 1.0
