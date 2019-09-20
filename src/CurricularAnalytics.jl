@@ -672,7 +672,7 @@ function dead_end(curric::Curriculum, prefixes::Array{String,1})
     paths = all_paths(curric.graph)
     for p in paths
         course = course_from_vertex(curric, p[end])
-        if course.prefix in prefixes
+        if !(course.prefix in prefixes)
             if !(course in dead_ends)
                 push!(dead_ends, course)
             end
