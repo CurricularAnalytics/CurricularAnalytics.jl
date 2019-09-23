@@ -668,21 +668,18 @@ function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
 end
 
 function dead_end(curric::Curriculum, prefixes::Array{String,1})
-    dead_ends = Array{Course,1}()
+    dead_ends = Dict{Array{String,1}, Array{Course,1}}()
+    dead_end_courses = Array{Course,1}()
     paths = all_paths(curric.graph)
     for p in paths
         course = course_from_vertex(curric, p[end])
         if !(course.prefix in prefixes)
-            if !(course in dead_ends)
-                push!(dead_ends, course)
+            if !(course in dead_end_courses)
+                push!(dead_end_courses, course)
             end
         end
     end
-    if length(dead_ends) == 0
-        return nothing
-    else
-        return dead_ends
-    end
+    return (dead_ends[prefixes] = dead_end_courses)
 end
 
 end # module
