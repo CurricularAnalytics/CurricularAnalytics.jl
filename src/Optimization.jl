@@ -286,8 +286,8 @@ end
 # Additional configuration options may be supplied via keyword arguments.
 """
     optimize_plan(c::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, 
-      obj_order::Array{String, 1}; diff_max_cpt::Array{UInt, 1}, fix_courses::Dict,
-      consec_courses::Dict, term_range::Dict, prior_courses::Array{Term, 1})
+      obj_order::Array{String, 1}; toxic_score_file::String = "", diff_max_cpt::Array{UInt, 1}, 
+      fix_courses::Dict, consec_courses::Dict, term_range::Dict, prior_courses::Array{Term, 1})
 
 Using the curriculum `c` supplied as input, returns a degree plan optimzed according to the various 
 optimization criteria that have been specified as well as the objective functions that have been selected.
@@ -319,8 +319,8 @@ julia> curric = read_csv("path/to/curric.csv")
 julia> dp = optimize_plan(curric, 8, 6, 18, ["Balance", "Prereq"])
 ```
 """
-function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, 
-                        obj_order::Array{String, 1}; toxic_score_file::String = "", diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), 
+function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, obj_order::Array{String, 1}; 
+                        toxic_score_file::String = "", diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), 
                         fix_courses::Dict=Dict(), consec_courses::Dict=Dict(), term_range::Dict=Dict(), 
                         prior_courses::Array{Term, 1}=Array{Term}(undef, 0))
     
