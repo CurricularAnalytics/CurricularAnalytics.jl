@@ -282,7 +282,7 @@ function metric_boxplot(series_labels::Array{String,2}, curricula::Array{Array{C
 end
 
 """
-    homology(curricula; <keyword arguments>))
+    homology(curricula; <keyword arguments>)
 
 Given a collection of `Curriculum` data objects as input, provide a visulaization that shows how similar each 
 curriculum is (in terms of shared courses) to every other curriculum in the collection.  With the default color scheme,
