@@ -294,6 +294,7 @@ Required:
 - `curricula::Array{Curriculum,1}` : the collection of curricula that will be analzyed for similarity.
 
 Keyword:
+- `strict::Bool` : if true, strictly match courses (including course ID); if false (default), match only course name or courese prefix and number. 
 - `title::AbstractString` : the title that will appear above the visualization, default is the empty string.
 - `xlabel::AbstractString` : the label below the x-axis, default is the empty string.
 - `ylabel::AbstractString` : the label below the x-axis, default is the empty string.
@@ -309,16 +310,14 @@ Then pick one of these color libraries, and use the following function to see th
 julia> showlibrary(:cmocean)
 ```
 """
-function homology(curricula::Array{Curriculum,1}; title::AbstractString="", xlabel::AbstractString="", ylabel::AbstractString="", 
+function show_homology(curricula::Array{Curriculum,1}; strict::Bool=false, title::AbstractString="", xlabel::AbstractString="", ylabel::AbstractString="", 
                   color::Symbol=:thermal, legend::Bool=true)
-    similarity_matrix = Matrix{Float64}(I, length(curricula), length(curricula))
-    for i = 1:length(curricula)
-        for j = 1:length(curricula)
-            if (i == j) continue end
-            similarity_matrix[i,j] = similarity(curricula[i], curricula[j])
-            similarity_matrix[j,i] = similarity(curricula[j], curricula[i])
-        end
+    names = Array{String,1}()
+    sort!(curricula, by = c -> c.name)
+    for c in curricula
+        push!(names, c.name)
     end
-    Plots.heatmap(similarity_matrix, title=title, xlabel=xlabel, ylabel=ylabel, color=color, legend=legend)
-    return similarity_matrix
+    similarity_matrix = homology(curricula, strict=strict)
+    Plots.heatmap(names, names, similarity_matrix, size=(1200,850), xticks=:all, xtickfont=font(6, "Courier"), xrotation=65, yticks=:all, ytickfont=font(6, "Courier"), 
+          title=title, xlabel=xlabel, ylabel=ylabel, color=color, legend=legend)
 end

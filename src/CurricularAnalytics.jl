@@ -30,9 +30,9 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
         extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, dead_end, courses_from_vertices, 
         compare_curricula, similarity, homology, isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, 
-        basic_metrics, basic_statistics, read_csv, create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, 
-        update_plan, write_csv, find_min_terms, balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, 
-        read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_opt
+        show_homology, basic_metrics, basic_statistics, read_csv, create_degree_plan, bin_packing, bin_packing2, find_min_terms, 
+        add_lo_requisite!, update_plan, write_csv, find_min_terms, balance_terms, requisite_distance, balance_terms_opt, 
+        find_min_terms_opt, read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_opt
 
 function __init__()
     @require Gurobi="2e9cd046-0924-5485-92f1-d5272153d98b" using .Gurobi
@@ -657,14 +657,25 @@ function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
     else  # strict == false
         for course in c1.courses
             for basis_course in c2.courses 
-                if (basis_course.name == course.name) || (basis_course.prefix == course.prefix && basis_course.number == course.number)
+                if (course.name != "" && basis_course.name == course.name) || (course.prefix != "" && basis_course.prefix == course.prefix && course.num != "" && basis_course.num == course.num)
                     matches += 1
-                    continue
+                    break # only match once 
                 end
             end 
         end
     end
     return matches/c2.num_courses
+end
+
+function homology(curricula::Array{Curriculum,1}; strict::Bool=false)
+    similarity_matrix = Matrix{Float64}(I, length(curricula), length(curricula))
+    for i = 1:length(curricula)
+        for j = 1:length(curricula)
+            similarity_matrix[i,j] = similarity(curricula[i], curricula[j], strict=strict)
+            similarity_matrix[j,i] = similarity(curricula[j], curricula[i], strict=strict)
+        end
+    end
+    return similarity_matrix
 end
 
 """
