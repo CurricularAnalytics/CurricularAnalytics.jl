@@ -2,6 +2,9 @@ using JSON
 using WebIO
 using HTTP
 using Blink
+using Plots
+using PlotlyJS
+using ORCA
 using StatsPlots
 using LinearAlgebra
 
@@ -318,6 +321,7 @@ function show_homology(curricula::Array{Curriculum,1}; strict::Bool=false, title
         push!(names, c.name)
     end
     similarity_matrix = homology(curricula, strict=strict)
-    Plots.heatmap(names, names, similarity_matrix, size=(1200,850), xticks=:all, xtickfont=font(6, "Courier"), xrotation=65, yticks=:all, ytickfont=font(6, "Courier"), 
-          title=title, xlabel=xlabel, ylabel=ylabel, color=color, legend=legend)
+    plotlyjs();
+    Plots.heatmap(names, names, similarity_matrix, size=(1400,1100), xticks=:all, xtickfont=font(7, "Courier"), xrotation=65, yticks=:all, ytickfont=font(7, "Courier"), 
+          yflip=true, hover=similarity_matrix, title=title, xlabel=xlabel, ylabel=ylabel, color=color, legend=legend)
 end
