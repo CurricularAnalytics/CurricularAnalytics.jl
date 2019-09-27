@@ -82,7 +82,7 @@ errors = IOBuffer()
 # Test analytics 
 @test delay_factor(curric) == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
 @test blocking_factor(curric) == (8, [2, 2, 1, 3, 0, 0, 0, 0])
-@test centrality(curric) == (3, [0, 0, 3, 0, 0, 0, 0, 0])
+@test centrality(curric) == (9, [0, 0, 9, 0, 0, 0, 0, 0])
 @test complexity(curric) == (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
 
 # Curric: 7-vertex test curriculum - valid
@@ -126,7 +126,7 @@ errors = IOBuffer()
 # Test analytics 
 @test delay_factor(curric) == (32.0, [5.0, 5.0, 4.0, 5.0, 3.0, 5.0, 5.0])
 @test blocking_factor(curric) == (16, [6, 3, 4, 2, 0, 0, 1])
-@test centrality(curric) == (49, [0, 9, 12, 18, 0, 0, 10])
+@test centrality(curric) == (72, [0, 22, 15, 22, 0, 0, 13])
 @test complexity(curric) == (48.0, [11.0, 8.0, 8.0, 7.0, 3.0, 5.0, 6.0])
 
 
@@ -170,12 +170,12 @@ basic_metrics(curric)
 @test curric.num_courses == 8
 @test curric.metrics["blocking factor"] == (8, [2, 2, 1, 3, 0, 0, 0, 0])
 @test curric.metrics["delay factor"] == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
-@test curric.metrics["centrality"] == (3, [0, 0, 3, 0, 0, 0, 0, 0])
+@test curric.metrics["centrality"] == (9, [0, 0, 9, 0, 0, 0, 0, 0])
 @test curric.metrics["complexity"] == (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
 @test curric.metrics["max. blocking factor"] == 3
 @test length(curric.metrics["max. blocking factor courses"]) == 1
 @test curric.metrics["max. blocking factor courses"][1].name == "Basic Basket Forms Lab"
-@test curric.metrics["max. centrality"] == 3
+@test curric.metrics["max. centrality"] == 9
 @test length(curric.metrics["max. centrality courses"]) == 1
 @test curric.metrics["max. centrality courses"][1].name == "Basic Basket Forms"
 @test curric.metrics["max. delay factor"] == 3.0
@@ -184,7 +184,6 @@ basic_metrics(curric)
 @test curric.metrics["max. complexity"] == 6.0
 @test length(curric.metrics["max. complexity courses"]) == 1
 @test curric.metrics["max. complexity courses"][1].name == "Basic Basket Forms Lab"
-end;
 
 # Test similarity()
 curric_mod = Curriculum("Underwater Basket Weaving (no elective)", [A,B,C,D,E,F,G], institution="ACME State University", CIP="445786",sortby_ID=false)
@@ -201,3 +200,5 @@ curric_de = Curriculum("Underwater Basket Weaving (w/ Calc)", [A,B,C,D,E,F,G,H,I
 de = dead_end(curric_de, ["BW"])
 @test length(de[2]) == 1
 @test de[2][1] == J
+
+end;
