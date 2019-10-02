@@ -34,6 +34,7 @@ mutable struct LearningOutcome
     requisites::Dict{Int, Requisite}    # List of requisites, in
                                         #(requisite_learning_outcome, requisite_type) format
     metrics::Dict{String, Any}          # Learning outcome-related metrics
+    metadata::Dict{String, Any}         # Learning outcome-related metadata
 
     # Constructor
     function LearningOutcome(name::AbstractString, description::AbstractString, hours::Int=0)
@@ -44,6 +45,7 @@ mutable struct LearningOutcome
         this.id = mod(hash(this.name * this.description), UInt32)
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
+        this.metadata = Dict{String, Any}()
         return this
     end
 end
@@ -103,6 +105,7 @@ mutable struct Course
     requisites::Dict{Int, Requisite}    # List of requisites, in (requisite_course id, requisite_type) format
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the course
     metrics::Dict{String, Any}          # Course-related metrics
+    metadata::Dict{String, Any}         # Course-related metadata
 
     # Constructor
     function Course(name::AbstractString, credit_hours::Real; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
@@ -121,6 +124,7 @@ mutable struct Course
         this.canonical_name = canonical_name
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
+        this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
         this.vertex_id = Dict{Int, Int}()
         return this
@@ -241,6 +245,7 @@ mutable struct Curriculum
                                         # of the curriculum
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the curriculum
     metrics::Dict{String, Any}          # Curriculum-related metrics
+    metadata::Dict{String, Any}         # Curriculum-related metadata
 
     # Constructor
     function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
@@ -267,6 +272,7 @@ mutable struct Curriculum
         this.graph = SimpleDiGraph{Int}()
         create_graph!(this)
         this.metrics = Dict{String, Any}()
+        this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
         errors = IOBuffer()
         if !(isvalid_curriculum(this, errors))
@@ -372,6 +378,7 @@ mutable struct Term
     num_courses::Int                    # The number of courses in the Term
     credit_hours::Real                  # The number of credit hours associated with the term
     metrics::Dict{String, Any}          # Term-related metrics
+    metadata::Dict{String, Any}         # Term-related metadata
 
     # Constructor
     function Term(courses::Array{Course})
@@ -384,6 +391,7 @@ mutable struct Term
             this.credit_hours += courses[i].credit_hours
         end
         this.metrics = Dict{String, Any}()
+        this.metadata = Dict{String, Any}()
         return this
     end
 end
@@ -420,6 +428,7 @@ mutable struct DegreePlan
     num_terms::Int                      # Number of terms in the degree plan
     credit_hours::Real                  # Total number of credit hours in the degree plan
     metrics::Dict{String, Any}          # Dergee Plan-related metrics
+    metadata::Dict{String, Any}         # Dergee Plan-related metadata
 
     # Constructor
     function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term,1},
@@ -441,6 +450,7 @@ mutable struct DegreePlan
             end
         end
         this.metrics = Dict{String, Any}()
+        this.metadata = Dict{String, Any}()
         return this
     end
 end

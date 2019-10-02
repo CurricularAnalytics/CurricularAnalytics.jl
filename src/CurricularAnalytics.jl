@@ -26,13 +26,13 @@ include("Visualization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, LearningOutcome, 
         Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
-        course_from_id, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
+        course_from_id, course_from_vertex, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
-        extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, courses_from_vertices, compare_curricula,
-        isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, basic_metrics, basic_statistics, read_csv, 
-        create_degree_plan, bin_packing, bin_packing2, find_min_terms, add_lo_requisite!, update_plan, write_csv, 
-        find_min_terms, balance_terms, requisite_distance, balance_terms_opt, find_min_terms_opt, read_Opt_Config, 
-        optimize_plan, json_to_julia, julia_to_json, init_opt
+        extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, dead_ends, courses_from_vertices, 
+        compare_curricula, similarity, homology, isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, 
+        show_homology, basic_metrics, basic_statistics, read_csv, create_degree_plan, bin_packing, bin_packing2, find_min_terms, 
+        add_lo_requisite!, update_plan, write_csv, find_min_terms, balance_terms, requisite_distance, balance_terms_opt, 
+        find_min_terms_opt, read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_opt
 
 function __init__()
     @require Gurobi="2e9cd046-0924-5485-92f1-d5272153d98b" using .Gurobi
@@ -96,7 +96,7 @@ end
 #end
 
 """
-    function extraneous_requisites(c::Curriculum; print=false)
+    extraneous_requisites(c::Curriculum; print=false)
        
 Determines whether or not a curriculum `c` contains extraneous requisites, and returns them.  Extraneous requisites
 are redundant requisites that are unnecessary in a curriculum.  For example, if a curriculum has the prerequisite 
@@ -373,7 +373,7 @@ end
 
 # Find all fo the longest paths in a curriculum.
 """
-    longest_paths(c)
+    longest_paths(c::Curriculum)
     
 Finds longest paths in curriculum `c`, and returns an array of course arrays, where
 each course array contains the courses in a longest path.
@@ -619,6 +619,106 @@ function write_course_name(buf::IOBuffer, c::Course)
     !isempty(c.prefix) ? write(buf, "$(c.prefix) ") : nothing
     !isempty(c.num) ? write(buf, "$(c.num) - ") : nothing
     write(buf, "$(c.name)")  # name is a required item
+end
+
+"""
+    similarity(c1, c2; strict)
+
+Compute how similar curriculum `c1` is to curriculum `c2`.  The similarity metric is computed by comparing how many courses in
+`c1` are also in `c2`, divided by the total number of courses in `c2`.  Thus, for two curricula, this metric is not symmetric. A 
+similarity value of `1` indicates that `c1` and `c2` are identical, whil a value of `0` means that none of the courses in `c1` 
+are in `c2`. 
+
+# Arguments
+Required:
+- `c1::Curriculum` : the target curriculum. 
+- `c2::Curriculum` : the curriculum serving as the basis for comparison.
+
+Keyword:
+- `strict::Bool` : if true (default), two courses are considered the same if every field in the two courses are the same; if false, 
+two courses are conisdred the same if they have the same course name, or if they have the same course prefix and number.
+
+```julia-repl
+julia> similarity(curric1, curric2)
+```
+"""
+function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
+    if c2.num_courses == 0
+        error("Curriculum $(c2.name) does not have any courses, similarity cannot be computed")
+    end
+    if (c1 == c2) return 1 end
+    matches = 0
+    if strict == true
+        for course in c1.courses
+            if course in c2.courses
+                matches += 1
+            end 
+        end
+    else  # strict == false
+        for course in c1.courses
+            for basis_course in c2.courses 
+                if (course.name != "" && basis_course.name == course.name) || (course.prefix != "" && basis_course.prefix == course.prefix && course.num != "" && basis_course.num == course.num)
+                    matches += 1
+                    break # only match once 
+                end
+            end 
+        end
+    end
+    return matches/c2.num_courses
+end
+
+function homology(curricula::Array{Curriculum,1}; strict::Bool=false)
+    similarity_matrix = Matrix{Float64}(I, length(curricula), length(curricula))
+    for i = 1:length(curricula)
+        for j = 1:length(curricula)
+            similarity_matrix[i,j] = similarity(curricula[i], curricula[j], strict=strict)
+            similarity_matrix[j,i] = similarity(curricula[j], curricula[i], strict=strict)
+        end
+    end
+    return similarity_matrix
+end
+
+"""
+    dead_ends(curric, prefixes)
+
+Finds all courses in curriculum `curric` that appear at the end of a path (i.e., sink vertices), and returns those courses that 
+do not have one of the course prefixes listed in the `prefixes` array.  If a course does not have a prefix, it is excluded from
+the analysis.
+
+# Arguments
+- `c::Curriculum` : the target curriculum. 
+- `prefixes::Array{String,1}` : an array of course prefix strings.
+
+For instance, the following will find all courses in `curric` that appear at the end of any course path in the curriculum, 
+and do *not* have `BIO` as a prefix.  One might consider these courses "dead ends," as their course outcomes are not used by any 
+major-specific course, i.e., by any course with the prefix `BIO`.
+
+```julia-repl
+julia> dead_ends(curric, ["BIO"])
+```
+"""
+function dead_ends(curric::Curriculum, prefixes::Array{String,1})
+    dead_end_courses = Array{Course,1}()
+    paths = all_paths(curric.graph)
+    for p in paths
+        course = course_from_vertex(curric, p[end])
+        if course.prefix == "" 
+            continue
+        end
+        if !(course.prefix in prefixes)
+            if !(course in dead_end_courses)
+                push!(dead_end_courses, course)
+            end
+        end
+    end
+    if haskey(curric.metrics, "dead end")
+        if !haskey(curric.metrics["dead end"], prefixes)
+            push!(curric.metrics["dead end"], prefixes => dead_end_courses)
+        end
+    else
+        curric.metrics["dead end"] = Dict(prefixes => dead_end_courses)
+    end
+    return (prefixes, dead_end_courses)
 end
 
 end # module

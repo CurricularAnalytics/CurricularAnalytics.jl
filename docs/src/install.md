@@ -18,7 +18,15 @@ The toolbox must be loaded again via `using CurricularAnalytics` every time you 
 
 ## Additional Requirements
 
-If you plan to use the optimization capabilities built into the degree plan creation functions, you must install the [Gurobi Optimizer](https://www.gurobi.com/downloads/gurobi-optimizer-eula/). Gurobi is a commercial product, and requires a license key. However, [academic licenses](https://www.gurobi.com/downloads/end-user-license-agreement-academic/) are available at no cost.
+### Jupyter Notebooks
+
+Along with the CurricularAnalytics Toolbox, we've also created a repository for Jupyter Notebooks demonstrating various use cases.
+
+If you'd like to utilize the Jupyter notebooks you should follow the installation instructions here: [Click Here](https://github.com/CurricularAnalytics/CA-Notebooks#how-do-i-run-notebooks-on-my-machine)
+
+### Optimization Functionality
+
+If you plan to use the optimization capabilities built into the degree plan creation functions, you must install the [Gurobi Optimizer](https://www.gurobi.com/downloads/gurobi-optimizer-eula/). Gurobi is a commercial product and requires a license key. However, [academic licenses](https://www.gurobi.com/downloads/end-user-license-agreement-academic/) are available at no cost.
 
 After installing the Gurobi Solver you must run the following command in Pkg mode in the Julia REPL by hitting `]`, and then:
 ```julia-repl

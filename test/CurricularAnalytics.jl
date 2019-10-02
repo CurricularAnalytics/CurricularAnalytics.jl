@@ -61,9 +61,9 @@ A = Course("Introduction to Baskets", 3, institution="ACME State University", pr
 B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education")
 C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I")
 D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory")
-E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="CS", num="300", canonical_name="Baskets II")
+E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="BW", num="300", canonical_name="Baskets II")
 F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials")
-G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core")
+G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="HU", num="101", canonical_name="Humanitites Core")
 H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective")
 
 add_requisite!(A,C,pre)
@@ -82,7 +82,7 @@ errors = IOBuffer()
 # Test analytics 
 @test delay_factor(curric) == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
 @test blocking_factor(curric) == (8, [2, 2, 1, 3, 0, 0, 0, 0])
-@test centrality(curric) == (3, [0, 0, 3, 0, 0, 0, 0, 0])
+@test centrality(curric) == (9, [0, 0, 9, 0, 0, 0, 0, 0])
 @test complexity(curric) == (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
 
 # Curric: 7-vertex test curriculum - valid
@@ -126,7 +126,7 @@ errors = IOBuffer()
 # Test analytics 
 @test delay_factor(curric) == (32.0, [5.0, 5.0, 4.0, 5.0, 3.0, 5.0, 5.0])
 @test blocking_factor(curric) == (16, [6, 3, 4, 2, 0, 0, 1])
-@test centrality(curric) == (49, [0, 9, 12, 18, 0, 0, 10])
+@test centrality(curric) == (72, [0, 22, 15, 22, 0, 0, 13])
 @test complexity(curric) == (48.0, [11.0, 8.0, 8.0, 7.0, 3.0, 5.0, 6.0])
 
 
@@ -146,9 +146,9 @@ A = Course("Introduction to Baskets", 3, institution="ACME State University", pr
 B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education")
 C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I")
 D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory")
-E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="CS", num="300", canonical_name="Baskets II")
+E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="BW", num="300", canonical_name="Baskets II")
 F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials")
-G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core")
+G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="HU", num="101", canonical_name="Humanitites Core")
 H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective")
 
 add_requisite!(A,C,pre)
@@ -170,12 +170,12 @@ basic_metrics(curric)
 @test curric.num_courses == 8
 @test curric.metrics["blocking factor"] == (8, [2, 2, 1, 3, 0, 0, 0, 0])
 @test curric.metrics["delay factor"] == (19.0, [3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0])
-@test curric.metrics["centrality"] == (3, [0, 0, 3, 0, 0, 0, 0, 0])
+@test curric.metrics["centrality"] == (9, [0, 0, 9, 0, 0, 0, 0, 0])
 @test curric.metrics["complexity"] == (27.0, [5.0, 5.0, 4.0, 6.0, 3.0, 2.0, 1.0, 1.0])
 @test curric.metrics["max. blocking factor"] == 3
 @test length(curric.metrics["max. blocking factor courses"]) == 1
 @test curric.metrics["max. blocking factor courses"][1].name == "Basic Basket Forms Lab"
-@test curric.metrics["max. centrality"] == 3
+@test curric.metrics["max. centrality"] == 9
 @test length(curric.metrics["max. centrality courses"]) == 1
 @test curric.metrics["max. centrality courses"][1].name == "Basic Basket Forms"
 @test curric.metrics["max. delay factor"] == 3.0
@@ -184,4 +184,21 @@ basic_metrics(curric)
 @test curric.metrics["max. complexity"] == 6.0
 @test length(curric.metrics["max. complexity courses"]) == 1
 @test curric.metrics["max. complexity courses"][1].name == "Basic Basket Forms Lab"
+
+# Test similarity()
+curric_mod = Curriculum("Underwater Basket Weaving (no elective)", [A,B,C,D,E,F,G], institution="ACME State University", CIP="445786",sortby_ID=false)
+@test similarity(curric_mod, curric) == 0.875
+@test similarity(curric, curric_mod) == 1.0
+
+# Test dead_ends()
+de = dead_ends(curric, ["BW"])
+@test de == (["BW"], Course[])
+I = Course("Calculus I", 4, institution="ACME State University", prefix="MA", num="110", canonical_name="Calculus I")
+J = Course("Calculus II", 4, institution="ACME State University", prefix="MA", num="210", canonical_name="Calculus II")
+add_requisite!(I,J,pre)
+curric_de = Curriculum("Underwater Basket Weaving (w/ Calc)", [A,B,C,D,E,F,G,H,I,J], institution="ACME State University", CIP="445786",sortby_ID=false)
+de = dead_ends(curric_de, ["BW"])
+@test length(de[2]) == 1
+@test de[2][1] == J
+
 end;

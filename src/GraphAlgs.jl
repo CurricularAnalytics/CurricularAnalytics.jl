@@ -264,19 +264,21 @@ function all_paths(g::AbstractGraph{T}) where T
     for v in sinks
         enqueue!(que, [v])
         while !isempty(que) # work backwards from sink v to all sources reachable to v in BFS fashion
-            x = dequeue!(que)
-            for (i, u) in enumerate(inneighbors(g, x[1]))
-                if i == 1
-                    insert!(x, 1, u)  # prepend vertx u to array x, first neighbor
+            x = dequeue!(que) # grab a path from the queue
+            for (i, u) in enumerate(inneighbors(g, x[1]))  # consider the in-neighbors at the beginning of the path
+                if length(inneighbors(g, u)) == 0  # reached a source vertex, done with a path
+                    y = copy(x)
+                    insert!(y, 1, u)
+                    push!(paths, y)
                 else
-                    x[1] = u # put new neighbor at the head of array, replacing an in-neighbor
-                end
-                if length(inneighbors(g, u)) == 0  # reached a source vertex, done with path
-                    if !(x in paths)
-                      push!(paths, x)
+                    if i == 1 # add vertex to existing path
+                        insert!(x, 1, u)  # prepend vertx u to array x, first neighbor
+                        enqueue!(que, x)
+                    else  # create a new path, there is more than one in-neighbor 
+                        y = copy(x)
+                        insert!(y, 1, u)
+                        enqueue!(que, y)
                     end
-                else
-                    enqueue!(que, copy(x))
                 end
             end
         end
