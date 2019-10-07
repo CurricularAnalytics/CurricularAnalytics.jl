@@ -126,7 +126,7 @@ errors = IOBuffer()
 # Test analytics 
 @test delay_factor(curric) == (32.0, [5.0, 5.0, 4.0, 5.0, 3.0, 5.0, 5.0])
 @test blocking_factor(curric) == (16, [6, 3, 4, 2, 0, 0, 1])
-@test centrality(curric) == (72, [0, 22, 15, 22, 0, 0, 13])
+@test centrality(curric) == (49, [0, 9, 12, 18, 0, 0, 10])
 @test complexity(curric) == (48.0, [11.0, 8.0, 8.0, 7.0, 3.0, 5.0, 6.0])
 
 
@@ -191,13 +191,13 @@ curric_mod = Curriculum("Underwater Basket Weaving (no elective)", [A,B,C,D,E,F,
 @test similarity(curric, curric_mod) == 1.0
 
 # Test dead_end()
-de = dead_end(curric, ["BW"])
+de = dead_ends(curric, ["BW"])
 @test de == (["BW"], Course[])
 I = Course("Calculus I", 4, institution="ACME State University", prefix="MA", num="110", canonical_name="Calculus I")
 J = Course("Calculus II", 4, institution="ACME State University", prefix="MA", num="210", canonical_name="Calculus II")
 add_requisite!(I,J,pre)
 curric_de = Curriculum("Underwater Basket Weaving (w/ Calc)", [A,B,C,D,E,F,G,H,I,J], institution="ACME State University", CIP="445786",sortby_ID=false)
-de = dead_end(curric_de, ["BW"])
+de = dead_ends(curric_de, ["BW"])
 @test length(de[2]) == 1
 @test de[2][1] == J
 
