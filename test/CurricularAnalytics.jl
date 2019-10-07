@@ -190,7 +190,7 @@ curric_mod = Curriculum("Underwater Basket Weaving (no elective)", [A,B,C,D,E,F,
 @test similarity(curric_mod, curric) == 0.875
 @test similarity(curric, curric_mod) == 1.0
 
-# Test dead_end()
+# Test dead_ends()
 de = dead_ends(curric, ["BW"])
 @test de == (["BW"], Course[])
 I = Course("Calculus I", 4, institution="ACME State University", prefix="MA", num="110", canonical_name="Calculus I")
