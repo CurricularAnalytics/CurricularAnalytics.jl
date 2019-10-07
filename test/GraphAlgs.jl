@@ -25,8 +25,13 @@ add_edge!(g, 7, 11)
 paths = all_paths(g)
 @test length(paths) == 5
 @test [4, 2, 3] in paths
+@test [4, 2, 5] in paths
 @test [7, 8] in paths      
 @test [4, 2, 6, 10] in paths
 @test [7, 11] in paths
+
+#test longest path algorithms
+@test longest_path(g, 2) == [2, 6, 10]
+@test longest_paths(g) == [[4, 2, 6, 10]]
 
 end;
