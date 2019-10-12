@@ -126,7 +126,7 @@ errors = IOBuffer()
 # Test analytics 
 @test delay_factor(curric) == (32.0, [5.0, 5.0, 4.0, 5.0, 3.0, 5.0, 5.0])
 @test blocking_factor(curric) == (16, [6, 3, 4, 2, 0, 0, 1])
-@test centrality(curric) == (72, [0, 22, 15, 22, 0, 0, 13])
+@test centrality(curric) == (49, [0, 9, 12, 18, 0, 0, 10])
 @test complexity(curric) == (48.0, [11.0, 8.0, 8.0, 7.0, 3.0, 5.0, 6.0])
 
 
