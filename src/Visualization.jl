@@ -78,7 +78,7 @@ Keyword:
 """
 function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, edit::Bool=false, min_term::Int=1, output_file="edited_curriculum.csv", 
                     show_delay::Bool=false, show_blocking::Bool=false, show_centrality::Bool=false, show_complexity::Bool=false, scale::Real=1)
-    num_courses = length(curric.courses)
+    num_courses = curric.num_courses
     if num_courses <= 8
         max_credits_per_term = 12
     elseif num_courses <= 16
@@ -90,19 +90,19 @@ function visualize(curric::Curriculum; changed=nothing, notebook::Bool=false, ed
     elseif num_courses <= 40
         max_credits_per_term = 21
     elseif num_courses <= 48
-        max_credits_per_term = 23
+        max_credits_per_term = 21
     elseif num_courses <= 56
-        max_credits_per_term = 26    
+        max_credits_per_term = 21    
     elseif num_courses <= 64
-        max_credits_per_term = 29
+        max_credits_per_term = 21
     elseif num_courses <= 72
-        max_credits_per_term = 32
+        max_credits_per_term = 21
     elseif num_courses <= 80
-        max_credits_per_term = 35
+        max_credits_per_term = 24
     elseif num_courses <= 88
-        max_credits_per_term = 38
+        max_credits_per_term = 24
     elseif num_courses <= 96
-        max_credits_per_term = 41
+        max_credits_per_term = 24
     else
         error("Curriculum is too big to visualize.")
     end
