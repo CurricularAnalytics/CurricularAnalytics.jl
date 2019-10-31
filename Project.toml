@@ -1,7 +1,7 @@
 name = "CurricularAnalytics"
 uuid = "593ffa3d-269e-5d81-88bc-c3b6809c35a6"
 authors = ["Greg Heileman <gregheileman@gmail.com>", "Hayden Free <hayden.free@uky.edu>", "Orhan Abar <orhan.abar@uky.edu>", "Will Thompson <wgthompson@uky.edu>"]
-version = "0.6.2"
+version = "0.6.3"
 
 [deps]
 Blink = "ad839575-38b3-5650-b840-f874b8c74a25"
