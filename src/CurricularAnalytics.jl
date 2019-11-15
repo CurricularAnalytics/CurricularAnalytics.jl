@@ -371,7 +371,7 @@ function complexity(c::Curriculum)
     return c.metrics["complexity"] = curric_complexity, course_complexity
 end
 
-# Find all fo the longest paths in a curriculum.
+# Find all the longest paths in a curriculum.
 """
     longest_paths(c::Curriculum)
     

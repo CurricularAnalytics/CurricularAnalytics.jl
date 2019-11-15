@@ -314,7 +314,7 @@ function longest_path(g::AbstractGraph{T}, s::Int) where T
     return lp
 end
 
-# Find all fo the longest paths in an acyclic graph.
+# Find all of the longest paths in an acyclic graph.
 """
     longest_paths(g)
     
