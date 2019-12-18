@@ -19,7 +19,7 @@ In order to be considered *minimally feasible*, a degree plan $P$ for a curricul
 
 The Curricular Analytics Toolbox also allows you to create customized degree plans according to various user-specifed criteria.  These features make use of the [JuMP](https://github.com/JuliaOpt/JuMP.jl) domain-specific language for specifying optimization problems in Julia, and calls the [Gurobi](https://www.gurobi.com) solver in order to solve the optimzaton problems.  In order to use these features you must first install JuMP and Gurobi.  For installation instructions see [Additional Requirements](@ref) in the Installation section.
 
-A brief overview of how we have structured the degree plan creation process as an optimzation problem is provided next.  Assume a curriculum consisting of $n$ courses is organized over $m$ terms. The degree plan creation process involves a partitioning of the $n$ courses in a curriculum into $m$ disjoint sets. Thus, we can represent a degree plan an $n \times m$ binary-valued assignment matrix $x$, where
+A brief overview of how we have structured the degree plan creation process as an optimization problem is provided next.  Assume a curriculum consisting of $n$ courses is organized over $m$ terms. The degree plan creation process involves a partitioning of the $n$ courses in a curriculum into $m$ disjoint sets. Thus, we can represent a degree plan an $n \times m$ binary-valued assignment matrix $x$, where
 
 ```math
   x_{ij} = \left\{
@@ -37,7 +37,7 @@ The two conditions required for a degree plan to be minimally feasible can be ex
   \mbox{Constraint 1:} \ \ \sum_{j=1}^m  x_{ij} = 1, \ \ \ \ i = 1 \ldots n.
 ```
 
-If we let $T_i$ denote the term that course $i$ is assigned to, i.e., $T_i = j \iff x_{ij} = 1$, then the second condition, which requires the assignment to satisfy all requisites, yeilds three constraints depending upon the requisite type.  That is, if course $a$ is a *requisite* for course $b$, then:
+If we let $T_i$ denote the term that course $i$ is assigned to, i.e., $T_i = j \iff x_{ij} = 1$, then the second condition, which requires the assignment to satisfy all requisites, yields three constraints depending upon the requisite type.  That is, if course $a$ is a *requisite* for course $b$, then:
 
 ```math
   \mbox{Constraint 2 (prerequisite):} \ \ T_a \ < \ T_b, \\
@@ -51,7 +51,7 @@ Note that $T_i$ can be obtained from the assignment matrix using:
  T_i = \sum_{j=1}^m j \cdot x_{ij}. 
 ```
 
-In order to guide the optimzation algorithms towards reasonable soluations, additional constraints are required.  In partciular, it is necessarey to specify the maximum number of terms you would like the degree plan to contain, denoted $\alpha$, as well as the minimum and maximum  number of credit hours allowed in each term, denoted $\beta$ and $\gamma$ respectively. If we let $c_i$ denote the number of credit hours associated with course $i$, and $\theta_j$ the number of credit hours in term $j$, then
+In order to guide the optimization algorithms towards reasonable solutions, additional constraints are required.  In particular, it is necessarFurthemore, this toolbox supports a multi-objectivey to specify the maximum number of terms you would like the degree plan to contain, denoted $\alpha$, as well as the minimum and maximum  number of credit hours allowed in each term, denoted $\beta$ and $\gamma$ respectively. If we let $c_i$ denote the number of credit hours associated with course $i$, and $\theta_j$ the number of credit hours in term $j$, then
 
 ```math
  \theta_j = \sum_{i=1}^n c_i \cdot x_{ij}, \ \ \ \ j = 1, \ldots, m,
@@ -67,7 +67,7 @@ In order to guide the optimzation algorithms towards reasonable soluations, addi
 
 ### Objective Functions
 
-A number of different objective functions have been defined for use in creating degree plans optimized around particular criteria.  Furthemore, this toolbox supports a multi-objetive framework, allowing more than one of these objective functions to be simultaneously applied while creating degree plans.  
+A number of different objective functions have been defined for use in creating degree plans optimized around particular criteria.  Furthermore, this toolbox supports a multi-objective framework, allowing more than one of these objective functions to be simultaneously applied while creating degree plans.  
 
 For a single objective function $f(x)$, the optimzation problem can be stated as:
 ```math
@@ -75,7 +75,7 @@ For a single objective function $f(x)$, the optimzation problem can be stated as
 \mbox{subject to: Constraints} \ \ 1-7.
 ```
 
-For multiple objective functions $f_1(x), f(_2(x), \ldots$  the mulit-objective optimzation problem can be stated as:
+For multiple objective functions $f_1(x), f(_2(x), \ldots$  the multi-objective optimization problem can be stated as:
 ```math
 \min \left\{ f_1(x), \ f_2(x), \ldots \right\}, \\
 \mbox{subject to: Constraints} \ \ 1-7.
@@ -107,16 +107,16 @@ Let $-1 \leq \aleph_{ij} \leq 1$ denote the toxic impact that course $i$ has on 
 f(x) = \min \left( \sum_{t=1}^m \sum_{i=1}^n \sum_{j=1}^n  \aleph_{ij} \cdot x_{it} \cdot x_{jt} \right).
 ```
 
-The `optimize_plan` function in the toolbox implements the optimziation problems described above.
+The `optimize_plan` function in the toolbox implements the optimization problems described above.
 
 ```julia
 optimize_plan(c::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, obj_order::Array{String, 1}; diff_max_cpt::Array{UInt, 1}, fix_courses::Dict, consec_courses::Dict, term_range::Dict, prior_courses::Array{Term, 1})
 ```
 
-Using the curriculum `c` supplied as input, returns a degree plan optimzed according to the various 
+Using the curriculum `c` supplied as input, returns a degree plan optimized according to the various 
 optimization criteria that have been specified as well as the objective functions that have been selected.
 
-If an optimzied plan cannot be constructed (i.e., the constraints are such that an optimal solution is infeasible),
+If an optimized plan cannot be constructed (i.e., the constraints are such that an optimal solution is infeasible),
 `nothing` is returned, and the solver returns a message indicating that the problems is infeasible.  In these cases,
 you may wish to experiment with the constraint values.
 
