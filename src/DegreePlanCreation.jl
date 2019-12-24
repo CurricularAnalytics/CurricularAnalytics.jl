@@ -227,11 +227,10 @@ function bin_filling(curric::Curriculum, limit::Int; additional_courses::Array{C
     terms = Array{Term,1}()
     term_credits = 0
     term_courses = Course[]
-    UC = collect(vertices(curric.graph))
+    UC = sort!(deepcopy(curric.courses), by=course_num)
     while length(UC) > 0
-        if ((v = select(curric, term_courses, UC)) != nothing)
-            deleteat!(UC, findfirst(isequal(v), UC))
-            c = course_from_vertex(curric, v)
+        if ((c = select(curric, term_courses, UC)) != nothing)
+            deleteat!(UC, findfirst(isequal(c), UC))
             if term_credits + c.credit_hours <= limit
                 append!(term_courses, [c])
                 term_credits = term_credits + c.credit_hours
@@ -250,23 +249,24 @@ function bin_filling(curric::Curriculum, limit::Int; additional_courses::Array{C
     return terms
 end
 
-function select(curric::Curriculum, term_courses::Array{Course,1}, UC::Array{Int64,1})
+function select(curric::Curriculum, term_courses::Array{Course,1}, UC::Array{Course,1})
     for target in UC
+        t_id = target.vertex_id[curric.id]
         UCs = deepcopy(UC)
-        deleteat!(UCs, findfirst(isequal(target), UCs))
+        deleteat!(UCs, findfirst(c->c.id==target.id, UCs))
         invariant1 = true
         for source in UCs
-            vlist = reachable_from(curric.graph, source)
-            if target in vlist  # target cannot be moved to AC
+            s_id = source.vertex_id[curric.id]
+            vlist = reachable_from(curric.graph, s_id)
+            if t_id in vlist  # target cannot be moved to AC
                 invariant1 = false  # invariant 1 violated
                 break  # try a new target
             end
         end
         if invariant1 == true
-            reqs = inneighbors(curric.graph, target)
             invariant2 = true
             for c in term_courses
-                if c.vertex_id[curric.id] in reqs && course_from_vertex(curric, target).requisites[c.id] == pre
+                if c.id in collect(keys(target.requisites)) && target.requisites[c.id] == pre  # AND shortcircuits, otherwise 2nd expression will error
                     invariant2 = false
                     break  # try a new target
                 end
@@ -279,5 +279,6 @@ function select(curric::Curriculum, term_courses::Array{Course,1}, UC::Array{Int
     return nothing
 end
 
-
-
+function course_num(c::Course)
+    c.num != "" ? c.num : c.name
+end
