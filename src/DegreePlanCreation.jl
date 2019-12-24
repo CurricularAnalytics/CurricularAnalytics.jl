@@ -135,14 +135,14 @@ function create_terms(curric::Curriculum; term_count::Int, min_credits_per_term:
                                     break
                                 end
                                 credit_add +=  curric.courses[ngbr].credit_hours
-                                push!(courses_to_add,ngbr)
+                                push!(courses_to_add, ngbr)
                             end
                         end
                         if can_be_added && total_credits_for_current_term + credit_add <= max_credits_per_term
                             total_credits_for_current_term += credit_add
                             for course_index in courses_to_add
                                 push!(termclasses, curric.courses[course_index])
-                                push!(this_term_applied_courses,course_index)
+                                push!(this_term_applied_courses, course_index)
                             end
                         end
                         #Check if current term is full
@@ -221,4 +221,63 @@ function bin_packing2(curric::Curriculum, additional_courses::Array{Course}=Arra
     end
     return false
 end
+
+function bin_filling(curric::Curriculum, limit::Int; additional_courses::Array{Course}=Array{Course,1}(), 
+    min_terms::Int=1, max_terms::Int=8, min_credits_per_term::Int=3, max_credits_per_term::Int=19)
+    terms = Array{Term,1}()
+    term_credits = 0
+    term_courses = Course[]
+    UC = collect(vertices(curric.graph))
+    while length(UC) > 0
+        if ((v = select(curric, term_courses, UC)) != nothing)
+            deleteat!(UC, findfirst(isequal(v), UC))
+            c = course_from_vertex(curric, v)
+            if term_credits + c.credit_hours <= limit
+                append!(term_courses, [c])
+                term_credits = term_credits + c.credit_hours
+            else  
+                append!(terms, [Term(term_courses)])
+                term_courses = Course[c] 
+                term_credits = c.credit_hours
+            end
+        else  # can't find a course to add to current term, create a new term
+            length(term_courses) > 0 ? append!(terms, [Term(term_courses)]) : nothing
+            term_courses = Course[]
+            term_credits = 0
+        end
+    end
+    length(term_courses) > 0 ? append!(terms, [Term(term_courses)]) : nothing
+    return terms
+end
+
+function select(curric::Curriculum, term_courses::Array{Course,1}, UC::Array{Int64,1})
+    for target in UC
+        UCs = deepcopy(UC)
+        deleteat!(UCs, findfirst(isequal(target), UCs))
+        invariant1 = true
+        for source in UCs
+            vlist = reachable_from(curric.graph, source)
+            if target in vlist  # target cannot be moved to AC
+                invariant1 = false  # invariant 1 violated
+                break  # try a new target
+            end
+        end
+        if invariant1 == true
+            reqs = inneighbors(curric.graph, target)
+            invariant2 = true
+            for c in term_courses
+                if c.vertex_id[curric.id] in reqs && course_from_vertex(curric, target).requisites[c.id] == pre
+                    invariant2 = false
+                    break  # try a new target
+                end
+            end
+            if invariant2 == true
+                return target
+            end
+        end
+    end
+    return nothing
+end
+
+
 
