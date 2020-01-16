@@ -126,7 +126,7 @@ mutable struct Course
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
-        this.vertex_id = Dict{Int, Int}()
+        this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id
         return this
     end
 end

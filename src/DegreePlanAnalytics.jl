@@ -76,28 +76,28 @@ function basic_metrics(plan::DegreePlan)
 
  # Degree plan metrics based upon the distance between requsites and the classes that require them.
  """
-    requisite_distance(DegreePlan, course::Int)
+    requisite_distance(DegreePlan, course::Course)
 
-For a given degree plan `plan` and course `course`, this function computes the total distance between `course` and 
-each of its requisites.  
+For a given degree plan `plan` and target course `course`, this function computes the total distance between `course` and 
+all of its requisites.  
 
 # Arguments
 Required:
 - `plan::DegreePlan` : a valid degree plan (see [Degree Plans](@ref)).
-- `course::Int` : the vertex ID of a course in the curriclum graph `plan.curriculum.graph`.
+- `course::Course` : the target course.
 
-
-The distance between a course a requisite is given by the number of terms that separate 
-the course from its requisite in the degree plan.  If we let ``T_i^p`` denote the term in degree plan ``p`` that course ``c_i`` 
-appears in, then for a degree plan with underlying curriculum graph ``G_c = (V,E)``, the requisite distance for course 
-``c_i`` in degree plan ``p``, denoted ``rd_{v_i}^p``, is:
+The distance between a target course and one of its requisites is given by the number of terms that separate the target 
+course from the particular requisite in the degree plan.  To compute the requisite distance, we sum this distance over all
+requisites.  That is, if let ``T_i^p`` denote the term in degree plan ``p`` that course ``c_i`` appears in, then for a 
+degree plan with underlying curriculum graph ``G_c = (V,E)``, the requisite distance for course ``c_i`` in degree plan ``p``, 
+denoted ``rd_{v_i}^p``, is:
 
 ```math
 rd_{v_i}^p = \\sum{(v_i, v_j) \\in E} (T_i - T_j).
 ```
 
 In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
-The requisite distance metric computed by this function will be stored in the associated `Course` data object.
+The requisite distance metric computed by this function is stored in the associated `Course` data object.
 """
 function requisite_distance(plan::DegreePlan, course::Course)
     distance = 0
