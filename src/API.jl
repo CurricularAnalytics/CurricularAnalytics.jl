@@ -1,4 +1,4 @@
-#TODO - Inlucde documentation in this file such that it builds to GitHub Pages
+#TODO - Include documentation in this file such that it builds to GitHub Pages
 
 using Bukdu
 
@@ -36,7 +36,7 @@ end
 routes() do
     get("/healthcheck", RESTController, healthcheck)
     post("/validate", RESTController, validate)
-    post("/matrics", RESTController, calculate_metrics)
+    post("/metrics", RESTController, calculate_metrics)
     # create degree plan from curriculum
     plug(Plug.Parsers, parsers=[:json])
 end
