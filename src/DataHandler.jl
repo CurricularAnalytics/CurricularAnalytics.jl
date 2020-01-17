@@ -523,6 +523,92 @@ function prepare_data(degree_plan::DegreePlan; edit::Bool=false, hide_header::Bo
     end
     return dp_dict
 end
+
+function json_to_julia(json_tuple::NamedTuple)
+    # Create an array "terms" with elements equal to the number of terms from the file
+    num_terms = length(json_tuple.curriculum_terms)
+    terms = Array{Term}(undef, num_terms)
+    all_courses = Array{Course}(undef, 0)
+    courses_dict = Dict{Int, Course}()
+    # For every term
+    for i = 1:num_terms
+        # Grab the current term
+        current_term = json_tuple[:curriculum_terms][i]
+        # Create an array of course objects for the current term
+        courses = Array{Course}(undef, 0)
+        # For each course in the current term
+        for course in current_term[:curriculum_items]
+            # Check if nameSub is defined on the current course
+            if(:nameSub in keys(json_tuple.curriculum_terms[2][:curriculum_items][1]))
+                # If it is, use nameSub as the course name when constructing the course object
+                current_course = Course(course[:nameSub], course[:credits])
+            else
+                # Otherwise, just use the normal course :name
+                current_course = Course(course[:name], course[:credits])
+            end
+            # Push each Course object to the array of courses
+            push!(courses, current_course)
+            push!(all_courses, current_course)
+            courses_dict[course.id] = current_course
+        end
+
+        # For each course object create its requisites
+        for course in current_term[:curriculum_items]
+            # If the course has requisites
+            if !isempty(course[:curriculum_requisites])
+                # For each requisite of the course
+                for req in course[:curriculum_requisites]
+                    # Create the requisite relationship
+                    source = courses_dict[req[:source_id]]
+                    target = courses_dict[req[:target_id]]
+                    add_requisite!(source, target, string_to_requisite(req[:type]))
+                end
+            end
+        end
+        # Set the current term to be a Term object
+        terms[i] = Term(courses)
+    end
+    curric = Curriculum("Underwater Basket Weaving", all_courses)
+    degreeplan = DegreePlan("My Plan", curric, terms)
+    return degreeplan
+end
+
+function julia_to_json(degreeplan::DegreePlan)
+    json_dp = Dict{String, Any}()
+    json_dp["curriculum"] = Dict{String, Any}()
+    json_dp["curriculum"]["name"] = degreeplan.name
+    json_dp["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
+    for i = 1:degreeplan.num_terms
+        current_term = Dict{String, Any}()
+        current_term["id"] = i
+        current_term["name"] = "Term $i"
+        current_term["curriculum_items"] = Dict{String, Any}[]
+        for course in degreeplan.terms[i].courses
+            current_course = Dict{String, Any}()
+            current_course["id"] = course.id
+            current_course["name"] = course.name
+            # current_course["nameSub"] = course.name
+            # current_course["name"] =  course.prefix * " " * course.num
+            # current_course["prefix"] =  course.prefix
+            # current_course["num"] = course.num
+            current_course["credits"] = course.credit_hours
+            current_course["curriculum_requisites"] = Dict{String, Any}[]
+            current_course["metrics"] = course.metrics
+            for req in collect(keys(course.requisites))
+                current_req = Dict{String, Any}()
+                current_req["source_id"] = req
+                current_req["target_id"] = course.id
+                # Parse the Julia requisite type to the required type for the visualization
+                current_req["type"] = requisite_to_string(course.requisites[req])
+                push!(current_course["curriculum_requisites"], current_req)
+            end
+            push!(current_term["curriculum_items"], current_course)
+        end
+        push!(json_dp["curriculum"]["curriculum_terms"], current_term)
+    end
+    return json_dp
+end
+
 function read_Opt_Config(file_path)
     file_path = remove_empty_lines(file_path)
     if typeof(file_path) == Bool && !file_path
