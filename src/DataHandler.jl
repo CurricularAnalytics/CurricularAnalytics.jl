@@ -472,6 +472,17 @@ function requisite_to_string(req::Requisite)
     end
 end
 
+# Returns a requisite (enumerated type) from a string
+function string_to_requisite(req::String)
+    if req == "CurriculumPrerequisite"
+        return pre
+    elseif req == "CurriculumCorequisite"
+        return co
+    else
+        return strict_co
+    end
+end
+
 function prepare_data(degree_plan::DegreePlan; edit::Bool=false, hide_header::Bool=false, show_delay::Bool=true, 
                         show_blocking::Bool=true, show_centrality::Bool=true, show_complexity::Bool=true)
     dp_dict = Dict{String,Any}()
