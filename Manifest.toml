@@ -63,12 +63,6 @@ git-tree-sha1 = "cbce79ce8bfa1a576bb0a166ce75e7b92a575098"
 uuid = "ad839575-38b3-5650-b840-f874b8c74a25"
 version = "0.12.0"
 
-[[Bukdu]]
-deps = ["Dates", "Documenter", "HTTP", "InteractiveUtils", "JSON2", "Logging", "MbedTLS", "Sockets", "URIParser"]
-git-tree-sha1 = "8e1e8692ef860f2cdb27baab66a5eae4ef9cf350"
-uuid = "3e78a19a-cc83-51d8-955b-515f39fd7955"
-version = "0.4.6"
-
 [[CSTParser]]
 deps = ["Tokenize"]
 git-tree-sha1 = "99dda94f5af21a4565dc2b97edf6a95485f116c3"
@@ -344,12 +338,6 @@ deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "b34d7cef7b337321e97d22242c3c2b91f476748e"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.0"
-
-[[JSON2]]
-deps = ["Dates", "Parsers", "Test"]
-git-tree-sha1 = "6cbbbab27d9411946725f5d5c91e8b8fb5f7d5db"
-uuid = "2535ab7d-5cd8-5a07-80ac-9b1792aadce3"
-version = "0.3.1"
 
 [[JuMP]]
 deps = ["Calculus", "Compat", "ForwardDiff", "MathProgBase", "ReverseDiffSparse"]
