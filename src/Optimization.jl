@@ -28,7 +28,7 @@ function term_count_obj(model, mask, x, c_count, multi=true)
     end
 end
 
-# Objective function for balancing credit hours as evenly as possible across a degree plan
+# Objective function for evenly balancing credit hours across a degree plan
 function balance_obj(model, max_cpt, term_count, x, y, credit, multi=true)
     total_credit_term = [sum(dot(credit,x[:,j])) for j=1:term_count]
     # Work around for computing absoluate value: when y was declared as a variable, it was constratined to be >= 0, so only 
@@ -48,25 +48,33 @@ function balance_obj(model, max_cpt, term_count, x, y, credit, multi=true)
 end
 
 # Objective function for minimizing toxic course combinations in a degree plan
-function toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric_id, multi=true)
-    toxicFile = readfile(toxic_score_file)
-    comboDict = Dict()
-    for coursePair in toxicFile[1:end]
-        coursePair = split(coursePair, ",")
-        comboDict[replace(coursePair[1], " " => "") * "_" * replace(coursePair[2], " " => "")] = parse(Float64, coursePair[3]) + 1
+function toxicity_obj(model::JuMP.Model, c_count, courses, term_count, x, ts, curric_id, multi=true; toxicity_file::AbstractString="",
+                      toxicity_dict::Dict{Pair{Course,Course},Float64}=Dict{Pair{Course,Course},Float64}())
+    toxicity = Dict{Pair{AbstractString,AbstractString},Float64}()
+    if toxicity_file != ""
+        file = readfile(toxicity_file)
+        for row in file[1:end]
+            row = split(row, ",")
+            # strip out all extra spaces between course prefix and number, and store toxicity score in toxicity dictionary
+            toxicity[Pair(replace(row[1], " " => ""), replace(row[2], " " => ""))] = parse(Float64, row[3]) + 1
+        end
+    elseif length(toxicity_dict) > 0  # convert the input dictionary into a simpler dicitionary 
+        for course_pair in keys(toxicity_dict)
+            toxicity[Pair(course_pair[1].prefix * course_pair[1].num, course_pair[2].prefix * course_pair[2].num)] = toxicity_dict[course_pair]
+        end
     end
-    toxicity_scores = zeros((c_count, c_count))
-    for course in courses
-        for innerCourse in courses
-            if course != innerCourse 
-                if course.prefix * course.num * "_" * innerCourse.prefix * innerCourse.num in keys(comboDict)
-                    toxicity_scores[course.vertex_id[curric_id], innerCourse.vertex_id[curric_id]] = comboDict[course.prefix * course.num * "_" * innerCourse.prefix * innerCourse.num]
+    toxicity_matrix = zeros((c_count, c_count))
+    for c1 in courses
+        for c2 in courses
+            if c1 != c2 
+                if Pair(c1.prefix * c1.num, c2.prefix * c2.num) in keys(toxicity)
+                    toxicity_matrix[c1.vertex_id[curric_id], c2.vertex_id[curric_id]] = toxicity[Pair(c1.prefix * c1.num, c2.prefix * c2.num)]
                 end
             end
         end
     end
     for j=1:term_count
-        push!(ts, sum((toxicity_scores .* x[:,j]) .* x[:,j]'))
+        push!(ts, sum((toxicity_matrix .* x[:,j]) .* x[:,j]'))
     end
     if multi
         exp = @expression(model, sum(ts[:]))
@@ -95,7 +103,7 @@ function req_distance_obj(model, mask, x, graph, distance,  multi=true)
 end
 
 # This version of the optimize_plan function takes a configuration file, and a curriculum/degree plan as a file.
-function optimize_plan(config_file, curric_degree_file, toxic_score_file="")
+function optimize_plan(config_file, curric_degree_file, toxicity_file="")
     # read parameters from the configuration file
     consec_courses, fix_courses, term_range, term_count, min_cpt, max_cpt,
         obj_order, diff_max_cpt = read_Opt_Config(config_file)
@@ -215,10 +223,10 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file="")
         objectives = []
         for objective in obj_order
             if objective == "Toxicity"
-                push!(objectives, toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric.id, multi))
+                push!(objectives, toxicity_obj(model, c_count, courses, term_count, x, ts, curric.id, multi, toxicity_file=toxicity_file))
             end
             if objective == "Balance"
-                push!(objectives, balance_obj(model,max_cpt, term_count, x, y, credit, multi))
+                push!(objectives, balance_obj(model, max_cpt, term_count, x, y, credit, multi))
             end
             if objective == "Prereq"
                 push!(objectives, req_distance_obj(model, mask, x, curric.graph, distance, multi))
@@ -228,7 +236,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file="")
         multim.objectives = objectives
     else
         if obj_order[1] == "Toxicity"
-            toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric.id, multi)
+            toxicity_obj(model, c_count, courses, term_count, x, ts, curric.id, multi, toxicity_file=toxicity_file)
         end
         if obj_order[1] == "Balance"
             balance_obj(model, max_cpt, term_count, x, y, credit, multi)
@@ -319,7 +327,7 @@ julia> dp = optimize_plan(curric, 8, 6, 18, ["Balance", "Prereq"])
 ```
 """
 function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, obj_order::Array{String, 1}; 
-                        toxic_score_file::String = "", diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), 
+                        toxicity_file::AbstractString="", diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), 
                         fix_courses::Dict=Dict(), consec_courses::Dict=Dict(), term_range::Dict=Dict(), 
                         prior_courses::Array{Term, 1}=Array{Term}(undef, 0))
     
@@ -430,7 +438,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         objectives = []
         for objective in obj_order
             if objective == "Toxicity"
-                push!(objectives, toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric.id, multi))
+                push!(objectives, toxicity_obj(model, c_count, courses, term_count, x, ts, curric.id, multi, toxicity_file=toxicity_file))
             elseif objective == "Balance"
                 push!(objectives, balance_obj(model, max_cpt, term_count, x, y, credit, multi))
             elseif objective == "Prereq"
@@ -443,7 +451,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         multim.objectives = objectives
     else
         if obj_order[1] == "Toxicity"
-            toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric.id, multi)
+            toxicity_obj(model, c_count, courses, term_count, x, ts, curric.id, multi, toxicity_file=toxicity_file)
         end
         if obj_order[1] == "Balance"
             balance_obj(model, max_cpt, term_count, x, y, credit, multi)

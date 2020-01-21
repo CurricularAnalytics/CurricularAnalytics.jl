@@ -26,7 +26,6 @@ WebIO = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
 
 [compat]
 Blink = "0.12.0"
-Bukdu = "0.4.4"
 CSV = "0.5.9"
 DataFrames = "0.19.1"
 DataStructures = "0.17.0"
