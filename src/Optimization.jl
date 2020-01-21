@@ -51,9 +51,9 @@ end
 function toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric_id, multi=true)
     toxicFile = readfile(toxic_score_file)
     comboDict = Dict()
-    for coursePair in toxicFile[2:end] 
+    for coursePair in toxicFile[1:end]
         coursePair = split(coursePair, ",")
-        comboDict[replace(coursePair[1], " " => "") * "_" * replace(coursePair[2], " " => "")] = parse(Float64,coursePair[9]) + 1
+        comboDict[replace(coursePair[1], " " => "") * "_" * replace(coursePair[2], " " => "")] = parse(Float64, coursePair[3]) + 1
     end
     toxicity_scores = zeros((c_count, c_count))
     for course in courses
@@ -145,7 +145,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file="")
                 elseif req[2] == strict_co
                     @constraint(model, dot(x[vertex_map[req[1]],:], mask) == sum(dot(x[c.vertex_id[curric.id],:], mask)))
                 else
-                    println("requisite type error")
+                    println("requisite error")
                 end
             end
         end   
@@ -216,7 +216,7 @@ function optimize_plan(config_file, curric_degree_file, toxic_score_file="")
         objectives = []
         for objective in obj_order
             if objective == "Toxicity"
-                push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses ,term_count, x, ts, curric.id, multi))
+                push!(objectives, toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric.id, multi))
             end
             if objective == "Balance"
                 push!(objectives, balance_obj(model,max_cpt, term_count, x, y, credit, multi))
@@ -306,11 +306,11 @@ you may wish to experiment with the constraint values.
   * `Prereq` - the requisite distnace objective described above.
   * `Toxicity` - the toxic course avoidance objective described above.
 - `toxic_score_file::String`: file path to toxicity scores CSV
-- `diff_max_cpt::Array{UInt, 1}` :  specify particular terms that may deviate from the `max_cpt` specified previously.
+- `diff_max_cpt::Array{UInt, 1}` : specify particular terms that may deviate from the `max_cpt` value.
 - `fix_courses::Dict(Int, Int)` : specify courses that should be assigned to particular terms in `(course_id, term)` 
     format.
 - `consec_courses::Dict(Int, Int)`: specify pairs of courses that should appear in consecutive terms in `(course_id, course_id)` format.
-- `term_range::Dict(Int, (Int, Int))` : specify courses that should in a particular range of terms in `(course_id, (low_range, high_range))` format.
+- `term_range::Dict(Int, (Int, Int))` : specify courses that should appear in a particular range of terms in `(course_id, (low_range, high_range))` format.
 - `prior_courses::Array{Term, 1}` : specify courses that were already completed in prior terms.
 
 # Example
@@ -353,7 +353,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
     @variable(model, y[1:term_count, 1:term_count] >= 0) # Variables used for balanced curriculum objective function.
     ts=[]
     distance = []
-    # Iterate through all courses and create basic requisite constraints
+    # Iterate through all courses and create the basic requisite constraints
     for c in courses
         for req in c.requisites
             if !(req[1] in prior_courses)
@@ -431,9 +431,9 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         objectives = []
         for objective in obj_order
             if objective == "Toxicity"
-                push!(objectives, toxicity_obj(toxic_score_file, model,c_count, courses, term_count, x, ts, curric.id, multi))
+                push!(objectives, toxicity_obj(toxic_score_file, model, c_count, courses, term_count, x, ts, curric.id, multi))
             elseif objective == "Balance"
-                push!(objectives, balance_obj(model,max_cpt, term_count, x, y, credit, multi))
+                push!(objectives, balance_obj(model, max_cpt, term_count, x, y, credit, multi))
             elseif objective == "Prereq"
                 push!(objectives, req_distance_obj(model, mask, x, curric.graph, distance, multi))
             elseif haskey(custom_objectives, objective)
