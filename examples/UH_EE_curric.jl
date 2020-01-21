@@ -1,6 +1,8 @@
 ## Curriculum assoicated with the University of Houston EE program in 2018
 ## Note: curriculum was created in 2016-17 and was still used in 2018
 
+using CurricularAnalytics
+
 # create the courses
 c = Array{Course}(undef,49)
 # term 1
@@ -35,31 +37,31 @@ c[24] = Course("Microprocessors", 3, prefix = "ECE", num = "3436")
 c[25] = Course("Creative Arts Core", 3)
 c[26] = Course("Electronics Lab", 1, prefix = "ECE", num = "3155")
 c[27] = Course("Electronics", 3, prefix = "ECE", num = "3355")
-c[28] = Course("Concentration Elective 1", 3)
+c[28] = Course("Concentration Elective", 3)
 c[29] = Course("Applied EM Waves", 3, prefix = "ECE", num = "3317")
-c[30] = Course("ECE Elective 1", 3)
+c[30] = Course("ECE Elective", 3)
 # term 6
 c[31] = Course("US Gov: Congress, President and Courts", 3, prefix = "POLS", num = "1337")
 c[32] = Course("Engineering Statistics", 3, prefix = "INDE", num = "2333")
-c[33] = Course("Elective Lab 1", 1)
-c[34] = Course("Concentration Elective 2", 3)
+c[33] = Course("Elective Lab", 1)
+c[34] = Course("Concentration Elective", 3)
 c[35] = Course("Numerical Methods", 3, prefix = "ECE", num = "3340")
-c[36] = Course("ECE Elective 2", 3)
+c[36] = Course("ECE Elective", 3)
 # term 7
 c[37] = Course("Microeconomic Principles", 3, prefix = "ECON", num = "2304")
 c[38] = Course("ECE Design I", 3, prefix = "ECE", num = "4335")
-c[39] = Course("Elective Lab 2", 1)
-c[40] = Course("Concentration Elective 3", 3)
-c[41] = Course("Concentration Elective 4", 3)
-c[42] = Course("Technical Elective", 3)
+c[39] = Course("Elective Lab", 1)
+c[40] = Course("Concentration Elective", 3)
+c[41] = Course("Concentration Elective", 3)
+c[42] = Course("Tecnical Elective", 3)
 # term 8
 c[43] = Course("Lang., Phil. & Culture Core", 3)
 c[44] = Course("ECE Design II", 3, prefix = "ECE", num = "4336")
-c[45] = Course("Elective Lab 3", 1)
-c[46] = Course("Concentration Elective 5", 3)
-c[47] = Course("Concentration Elective 6", 3)
-c[48] = Course("Concentration Elective 7", 3)
-c[49] = Course("Elective Lab 4", 1)
+c[45] = Course("Elective Lab", 1)
+c[46] = Course("Concentration Elective", 3)
+c[47] = Course("Concentration Elective", 3)
+c[48] = Course("Concentration Elective", 3)
+c[49] = Course("Elective Lab", 1)
 
 # term 1
 add_requisite!(c[2],c[8],pre)
@@ -115,16 +117,40 @@ add_requisite!(c[38],c[44],pre)
 
 curric = Curriculum("University of Houston EE Program", c)
 
-complexity(curric)
+errors = IOBuffer()
+if isvalid_curriculum(curric, errors)
+    println("Curriculum $(curric.name) is valid")
+    println("  delay factor = $(delay_factor(curric))")
+    println("  blocking factor = $(blocking_factor(curric))")
+    println("  centrality factor = $(centrality(curric))")
+    println("  curricular complexity = $(complexity(curric))")
 
-terms = Array{Term}(undef, 8)
-terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
-terms[2] = Term([c[7],c[8],c[9],c[10],c[11],c[12]])
-terms[3] = Term([c[13],c[14],c[15],c[16],c[17],c[18]])
-terms[4] = Term([c[19],c[20],c[21],c[22],c[23],c[24]])
-terms[5] = Term([c[25],c[26],c[27],c[28],c[29],c[30]])
-terms[6] = Term([c[31],c[32],c[33],c[34],c[35],c[36]])
-terms[7] = Term([c[37],c[38],c[39],c[40],c[41],c[42]])
-terms[8] = Term([c[43],c[44],c[45],c[46],c[47],c[48],c[49]])
+    terms = Array{Term}(undef, 8)
+    terms[1] = Term([c[1],c[2],c[3],c[4],c[5],c[6]])
+    terms[2] = Term([c[7],c[8],c[9],c[10],c[11],c[12]])
+    terms[3] = Term([c[13],c[14],c[15],c[16],c[17],c[18]])
+    terms[4] = Term([c[19],c[20],c[21],c[22],c[23],c[24]])
+    terms[5] = Term([c[25],c[26],c[27],c[28],c[29],c[30]])
+    terms[6] = Term([c[31],c[32],c[33],c[34],c[35],c[36]])
+    terms[7] = Term([c[37],c[38],c[39],c[40],c[41],c[42]])
+    terms[8] = Term([c[43],c[44],c[45],c[46],c[47],c[48],c[49]])
 
-dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
+    dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
+
+    take!(errors) # clear the IO buffer
+    if isvalid_degree_plan(dp, errors)
+        println("Degree plan $(dp.name) is valid")
+    else
+        println("Degree plan $(dp.name) is not valid:")
+        print(String(take!(errors)))
+        println("\nDiplaying degree plan for debugging purposes...")
+    end
+
+    basic_metrics(dp)
+    dp.metrics
+    visualize(dp)
+
+else # invalid curriculum
+    println("Curriculum $(curric.name) is not valid:")
+    print(String(take!(errors)))
+end

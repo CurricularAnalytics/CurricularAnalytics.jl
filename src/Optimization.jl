@@ -94,8 +94,7 @@ function req_distance_obj(model, mask, x, graph, distance,  multi=true)
     end
 end
 
-# Should be able to pass the curriculum as an object. Currently can only be passed as a file. 
-# Configuration options should be passable via args, not just as a file.
+# This version of the optimize_plan function takes a configuration file, and a curriculum/degree plan as a file.
 function optimize_plan(config_file, curric_degree_file, toxic_score_file="")
     # read parameters from the configuration file
     consec_courses, fix_courses, term_range, term_count, min_cpt, max_cpt,
