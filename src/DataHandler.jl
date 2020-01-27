@@ -5,72 +5,83 @@ using DataFrames
 # Returns a requisite as a string for visualization
 function requisite_to_string(req::Requisite)
     if req == pre
-        return "prereq"
+        return "CurriculumPrerequisite"
     elseif req == co
-        return "coreq"
+        return "CurriculumCorequisite"
     else
-        return "strict-coreq"
+        return "CurriculumStrictCorequisite"
     end
 end
 
 # Returns a requisite (enumerated type) from a string
 function string_to_requisite(req::String)
-    if req == "prereq"
+    if (req == "prereq" || req == "CurriculumPrerequisite")
         return pre
-    elseif req == "coreq"
+    elseif (req == "coreq" || req == "CurriculumCorequisite")
         return co
-    else
+    elseif (req == "strict-coreq" || req == "CurriculumStrictCorequisite")
         return strict_co
     end
 end
 
-function json_to_julia(json_tuple::NamedTuple)
-    # Create an array "terms" with elements equal to the number of terms from the file
-    num_terms = length(json_tuple.curriculum_terms)
-    terms = Array{Term}(undef, num_terms)
-    all_courses = Array{Course}(undef, 0)
-    courses_dict = Dict{Int, Course}()
-    # For every term
-    for i = 1:num_terms
-        # Grab the current term
-        current_term = json_tuple[:curriculum_terms][i]
-        # Create an array of course objects for the current term
-        courses = Array{Course}(undef, 0)
-        # For each course in the current term
-        for course in current_term[:curriculum_items]
-            # Check if nameSub is defined on the current course
-            if(:nameSub in keys(json_tuple.curriculum_terms[2][:curriculum_items][1]))
-                # If it is, use nameSub as the course name when constructing the course object
-                current_course = Course(course[:nameSub], course[:credits])
-            else
-                # Otherwise, just use the normal course :name
-                current_course = Course(course[:name], course[:credits])
+function json_to_julia(json_tuple::NamedTuple, is_curriculum::Bool)
+    # check if the object is a degree plan
+    if (isdefined(json_tuple, :curriculum_terms))
+        # Create an array "terms" with elements equal to the number of terms from the file
+        num_terms = length(json_tuple.curriculum_terms)
+        terms = Array{Term}(undef, num_terms)
+        all_courses = Array{Course}(undef, 0)
+        courses_dict = Dict{Int, Course}()
+        
+        # For every term
+        for i = 1:num_terms
+            # Grab the current term
+            current_term = json_tuple[:curriculum_terms][i]
+            # Create an array of course objects for the current term
+            courses = Array{Course}(undef, 0)
+            # For each course in the current term
+            for course in current_term[:curriculum_items]
+                # Check if nameSub is defined on the current course
+                if(:nameSub in keys(course))
+                    # If it is, use nameSub as the course name when constructing the course object
+                    current_course = Course(course[:nameSub], course[:credits])
+                else
+                    # Otherwise, just use the normal course :name
+                    current_course = Course(course[:name], course[:credits])
+                end
+                # Push each Course object to the array of courses
+                push!(courses, current_course)
+                push!(all_courses, current_course)
+                courses_dict[course.id] = current_course
             end
-            # Push each Course object to the array of courses
-            push!(courses, current_course)
-            push!(all_courses, current_course)
-            courses_dict[course.id] = current_course
-        end
 
-        # For each course object create its requisites
-        for course in current_term[:curriculum_items]
-            # If the course has requisites
-            if !isempty(course[:curriculum_requisites])
-                # For each requisite of the course
-                for req in course[:curriculum_requisites]
-                    # Create the requisite relationship
-                    source = courses_dict[req[:source_id]]
-                    target = courses_dict[req[:target_id]]
-                    add_requisite!(source, target, string_to_requisite(req[:type]))
+            # For each course object create its requisites
+            for course in current_term[:curriculum_items]
+                # If the course has requisites
+                if !isempty(course[:curriculum_requisites])
+                    # For each requisite of the course
+                    for req in course[:curriculum_requisites]
+                        # Create the requisite relationship
+                        source = courses_dict[req[:source_id]]
+                        target = courses_dict[req[:target_id]]
+                        add_requisite!(source, target, string_to_requisite(req[:type]))
+                    end
                 end
             end
+
+            # Set the current term to be a Term object
+            terms[i] = Term(courses)
         end
-        # Set the current term to be a Term object
-        terms[i] = Term(courses)
+
+        if (is_curriculum)
+            curric = Curriculum("", all_courses)
+            return curric
+        else   
+            curric = Curriculum("", all_courses)
+            degreeplan = DegreePlan("", curric, terms)
+            return degreeplan
+        end
     end
-    curric = Curriculum("Underwater Basket Weaving", all_courses)
-    degreeplan = DegreePlan("My Plan", curric, terms)
-    return degreeplan
 end
 
 function julia_to_json(degreeplan::DegreePlan)
