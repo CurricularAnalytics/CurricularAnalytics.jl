@@ -100,6 +100,9 @@ mutable struct Course
     prefix::AbstractString              # Typcially a department prefix, e.g., PSY
     num::AbstractString                 # Course number, e.g., 101, or 302L
     institution::AbstractString         # Institution offering the course
+    college::AbstractString             # College or school (within the institution) offering the course
+    department::AbstractString          # Department (within the school or college) offering the course
+    cross_listed::Array{Course}         # courses that are cross-listed with the course (same as "also offered as")
     canonical_name::AbstractString      # Standard name used to denote the course in the
                                         # discipline, e.g., Psychology I
     requisites::Dict{Int, Requisite}    # List of requisites, in (requisite_course id, requisite_type) format
@@ -108,8 +111,9 @@ mutable struct Course
     metadata::Dict{String, Any}         # Course-related metadata
 
     # Constructor
-    function Course(name::AbstractString, credit_hours::Real; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
-                    num::AbstractString="", institution::AbstractString="", canonical_name::AbstractString="", id::Int=0)
+    function Course(name::AbstractString, credit_hours::Real; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
+                    num::AbstractString="", institution::AbstractString="", college::AbstractString="", department::AbstractString="",
+                    cross_listed::Array{Course}=Array{Course,1}(), canonical_name::AbstractString="", id::Int=0)
         this = new()
         this.name = name
         this.credit_hours = credit_hours
@@ -121,6 +125,9 @@ mutable struct Course
         else 
             this.id = id
         end
+        this.college = college
+        this.department = department
+        this.cross_listed = cross_listed
         this.canonical_name = canonical_name
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
@@ -157,10 +164,10 @@ The following requisite types may be specified for `rc`:
 - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
 - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
 """
-function add_requisite!(requisite_course::Array{Course}, course::Course, requisite_type::Array{Requisite})
-    @assert length(requisite_course) == length(requisite_type)
-    for i = 1:length(requisite_course)
-        course.requisites[requisite_course[i].id] = requisite_type[i]
+function add_requisite!(requisite_courses::Array{Course}, course::Course, requisite_types::Array{Requisite})
+    @assert length(requisite_courses) == length(requisite_types)
+    for i = 1:length(requisite_courses)
+        course.requisites[requisite_courses[i].id] = requisite_types[i]
     end
 end
 
@@ -202,6 +209,54 @@ end
 #        push!(course.learning_outcomes, learning_outcome[i])
 #    end
 #end
+
+##############################################################
+# Course Catalog data type
+# Stores the collection of courses available at an institution
+mutable struct CourseCatalog
+    id::Int                             # Unique course catalog ID
+    name::AbstractString                # Name of the course catalog
+    institution::AbstractString         # Institution offering the courses in the catalog 
+    date_range::Tuple                   # range of dates the catalog is applicable over
+    catalog::Dict{UInt32, Course}       # dictionary of courses in (course_id, course) format
+
+    # Constructor
+    function CourseCatalog(name::AbstractString, institution::AbstractString; courses::Array{Course}=Array{Course,1}(), 
+                   catalog::Dict{UInt32,Course}=Dict{UInt32,Course}(), date_range::Tuple=(), id::Int=0)
+        this = new()
+        this.name = name
+        this.institution = institution
+        this.catalog = catalog
+        this.date_range = date_range
+        this.id = id
+        length(courses) > 0 ? add_course!(this, courses) : nothing
+        return this
+    end
+end
+
+# add a course to a course catalog, if the course is already in the catalog, it is not added again
+function add_course!(cc::CourseCatalog, course::Course)
+    !is_duplicate(cc, course) ? cc.catalog[course.id] = course : nothing
+end
+
+function add_course!(cc::CourseCatalog, courses::Array{Course,1})
+    for course in courses
+        add_course!(cc, course)
+    end
+end
+
+function is_duplicate(cc::CourseCatalog, course::Course)
+    course.id in keys(cc.catalog) ? true : false
+end 
+
+function course(cc::CourseCatalog, prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
+    hash_val = mod(hash(name * prefix * num * institution), UInt32)
+    if hash_val in keys(cc.catalog)
+        return cc.catalog[hash_val]
+    else
+        error("Course: $prefix $num: $name at $institution does not exist in catalog: $(cc.name)")
+    end
+end
 
 ##############################################################
 # Curriculum data type
@@ -248,8 +303,8 @@ mutable struct Curriculum
     metadata::Dict{String, Any}         # Curriculum-related metadata
 
     # Constructor
-    function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome} = Array{LearningOutcome,1}(),
-                        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="26.0101", 
+    function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
+                        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
                         id::Int=0, sortby_ID::Bool=true)
         this = new()
         this.name = name
@@ -341,7 +396,8 @@ function create_graph!(curriculum::Curriculum)
         for r in collect(keys(c.requisites))
             if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id])
             else
-                error("edge could not be created")
+                s = course_from_id(curriculum, r)
+                error("edge could not be created: ($(s.name), $(c.name))")
             end
         end
     end
