@@ -11,6 +11,6 @@
   }
 </style>
 
-<style src="@orhanabar/vue-Curricular-Analytics/dist/vue-Curricular-Analytics.min.css"></style>
+<style src="@damoursystems/curricular-visualization/dist/curricular-visualization.min.css"></style>
 
 <style src="@fortawesome/fontawesome-free/css/solid.min.css"></style>

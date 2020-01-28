@@ -21,7 +21,7 @@ add_requisite!(C,D,pre)
 
 curric = Curriculum("Basket Weaving", [A,B,C,D], institution="ACME State")
 
-terms = bin_filling(curric, max_credits_per_term=6)
+terms = bin_filling(curric, max_cpt=6)
 
 @test terms[1].courses[1].name == "A" || terms[1].courses[1].name == "C"
 @test terms[1].courses[2].name == "A" || terms[1].courses[2].name == "C"

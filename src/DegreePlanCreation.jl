@@ -1,9 +1,8 @@
 # file: DegreePlanCreation.jl
 
 function create_degree_plan(curric::Curriculum, create_terms::Function=bin_filling, name::AbstractString="", additional_courses::Array{Course}=Array{Course,1}();
-    min_terms::Int=1, max_terms::Int=8, min_credits_per_term::Int=3, max_credits_per_term::Int=19)
-    terms = create_terms(curric, additional_courses; min_terms=min_terms, max_terms=max_terms, min_credits_per_term=min_credits_per_term,
-                                max_credits_per_term=max_credits_per_term)
+                    min_terms::Int=1, max_terms::Int=10, min_cpt::Int=3, max_cpt::Int=19)
+    terms = create_terms(curric, additional_courses; min_terms=min_terms, max_terms=max_terms, min_cpt=min_cpt, max_cpt=max_cpt)
     if terms == false
         println("Unable to create degree plan")
         return
@@ -12,8 +11,7 @@ function create_degree_plan(curric::Curriculum, create_terms::Function=bin_filli
     end
 end
 
-function bin_filling(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); 
-    min_terms::Int=1, max_terms::Int=8, min_credits_per_term::Int=3, max_credits_per_term::Int=19)
+function bin_filling(curric::Curriculum, additional_courses::Array{Course}=Array{Course,1}(); min_terms::Int=2, max_terms::Int=10, min_cpt::Int=3, max_cpt::Int=19)
     terms = Array{Term,1}()
     term_credits = 0
     term_courses = Course[]
@@ -21,7 +19,7 @@ function bin_filling(curric::Curriculum, additional_courses::Array{Course}=Array
     while length(UC) > 0
         if ((c = select_vertex(curric, term_courses, UC)) != nothing)
             deleteat!(UC, findfirst(isequal(c), UC))
-            if term_credits + c.credit_hours <= max_credits_per_term
+            if term_credits + c.credit_hours <= max_cpt
                 append!(term_courses, [c])
                 term_credits = term_credits + c.credit_hours
             else  
