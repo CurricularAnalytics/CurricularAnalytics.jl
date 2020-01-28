@@ -25,13 +25,40 @@ function string_to_requisite(req::String)
 end
 
 function json_to_julia(json_tuple::NamedTuple, is_curriculum::Bool)
-    # check if the object is a degree plan
-    if (isdefined(json_tuple, :curriculum_terms))
+    all_courses = Array{Course}(undef, 0)
+    courses_dict = Dict{Int, Course}()
+    if (is_curriculum)
+        num_courses = length(json_tuple.courses)
+
+        for i = 1:num_courses
+            course = json_tuple.courses[i]
+            if(:nameSub in keys(course))
+                # If it is, use nameSub as the course name when constructing the course object
+                course_object = Course(course[:nameSub], course[:credits])
+            else
+                # Otherwise, just use the normal course :name
+                course_object = Course(course[:name], course[:credits])
+            end
+            push!(all_courses, course_object)
+            courses_dict[course.id] = course_object
+        end
+
+        for i = 1:num_courses
+            course = json_tuple.courses[i]
+            for req in course[:requisites]
+                # Create the requisite relationship
+                source = courses_dict[req[:source_id]]
+                target = courses_dict[req[:target_id]]
+                add_requisite!(source, target, string_to_requisite(req[:type]))
+            end
+        end
+
+        curric = Curriculum("", all_courses)
+        return curric
+    elseif (isdefined(json_tuple, :curriculum_terms))
         # Create an array "terms" with elements equal to the number of terms from the file
         num_terms = length(json_tuple.curriculum_terms)
         terms = Array{Term}(undef, num_terms)
-        all_courses = Array{Course}(undef, 0)
-        courses_dict = Dict{Int, Course}()
         
         # For every term
         for i = 1:num_terms
@@ -72,15 +99,9 @@ function json_to_julia(json_tuple::NamedTuple, is_curriculum::Bool)
             # Set the current term to be a Term object
             terms[i] = Term(courses)
         end
-
-        if (is_curriculum)
-            curric = Curriculum("", all_courses)
-            return curric
-        else   
-            curric = Curriculum("", all_courses)
-            degreeplan = DegreePlan("", curric, terms)
-            return degreeplan
-        end
+        curric = Curriculum("", all_courses)
+        degreeplan = DegreePlan("", curric, terms)
+        return degreeplan
     end
 end
 
