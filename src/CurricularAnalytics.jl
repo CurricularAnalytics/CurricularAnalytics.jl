@@ -15,6 +15,7 @@ using Printf
 using Markdown
 using Documenter
 using Requires
+using Dates
 
 include("DataTypes.jl")
 include("DegreePlanCreation.jl")
@@ -25,12 +26,13 @@ include("DataHandler.jl")
 include("Visualization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, LearningOutcome, 
-        Course, add_requisite!, delete_requisite!, Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
+        Course, add_requisite!, delete_requisite!, CourseCatalog, add_course!, is_duplicate, course, 
+        Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
         course_from_id, course_from_vertex, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
         extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, dead_ends, courses_from_vertices, 
-        compare_curricula, similarity, homology, isvalid_degree_plan, print_plan, visualize, metric_histogram, metric_boxplot, 
-        show_homology, basic_metrics, basic_statistics, read_csv, create_degree_plan, bin_filling, find_min_terms, 
+        compare_curricula, merge_curricula, similarity, homology, isvalid_degree_plan, print_plan, visualize, metric_histogram, 
+        metric_boxplot, show_homology, basic_metrics, basic_statistics, read_csv, create_degree_plan, bin_filling, find_min_terms, 
         add_lo_requisite!, update_plan, write_csv, find_min_terms, balance_terms, requisite_distance, balance_terms_opt, 
         find_min_terms_opt, read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_opt
 
@@ -665,6 +667,111 @@ function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
         end
     end
     return matches/c2.num_courses
+end
+
+"""
+    merge_curricula(c1, c2; match_criteria)
+
+Merge the two curricula `c1` and `c2` supplied as input into a single curriculum based on the match criteria applied
+to the courses in the two curricula.  All courses in curriculum `c1` will appear in the merged curriculum.  If a course in 
+curriculum `c2` matches a course in curriculum `c1`, that course serves as a matched course in the merged curriculum.  
+If there is no match for a course in curriculum `c2` to the set of courses in curriculum `c1`, course `c2` is added 
+to the set of courses in the merged curriculum.
+
+# Arguments
+Required:
+- `c1::Curriculum` : first curriculum.
+- `c2::Curriculum` : second curriculum.
+
+Optional:
+- `match_criteria::Array{String}` : list of course items that must match, if no match critera are supplied, the 
+courses must be identical (at the level of memory allocation). Allowable match criteria include:
+    - `prefix` : the course prefixes must be identical.
+    - `num` : the course numbers must be indentical.
+    - `name` : the course names must be identical.
+    - `canonical name` : the course canonical names must be identical.
+    - `credit hours` : the course credit hours must be indentical.      
+
+"""
+function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, match_criteria::Array{String}=Array{String,1}();  
+           learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(), degree_type::Degree=BS, system_type::System=semester, 
+           institution::AbstractString="", CIP::AbstractString="")
+    merged_courses = deepcopy(c1.courses)
+    extra_courses = Array{Course,1}()  # courses in c2 but not in c1
+    new_courses = Array{Course,1}()
+    for course in c2.courses
+        matched = false 
+        for target_course in c1.courses
+            if match(course, target_course, match_criteria) == true
+               matched = true
+               skip 
+            end
+        end
+        !matched ? push!(extra_courses, course) : nothing  
+    end
+    # patch-up requisites of extra_courses, using course ids form c1 where appropriate
+    for c in extra_courses
+        # for each extra course create an indentical coures, but with a new course id
+        push!(new_courses, Course(c.name, c.credit_hours; prefix=c.prefix, learning_outcomes=c.learning_outcomes,
+               num=c.num, institution=c.institution, canonical_name=c.canonical_name))
+    end
+    for (j,c) in enumerate(extra_courses)
+    #    print("\n $(c.name): ")
+    #    print("total requisistes = $(length(c.requisites)),")
+        for req in keys(c.requisites) 
+    #        print(" requisite id: $(req) ")
+            req_course = course_from_id(c2, req)
+            if find_match(req_course, merged_courses, match_criteria) != nothing
+                # requisite already exists in c1
+    #            print(" match in c1 - $(course_from_id(c1, req).name) ") 
+                add_requisite!(req_course, new_courses[j], c.requisites[req])
+            elseif find_match(req_course, extra_courses, match_criteria) != nothing
+                # requisite is not in c1, but it's in c2 -- use the id of the new course created for it
+    #            print(" match in extra courses, ") 
+                i = findfirst(x->x==req_course, extra_courses)
+    #            print(" index of match = $i ")
+                add_requisite!(new_courses[i], new_courses[j], c.requisites[req])
+            else # requisite is neither in c1 or 2 -- this shouldn't happen => error
+                error("requisite error on course: $(c.name)")
+            end
+        end
+    end
+    merged_courses = [merged_courses; new_courses]
+    merged_curric = Curriculum(name, merged_courses, learning_outcomes=learning_outcomes, degree_type=degree_type, institution=institution, CIP=CIP)
+    return merged_curric
+end
+
+function match(course1::Course, course2::Course, match_criteria::Array{String}=Array{String,1}())
+    is_matched = false
+    if length(match_criteria) == 0
+        return (course1 == course2)
+    else
+        for str in match_criteria
+            if !(str in ["prefix", "num", "name", "canonical name", "credit hours"])
+                error("invalid match criteria: $str")
+            elseif str == "prefix" 
+                course1.prefix == course2.prefix ? is_matched = true : is_matched = false
+            elseif str == "num" 
+                course1.num == course2.num ? is_matched = true : is_matched = false
+            elseif str == "name" 
+                course1.name == course2.name ? is_matched = true : is_matched = false
+            elseif str == "canonical name" 
+                course1.canonical_name == course2.canonical_name ? is_matched = true : is_matched = false
+            elseif str == "credit hours" 
+                course1.credit_hours == course2.credit_hours ? is_matched = true : is_matched = false    
+            end
+        end
+    end
+    return is_matched
+end
+
+function find_match(course::Course, course_set::Array{Course}, match_criteria::Array{String}=Array{String,1}())
+    for c in course_set
+        if match(course, c, match_criteria)
+            return course 
+        end
+    end
+    return nothing
 end
 
 function homology(curricula::Array{Curriculum,1}; strict::Bool=false)
