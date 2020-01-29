@@ -113,6 +113,7 @@ end
 # uncomment next line, and comment out the one after it, for local test
 # dp = read_csv("./test/degree_plan.csv")
 dp = read_csv("degree_plan.csv")
+
 @test dp.name == "4-Term Plan"
 @test dp.curriculum.name == "Underwater Basket Weaving"
 @test dp.curriculum.institution == "ACME State University"
