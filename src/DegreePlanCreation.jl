@@ -27,6 +27,18 @@ function bin_filling(curric::Curriculum, additional_courses::Array{Course}=Array
                 term_courses = Course[c] 
                 term_credits = c.credit_hours
             end
+            # if c serves as a strict-corequisite for other courses, include them in current term too
+            for course in UC 
+                for req in course.requisites
+                    if req[1] == c.id  
+                        if req[2] == strict_co  
+                            deleteat!(UC, findfirst(isequal(course), UC))
+                            append!(term_courses, [course])
+                            term_credits = term_credits + course.credit_hours
+                        end
+                    end
+                end
+            end
         else  # can't find a course to add to current term, create a new term
             length(term_courses) > 0 ? append!(terms, [Term(term_courses)]) : nothing
             term_courses = Course[]
