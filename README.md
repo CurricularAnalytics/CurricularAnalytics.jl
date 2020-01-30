@@ -37,5 +37,5 @@ For more information about installing the toolbox, including the steps neccessar
 * Later versions: Some functionality might not work with prerelease / unstable / nightly versions of Julia. If you run into a problem, please file an issue.
 
 # Contributing and Reporting Bugs
-We welcome contributions and bug reports! Please see [CONTRIBUTING.md](https://github.com/CurricularAnalytics/git/master/CONTRIBUTING.md)
+We welcome contributions and bug reports! Please see [CONTRIBUTING.md](https://github.com/CurricularAnalytics/CurricularAnalytics.jl/blob/master/CONTRIBUTING.md)
 for guidance on development and bug reporting.
