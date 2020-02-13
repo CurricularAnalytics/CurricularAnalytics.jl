@@ -124,12 +124,25 @@ errors = IOBuffer()
 @test length(extraneous_requisites(curric)) == 0
 
 # Test analytics 
-@test delay_factor(curric) == (32.0, [5.0, 5.0, 4.0, 5.0, 3.0, 5.0, 5.0])
+@test delay_factor(curric) == (33.0, [5.0, 5.0, 5.0, 5.0, 3.0, 5.0, 5.0])
 @test blocking_factor(curric) == (16, [6, 3, 4, 2, 0, 0, 1])
 @test centrality(curric) == (49, [0, 9, 12, 18, 0, 0, 10])
-@test complexity(curric) == (48.0, [11.0, 8.0, 8.0, 7.0, 3.0, 5.0, 6.0])
+@test complexity(curric) == (49.0, [11.0, 8.0, 9.0, 7.0, 3.0, 5.0, 6.0])
 
+###################################################
+# Tested added to check that delay factor is computed correctly when multiple long paths of the same length pass through a given course
+A = Course("A", 3)
+B = Course("B", 3)
+C = Course("C", 3)
+D = Course("D", 3)
 
+add_requisite!(A,B,pre)
+add_requisite!(A,C,pre)
+add_requisite!(B,D,pre)
+add_requisite!(C,D,pre)
+
+curric = Curriculum("Delay Factor Test", [A,B,C,D], sortby_ID=false)
+@test delay_factor(curric) == (12.0, [3.0, 3.0, 3.0, 3.0])
 
 ###################################################
 #8-vertex test curriculum - valid

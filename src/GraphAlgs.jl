@@ -305,7 +305,7 @@ function longest_path(g::AbstractGraph{T}, s::Int) where T
     lp = Array{Edge}[]
     max = 0
     # shortest path from s to all vertices in -G
-    for path in enumerate_paths(dijkstra_shortest_paths(g, s, -weights(g), allpaths=true))
+    for path in enumerate_paths(dijkstra_shortest_paths(g, s, -weights(g)))
         if length(path) > max
             lp = path
             max = length(path)

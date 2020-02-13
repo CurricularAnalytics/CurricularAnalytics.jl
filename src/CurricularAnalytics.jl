@@ -26,7 +26,7 @@ include("DataHandler.jl")
 include("Visualization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, LearningOutcome, 
-        Course, add_requisite!, delete_requisite!, CourseCatalog, add_course!, is_duplicate, course, 
+        Course, add_requisite!, delete_requisite!, CourseCatalog, add_course!, is_duplicate, course, course_id,
         Curriculum, total_credits, requisite_type, Term, DegreePlan, find_term, 
         course_from_id, course_from_vertex, dfs, topological_sort, all_paths, longest_path, longest_paths, gad, reachable_from, 
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
@@ -245,14 +245,11 @@ function delay_factor(c::Curriculum)
     g = c.graph
     df = ones(c.num_courses)
     for v in vertices(g)
-        if length(neighbors(g, v)) != 0   # not a standalone course
-            # enumerate all of the longest paths from v (these are shortest paths in -G)
-            for path in enumerate_paths(dijkstra_shortest_paths(g, v, -weights(g), allpaths=true))
-                for vtx in path
-                    path_length = length(path)  # path_length in terms of # of vertices, not edges
-                    if path_length > df[vtx]
-                        df[vtx] = path_length
-                    end
+        for path in all_paths(g)
+            for vtx in path
+                path_length = length(path)  # path_length in terms of # of vertices, not edges
+                if path_length > df[vtx]
+                    df[vtx] = path_length
                 end
             end
         end
@@ -390,7 +387,7 @@ julia> paths = longest_paths(c)
 """
 function longest_paths(c::Curriculum)
     lps = Array{Array{Course,1},1}()
-    for path in longest_paths(c.graph)
+    for path in longest_paths(c.graph) # longest_paths(), GraphAlgs.jl
        c_path = courses_from_vertices(c, path)
        push!(lps, c_path)
     end
