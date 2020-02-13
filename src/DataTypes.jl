@@ -258,6 +258,10 @@ function course(cc::CourseCatalog, prefix::AbstractString, num::AbstractString, 
     end
 end
 
+function course_id(prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
+    mod(hash(name * prefix * num * institution), UInt32)
+end
+
 ##############################################################
 # Curriculum data type
 # The required curriculum associated with a degree program
