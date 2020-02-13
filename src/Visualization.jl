@@ -3,8 +3,6 @@ using WebIO
 using HTTP
 using Blink
 using Plots
-#using PlotlyJS
-#using ORCA
 using StatsPlots
 using LinearAlgebra
 
