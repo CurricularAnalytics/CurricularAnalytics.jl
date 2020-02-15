@@ -3,8 +3,6 @@
 @testset "DataHandler Tests" begin
 
 # test the data file format used for curricula
-# uncomment next line, and comment out the one after it, for local test
-# curric = read_csv("./test/curriculum.csv")
 curric = read_csv("./curriculum.csv")
 
 @test curric.name == "Underwater Basket Weaving"
@@ -110,8 +108,6 @@ end
 # TODO: add learning outcomes
 
 # test the data file format used for degree plans
-# uncomment next line, and comment out the one after it, for local test
-# dp = read_csv("./test/degree_plan.csv")
 dp = read_csv("degree_plan.csv")
 
 @test dp.name == "4-Term Plan"
