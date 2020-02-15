@@ -78,8 +78,8 @@ function basic_metrics(plan::DegreePlan)
  """
     requisite_distance(DegreePlan, course::Course)
 
-For a given degree plan `plan` and target course `course`, this function computes the total distance between `course` and 
-all of its requisites.  
+For a given degree plan `plan` and target course `course`, this function computes the total distance in the degree plan between `course` and 
+all of its requisite courses.  
 
 # Arguments
 Required:
@@ -87,13 +87,13 @@ Required:
 - `course::Course` : the target course.
 
 The distance between a target course and one of its requisites is given by the number of terms that separate the target 
-course from the particular requisite in the degree plan.  To compute the requisite distance, we sum this distance over all
-requisites.  That is, if let ``T_i^p`` denote the term in degree plan ``p`` that course ``c_i`` appears in, then for a 
-degree plan with underlying curriculum graph ``G_c = (V,E)``, the requisite distance for course ``c_i`` in degree plan ``p``, 
-denoted ``rd_{v_i}^p``, is:
+course from that particular requisite in the degree plan.  To compute the requisite distance, we sum this distance over all
+requisites.  That is, if write let ``T_j^p`` denote the term in degree plan ``p`` that course ``c_j`` appears in, then for a 
+degree plan with underlying curriculum graph ``G_c = (V,E)``, the requisite distance for course ``c_j`` in degree plan ``p``, 
+denoted ``rd_{v_j}^p``, is:
 
 ```math
-rd_{v_i}^p = \\sum{(v_i, v_j) \\in E} (T_i - T_j).
+rd_{v_j}^p = \\sum_{\{i | (v_i, v_j) \\in E\}} (T_j - T_i).
 ```
 
 In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
