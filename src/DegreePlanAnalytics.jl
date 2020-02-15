@@ -93,7 +93,7 @@ degree plan with underlying curriculum graph ``G_c = (V,E)``, the requisite dist
 denoted ``rd_{v_j}^p``, is:
 
 ```math
-rd_{v_j}^p = \\sum_{\{i | (v_i, v_j) \\in E\}} (T_j - T_i).
+rd_{v_j}^p = \\sum_{\\{i | (v_i, v_j) \\in E\\}} (T_j - T_i).
 ```
 
 In general, it is desirable for a course and its requisites to appear as close together as possible in a degree plan.
