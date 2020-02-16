@@ -48,9 +48,9 @@ basic_metrics(dp)
 @test dp.metrics["total credit hours"] == 12
 @test dp.metrics["avg. credits per term"] == 4.0
 @test dp.metrics["min. credits in a term"] == 3
+@test dp.metrics["max. credits in a term"] == 5
 @test dp.metrics["term credit hour std. dev."] ≈ 0.816497 atol=1e-5
 @test dp.metrics["number of terms"] == 3
-@test dp.metrics["max. credits in a term"] == 5
 @test dp.metrics["min. credit term"] == 2
 @test dp.metrics["max. credit term"] == 3
 

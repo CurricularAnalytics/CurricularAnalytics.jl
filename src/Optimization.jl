@@ -6,13 +6,13 @@ using LightGraphs
 include("CSVUtilities.jl")
 
 # Helper function that uses the course ID to find the vertex id of a course in a curriculum graph.
-function get_vertex(courseID, curric)
+function get_vertex(curric::Curriculum, course_id::Int)
     for course in curric.courses
-        if course.id == courseID
+        if course.id == course_id
             return course.vertex_id[curric.id]
         end
     end
-    return 0
+    return nothing
 end
 
 # Objective function for creating a degree plan with a minimal number of terms
@@ -56,7 +56,7 @@ function toxicity_obj(model::JuMP.Model, c_count, courses, term_count, x, ts, cu
         for row in file[1:end]
             row = split(row, ",")
             # strip out all extra spaces between course prefix and number, and store toxicity score in toxicity dictionary
-            toxicity[Pair(replace(row[1], " " => ""), replace(row[2], " " => ""))] = parse(Float64, row[3]) + 1
+            toxicity[Pair(replace(row[1], " " => ""), replace(row[2], " " => ""))] = parse(Float64, row[3]) + 1  # adding one makes toxic score range [0,2] rather than [-1,1]
         end
     elseif length(toxicity_dict) > 0  # convert the input dictionary into a simpler dicitionary 
         for course_pair in keys(toxicity_dict)
@@ -118,7 +118,6 @@ function optimize_plan(config_file, curric_degree_file, toxicity_file="")
         curric = input
         courses = curric.courses
     end
-
     # Construct the model and use the Groubi solver.
     length(obj_order) > 1 ? multi = true : multi = false  # Multi-objective optimization?
     if multi == true
@@ -157,7 +156,6 @@ function optimize_plan(config_file, curric_degree_file, toxicity_file="")
             end
         end   
     end
-
     # Degree plan must include all courses once.
     for i in 1:c_count
         if i in values(vertex_map)
@@ -166,12 +164,10 @@ function optimize_plan(config_file, curric_degree_file, toxicity_file="")
             @constraint(model, sum(x[i,:]) == 0)
         end
     end
-
     # Each term must include at least the min # of credits and no more than the max # of credits allowed for a term
     @constraints model begin
         term_lower[j=1:term_count], sum(dot(credit,x[:,j])) >= min_cpt
     end
-
     # Each term must have no more than the max number of credits defined via the configuration config_file
     for j in 1:term_count
         if j in keys(diff_max_cpt)
@@ -180,13 +176,12 @@ function optimize_plan(config_file, curric_degree_file, toxicity_file="")
             @constraint(model, sum(dot(credit, x[:,j])) <= max_cpt)
         end
     end
-
     # Fixed courses must appear in their assigned terms
     if length(keys(fix_courses)) > 0
         for courseID in keys(fix_courses)
             if !(courseID in taken_course_ids)
-                vID = get_vertex(courseID, curric)
-                if vID != 0
+                vID = get_vertex(curric, courseID)
+                if vID != nothing
                     @constraint(model, x[vID,fix_courses[courseID]] == 1)  # GLH: changed from >= to == 
                 else
                     println("Vertex ID cannot be found for course: $courseName")
@@ -194,31 +189,28 @@ function optimize_plan(config_file, curric_degree_file, toxicity_file="")
             end
         end
     end
-
     # Courses specified as consecutive must appear in consecutive terms 
     if length(keys(consec_courses)) > 0
         for (first, second) in consec_courses
             vID_first = get_vertex(first, curric)
             vID_second = get_vertex(second, curric)
-            if vID_first != 0 && vID_second != 0
+            if vID_first != nothing && vID_second != nothing
                 @constraint(model, sum(dot(x[vID_second,:], mask)) - sum(dot(x[vID_first,:], mask)) == 1)
             else
                 println("Vertex ID cannot be found for either course $first or $second")
             end
         end
     end
-
     # Courses specified to appear in a range must appear in that term range 
     if length(keys(term_range)) > 0
         for (courseID,(lowTerm, highTerm)) in term_range
-            vID_Course = get_vertex(courseID, curric)
-            if vID_Course != 0
+            vID_Course = get_vertex(curric, courseID)
+            if vID_Course != nothing
                 @constraint(model, sum(dot(x[vID_Course,:], mask)) >= lowTerm)
                 @constraint(model, sum(dot(x[vID_Course,:], mask)) <= highTerm)
             end
         end
     end
-
     if multi == true
         objectives = []
         for objective in obj_order
@@ -327,13 +319,9 @@ julia> dp = optimize_plan(curric, 8, 6, 18, ["Balance", "Prereq"])
 ```
 """
 function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cpt::Int, obj_order::Array{String, 1}; 
-                        toxicity_file::AbstractString="", diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), 
-                        fix_courses::Dict=Dict(), consec_courses::Dict=Dict(), term_range::Dict=Dict(), 
-                        prior_courses::Array{Term, 1}=Array{Term}(undef, 0))
-    
-    # toxicity_scores::AbstractString (This is the file containing toxicity scores, but does it neccessarily need to be a file? 
-    # In theory it could be a dictionary or some similar data structure. 
-
+            toxicity_file::AbstractString="", toxicity_dict::Dict{Pair{Course,Course},Float64}=Dict{Pair{Course,Course},Float64}(), 
+            diff_max_cpt::Array{UInt, 1}=Array{UInt}(undef, 0), fix_courses::Dict=Dict(), consec_courses::Dict=Dict(), term_range::Dict=Dict(), 
+            prior_courses::Array{Term, 1}=Array{Term}(undef, 0)) 
     # Construct the model and use the Groubi solver.
     length(obj_order) > 1 ? multi = true : multi = false  # Multi-objective optimization?
     if multi == true
@@ -341,7 +329,6 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
     else
         model = Model(solver = GurobiSolver(OutputFlag=0))
     end
-
     # Gather the taken course IDs from prior_courses
     taken_course_ids = []
     for term in prior_courses
@@ -349,7 +336,6 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
             push!(taken_course_ids, course.id)
         end
     end
-    
     courses = curric.courses
     c_count = length(curric.courses)
     vertex_map = Dict{Int,Int}(c.id => c.vertex_id[curric.id] for c in courses)
@@ -384,12 +370,10 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
             @constraint(model, sum(x[idx,:]) == 0)
         end
     end
-    
     # Each term must include at least the min number of credits 
     @constraints model begin
         term_lower[j=1:term_count], sum(dot(credit,x[:,j])) >= min_cpt
     end
-
     # Each term must have no more than the max number of credits 
     for j in 1:term_count
         if j in keys(diff_max_cpt)
@@ -398,7 +382,6 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
             @constraint(model, sum(dot(credit, x[:,j])) <= max_cpt)
         end
     end
-
     if length(keys(fix_courses)) > 0
         for courseID in keys(fix_courses)
             if !(courseID in prior_courses)
@@ -411,12 +394,11 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
             end
         end
     end
-
     if length(keys(consec_courses)) > 0
         for (first, second) in consec_courses
             vID_first = get_vertex(first, curric)
             vID_second = get_vertex(second, curric)
-            if vID_first != 0 && vID_second != 0
+            if vID_first != nothing && vID_second != nothing
                 @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) <= 1)
                 @constraint(model, sum(dot(x[vID_second,:],mask)) - sum(dot(x[vID_first,:],mask)) >= 1)
             else
@@ -426,19 +408,18 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
     end
     if length(keys(term_range)) > 0
         for (courseID,(lowTerm, highTerm)) in term_range
-            vID_Course = get_vertex(courseID, curric)
-            if vID_Course != 0
+            vID_Course = get_vertex(curric, courseID)
+            if vID_Course != nothing
                 @constraint(model, sum(dot(x[vID_Course,:],mask)) >= lowTerm)
                 @constraint(model, sum(dot(x[vID_Course,:],mask)) <= highTerm)
             end
         end
     end
-
     if multi
         objectives = []
         for objective in obj_order
             if objective == "Toxicity"
-                push!(objectives, toxicity_obj(model, c_count, courses, term_count, x, ts, curric.id, multi, toxicity_file=toxicity_file))
+                push!(objectives, toxicity_obj(model, c_count, courses, term_count, x, ts, curric.id, multi, toxicity_file=toxicity_file, toxicity_dict=toxicity_dict))
             elseif objective == "Balance"
                 push!(objectives, balance_obj(model, max_cpt, term_count, x, y, credit, multi))
             elseif objective == "Prereq"
@@ -451,7 +432,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         multim.objectives = objectives
     else
         if obj_order[1] == "Toxicity"
-            toxicity_obj(model, c_count, courses, term_count, x, ts, curric.id, multi, toxicity_file=toxicity_file)
+            toxicity_obj(model, c_count, courses, term_count, x, ts, curric.id, multi, toxicity_file=toxicity_file, toxicity_dict=toxicity_dict)
         end
         if obj_order[1] == "Balance"
             balance_obj(model, max_cpt, term_count, x, y, credit, multi)
@@ -472,7 +453,6 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         if "Prereq" in obj_order
             println(sum(getvalue(distance)))
         end
-
         # Create array that will hold the optimized terms for the degree plan
         optimal_terms = Array{Term}(undef, 0)
         # If there are prior courses (i.e., terms exist), then put them at the beginning of the optimized terms array
@@ -498,6 +478,7 @@ function optimize_plan(curric::Curriculum, term_count::Int, min_cpt::Int, max_cp
         dp = DegreePlan("", curric, optimal_terms)
         return dp
     else
-        return # An optimal solution was not found.
+        print("\n An optimal solution was not found.\n")
+        return nothing
     end
 end
