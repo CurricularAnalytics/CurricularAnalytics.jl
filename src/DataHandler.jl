@@ -28,33 +28,33 @@ function json_to_julia(json_tuple, is_curriculum::Bool)
     all_course_objects = Array{Course}(undef, 0)
     courses_dict = Dict{Int, Course}()
     if (is_curriculum)
-        num_courses = length(json_tuple.courses)
+        num_courses = length(json_tuple["courses"])
 
         # For each of the courses in the received tuple, create a Julia Course object
         for i = 1:num_courses
-            current_course = json_tuple.courses[i]
+            current_course = json_tuple["courses"][i]
             if("nameSub" in keys(current_course))
                 # If it is, use nameSub as the course name when constructing the Course object
-                course_object = Course(current_course.nameSub, current_course.credits)
+                course_object = Course(current_course["nameSub"], current_course["credits"], id=current_course["id"])
             else
                 # Otherwise, just use the normal course :name
-                course_object = Course(current_course.name, current_course.credits)
+                course_object = Course(current_course["name"], current_course["credits"], id=current_course["id"])
             end
             # Add the created Course object to the array of all Course objects
             push!(all_course_objects, course_object)
             # Add the course_object using the current_course id as the index
-            courses_dict[current_course.id] = course_object
+            courses_dict[current_course["id"]] = course_object
         end
 
         # For each course in the received tuple, create its requisites
         for i = 1:num_courses
-            current_course = json_tuple.courses[i]
+            current_course = json_tuple["courses"][i]
             # For each requisite that the current_course has...
-            for req in current_course.requisites
+            for req in current_course["requisites"]
                 # Create the requisite relationship
-                source = courses_dict[req.source_id]
-                target = courses_dict[req.target_id]
-                add_requisite!(source, target, string_to_requisite(req.type))
+                source = courses_dict[req["source_id"]]
+                target = courses_dict[req["target_id"]]
+                add_requisite!(source, target, string_to_requisite(req["type"]))
             end
         end
         @info all_course_objects
