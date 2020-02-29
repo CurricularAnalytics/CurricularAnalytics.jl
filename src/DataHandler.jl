@@ -25,35 +25,40 @@ function string_to_requisite(req::String)
 end
 
 function json_to_julia(json_tuple, is_curriculum::Bool)
-    all_courses = Array{Course}(undef, 0)
+    all_course_objects = Array{Course}(undef, 0)
     courses_dict = Dict{Int, Course}()
     if (is_curriculum)
         num_courses = length(json_tuple.courses)
 
+        # For each of the courses in the received tuple, create a Julia Course object
         for i = 1:num_courses
-            course = json_tuple.courses[i]
-            if("nameSub" in keys(course))
-                # If it is, use nameSub as the course name when constructing the course object
-                course_object = Course(course.nameSub, course.credits)
+            current_course = json_tuple.courses[i]
+            if("nameSub" in keys(current_course))
+                # If it is, use nameSub as the course name when constructing the Course object
+                course_object = Course(current_course.nameSub, current_course.credits)
             else
                 # Otherwise, just use the normal course :name
-                course_object = Course(course.name, course.credits)
+                course_object = Course(current_course.name, current_course.credits)
             end
-            push!(all_courses, course_object)
-            courses_dict[course.id] = course_object
+            # Add the created Course object to the array of all Course objects
+            push!(all_course_objects, course_object)
+            # Add the course_object using the current_course id as the index
+            courses_dict[current_course.id] = course_object
         end
 
+        # For each course in the received tuple, create its requisites
         for i = 1:num_courses
-            course = json_tuple.courses[i]
-            for req in course.requisites
+            current_course = json_tuple.courses[i]
+            # For each requisite that the current_course has...
+            for req in current_course.requisites
                 # Create the requisite relationship
                 source = courses_dict[req.source_id]
                 target = courses_dict[req.target_id]
                 add_requisite!(source, target, string_to_requisite(req.type))
             end
         end
-
-        curric = Curriculum("", all_courses)
+        @info all_course_objects
+        curric = Curriculum("", all_course_objects)
         return curric
     elseif ("curriculum_terms" in keys(json_tuple))
         # Create an array "terms" with elements equal to the number of terms from the file
@@ -78,7 +83,7 @@ function json_to_julia(json_tuple, is_curriculum::Bool)
                 end
                 # Push each Course object to the array of courses
                 push!(courses, current_course)
-                push!(all_courses, current_course)
+                push!(all_course_objects, current_course)
                 courses_dict[course.id] = current_course
             end
 
@@ -99,7 +104,7 @@ function json_to_julia(json_tuple, is_curriculum::Bool)
             # Set the current term to be a Term object
             terms[i] = Term(courses)
         end
-        curric = Curriculum("", all_courses)
+        curric = Curriculum("", all_course_objects)
         degreeplan = DegreePlan("", curric, terms)
         return degreeplan
     end
