@@ -346,6 +346,7 @@ function read_csv(file_path::AbstractString)
     curric_learning_outcomes_count=0
     part_missing_term=false
     output = ""
+    # Open the CSV file and read in the basic information such as the type (curric or degreeplan), institution, degree type, etc 
     open(file_path) do csv_file        
         read_line = csv_line_reader(readline(csv_file), ',')
         courses_header += 1
@@ -384,21 +385,43 @@ function read_csv(file_path::AbstractString)
                 println("Could not find Courses")
                 return false
             end         
-            
+        
+        # File isn't formatted correctly, couldn't find the curriculum field in Col A Row 1
         else 
             println("Could not find a Curriculum")
             return false
         end
+
+        # This is the row containing Course ID, Course Name, Prefix, etc
         read_line = csv_line_reader(readline(csv_file), ',')
+        
+        # Checks that all courses have an ID, and counts the total number of courses
         while length(read_line) > 0 && read_line[1] != "Additional Courses" && read_line[1] != "Course Learning Outcomes" && 
-                        read_line[1] != "Curriculum Learning Outcomes" && !startswith(read_line[1], "#")
+                    read_line[1] != "Curriculum Learning Outcomes" && !startswith(read_line[1], "#")
+
+            # Enforce that each course has an ID
             if length(read_line[1]) == 0
                 println("All courses must have a Course ID")
                 return false
             end
+
+            # Enforce that each course has an associated term if the file is a degree plan
+            if (is_dp)
+                if (length(read_line) == 10)
+                    error("Each Course in a Degree Plan must have an associated term." * 
+                            "\nCourse with ID \'$(read_line[1])\' ($(read_line[2])) has no term.")
+                    return false
+                elseif (read_line[11] == 0)
+                    error("Each Course in a Degree Plan must have an associated term." * 
+                            "\nCourse with ID \'$(read_line[1])\' ($(read_line[2])) has no term.")
+                    return false
+                end
+            end
+
             course_count += 1
             read_line = csv_line_reader(readline(csv_file), ',')
         end
+
         df_courses = CSV.File(file_path, header = courses_header, limit = course_count - 1, delim = ',', silencewarnings = true) |> DataFrame
         if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID")))
             println("All courses must have a unique Course ID")
