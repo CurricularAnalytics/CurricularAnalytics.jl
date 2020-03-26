@@ -14,7 +14,6 @@ using DataStructures
 using Printf
 using Markdown
 using Documenter
-using Requires
 using Dates
 
 include("DataTypes.jl")
