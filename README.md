@@ -1,6 +1,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Build Status](https://travis-ci.org/CurricularAnalytics/CurricularAnalytics.jl.svg?branch=master)](https://travis-ci.org/CurricularAnalytics/CurricularAnalytics.jl)
+[![Coverage Status](https://coveralls.io/repos/github/CurricularAnalytics/CurricularAnalytics.jl/badge.svg?branch=master)](https://coveralls.io/github/CurricularAnalytics/CurricularAnalytics.jl?branch=master)
 [![DOI](https://zenodo.org/badge/147096983.svg)](https://zenodo.org/badge/latestdoi/147096983)
 
 # CurricularAnalytics.jl
