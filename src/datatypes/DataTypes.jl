@@ -14,3 +14,25 @@ include("degreeplan.jl")
 
 # additional types
 include("coursecatalog.jl")
+
+# Returns a requisite as a string for visualization
+function requisite_to_string(req::Requisite)
+    if req == pre
+        return "CurriculumPrerequisite"
+    elseif req == co
+        return "CurriculumCorequisite"
+    else
+        return "CurriculumStrictCorequisite"
+    end
+end
+
+# Returns a requisite (enumerated type) from a string
+function string_to_requisite(req::String)
+    if (req == "prereq" || req == "CurriculumPrerequisite")
+        return pre
+    elseif (req == "coreq" || req == "CurriculumCorequisite")
+        return co
+    elseif (req == "strict-coreq" || req == "CurriculumStrictCorequisite")
+        return strict_co
+    end
+end

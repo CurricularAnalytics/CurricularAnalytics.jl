@@ -14,14 +14,12 @@ using DataStructures
 using Printf
 using Markdown
 using Documenter
-using Dates
 
 include("datatypes/DataTypes.jl")
+include("DataHandler.jl")
 include("DegreePlanCreation.jl")
 include("GraphAlgs.jl")
 include("DegreePlanAnalytics.jl")
-include("CSVUtilities.jl")
-include("DataHandler.jl")
 include("Visualization.jl")
 
 export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, co, strict_co, EdgeClass, LearningOutcome, 
