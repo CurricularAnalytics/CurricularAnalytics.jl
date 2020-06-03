@@ -34,7 +34,7 @@ For more information about installing the toolbox, including the steps neccessar
 
 ## Supported Versions
 * CurricularAnalytics master will be maintained/enhanced to work with the latest stable version of Julia.
-* Julia 1.1 & 1.2: CurricularAnalytics v0.5.3 is the latest version guaranteed to work with Julia 1.0 and 1.1.
+* Julia 1.0.5, 1.2, 1.3, 1.4: CurricularAnalytics v1.0.0 is the latest version guaranteed to work with Julia 1.0.5 to version 1.4.
 * Later versions: Some functionality might not work with prerelease / unstable / nightly versions of Julia. If you run into a problem, please file an issue.
 
 # Contributing and Reporting Bugs
