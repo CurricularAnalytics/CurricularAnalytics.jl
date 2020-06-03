@@ -1,7 +1,3 @@
-using JSON
-using CSV
-using DataFrames
-
 # Returns a requisite as a string for visualization
 function requisite_to_string(req::Requisite)
     if req == pre
@@ -22,128 +18,6 @@ function string_to_requisite(req::String)
     elseif (req == "strict-coreq" || req == "CurriculumStrictCorequisite")
         return strict_co
     end
-end
-
-function json_to_julia(json_tuple, is_curriculum::Bool)
-    all_course_objects = Array{Course}(undef, 0)
-    courses_dict = Dict{Int, Course}()
-    if (is_curriculum)
-        num_courses = length(json_tuple["courses"])
-
-        # For each of the courses in the received tuple, create a Julia Course object
-        for i = 1:num_courses
-            current_course = json_tuple["courses"][i]
-            if("nameSub" in keys(current_course))
-                # If it is, use nameSub as the course name when constructing the Course object
-                course_object = Course(current_course["nameSub"], current_course["credits"], id=current_course["id"])
-            else
-                # Otherwise, just use the normal course :name
-                course_object = Course(current_course["name"], current_course["credits"], id=current_course["id"])
-            end
-            # Add the created Course object to the array of all Course objects
-            push!(all_course_objects, course_object)
-            # Add the course_object using the current_course id as the index
-            courses_dict[current_course["id"]] = course_object
-        end
-
-        # For each course in the received tuple, create its requisites
-        for i = 1:num_courses
-            current_course = json_tuple["courses"][i]
-            # For each requisite that the current_course has...
-            for req in current_course["requisites"]
-                # Create the requisite relationship
-                source = courses_dict[req["source_id"]]
-                target = courses_dict[req["target_id"]]
-                add_requisite!(source, target, string_to_requisite(req["type"]))
-            end
-        end
-        @info all_course_objects
-        curric = Curriculum("", all_course_objects)
-        return curric
-    elseif ("curriculum_terms" in keys(json_tuple))
-        # Create an array "terms" with elements equal to the number of terms from the file
-        num_terms = length(json_tuple.curriculum_terms)
-        terms = Array{Term}(undef, num_terms)
-        
-        # For every term
-        for i = 1:num_terms
-            # Grab the current term
-            current_term = json_tuple.curriculum_terms[i]
-            # Create an array of course objects for the current term
-            courses = Array{Course}(undef, 0)
-            # For each course in the current term
-            for course in current_term.curriculum_items
-                # Check if nameSub is defined on the current course
-                if("nameSub" in keys(course))
-                    # If it is, use nameSub as the course name when constructing the course object
-                    current_course = Course(course.nameSub, course.credits)
-                else
-                    # Otherwise, just use the normal course :name
-                    current_course = Course(course.name, course.credits)
-                end
-                # Push each Course object to the array of courses
-                push!(courses, current_course)
-                push!(all_course_objects, current_course)
-                courses_dict[course.id] = current_course
-            end
-
-            # For each course object create its requisites
-            for course in current_term.curriculum_items
-                # If the course has requisites
-                if !isempty(course.curriculum_requisites)
-                    # For each requisite of the course
-                    for req in course.curriculum_requisites
-                        # Create the requisite relationship
-                        source = courses_dict[req.source_id]
-                        target = courses_dict[req.target_id]
-                        add_requisite!(source, target, string_to_requisite(req.type))
-                    end
-                end
-            end
-
-            # Set the current term to be a Term object
-            terms[i] = Term(courses)
-        end
-        curric = Curriculum("", all_course_objects)
-        degreeplan = DegreePlan("", curric, terms)
-        return degreeplan
-    end
-end
-
-function julia_to_json(degreeplan::DegreePlan)
-    json_dp = Dict{String, Any}()
-    json_dp["curriculum"] = Dict{String, Any}()
-    json_dp["curriculum"]["name"] = degreeplan.name
-    json_dp["curriculum"]["curriculum_terms"] = Dict{String, Any}[]
-    for i = 1:degreeplan.num_terms
-        current_term = Dict{String, Any}()
-        current_term["id"] = i
-        current_term["name"] = "Term $i"
-        current_term["curriculum_items"] = Dict{String, Any}[]
-        for course in degreeplan.terms[i].courses
-            current_course = Dict{String, Any}()
-            current_course["id"] = course.id
-            current_course["name"] = course.name
-            # current_course["nameSub"] = course.name
-            # current_course["name"] =  course.prefix * " " * course.num
-            # current_course["prefix"] =  course.prefix
-            # current_course["num"] = course.num
-            current_course["credits"] = course.credit_hours
-            current_course["curriculum_requisites"] = Dict{String, Any}[]
-            current_course["metrics"] = course.metrics
-            for req in collect(keys(course.requisites))
-                current_req = Dict{String, Any}()
-                current_req["source_id"] = req
-                current_req["target_id"] = course.id
-                # Parse the Julia requisite type to the required type for the visualization
-                current_req["type"] = requisite_to_string(course.requisites[req])
-                push!(current_course["curriculum_requisites"], current_req)
-            end
-            push!(current_term["curriculum_items"], current_course)
-        end
-        push!(json_dp["curriculum"]["curriculum_terms"], current_term)
-    end
-    return json_dp
 end
 
 function update_plan(original_plan::DegreePlan, edited_plan::Dict{String,Any}, file_path::AbstractString)
@@ -299,6 +173,13 @@ function prepare_data_for_visualization(degree_plan::DegreePlan; edit::Bool=fals
     end
     return dp_dict
 end
+
+# ==============================
+# CSV Read / Write Functionality
+# ==============================
+using CSV
+using DataFrames
+include("CSVUtilities.jl")
 
 """
     read_csv(file_path::AbstractString)
