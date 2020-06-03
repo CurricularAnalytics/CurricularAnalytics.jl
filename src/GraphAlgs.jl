@@ -1,4 +1,3 @@
-
 # File: GraphAlgs.jl
 
 # Depth-first search, returns edge classification using EdgeClass, as well as the discovery and finish time for each vertex.

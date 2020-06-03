@@ -101,4 +101,3 @@ dp = DegreePlan("Cornell University EE Program 4-year Plan", curric, terms)
 
 basic_metrics(dp)
 dp.metrics
-visualize(dp)

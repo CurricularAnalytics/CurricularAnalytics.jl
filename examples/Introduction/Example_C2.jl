@@ -48,4 +48,3 @@ dp = DegreePlan("Example Curricula c2", curric, terms)
 
 basic_metrics(dp)
 dp.metrics
-visualize(dp)

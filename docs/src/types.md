@@ -71,26 +71,6 @@ print_plan
 
 The ability to create degree plans that satsify very "goodness" criteria is described in more detail in [Creating Degree Plans](@ref).
 
-A sophisticated visualization capability for viewing degree plans is described in [Visualizing Curricula and Degree Plans](@ref).  An example of how to use capability is shown below.
-
-### Examples:
-
-The following commands will produce the visualization shown below:
-
-```julia-repl
-julia> A = Course("Introduction to Baskets", 3)
-julia> B = Course("Introduction to Baskets Lab", 1)
-julia> C = Course("Basic Basket Forms", 3)
-julia> D = Course("Advanced Basketry", 3)
-julia> add_requisite!(A, B, strict_co)
-julia> add_requisite!(A, C, pre)
-julia> add_requisite!(C, D, co)
-julia> curric = Curriculum("Basket Weaving", [A,B,C,D])
-julia> terms = Array{Term}(undef, 2)
-julia> terms[1] = Term([A,B])
-julia> terms[2] = Term([C,D])
-julia> dp = DegreePlan("2-Term Plan", curric, terms)
-julia> visualize(dp)
-```
+A sophisticated visualization capability for viewing degree plans is described in [Visualizing Curricula and Degree Plans](@ref).
 
 ![Basket Weaving degree plan](./BW-plan.png)
