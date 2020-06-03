@@ -148,7 +148,6 @@ if isvalid_curriculum(curric, errors)
 
     basic_metrics(dp)
     dp.metrics
-    visualize(dp)
 
 else # invalid curriculum
     println("Curriculum $(curric.name) is not valid:")

@@ -144,7 +144,6 @@ if isvalid_curriculum(curric, errors)
         print(String(take!(errors)))
         println("\nDiplaying degree plan for debugging purposes...")
     end
-    visualize(dp)
 
 else # invalid curriculum
     println("Curriculum $(curric.name) is not valid:")

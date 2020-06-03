@@ -15,7 +15,7 @@ include("degreeplan.jl")
 # additional types
 include("coursecatalog.jl")
 
-# Returns a requisite as a string for visualization
+# Returns a requisite as a string
 function requisite_to_string(req::Requisite)
     if req == pre
         return "CurriculumPrerequisite"
