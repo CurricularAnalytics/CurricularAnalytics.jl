@@ -1,6 +1,3 @@
-using CSV
-using DataFrames
-
 function readfile(file_path)
     open(file_path) do f 
         lines = readlines(f)
