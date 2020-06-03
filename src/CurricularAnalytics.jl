@@ -16,7 +16,7 @@ using Markdown
 using Documenter
 using Dates
 
-include("DataTypes.jl")
+include("datatypes/DataTypes.jl")
 include("DegreePlanCreation.jl")
 include("GraphAlgs.jl")
 include("DegreePlanAnalytics.jl")
@@ -31,9 +31,8 @@ export Degree, AA, AS, AAS, BA, BS, System, semester, quarter, Requisite, pre, c
         reachable_from_subgraph, reachable_to, reachable_to_subgraph, reach, reach_subgraph, isvalid_curriculum, 
         extraneous_requisites, blocking_factor, delay_factor, centrality, complexity, dead_ends, courses_from_vertices, 
         compare_curricula, merge_curricula, similarity, homology, isvalid_degree_plan, print_plan, visualize, metric_histogram, 
-        metric_boxplot, show_homology, basic_metrics, basic_statistics, read_csv, create_degree_plan, bin_filling, find_min_terms, 
-        add_lo_requisite!, update_plan, write_csv, find_min_terms, balance_terms, requisite_distance, balance_terms_opt, 
-        find_min_terms_opt, read_Opt_Config, optimize_plan, json_to_julia, julia_to_json, init_opt
+        metric_boxplot, show_homology, basic_metrics, basic_statistics, read_csv, create_degree_plan, bin_filling, 
+        add_lo_requisite!, update_plan, write_csv, requisite_distance, json_to_julia, julia_to_json
 
 # Check if a curriculum graph has requisite cycles.
 """
