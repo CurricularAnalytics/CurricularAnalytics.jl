@@ -61,6 +61,7 @@ mutable struct Course
         this.cross_listed = cross_listed
         this.canonical_name = canonical_name
         this.requisites = Dict{Int, Requisite}()
+        #this.requisite_formula
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
@@ -70,7 +71,7 @@ mutable struct Course
 end
 
 function course_id(prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
-    mod(hash(name * prefix * num * institution), UInt32)
+    convert(Int, mod(hash(name * prefix * num * institution), UInt32))
 end
 
 """
