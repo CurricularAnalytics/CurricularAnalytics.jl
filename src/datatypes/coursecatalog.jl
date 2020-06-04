@@ -6,17 +6,17 @@ mutable struct CourseCatalog
     name::AbstractString                # Name of the course catalog
     institution::AbstractString         # Institution offering the courses in the catalog 
     date_range::Tuple                   # range of dates the catalog is applicable over
-    catalog::Dict{UInt32, Course}       # dictionary of courses in (course_id, course) format
+    catalog::Dict{Int, Course}       # dictionary of courses in (course_id, course) format
 
     # Constructor
     function CourseCatalog(name::AbstractString, institution::AbstractString; courses::Array{Course}=Array{Course,1}(), 
-                   catalog::Dict{UInt32,Course}=Dict{UInt32,Course}(), date_range::Tuple=(), id::Int=0)
+                   catalog::Dict{Int,Course}=Dict{Int,Course}(), date_range::Tuple=(), id::Int=0)
         this = new()
         this.name = name
         this.institution = institution
         this.catalog = catalog
         this.date_range = date_range
-        this.id = id
+        this.id = mod(hash(this.name * this.institution), UInt32)
         length(courses) > 0 ? add_course!(this, courses) : nothing
         return this
     end
@@ -37,8 +37,9 @@ function is_duplicate(cc::CourseCatalog, course::Course)
     course.id in keys(cc.catalog) ? true : false
 end 
 
-function course(cc::CourseCatalog, prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
-    hash_val = mod(hash(name * prefix * num * institution), UInt32)
+# Return a course in a course catalog
+function course(cc::CourseCatalog, prefix::AbstractString, num::AbstractString, name::AbstractString)
+    hash_val = mod(hash(name * prefix * num * cc.institution), UInt32)
     if hash_val in keys(cc.catalog)
         return cc.catalog[hash_val]
     else
