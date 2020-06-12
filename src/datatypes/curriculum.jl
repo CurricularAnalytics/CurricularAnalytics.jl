@@ -33,7 +33,7 @@ mutable struct Curriculum
     degree_type::Degree                 # Type of degree_type
     system_type::System                 # Semester or quarter system
     CIP::AbstractString                 # CIP code associated with the curriculum
-    courses::Array{Course}              # Array of required courses in curriculum
+    courses::Array{AbstractCourse}              # Array of required courses in curriculum
     num_courses::Int                    # Number of required courses in curriculum
     credit_hours::Real                  # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
@@ -43,7 +43,7 @@ mutable struct Curriculum
     metadata::Dict{String, Any}         # Curriculum-related metadata
 
     # Constructor
-    function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
+    function Curriculum(name::AbstractString, courses::Array{AbstractCourse}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
                         degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
                         id::Int=0, sortby_ID::Bool=true)
         this = new()
@@ -75,6 +75,13 @@ mutable struct Curriculum
             println(String(take!(errors)))
         end
         return this
+    end
+
+    function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
+        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
+        id::Int=0, sortby_ID::Bool=true)
+        Curriculum(name, convert(Array{AbstractCourse},courses), learning_outcomes=learning_outcomes, degree_type=degree_type, 
+              system_type=system_type, institution=institution, CIP=CIP, id=id, sortby_ID=sortby_ID)
     end
 end
 
