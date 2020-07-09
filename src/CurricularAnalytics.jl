@@ -15,7 +15,7 @@ using Printf
 using Markdown
 using Documenter
 
-include("datatypes/DataTypes.jl")
+include("DataTypes/DataTypes.jl")
 include("DataHandler.jl")
 include("GraphAlgs.jl")
 include("DegreePlanAnalytics.jl")
@@ -26,7 +26,8 @@ export AA, AAS, AS, BA, BS, Course, CourseCatalog, Curriculum, Degree, DegreePla
         complexity, course, course_from_id, course_from_vertex, course_id, courses_from_vertices, create_degree_plan, dead_ends, delay_factor, delete_requisite!, 
         dfs, extraneous_requisites, find_term, gad, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, 
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance, 
-        requisite_type, semester, similarity, strict_co, topological_sort, total_credits, write_csv
+        requisite_type, semester, similarity, strict_co, topological_sort, total_credits, write_csv, Grade, grade, AbstractRequirement, CourseSet, RequirementSet, 
+        CourseRecord, StudentRecord, TransferArticulation, add_transfer_catalog, add_transfer_course, transfer_equiv
 
 # Check if a curriculum graph has requisite cycles.
 """

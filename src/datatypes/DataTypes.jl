@@ -7,10 +7,11 @@
 @enum EdgeClass tree_edge back_edge forward_edge cross_edge
 
 # fundamental data types for curricular analytics
-include("learningoutcome.jl")
-include("course.jl")
-include("curriculum.jl")
-include("degreeplan.jl")
-
-# additional types
-include("coursecatalog.jl")
+include("LearningOutcome.jl")
+include("Course.jl")
+include("Curriculum.jl")
+include("DegreePlan.jl")
+include("CourseCatalog.jl")
+include("DegreeRequirements.jl")
+include("StudentRecord.jl")
+include("TransferArticulation.jl")
