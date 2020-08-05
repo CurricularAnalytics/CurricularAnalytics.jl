@@ -33,7 +33,7 @@ mutable struct Curriculum
     degree_type::Degree                 # Type of degree_type
     system_type::System                 # Semester or quarter system
     CIP::AbstractString                 # CIP code associated with the curriculum
-    courses::Array{Course}              # Array of required courses in curriculum
+    courses::Array{AbstractCourse}              # Array of required courses in curriculum
     num_courses::Int                    # Number of required courses in curriculum
     credit_hours::Real                  # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
@@ -43,7 +43,7 @@ mutable struct Curriculum
     metadata::Dict{String, Any}         # Curriculum-related metadata
 
     # Constructor
-    function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
+    function Curriculum(name::AbstractString, courses::Array{AbstractCourse}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
                         degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
                         id::Int=0, sortby_ID::Bool=true)
         this = new()
@@ -76,12 +76,36 @@ mutable struct Curriculum
         end
         return this
     end
+
+    function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
+        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
+        id::Int=0, sortby_ID::Bool=true)
+        Curriculum(name, convert(Array{AbstractCourse},courses), learning_outcomes=learning_outcomes, degree_type=degree_type, 
+              system_type=system_type, institution=institution, CIP=CIP, id=id, sortby_ID=sortby_ID)
+    end
 end
 
 # TODO: update a curriculum graph if requisites have been added/removed or courses have been added/removed
 #function update_curriculum(curriculum::Curriculum, courses::Array{Course}=())
 #    # if courses array is empty, no new courses were added
 #end
+
+# Converts course ids, from those used in CSV file format, to the standard hashed id used by the data structures in the toolbox
+function convert_ids(curriculum::Curriculum)
+    for c1 in curriculum.courses
+        old_id = c1.id
+        c1.id = mod(hash(c1.name * c1.prefix * c1.num * c1.institution), UInt32)
+        if old_id != c1.id 
+            for c2 in curriculum.courses
+                if old_id in keys(c2.requisites)
+                    add_requisite!(c1, c2, c2.requisites[old_id])
+                    delete!(c2.requisites, old_id)
+                end
+            end
+        end
+    end
+    return curriculum
+end
 
 # Map course IDs to vertex IDs in an underlying curriculum graph.
 function map_vertex_ids(curriculum::Curriculum)
@@ -90,6 +114,16 @@ function map_vertex_ids(curriculum::Curriculum)
         mapped_ids[c.id] = c.vertex_id[curriculum.id]
     end
     return mapped_ids
+end
+
+# Compute the hash value used to create the id for a course, and return the course if it exists in the curriculum supplied as input
+function course(curric::Curriculum, prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
+    hash_val = mod(hash(name * prefix * num * institution), UInt32)
+    if hash_val in collect(c.id for c in curric.courses)
+        return curric.courses[findfirst(x->x.id==hash_val, curric.courses)]
+    else
+        error("Course: $prefix $num: $name at $institution does not exist in curriculum: $(curric.name)")
+    end
 end
 
 # Return the course associated with a course id in a curriculum
