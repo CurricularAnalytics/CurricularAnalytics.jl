@@ -94,6 +94,8 @@ mutable struct DegreePlan
         return this
     end
 
+    # Generates a warning but is currently needed. 
+    # This SHOULD NOT be needed but for some reason Julia fails to recognize when concrete elements is passed but the method accepts abstract type
     function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term,1}, additional_courses::Array{Course,1}=Array{Course,1}())
         DegreePlan(name, curriculum, terms, convert(Array{AbstractCourse}, additional_courses))
     end
