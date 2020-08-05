@@ -90,6 +90,23 @@ end
 #    # if courses array is empty, no new courses were added
 #end
 
+# Converts course ids, from those used in CSV file format, to the standard hashed id used by the data structures in the toolbox
+function convert_ids(curriculum::Curriculum)
+    for c1 in curriculum.courses
+        old_id = c1.id
+        c1.id = mod(hash(c1.name * c1.prefix * c1.num * c1.institution), UInt32)
+        if old_id != c1.id 
+            for c2 in curriculum.courses
+                if old_id in keys(c2.requisites)
+                    add_requisite!(c1, c2, c2.requisites[old_id])
+                    delete!(c2.requisites, old_id)
+                end
+            end
+        end
+    end
+    return curriculum
+end
+
 # Map course IDs to vertex IDs in an underlying curriculum graph.
 function map_vertex_ids(curriculum::Curriculum)
     mapped_ids = Dict{Int, Int}()
@@ -97,6 +114,16 @@ function map_vertex_ids(curriculum::Curriculum)
         mapped_ids[c.id] = c.vertex_id[curriculum.id]
     end
     return mapped_ids
+end
+
+# Compute the hash value used to create the id for a course, and return the course if it exists in the curriculum supplied as input
+function course(curric::Curriculum, prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
+    hash_val = mod(hash(name * prefix * num * institution), UInt32)
+    if hash_val in collect(c.id for c in curric.courses)
+        return curric.courses[findfirst(x->x.id==hash_val, curric.courses)]
+    else
+        error("Course: $prefix $num: $name at $institution does not exist in curriculum: $(curric.name)")
+    end
 end
 
 # Return the course associated with a course id in a curriculum
