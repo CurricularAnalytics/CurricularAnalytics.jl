@@ -15,7 +15,7 @@ using Printf
 using Markdown
 using Documenter
 
-include("datatypes/DataTypes.jl")
+include("DataTypes/DataTypes.jl")
 include("DataHandler.jl")
 include("GraphAlgs.jl")
 include("DegreePlanAnalytics.jl")

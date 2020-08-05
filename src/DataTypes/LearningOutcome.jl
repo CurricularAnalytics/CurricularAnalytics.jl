@@ -2,7 +2,7 @@
 # LearningOutcome data type
 """
 The `LearningOutcome` data type is used to associate a set of learning outcomes with 
-a course or a curriculum. To instantiate a `LearningOutcome` use:
+a course or a curriculum (i.e., degree program). To instantiate a `LearningOutcome` use:
 
     LearningOutcome(name, description, hours)
 
