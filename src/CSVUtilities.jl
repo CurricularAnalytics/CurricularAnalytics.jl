@@ -100,8 +100,8 @@ function csv_line_reader(line::AbstractString, delimeter::Char=',')
 end
 
 function find_cell(row, header)
-    if !(header in names(row)) #I assume this means if header is not in names 
-        return ""
+    if !(string(header) in names(row)) #I assume this means if header is not in names 
+        error("$(header) column is missing")
     elseif typeof(row[header]) == Missing
         return ""
     else
