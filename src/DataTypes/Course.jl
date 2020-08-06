@@ -1,7 +1,7 @@
 ##############################################################
 # Course data type
 """
-The `Course` data type is used to represent a single course consisting of a given number 
+The `Course` data type is used to represent a single course consisting of a given number
 of credit hours.  To instantiate a `Course` use:
 
     Course(name, credit_hours; <keyword arguments>)
@@ -23,7 +23,7 @@ julia> Course("Calculus with Applications", 4, prefix="MA", num="112", canonical
 """
 mutable struct Course
     id::Int                             # Unique course id
-    vertex_id::Dict{Int, Int}           # The vertex id of the course w/in a curriculum graph, stored as 
+    vertex_id::Dict{Int, Int}           # The vertex id of the course w/in a curriculum graph, stored as
                                         # (curriculum_id, vertex_id)
     name::AbstractString                # Name of the course, e.g., Introduction to Psychology
     credit_hours::Real                  # Number of credit hours associated with course. For the
@@ -41,10 +41,13 @@ mutable struct Course
     metrics::Dict{String, Any}          # Course-related metrics
     metadata::Dict{String, Any}         # Course-related metadata
 
+    termReq::Int                        # Number of terms that must be completed before enrolling
+    passrate::Float64                   # Percentage of students that pass the course
+
     # Constructor
     function Course(name::AbstractString, credit_hours::Real; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
                     num::AbstractString="", institution::AbstractString="", college::AbstractString="", department::AbstractString="",
-                    cross_listed::Array{Course}=Array{Course,1}(), canonical_name::AbstractString="", id::Int=0)
+                    cross_listed::Array{Course}=Array{Course,1}(), canonical_name::AbstractString="", id::Int=0, termReq::Number=0, passrate::Float64=0.5)
         this = new()
         this.name = name
         this.credit_hours = credit_hours
@@ -53,7 +56,7 @@ mutable struct Course
         this.institution = institution
         if id == 0
             this.id = mod(hash(this.name * this.prefix * this.num * this.institution), UInt32)
-        else 
+        else
             this.id = id
         end
         this.college = college
@@ -66,6 +69,9 @@ mutable struct Course
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
         this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id
+
+        this.termReq = termReq
+        this.passrate = passrate
         return this
     end
 end
@@ -120,7 +126,7 @@ The following requisite types may be specified for `rc`:
 - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
 """
 function delete_requisite!(requisite_course::Course, course::Course)
-    #if !haskey(course.requisites, requisite_course.id)  
+    #if !haskey(course.requisites, requisite_course.id)
     #    error("The requisite you are trying to delete does not exist")
     #end
     delete!(course.requisites, requisite_course.id)

@@ -1,9 +1,9 @@
 """
-The curriculum-based metrics in this toolbox are based upon the graph structure of a 
+The curriculum-based metrics in this toolbox are based upon the graph structure of a
 curriculum.  Specifically, assume curriculum ``c`` consists of ``n`` courses ``\\{c_1, \\ldots, c_n\\}``,
-and that there are ``m`` requisite (prerequisite or co-requsitie) relationships between these courses.  
-A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v_1, \\ldots, v_n\\}`` 
-(i.e., one vertex for each course) along with an edge set ``E = \\{e_1, \\ldots, e_m\\}``, where a 
+and that there are ``m`` requisite (prerequisite or co-requsitie) relationships between these courses.
+A curriculum graph ``G_c = (V,E)`` is formed by creating a vertex set ``V = \\{v_1, \\ldots, v_n\\}``
+(i.e., one vertex for each course) along with an edge set ``E = \\{e_1, \\ldots, e_m\\}``, where a
 directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a requisite for course ``c_j``.
 """
 module CurricularAnalytics
@@ -20,24 +20,28 @@ include("DataHandler.jl")
 include("GraphAlgs.jl")
 include("DegreePlanAnalytics.jl")
 include("DegreePlanCreation.jl")
+include("CASLSimulation/CASL.jl")
+include("CASLSimulation/PassRate.jl")
+include("CASLSimulation/Enrollment.jl")
 
-export AA, AAS, AS, BA, BS, Course, CourseCatalog, Curriculum, Degree, DegreePlan, EdgeClass, LearningOutcome, Requisite, System, Term, add_course!, 
-        add_lo_requisite!, add_requisite!, all_paths, basic_metrics, basic_statistics, bin_filling, blocking_factor, centrality, co, compare_curricula, 
-        complexity, course, course_from_id, course_from_vertex, course_id, courses_from_vertices, create_degree_plan, dead_ends, delay_factor, delete_requisite!, 
-        dfs, extraneous_requisites, find_term, gad, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, 
-        pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance, 
-        requisite_type, semester, similarity, strict_co, topological_sort, total_credits, write_csv, Grade, grade, AbstractRequirement, CourseSet, RequirementSet, 
-        CourseRecord, StudentRecord, TransferArticulation, add_transfer_catalog, add_transfer_course, transfer_equiv
+export AA, AAS, AS, BA, BS, Course, CourseCatalog, Curriculum, Degree, DegreePlan, EdgeClass, LearningOutcome, Requisite, System, Term, add_course!,
+        add_lo_requisite!, add_requisite!, all_paths, basic_metrics, basic_statistics, bin_filling, blocking_factor, centrality, co, compare_curricula,
+        complexity, course, course_from_id, course_from_vertex, course_id, courses_from_vertices, create_degree_plan, dead_ends, delay_factor, delete_requisite!,
+        dfs, extraneous_requisites, find_term, gad, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula,
+        pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
+        requisite_type, semester, similarity, strict_co, topological_sort, total_credits, write_csv, Grade, grade, AbstractRequirement, CourseSet, RequirementSet,
+        CourseRecord, StudentRecord, TransferArticulation, add_transfer_catalog, add_transfer_course, transfer_equiv, PassRate, Simulation, Student, setPassrates,
+        simpleStudents, simulate
 
 # Check if a curriculum graph has requisite cycles.
 """
     isvalid_curriculum(c::Curriculum, errors::IOBuffer)
 
-Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e., 
-whether or not it contains a requisite cycle.  Returns  a boolean value, with `true` indicating the 
+Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e.,
+whether or not it contains a requisite cycle.  Returns  a boolean value, with `true` indicating the
 curriculum is valid, and `false` indicating it is not.
 
-If ``G_c`` is not valid, the requisite cycle(s) are written to the `errors` buffer. To view these 
+If ``G_c`` is not valid, the requisite cycle(s) are written to the `errors` buffer. To view these
 cycles, use:
 
 ```julia-repl
@@ -46,8 +50,8 @@ julia> isvalid_curriculum(c, errors)
 julia> println(String(take!(errors)))
 ```
 
-A curriculum graph is not valid if it contains a directed cycle; in this case it is not possible to complete 
-the curriculum.  
+A curriculum graph is not valid if it contains a directed cycle; in this case it is not possible to complete
+the curriculum.
 """
 function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     g = c.graph
@@ -87,14 +91,14 @@ end
 
 """
     extraneous_requisites(c::Curriculum; print=false)
-       
+
 Determines whether or not a curriculum `c` contains extraneous requisites, and returns them.  Extraneous requisites
-are redundant requisites that are unnecessary in a curriculum.  For example, if a curriculum has the prerequisite 
-relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are 
+are redundant requisites that are unnecessary in a curriculum.  For example, if a curriculum has the prerequisite
+relationships \$c_1 \\rightarrow c_2 \\rightarrow c_3\$ and \$c_1 \\rightarrow c_3\$, and \$c_1\$ and \$c_2\$ are
 *not* co-requisites, then \$c_1 \\rightarrow c_3\$ is redundant and therefore extraneous.
 """
 function extraneous_requisites(c::Curriculum; print=false)
-    if is_cyclic(c.graph) 
+    if is_cyclic(c.graph)
         error("\nCurriculm graph has cycles, extraneous requisities cannot be determined.")
     end
     if print == true
@@ -167,9 +171,9 @@ curriculum graph ``G_c = (V,E)`` is defined as:
 ```math
 b_c(v_i) = \\sum_{v_j \\in V} I(v_i,v_j)
 ```
-where ``I(v_i,v_j)`` is the indicator function, which is ``1`` if  ``v_i \\leadsto v_j``, 
+where ``I(v_i,v_j)`` is the indicator function, which is ``1`` if  ``v_i \\leadsto v_j``,
 and ``0`` otherwise. Here ``v_i \\leadsto v_j`` denotes that a directed path from vertex
-``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course 
+``v_i`` to ``v_j`` exists in ``G_c``, i.e., there is a requisite pathway from course
 ``c_i`` to ``c_j`` in curriculum ``c``.
 """
 function blocking_factor(c::Curriculum, course::Int)
@@ -202,14 +206,14 @@ end
     delay_factor(c::Curriculum, course::Int)
 
 The **delay factor** associated with course ``c_k`` in curriculum ``c`` with
-curriculum graph ``G_c = (V,E)`` is the number of vertices in the longest path 
+curriculum graph ``G_c = (V,E)`` is the number of vertices in the longest path
 in ``G_c`` that passes through ``v_k``. If ``\\#(p)`` denotes the number of
-vertices in the directed path ``p`` in ``G_c``, then we can define the delay factor of 
+vertices in the directed path ``p`` in ``G_c``, then we can define the delay factor of
 course ``c_k`` as:
 ```math
 d_c(v_k) = \\max_{i,j,l,m}\\left\\{\\#(v_i  \\overset{p_l}{\\leadsto} v_k \\overset{p_m}{\\leadsto} v_j)\\right\\}
 ```
-where ``v_i \\overset{p}{\\leadsto} v_j`` denotes a directed path ``p`` in ``G_c`` from vertex 
+where ``v_i \\overset{p}{\\leadsto} v_j`` denotes a directed path ``p`` in ``G_c`` from vertex
 ``v_i`` to ``v_j``.
 """
 function delay_factor(c::Curriculum, course::Int)
@@ -255,16 +259,16 @@ end
 """
     centrality(c::Curriculum, course::Int)
 
-Consider a curriculum graph ``G_c = (V,E)``, and a vertex ``v_i \\in V``. Furthermore, 
-consider all paths between every pair of vertices ``v_j, v_k \\in V`` that satisfy the 
+Consider a curriculum graph ``G_c = (V,E)``, and a vertex ``v_i \\in V``. Furthermore,
+consider all paths between every pair of vertices ``v_j, v_k \\in V`` that satisfy the
 following conditions:
 - ``v_i, v_j, v_k`` are distinct, i.e., ``v_i \\neq v_j, v_i \\neq v_k`` and ``v_j \\neq v_k``;
 - there is a path from ``v_j`` to ``v_k`` that includes ``v_i``, i.e., ``v_j \\leadsto v_i \\leadsto v_k``;
 - ``v_j`` has in-degree zero, i.e., ``v_j`` is a "source"; and
 - ``v_k`` has out-degree zero, i.e., ``v_k`` is a "sink".
-Let ``P_{v_i} = \\{p_1, p_2, \\ldots\\}`` denote the set of all directed paths that satisfy these 
-conditions. 
-Then the **centrality** of ``v_i`` is defined as    
+Let ``P_{v_i} = \\{p_1, p_2, \\ldots\\}`` denote the set of all directed paths that satisfy these
+conditions.
+Then the **centrality** of ``v_i`` is defined as
 ```math
 q(v_i) = \\sum_{l=1}^{\\left| P_{v_i} \\right|} \\#(p_l).
 ```
@@ -272,8 +276,8 @@ where ``\\#(p)`` denotes the number of vertices in the directed path ``p`` in ``
 """
 function centrality(c::Curriculum, course::Int)
     cent = 0; g = c.graph
-    for path in all_paths(g)  
-        # conditions: path length is greater than 2, target course must be in the path, the target vertex 
+    for path in all_paths(g)
+        # conditions: path length is greater than 2, target course must be in the path, the target vertex
         # cannot be the first or last vertex in the path
         if (in(course,path) && length(path) > 2 && path[1] != course && path[end] != course)
             cent += length(path)
@@ -286,8 +290,8 @@ end
 """
     centrality(c::Curriculum)
 
-Computes the total **centrality** associated with all of the courses in curriculum ``c``, 
-with curriculum graph ``G_c = (V,E)``.  
+Computes the total **centrality** associated with all of the courses in curriculum ``c``,
+with curriculum graph ``G_c = (V,E)``.
 ```math
 q(c) = \\sum_{v \\in V} q(v).
 ```
@@ -324,17 +328,17 @@ end
 """
     complexity(c::Curriculum, course::Int)
 
-The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)`` 
+The **complexity** associated with curriculum ``c`` with  curriculum graph ``G_c = (V,E)``
 is defined as:
 
 ```math
 h(G_c) = \\sum_{v \\in V} \\left(d_c(v) + b_c(v)\\right).
 ```
 
-For the example curricula considered above, the curriculum in part (a) has an overall complexity of 15, 
+For the example curricula considered above, the curriculum in part (a) has an overall complexity of 15,
 while the curriculum in part (b) has an overall complexity of 17. This indicates that the curriculum
 in part (b) will be slightly more difficult to complete than the one in part (a). In particular, notice
-that course ``v_1`` in part (a) has the highest individual course complexity, but the combination of 
+that course ``v_1`` in part (a) has the highest individual course complexity, but the combination of
 courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a student can attempt course
 ``v_3`` in that curriculum, has a higher combined complexity.
 """
@@ -361,13 +365,13 @@ end
 # Find all the longest paths in a curriculum.
 """
     longest_paths(c::Curriculum)
-    
+
 Finds longest paths in curriculum `c`, and returns an array of course arrays, where
 each course array contains the courses in a longest path.
 
  # Arguments
 Required:
-- `c::Curriculum` : a valid curriculum. 
+- `c::Curriculum` : a valid curriculum.
 
 ```julia-repl
 julia> paths = longest_paths(c)
@@ -393,10 +397,10 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
     for k in keys(c1.metrics)
         write(report, " Curricular $k: ")
         if length(c1.metrics[k]) == 2 # curriculum has course-level metrics
-            metric1 = c1.metrics[k][1] 
+            metric1 = c1.metrics[k][1]
             metric2 = c2.metrics[k][1]
         else
-            metric1 = c1.metrics[k] 
+            metric1 = c1.metrics[k]
             metric2 = c2.metrics[k]
         end
         diff = c1.metrics[k][1] - c2.metrics[k][1]
@@ -447,8 +451,8 @@ end
 """
     basic_metrics(c::Curriculum)
 
-Compute the basic metrics associated with curriculum `c`, and return an IO buffer containing these metrics.  The basic 
-metrics are also stored in the `metrics` dictionary associated with the curriculum. 
+Compute the basic metrics associated with curriculum `c`, and return an IO buffer containing these metrics.  The basic
+metrics are also stored in the `metrics` dictionary associated with the curriculum.
 
 The basic metrics computed include:
 
@@ -523,17 +527,17 @@ function basic_metrics(curric::Curriculum)
     write_course_names(buf, max_bf_courses)
     write(buf, "\n  Centrality --\n")
     write(buf, "    entire curriculum = $(curric.metrics["centrality"][1])\n")
-    write(buf, "    max. value = $(max_cent), ") 
+    write(buf, "    max. value = $(max_cent), ")
     write(buf, "for course(s): ")
     write_course_names(buf, max_cent_courses)
     write(buf, "\n  Delay Factor --\n")
     write(buf, "    entire curriculum = $(curric.metrics["delay factor"][1])\n")
-    write(buf, "    max. value = $(max_df), ") 
+    write(buf, "    max. value = $(max_df), ")
     write(buf, "for course(s): ")
     write_course_names(buf, max_df_courses)
     write(buf, "\n  Complexity --\n")
     write(buf, "    entire curriculum = $(curric.metrics["complexity"][1])\n")
-    write(buf, "    max. value = $(max_cc), ") 
+    write(buf, "    max. value = $(max_cc), ")
     write(buf, "for course(s): ")
     write_course_names(buf, max_cc_courses)
     write(buf, "\n  Longest Path(s) --\n")
@@ -553,7 +557,7 @@ function basic_statistics(curricula::Array{Curriculum,1}, metric_name::AbstractS
     if haskey(curricula[1].metrics, metric_name)
         if typeof(curricula[1].metrics[metric_name]) == Float64
             max_metric = curricula[1].metrics[metric_name]; min_metric = curricula[1].metrics[metric_name];
-        elseif typeof(curricula[1].metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+        elseif typeof(curricula[1].metrics[metric_name]) == Tuple{Float64,Array{Number,1}}
             max_metric = curricula[1].metrics[metric_name][1]; min_metric = curricula[1].metrics[metric_name][1];  # metric where total curricular metric as well as course-level metrics are stored in an array
         end
     end
@@ -564,18 +568,18 @@ function basic_statistics(curricula::Array{Curriculum,1}, metric_name::AbstractS
         basic_metrics(c)
         if typeof(c.metrics[metric_name]) == Float64
             value = c.metrics[metric_name]
-        elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+        elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}
             value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
         end
         total_metric += value
-        value > max_metric ? max_metric = value : nothing 
-        value < min_metric ? min_metric = value : nothing 
+        value > max_metric ? max_metric = value : nothing
+        value < min_metric ? min_metric = value : nothing
     end
     avg_metric = total_metric / length(curricula)
     for c in curricula
         if typeof(c.metrics[metric_name]) == Float64
             value = c.metrics[metric_name]
-        elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}  
+        elseif typeof(c.metrics[metric_name]) == Tuple{Float64,Array{Number,1}}
             value = c.metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
         end
         STD_metric = (value - avg_metric)^2
@@ -612,17 +616,17 @@ end
     similarity(c1, c2; strict)
 
 Compute how similar curriculum `c1` is to curriculum `c2`.  The similarity metric is computed by comparing how many courses in
-`c1` are also in `c2`, divided by the total number of courses in `c2`.  Thus, for two curricula, this metric is not symmetric. A 
-similarity value of `1` indicates that `c1` and `c2` are identical, whil a value of `0` means that none of the courses in `c1` 
-are in `c2`. 
+`c1` are also in `c2`, divided by the total number of courses in `c2`.  Thus, for two curricula, this metric is not symmetric. A
+similarity value of `1` indicates that `c1` and `c2` are identical, whil a value of `0` means that none of the courses in `c1`
+are in `c2`.
 
 # Arguments
 Required:
-- `c1::Curriculum` : the target curriculum. 
+- `c1::Curriculum` : the target curriculum.
 - `c2::Curriculum` : the curriculum serving as the basis for comparison.
 
 Keyword:
-- `strict::Bool` : if true (default), two courses are considered the same if every field in the two courses are the same; if false, 
+- `strict::Bool` : if true (default), two courses are considered the same if every field in the two courses are the same; if false,
 two courses are conisdred the same if they have the same course name, or if they have the same course prefix and number.
 
 ```julia-repl
@@ -639,16 +643,16 @@ function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
         for course in c1.courses
             if course in c2.courses
                 matches += 1
-            end 
+            end
         end
     else  # strict == false
         for course in c1.courses
-            for basis_course in c2.courses 
+            for basis_course in c2.courses
                 if (course.name != "" && basis_course.name == course.name) || (course.prefix != "" && basis_course.prefix == course.prefix && course.num != "" && basis_course.num == course.num)
                     matches += 1
-                    break # only match once 
+                    break # only match once
                 end
-            end 
+            end
         end
     end
     return matches/c2.num_courses
@@ -658,9 +662,9 @@ end
     merge_curricula(c1, c2; match_criteria)
 
 Merge the two curricula `c1` and `c2` supplied as input into a single curriculum based on the match criteria applied
-to the courses in the two curricula.  All courses in curriculum `c1` will appear in the merged curriculum.  If a course in 
-curriculum `c2` matches a course in curriculum `c1`, that course serves as a matched course in the merged curriculum.  
-If there is no match for a course in curriculum `c2` to the set of courses in curriculum `c1`, course `c2` is added 
+to the courses in the two curricula.  All courses in curriculum `c1` will appear in the merged curriculum.  If a course in
+curriculum `c2` matches a course in curriculum `c1`, that course serves as a matched course in the merged curriculum.
+If there is no match for a course in curriculum `c2` to the set of courses in curriculum `c1`, course `c2` is added
 to the set of courses in the merged curriculum.
 
 # Arguments
@@ -669,30 +673,30 @@ Required:
 - `c2::Curriculum` : second curriculum.
 
 Optional:
-- `match_criteria::Array{String}` : list of course items that must match, if no match critera are supplied, the 
+- `match_criteria::Array{String}` : list of course items that must match, if no match critera are supplied, the
 courses must be identical (at the level of memory allocation). Allowable match criteria include:
     - `prefix` : the course prefixes must be identical.
     - `num` : the course numbers must be indentical.
     - `name` : the course names must be identical.
     - `canonical name` : the course canonical names must be identical.
-    - `credit hours` : the course credit hours must be indentical.      
+    - `credit hours` : the course credit hours must be indentical.
 
 """
-function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, match_criteria::Array{String}=Array{String,1}();  
-           learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(), degree_type::Degree=BS, system_type::System=semester, 
+function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, match_criteria::Array{String}=Array{String,1}();
+           learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(), degree_type::Degree=BS, system_type::System=semester,
            institution::AbstractString="", CIP::AbstractString="")
     merged_courses = deepcopy(c1.courses)
     extra_courses = Array{Course,1}()  # courses in c2 but not in c1
     new_courses = Array{Course,1}()
     for course in c2.courses
-        matched = false 
+        matched = false
         for target_course in c1.courses
             if match(course, target_course, match_criteria) == true
                matched = true
-               skip 
+               skip
             end
         end
-        !matched ? push!(extra_courses, course) : nothing  
+        !matched ? push!(extra_courses, course) : nothing
     end
     # patch-up requisites of extra_courses, using course ids form c1 where appropriate
     for c in extra_courses
@@ -703,16 +707,16 @@ function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, m
     for (j,c) in enumerate(extra_courses)
     #    print("\n $(c.name): ")
     #    print("total requisistes = $(length(c.requisites)),")
-        for req in keys(c.requisites) 
+        for req in keys(c.requisites)
     #        print(" requisite id: $(req) ")
             req_course = course_from_id(c2, req)
             if find_match(req_course, merged_courses, match_criteria) != nothing
                 # requisite already exists in c1
-    #            print(" match in c1 - $(course_from_id(c1, req).name) ") 
+    #            print(" match in c1 - $(course_from_id(c1, req).name) ")
                 add_requisite!(req_course, new_courses[j], c.requisites[req])
             elseif find_match(req_course, extra_courses, match_criteria) != nothing
                 # requisite is not in c1, but it's in c2 -- use the id of the new course created for it
-    #            print(" match in extra courses, ") 
+    #            print(" match in extra courses, ")
                 i = findfirst(x->x==req_course, extra_courses)
     #            print(" index of match = $i ")
                 add_requisite!(new_courses[i], new_courses[j], c.requisites[req])
@@ -734,16 +738,16 @@ function match(course1::Course, course2::Course, match_criteria::Array{String}=A
         for str in match_criteria
             if !(str in ["prefix", "num", "name", "canonical name", "credit hours"])
                 error("invalid match criteria: $str")
-            elseif str == "prefix" 
+            elseif str == "prefix"
                 course1.prefix == course2.prefix ? is_matched = true : is_matched = false
-            elseif str == "num" 
+            elseif str == "num"
                 course1.num == course2.num ? is_matched = true : is_matched = false
-            elseif str == "name" 
+            elseif str == "name"
                 course1.name == course2.name ? is_matched = true : is_matched = false
-            elseif str == "canonical name" 
+            elseif str == "canonical name"
                 course1.canonical_name == course2.canonical_name ? is_matched = true : is_matched = false
-            elseif str == "credit hours" 
-                course1.credit_hours == course2.credit_hours ? is_matched = true : is_matched = false    
+            elseif str == "credit hours"
+                course1.credit_hours == course2.credit_hours ? is_matched = true : is_matched = false
             end
         end
     end
@@ -753,7 +757,7 @@ end
 function find_match(course::Course, course_set::Array{Course}, match_criteria::Array{String}=Array{String,1}())
     for c in course_set
         if match(course, c, match_criteria)
-            return course 
+            return course
         end
     end
     return nothing
@@ -773,16 +777,16 @@ end
 """
     dead_ends(curric, prefixes)
 
-Finds all courses in curriculum `curric` that appear at the end of a path (i.e., sink vertices), and returns those courses that 
+Finds all courses in curriculum `curric` that appear at the end of a path (i.e., sink vertices), and returns those courses that
 do not have one of the course prefixes listed in the `prefixes` array.  If a course does not have a prefix, it is excluded from
 the analysis.
 
 # Arguments
-- `c::Curriculum` : the target curriculum. 
+- `c::Curriculum` : the target curriculum.
 - `prefixes::Array{String,1}` : an array of course prefix strings.
 
-For instance, the following will find all courses in `curric` that appear at the end of any course path in the curriculum, 
-and do *not* have `BIO` as a prefix.  One might consider these courses "dead ends," as their course outcomes are not used by any 
+For instance, the following will find all courses in `curric` that appear at the end of any course path in the curriculum,
+and do *not* have `BIO` as a prefix.  One might consider these courses "dead ends," as their course outcomes are not used by any
 major-specific course, i.e., by any course with the prefix `BIO`.
 
 ```julia-repl
@@ -794,7 +798,7 @@ function dead_ends(curric::Curriculum, prefixes::Array{String,1})
     paths = all_paths(curric.graph)
     for p in paths
         course = course_from_vertex(curric, p[end])
-        if course.prefix == "" 
+        if course.prefix == ""
             continue
         end
         if !(course.prefix in prefixes)
