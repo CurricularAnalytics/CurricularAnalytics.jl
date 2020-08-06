@@ -13,9 +13,6 @@ module Enrollment
                 # Clear the array of enrolled students for the course
                 course.metadata["students"] = Student[]
 
-                println(course.name)
-                println(course.requisites)
-
                 for student in simulation.enrolledStudents
                     # Get the coreqs of the the course
                     strictCoreqIds = [k for (k, v) in course.requisites if v == strict_co]
