@@ -1,4 +1,3 @@
-# Dependencies and Imports
 using JSON, DataFrames, LightGraphs, PathDistribution
 
 # Simulation Function
@@ -172,34 +171,7 @@ function simulate(degreePlan::DegreePlan, students::Array{Student}; performance_
 end
 
 
-####################################################################
 # Helper funcions
 function constructCourseName(prefix, num, name)
     return prefix * " " * string(num) * " " * name
-end
-
-
-
-# Function that determines wheter a student can enroll in a course
-function canEnroll(student, course, studentProgress, max_credits, term)
-        # Find the prereq ids of the current course
-    prereqIds = map(x -> x.id, course.prereqs)
-
-    !in(student, course.students) &&
-        (length(course.prereqs) == 0 || sum(studentProgress[student.id, prereqIds]) == length(course.prereqs)) &&       # No Prereqs or the student has completed them
-        studentProgress[student.id, course.id] == 0.0 &&                                                                # The student has not already completed the course
-        student.termcredits + course.credits <= max_credits &&                                                          # The student will not exceed the maximum number of credit hours
-        course.termReq <= term &&                                                                                       # The student must wait until the term req has been met
-        enrolledInCoreqs(student, course, studentProgress)                                                              # The student is enrolled in or has completed coreqs
-end
-
-# Determines whether a student is enrolled in or has completed coreqs for a given course
-function enrolledInCoreqs(student, course, studentProgress)
-    enrolled = true
-
-    for coreq in course.coreqs
-        enrolled =  enrolled && (in(student, coreq.students) || studentProgress[student.id, coreq.id] == 1.0)
-    end
-
-    return enrolled
 end

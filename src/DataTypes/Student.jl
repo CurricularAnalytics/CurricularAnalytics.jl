@@ -29,9 +29,6 @@ mutable struct Student
     end
 end
 
-
-# Helper Functions
-
 # Returns an array of students
 function simpleStudents(number)
     students = Student[]
