@@ -1,4 +1,3 @@
-# TODO: Deal with strict_co requisites
 module Enrollment
     using CurricularAnalytics: Student, Course, co, pre, strict_co, custom
 
@@ -78,35 +77,6 @@ module Enrollment
         end
     end
 
-    function satisfyCoreqs(student, max_credits, terms, studentProgress, targetCourse, courses)
-        coreqTotalCredits = 0
-
-        # Find the coreq ids of the current course
-        coreqs = getReqs(courses, targetCourse, co)
-        coreqIds = map(x -> x.metadata["id"], coreqs)
-
-        remainCoreqIds = []
-
-        # Filter out coreqs that have been satisfied
-        for coreqId in coreqIds
-            if studentProgress[student.id, coreqId] != 1
-                remainCoreqIds.push!(coreqId)
-            end
-        end
-
-        # If all coreqs have been taken, then satisfied
-        if length(remainCoreqIds) == 0
-            return true
-        end
-
-        # Otherwise, check if they will be taken this term
-        for (termnum, term) in enumerate(terms)
-            for course in term.courses
-
-            end
-        end
-    end
-
     # Function that determines wheter a student can enroll in a course
     function canEnroll(student, course, courses, studentProgress, max_credits, term)
         # Find the prereq ids of the current course
@@ -135,7 +105,7 @@ module Enrollment
         return enrolled
     end
 
-
+    # Determines whether a student is enrolled in a given course
     function isStudentEnrolled(targetStudent, course)
         students = course.metadata["students"]
         for student in students
