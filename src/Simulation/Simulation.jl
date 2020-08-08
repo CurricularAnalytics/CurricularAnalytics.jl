@@ -135,7 +135,8 @@ function simulate(degreePlan::DegreePlan, students::Array{Student}; performance_
             stopoutStudentIds = []
             for (i, student) in enumerate(simulation.enrolledStudents)
                 # Predict stopout
-                student.stopout = performance_model.predict_stopout(student, currentTerm, simulation.degreePlan["stopoutModel"])
+                # println(simulation.degreePlan["stopoutModel"])
+                student.stopout = performance_model.predict_stopout(student, currentTerm, simulation.degreePlan.metadata["stopoutModel"])
 
                 if student.stopout
                     # Add to array of stopouts
