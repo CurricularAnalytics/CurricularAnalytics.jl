@@ -30,7 +30,7 @@ mutable struct Student
 end
 
 # Returns an array of students
-function simpleStudents(number)
+function simple_students(number)
     students = Student[]
     for i = 1:number
         student = Student(i, Dict())
