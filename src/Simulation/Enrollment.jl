@@ -80,13 +80,45 @@ module Enrollment
         prereqs = get_reqs(courses, course, pre)
         prereq_ids = map(x -> x.metadata["id"], prereqs)
 
-        !in(student, course.metadata["students"]) &&
-            (length(prereq_ids) == 0 || sum(student_progress[student.id, prereq_ids]) == length(prereq_ids)) &&     # No Prereqs or the student has completed them
-            student_progress[student.id, course.metadata["id"]] == 0.0 &&                                        # The student has not already completed the course
-            !is_student_enrolled(student, course) &&                                                              # The student has not already enrolled the course
-            student.termcredits + course.credit_hours <= max_credits &&                                         # The student will not exceed the maximum number of credit hours
-            course.metadata["term_req"] <= term &&                                                               # The student must wait until the term req has been met
-            enrolled_in_coreqs(student, course, courses, student_progress)                                         # The student is enrolled in or has completed coreqs
+        # Stuent is enrolled already
+        if in(student, course.metadata["students"])
+            return false
+        end
+
+         # Student needs to complete prereqs
+        if (length(prereq_ids) != 0 && sum(student_progress[student.id, prereq_ids]) != length(prereq_ids))
+            return false
+        end
+
+        # The student has completed the course
+        if student_progress[student.id, course.metadata["id"]] != 0.0
+            return false
+        end
+
+        # The student will exceed the maximum number of credit hours
+        if student.termcredits + course.credit_hours > max_credits
+            return false
+        end
+
+        # The student must wait until the term req has been met
+        if course.metadata["term_req"] > term
+            return false
+        end
+
+        # The student isn't enrolled in or hasn't completed coreqs
+        if !enrolled_in_coreqs(student, course, courses, student_progress)
+            return false
+        end
+
+        return true
+
+        #  &&
+        #     (length(prereq_ids) == 0 || sum(student_progress[student.id, prereq_ids]) == length(prereq_ids)) &&
+        #     student_progress[student.id, course.metadata["id"]] == 0.0 &&
+        #     !is_student_enrolled(student, course) &&
+        #     student.termcredits + course.credit_hours <= max_credits &&
+        #     course.metadata["term_req"] <= term &&
+        #     enrolled_in_coreqs(student, course, courses, student_progress)
     end
 
     # Determines whether a student is enrolled in or has completed coreqs for a given course
@@ -103,15 +135,15 @@ module Enrollment
     end
 
     # Determines whether a student is enrolled in a given course
-    function is_student_enrolled(target_student, course)
-        students = course.metadata["students"]
-        for student in students
-            if student.id == target_student.id
-                return true
-            end
-        end
-        return false
-    end
+    # function is_student_enrolled(target_student, course)
+    #     students = course.metadata["students"]
+    #     for student in students
+    #         if student.id == target_student.id
+    #             return true
+    #         end
+    #     end
+    #     return false
+    # end
 
 
     # Get reqs of a given course
