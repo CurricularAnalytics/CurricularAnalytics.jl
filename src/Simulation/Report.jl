@@ -1,18 +1,19 @@
-
-function simulation_report(simulation, duration, course_passrate, max_credits)
+# GLH -- should not have to pass in duration course_passrate, and max_credit -- they should be stored as a part of a simulation object
+# GLH -- need to be able to print course pass rates on a course-by-course basis
+function simulationReport(simulation, duration, course_passrate, max_credits)
     println()
     println("------------ Simulation Report ------------")
 
     println()
     println("-------- Simulation Statistics --------")
 
-    str = "Number of terms: " * string(duration)
+    str = "Number of Terms: " * string(duration)
     println(str)
 
     str = "Max Credits per Semester: " * string(max_credits)
     println(str)
 
-    str = "Number of Students: " * string(simulation.num_students)
+    str = "Number of Students: " * string(simulation.numStudents)
     println(str)
 
     str = "Course Pass Rates(same for all courses): " * string(course_passrate * 100) * "%"
@@ -21,34 +22,34 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
     println()
     println("-------- Graduation Statistics --------")
 
-    str = "Number of Graduated Students: " * string(length(simulation.graduated_students))
+    str = "Number of Students Graduated : " * string(length(simulation.graduatedStudents))
     println(str)
 
-    str = "Graduate Rate: " * string(simulation.grad_rate * 100) * "%"
+    str = "Graduate Rate: " * string(simulation.gradRate * 100) * "%"
     println(str)
 
     println("Term Graduation Rates: ")
-    println(simulation.term_grad_rates)
+    println(simulation.termGradRates)
 
-    str = "Average number of semesters it takes to graduate students: " * string(simulation.time_to_degree)
+    str = "Average time to degree: " * string(round(simulation.timeToDegree, digits=2)) * " terms"
     println(str)
 
     println()
-    println("-------- Stopped out Statistics --------")
+    println("-------- Stop out Statistics --------")
 
-    str = "Number of Stopped out Students: " * string(length(simulation.stopout_students))
+    str = "Number of Students Stopped Out : " * string(length(simulation.stopoutStudents))
     println(str)
 
-    str = "Stopped out Rate: " * string(simulation.stopout_rate * 100) * "%"
+    str = "Stop-out Rate: " * string(simulation.stopoutRate * 100) * "%"
     println(str)
 
-    println("Term Stopped out Rates: ")
-    println(simulation.term_stopout_rates)
+    println("Term Stop-out Rates: ")
+    println(simulation.termStopoutRates)
 
     println()
-    println("-------- Course Pass Rates of Terms Table--------")
+    println("-------- Course Pass Rates by Term--------")
 
-    frame = pass_table(simulation, duration)
+    frame = passTable(simulation, duration)
     println(frame)
 
     println()
@@ -56,7 +57,7 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
 end
 
 
-function pass_table(simulation, semesters=-1)
+function passTable(simulation, semesters=-1)
     frame = DataFrame()
 
     # Make Keys
@@ -72,19 +73,21 @@ function pass_table(simulation, semesters=-1)
     end
 
     # Populate data
-    for course in simulation.degree_plan.curriculum.courses
+    for course in simulation.degreePlan.curriculum.courses
         row = [course.name]
         prev = 0
         for i=1:terms
             prev += course.metadata["termpassed"][i]
-            row = [row string(round((prev/simulation.num_students)*100, digits=3)) * "%"]
+            # row = [row round((prev/simulation.numStudents)*100, digits=3)]
+            row = [row string(round((prev/simulation.numStudents)*100, digits=3)) * "%"]
         end
         push!(frame, row)
     end
 
     rates = ["GRAD RATE"]
     for i=1:terms
-        rates = [rates string(round(simulation.term_grad_rates[i]*100, digits=3)) * "%"]
+        rates = [rates string(round(simulation.termGradRates[i]*100, digits=3)) * "%"]
+        # rates = string([rates string(round(simulation.termGradRates[i]*100, digits=3)) * "%"])
     end
     push!(frame, rates)
 

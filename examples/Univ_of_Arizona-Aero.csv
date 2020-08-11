@@ -1,0 +1,53 @@
+Curriculum,Aerospace Engineering,,,,,,,,,
+Degree Plan,2019-20 Degree Plan,,,,,,,,,
+Institution,University of Arizona,,,,,,,,,
+Degree Type,BS,,,,,,,,,
+System Type,semester,,,,,,,,,
+CIP,14.0201,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,Calculus I w/ Applications,MATH,125,,,,3,,,1
+2,Gen Chemistry I,CHEM,151,,,,4,,,1
+3,First-year Comp.,ENGL,101,,,,3,,,1
+4,Intro to Engineering,ENGR,102,,1,,3,,,1
+5,Tier I General Ed.,,,,,,3,,,1
+6,Calculus II,MATH,129,1,,,3,,,2
+7,Intro. to MATLAB I,AME,105,1,,,1,,,2
+8,Intro Mechanics,PHYS,141,1,,,4,,,2
+9,First-year Comp.,ENGL,102,3,,,3,,,2
+10,Programming for Eng. Apps.,ECE,175,,1,,3,,,2
+11,Tier I General Ed. 1,,,,,,3,,,2
+12,Statics,CE,214,8;6,,,3,,,3
+13,Vector Calculus,MATH ,223,6,,,4,,,3
+14,Electricity & Magnetism,PHYS,241,6;8,,,4,,,3
+15,Intro. To MATLAB II,AME ,205,7,,,1,,,3
+16,Comp. Aided Drafting & Manufacturing,AME,211,,,,3,,,3
+17,Tier I General Ed. 2,,,,,,3,,,3
+18,Thermodynamics,AME,230,8,,,3,,,4
+19,Dynamics,AME,250,12,20,,3,,,4
+20,Intro. to ODEs,MATH,254,13,,,3,,,4
+21,Intro. to Aerospace Eng.,AME,220,13; 8,20,,3,,,4
+22,Tier I General Ed. 3,,,,,,3,,,4
+23,Aerodynamics,AME,320,21,26,,3,,,5
+24,Mech. Behavior of Eng. Materials.,AME ,324A,12,,,3,,,5
+25,Engineering Analysis,AME,301,20,,,3,,,5
+26,Instrumentation Lab.,AME,300,,24;18,,3,,,5
+27,Fund. of Materials for Engineers,MSE,331R,2,,,3,,,5
+28,Mech. of Materials Lab.,AME,324L,25,,,1,,,5
+29,Eng. Component Design,AME,324B,25,,,3,,,6
+30,Aircraft Performance,AME,321,19;21,23,,3,,,6
+31,Gasdynamics,AME,323,20; 18; 21,32,,3,,,6
+32,Numerical Methods,AME,302,20;15;19,26,,3,,,6
+33,Aero./Mech. Eng. Lab,AME,313,,,,1,,,6
+34,Tier II General Ed. 1,,,,,,3,,,6
+35,Senior Aerospace Lab.,AME,401,27;23;31,,,3,,,7
+36,Aerospace Conceptual Design,AME,420,33;23;30;31,,,3,,,7
+37,Aerospace Propulsion,AME,425,18;31;24,,,3,,,7
+38,Stability and Control of Aero. Vehicles,AME,427,23;30;15,,,3,,,7
+39,Orbital Mechanicans and Space Flt.,AME,457,13;19,,,3,,,7
+40,Senior Colloquium,AME,495S,,,,1,,,7
+41,Aerospace Eng.Design,AME,422,36,33,,3,,,8
+42,Num. Meth. in Fluid Mech. & Heat Xfer,AME,431,18;24;32,,,3,,,8
+43,Technical Elective 1,,,,,,3,,,8
+44,Technical Elective 2,,,,,,3,,,8
+45,Tier II General Ed. 2,,,,,,3,,,8

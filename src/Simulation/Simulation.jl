@@ -1,93 +1,87 @@
-using JSON
-using DataFrames
-using LightGraphs
-using PathDistribution
-
-include("PassRate.jl")
-include("Enrollment.jl")
-include("Report.jl")
+using JSON, DataFrames, LightGraphs, PathDistribution
 
 # Simulation Function
-function simulate(degree_plan::DegreePlan, students::Array{Student}; performance_model=PassRate, enrollment_model=Enrollment, max_credits=18, duration=8, duration_lock=false, stopouts=false)
+function simulate(degreePlan::DegreePlan, students::Array{Student}; performance_model=PassRate, enrollment_model=Enrollment, max_credits=18, duration=8, durationLock=false, stopouts=false)
+#GLH - what does durationLock do?
 
     # Create the simulation object
-    simulation = Simulation(deepcopy(degree_plan))
+    simulation = Simulation(deepcopy(degreePlan))
 
     # Train the model
-    performance_model.train(simulation.degree_plan)
+    performance_model.train(simulation.degreePlan)
 
     # Determine the number of students used in the simulation
-    num_students = length(students)
-    simulation.num_students = num_students
+    numStudents = length(students)
+    simulation.numStudents = numStudents
 
     # Populate the enrolled students array with all students
-    simulation.enrolled_students = copy(students)
+    simulation.enrolledStudents = copy(students)
 
     # Reset simulation object
-    simulation.graduated_students = Student[]
-    simulation.stopout_students = Student[]
-    simulation.grad_rate = 0.0
-    simulation.term_grad_rates = zeros(duration)
-    simulation.stopout_rate = 0.0
-    simulation.term_stopout_rates = zeros(duration)
+    simulation.graduatedStudents = Student[]
+    simulation.stopoutStudents = Student[]
+    simulation.gradRate = 0.0
+    simulation.termGradRates = zeros(duration)
+    simulation.stopoutRate = 0.0
+    simulation.termStopoutRates = zeros(duration)
 
-    num_courses = simulation.degree_plan.curriculum.num_courses
+    numCourses = simulation.degreePlan.curriculum.num_courses
 
     # Assign each student a unique id
-    for (i, student) in enumerate(simulation.enrolled_students)
+    for (i, student) in enumerate(simulation.enrolledStudents)
         student.id = i
-        student.termpassed = zeros(num_courses)
+        student.termpassed = zeros(numCourses)
     end
 
     # Initialize matrix to track student performance
     # Each row represents a student and each column is associated with a course.
     # A 1 signifies that the student passed the course while a 0 indicates incomplete.
-    simulation.student_progress = zeros(num_students, num_courses)
+    simulation.studentProgress = zeros(numStudents, numCourses)
 
     # Matrix to hold the number of attempts a student has made at passing a course
-    attempts = ones(num_students, num_courses)
+    attempts = ones(numStudents, numCourses)
 
     # Record number of simulation terms
     simulation.duration = duration
 
     # Initialize courses
-    for course in simulation.degree_plan.curriculum.courses
+    for course in simulation.degreePlan.curriculum.courses
         course.metadata["termenrollment"] = zeros(duration)
         course.metadata["termpassed"] = zeros(duration)
         course.metadata["students"] = Student[]
     end
 
     # Convenience variables
-    terms = simulation.degree_plan.terms
-    student_progress = simulation.student_progress
+    terms = simulation.degreePlan.terms
+    studentProgress = simulation.studentProgress
 
     # Begin simulation
-    for current_term = 1:duration
+    for currentTerm = 1:duration
         # Enroll students in courses
-        enrollment_model.enroll!(current_term, simulation, max_credits)
+        enrollment_model.enroll!(currentTerm, simulation, max_credits)
 
         # Predict Performance
         for (termnum, term) in enumerate(terms)
             for course in term.courses
                 for student in course.metadata["students"]
                     # Make prediction
-                    predicted_grade = performance_model.predict_grade(course, student)
+                    predictedGrade = performance_model.predict_grade(course, student)
 
-                    course_name = construct_course_name(course.prefix, course.num, course.name)
-                    student.performance[course_name] = predicted_grade
+                    courseName = constructCourseName(course.prefix, course.num, course.name)
+                    student.performance[courseName] = predictedGrade
 
                     # Record grade for the course
-                    push!(course.metadata["grades"], predicted_grade)
+                    push!(course.metadata["grades"], predictedGrade)
 
                     # Check to see if the grade is passing
-                    if predicted_grade > 1.67
+                    if predictedGrade > 1.67
                         # Mark that the student passed the course
-                        student_progress[student.id, course.metadata["id"]] = 1.0
+                        studentProgress[student.id, course.metadata["id"]] = 1.0
 
                         # Log the term which the student passed the course
-                        course.metadata["termpassed"][current_term] += 1
+                        course.metadata["termpassed"][currentTerm] += 1
 
-                        student.termpassed[course.metadata["id"]] = current_term
+                        student.termpassed[course.metadata["id"]] = currentTerm
                     else
                         # Recourd the failure
                         course.metadata["failures"] += 1
@@ -98,14 +92,14 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
 
                     # Increment the students credit hours and points
                     student.total_credits += course.credit_hours
-                    student.total_points += predicted_grade * course.credit_hours
+                    student.total_points += predictedGrade * course.credit_hours
                 end
             end
         end
 
 
         # Process term performance
-        for student in simulation.enrolled_students
+        for student in simulation.enrolledStudents
             # Compute the student's GPA
             student.gpa = student.total_points / student.total_credits
 
@@ -115,71 +109,73 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
 
 
         # Determine whether a student has graduated
-        graduated_student_ids = []
-        for (i, student) in enumerate(simulation.enrolled_students)
-            if sum(student_progress[student.id, :]) == num_courses
+        graduatedStudentIds = []
+        for (i, student) in enumerate(simulation.enrolledStudents)
+            if sum(studentProgress[student.id, :]) == numCourses
                 # Add the student to the array of graduated students
-                push!(simulation.graduated_students, student)
+                push!(simulation.graduatedStudents, student)
 
                 # Record the semester of graduation
-                student.gradsem = current_term
+                student.gradsem = currentTerm
 
                 # Record the index of the student
-                push!(graduated_student_ids, i)
+                push!(graduatedStudentIds, i)
 
-                simulation.time_to_degree += current_term
+                simulation.timeToDegree += currentTerm
             end
         end
         # Remove graduated students from enrolled array
-        deleteat!(simulation.enrolled_students, graduated_student_ids)
+        deleteat!(simulation.enrolledStudents, graduatedStudentIds)
 
         # Compute graduation rate as of the current term
-        simulation.term_grad_rates[current_term] = length(simulation.graduated_students) / num_students
+        simulation.termGradRates[currentTerm] = length(simulation.graduatedStudents) / numStudents
 
 
         # Determine stopouts
         if stopouts
-            stopout_student_ids = []
-            for (i, student) in enumerate(simulation.enrolled_students)
+            stopoutStudentIds = []
+            for (i, student) in enumerate(simulation.enrolledStudents)
                 # Predict stopout
-                # println(simulation.degree_plan["stopout_model"])
-                student.stopout = performance_model.predict_stopout(student, current_term, simulation.degree_plan.metadata["stopout_model"])
+                # println(simulation.degreePlan["stopoutModel"])
+                student.stopout = performance_model.predict_stopout(student, currentTerm, simulation.degreePlan.metadata["stopoutModel"])
 
                 if student.stopout
                     # Add to array of stopouts
-                    push!(simulation.stopout_students, student)
+                    push!(simulation.stopoutStudents, student)
 
                     # Record index of the student
-                    push!(stopout_student_ids, i)
+                    push!(stopoutStudentIds, i)
                 end
             end
 
             # Remove graduated students from the array of enrolled students
-            deleteat!(simulation.enrolled_students, stopout_student_ids)
+            deleteat!(simulation.enrolledStudents, stopoutStudentIds)
 
             # Compute stopout rate as of the current term
-            simulation.term_stopout_rates[current_term] = length(simulation.stopout_students) / num_students
+            simulation.termStopoutRates[currentTerm] = length(simulation.stopoutStudents) / numStudents
         end
 
         # Check to see if all students have graduated
-        if length(simulation.enrolled_students) == 0 && !duration_lock
-            simulation.duration = current_term
-            simulation.time_to_degree /= num_students
-            break
+        if length(simulation.enrolledStudents) == 0 && !durationLock
+            simulation.duration = currentTerm
+            # simulation.timeToDegree /= length(simulation.graduatedStudents) # GLH - changed numStudents to length(graduatedStudents)
+            break  # GLH - break out of the simulation loop
         end
     end
 
     # Compute graduation rate
-    simulation.grad_rate = length(simulation.graduated_students) / num_students
+    simulation.gradRate = length(simulation.graduatedStudents) / numStudents
 
     # Compute stopout rate
-    simulation.stopout_rate = length(simulation.stopout_students) / num_students
+    simulation.stopoutRate = length(simulation.stopoutStudents) / numStudents
+
+    # Compute average time to degree -- GLH added this -> if all students graduated, timeToDegree was not being divided by total number of student who graduatedStudents
+    simulation.timeToDegree /= length(simulation.graduatedStudents)
 
     return simulation
 end
 
-
 # Helper funcions
-function construct_course_name(prefix, num, name)
+function constructCourseName(prefix, num, name)
     return prefix * " " * string(num) * " " * name
 end
