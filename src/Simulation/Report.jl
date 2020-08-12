@@ -9,7 +9,7 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
     str = "Number of terms: " * string(duration)
     println(str)
 
-    str = "Max Credits per Semester: " * string(max_credits)
+    str = "Max Credits per Term: " * string(max_credits)
     println(str)
 
     str = "Number of Students: " * string(simulation.num_students)
@@ -21,32 +21,32 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
     println()
     println("-------- Graduation Statistics --------")
 
-    str = "Number of Graduated Students: " * string(length(simulation.graduated_students))
+    str = "Number of Students Graduated: " * string(length(simulation.graduated_students))
     println(str)
 
-    str = "Graduate Rate: " * string(simulation.grad_rate * 100) * "%"
+    str = "Graduation Rate: " * string(simulation.grad_rate * 100) * "%"
     println(str)
 
     println("Term Graduation Rates: ")
     println(simulation.term_grad_rates)
 
-    str = "Average number of semesters it takes to graduate students: " * string(simulation.time_to_degree)
+    str = "Average time to degree: " * string(round(simulation.time_to_degree, digits=2)) * " terms"
     println(str)
 
     println()
-    println("-------- Stopped out Statistics --------")
+    println("-------- Stop out Statistics --------")
 
-    str = "Number of Stopped out Students: " * string(length(simulation.stopout_students))
+    str = "Number of Students Stopped Out: " * string(length(simulation.stopout_students))
     println(str)
 
-    str = "Stopped out Rate: " * string(simulation.stopout_rate * 100) * "%"
+    str = "Stop-out Rate: " * string(simulation.stopout_rate * 100) * "%"
     println(str)
 
-    println("Term Stopped out Rates: ")
+    println("Term Stop-out Rates: ")
     println(simulation.term_stopout_rates)
 
     println()
-    println("-------- Course Pass Rates of Terms Table--------")
+    println("-------- Course Pass Rates by Term--------")
 
     frame = pass_table(simulation, duration)
     println(frame)

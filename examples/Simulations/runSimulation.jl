@@ -1,7 +1,3 @@
-using Pkg
-Pkg.activate("../..")
-Pkg.resolve()
-Pkg.instantiate()
 using CurricularAnalytics
 
 include("CurriculumPool.jl")
@@ -27,9 +23,8 @@ enrollment_model = Enrollment
 # Comment this whole section if use the courses and degree plan above
 degree_plan = read_csv("Univ_of_Arizona-Aero.csv")     # change the degree plan csv file for different plan
 courses = degree_plan.curriculum.courses
-name = degree_plan.curriculum.name
-println()
-println("Degree Plan: $name")
+println("\n $(degreePlan.curriculum.name), $(degreePlan.name)")
+
 
 ##########################################################
 

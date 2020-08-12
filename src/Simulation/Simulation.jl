@@ -154,7 +154,7 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
                 end
             end
 
-            # Remove graduated students from the array of enrolled students
+            # Remove stoped-out students from the array of enrolled students
             deleteat!(simulation.enrolled_students, stopout_student_ids)
 
             # Compute stopout rate as of the current term
@@ -165,7 +165,7 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
         if length(simulation.enrolled_students) == 0 && !duration_lock
             simulation.duration = current_term
             simulation.time_to_degree /= num_students
-            break
+            break  # breaks out of the simulation loop, i.e., stops the simulation
         end
     end
 
@@ -174,6 +174,9 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
 
     # Compute stopout rate
     simulation.stopout_rate = length(simulation.stopout_students) / num_students
+
+    # Compute average time to degree 
+    simulation.time_to_degree /= length(simulation.graduated_students)
 
     return simulation
 end
