@@ -1,4 +1,4 @@
-import CurricularAnalytics: degree_plan
+import CurricularAnalytics: DegreePlan
 
 mutable struct Simulation
     degree_plan::DegreePlan                # The curriculum that is simulated

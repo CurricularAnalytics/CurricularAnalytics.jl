@@ -35,12 +35,91 @@ module PassRate
     end
 end
 
-
-# Helper functions
-
 # Sets all course model passrates to given value
 function set_passrates(courses, passrate)
     for course in courses
         course.passrate = passrate
     end
+end
+
+# Read from a CSV file that contains all courses taken by all students of a certain academic period
+# Compute and set the pass rates for given courses based on the student performance in the file
+# If a course is not found, set its pass rate to a preset value
+# If a course is presented as a requirement (a set of courses), use the average pass rate of the set
+# Note: Only support Tier I General Education for now
+function set_passrates_from_csv(courses, csv_path, pass_rate)
+    university_course_table = CSV.File(csv_path, delim = ',', silencewarnings = true) |> DataFrame
+
+    passing_grades = ["A", "B", "C", "D", "P"]
+    all_grades = ["A", "B", "C", "D", "P", "W", "F", "E", "S", "WS"]
+
+    for course in courses
+        prefix = string(course.prefix)
+        num = string(course.num)
+
+        # Compute the number of student passed the course, and number of student took the course
+        num_passes = nrow(filter(row -> passrate_filter(row, prefix, num, passing_grades), university_course_table))
+        num_students_taken = nrow(filter(row -> passrate_filter(row, prefix, num, all_grades), university_course_table))
+
+        # The course is not found in the course table
+        if (num_students_taken == 0)
+            # The course is in a Tier I General Education, then use the average pass rate of them
+            if (prefix == "" && num == "" && occursin("Tier I", course.name))
+                course.passrate = get_gen_tier_I_passrate(university_course_table, ["150", "160"], passing_grades, all_grades, pass_rate)
+            else
+                course.passrate = pass_rate                      # Hard code the rest of the course to a preset value for now
+            end
+        else
+            course.passrate = num_passes / num_students_taken    # Computer the course pass rate
+        end
+    end
+end
+
+# Compute the average pass rate of Tier I General Education of given numbers
+function get_gen_tier_I_passrate(university_course_table, nums, passing_grades, all_grades, pass_rate)
+    # Compute the number of student passed the course, and number of student took the course
+    num_passes = nrow(filter(row -> passrate_filter(row, nums, passing_grades), university_course_table))
+    num_students_taken = nrow(filter(row -> passrate_filter(row, nums, all_grades), university_course_table))
+
+    if (num_students_taken == 0)
+        return pass_rate
+    else
+        return num_passes / num_students_taken
+    end
+end
+
+# A course prefix, course number based filter. 
+# The function returns true if the course taken by the student has the given prefix, number, and is in the grade range
+function passrate_filter(row, prefix, num, grades)
+    if row[:course_prefix] == prefix && row[:course_num] == num
+        for grade in grades
+            if row[:grade] == grade
+                return true
+            end
+        end
+    end
+    return false
+end
+
+# A course number based filter. 
+# The function returns true if the number of course taken by the student contains the given number, and is in the grade range
+function passrate_filter(row, nums, grades)
+    if start_with_nums(row[:course_num], nums)
+        for grade in grades
+            if row[:grade] == grade
+                return true
+            end
+        end
+    end
+    return false
+end
+
+# Help function
+function start_with_nums(str, nums)
+    for num in nums
+        if startswith(str, num)
+            return true
+        end
+    end
+    return false
 end
