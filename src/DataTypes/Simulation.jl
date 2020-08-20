@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-=======
-import CurricularAnalytics: DegreePlan
-
->>>>>>> f1a4b4ffe7e4804d60fb53576641b13b89266bd8
 mutable struct Simulation
     degree_plan::DegreePlan                # The curriculum that is simulated
     duration::Int                           # The number of terms the simulation runs for
