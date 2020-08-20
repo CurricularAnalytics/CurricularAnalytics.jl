@@ -1,5 +1,3 @@
-import CurricularAnalytics: degree_plan
-
 mutable struct Simulation
     degree_plan::DegreePlan                # The curriculum that is simulated
     duration::Int                           # The number of terms the simulation runs for

@@ -23,7 +23,7 @@ include("DegreePlanCreation.jl")
 include("Simulation/Simulation.jl")
 
 export AA, AAS, AS, BA, BS, Course, CourseCatalog, Curriculum, Degree, DegreePlan, EdgeClass, LearningOutcome, Requisite, System, Term, add_course!,
-        add_lo_requisite!, add_requisite!, all_paths, basic_metrics, basic_statistics, bin_filling, blocking_factor, centrality, co, compare_curricula,
+        add_lo_requisite!, add_requisite!, all_paths, basic_metrics, basic_statistics, bin_filling, blocking_factor, centrality, co, compare_curricula, convert_ids,
         complexity, course, course_from_id, course_from_vertex, course_id, courses_from_vertices, create_degree_plan, dead_ends, delay_factor, delete_requisite!,
         dfs, extraneous_requisites, find_term, gad, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula,
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,

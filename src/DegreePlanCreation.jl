@@ -14,7 +14,7 @@ end
 function bin_filling(curric::Curriculum, additional_courses::Array{AbstractCourse}=Array{AbstractCourse,1}(); min_terms::Int=2, max_terms::Int=10, min_cpt::Int=3, max_cpt::Int=19)
     terms = Array{Term,1}()
     term_credits = 0
-    term_courses = AbstractCourse[]
+    term_courses = Array{AbstractCourse,1}()
     UC = sort!(deepcopy(curric.courses), by=course_num)  # lower numbered courses will be considered first
     while length(UC) > 0
         if ((c = select_vertex(curric, term_courses, UC)) != nothing)
@@ -22,9 +22,9 @@ function bin_filling(curric::Curriculum, additional_courses::Array{AbstractCours
             if term_credits + c.credit_hours <= max_cpt
                 append!(term_courses, [c])
                 term_credits = term_credits + c.credit_hours
-            else  
+            else  # exceeded max credits allowed per term
                 append!(terms, [Term(term_courses)])
-                term_courses = Course[c] 
+                term_courses = AbstractCourse[c] 
                 term_credits = c.credit_hours
             end
             # if c serves as a strict-corequisite for other courses, include them in current term too
