@@ -34,6 +34,7 @@ function simple_students(number)
     students = Student[]
     for i = 1:number
         student = Student(i, Dict())
+        student.stopout = false
         push!(students, student)
     end
     return students

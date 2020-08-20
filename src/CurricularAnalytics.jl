@@ -29,7 +29,7 @@ export AA, AAS, AS, BA, BS, Course, CourseCatalog, Curriculum, Degree, DegreePla
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
         requisite_type, semester, similarity, strict_co, topological_sort, total_credits, write_csv, Grade, grade, AbstractRequirement, CourseSet, RequirementSet,
         CourseRecord, StudentRecord, TransferArticulation, add_transfer_catalog, add_transfer_course, transfer_equiv, PassRate, Enrollment, Simulation, Student, set_passrates,
-        simple_students, simulate, simulation_report, pass_table
+        set_passrates_from_csv, simple_students, simulate, simulation_report, pass_table, passrate_table
 
 # Check if a curriculum graph has requisite cycles.
 """

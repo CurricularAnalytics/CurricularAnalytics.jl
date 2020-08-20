@@ -1,10 +1,8 @@
 
-function simulation_report(simulation, duration, course_passrate, max_credits)
-    println()
-    println("------------ Simulation Report ------------")
+function simulation_report(simulation, duration, course_passrate, max_credits, real_passrate)
+    println("\n------------ Simulation Report ------------")
 
-    println()
-    println("-------- Simulation Statistics --------")
+    println("\n-------- Simulation Statistics --------")
 
     str = "Number of terms: " * string(duration)
     println(str)
@@ -12,14 +10,16 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
     str = "Max Credits per Term: " * string(max_credits)
     println(str)
 
+    str = "Number of Attempts of a Course: " * string(simulation.course_attempt_limit)
+    println(str)
+
     str = "Number of Students: " * string(simulation.num_students)
     println(str)
 
-    str = "Course Pass Rates(same for all courses): " * string(course_passrate * 100) * "%"
+    str = "Preset Course Pass Rates: " * string(course_passrate * 100) * "%"
     println(str)
 
-    println()
-    println("-------- Graduation Statistics --------")
+    println("\n-------- Graduation Statistics --------")
 
     str = "Number of Students Graduated: " * string(length(simulation.graduated_students))
     println(str)
@@ -33,8 +33,7 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
     str = "Average time to degree: " * string(round(simulation.time_to_degree, digits=2)) * " terms"
     println(str)
 
-    println()
-    println("-------- Stop out Statistics --------")
+    println("\n-------- Stop out Statistics --------")
 
     str = "Number of Students Stopped Out: " * string(length(simulation.stopout_students))
     println(str)
@@ -45,17 +44,59 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
     println("Term Stop-out Rates: ")
     println(simulation.term_stopout_rates)
 
-    println()
-    println("-------- Course Pass Rates by Term--------")
+    if real_passrate
+        println("\n-------- Pass Rate of Each Course (computed from Student Grades CSV file) --------")
+
+        frame = passrate_table(simulation)
+        println(frame)
+    end
+
+    println("\n-------- Course Pass Rates by Term --------")
 
     frame = pass_table(simulation, duration)
     println(frame)
 
-    println()
-    println("-------------------------------------------")
+    println("\n-------- Attempts (maximum should equal \"course_attempt_limit\" from the configuration) --------")
+
+    println(simulation.student_attemps)
+
+    println("\n-------------------------------------------")
 end
 
+# Return the real passrate of courses in the simulation as a DataFrame
+function passrate_table(simulation)
+    courses = simulation.degree_plan.curriculum.courses
 
+    course_names = []
+    passrates = []
+    num_students_taken = []
+    num_students_passes = []
+    for course in courses
+        course_name = course.name
+        course_prefix = course.prefix
+        course_num = course.num
+
+        if course_prefix != "" && course_num != ""
+            course_name = "$(course_prefix) $(course_num) $(course_name)"
+        end
+
+        push!(course_names, course_name)
+        push!(passrates, string(round(course.passrate * 100, digits=1)) * "%")
+        if course.metadata["num_students_taken"] == 0 && course.metadata["num_students_passes"] == 0
+            push!(num_students_taken, "N/A")
+            push!(num_students_passes, "N/A")
+        else
+            push!(num_students_taken, string(course.metadata["num_students_taken"]))
+            push!(num_students_passes, string(course.metadata["num_students_passes"]))
+        end
+        
+    end
+    frame = DataFrame(Courses=course_names, Pass_Rates=passrates, Num_Students_Passes=num_students_passes, Num_Students_Taken=num_students_taken)
+
+    frame
+end
+
+# Return the simulated course passrate of each term as a DataFrame
 function pass_table(simulation, semesters=-1)
     frame = DataFrame()
 

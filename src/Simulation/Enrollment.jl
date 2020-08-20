@@ -14,6 +14,7 @@ module Enrollment
                 course.metadata["students"] = Student[]
 
                 for student in simulation.enrolled_students
+                    
                     # Get the coreqs of the the course
                     strict_coreq_ids = [k for (k, v) in course.requisites if v == strict_co]
 
@@ -111,14 +112,6 @@ module Enrollment
         end
 
         return true
-
-        #  &&
-        #     (length(prereq_ids) == 0 || sum(student_progress[student.id, prereq_ids]) == length(prereq_ids)) &&
-        #     student_progress[student.id, course.metadata["id"]] == 0.0 &&
-        #     !is_student_enrolled(student, course) &&
-        #     student.termcredits + course.credit_hours <= max_credits &&
-        #     course.metadata["term_req"] <= term &&
-        #     enrolled_in_coreqs(student, course, courses, student_progress)
     end
 
     # Determines whether a student is enrolled in or has completed coreqs for a given course
@@ -133,19 +126,7 @@ module Enrollment
 
         return enrolled
     end
-
-    # Determines whether a student is enrolled in a given course
-    # function is_student_enrolled(target_student, course)
-    #     students = course.metadata["students"]
-    #     for student in students
-    #         if student.id == target_student.id
-    #             return true
-    #         end
-    #     end
-    #     return false
-    # end
-
-
+    
     # Get reqs of a given course
     function get_reqs(courses, target_course, req)
         reqs = Course[]
