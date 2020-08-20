@@ -65,13 +65,16 @@ function set_passrates_from_csv(courses, csv_path, pass_rate)
         if (num_students_taken == 0)
             # The course is in a Tier I General Education, then use the average pass rate of them
             if (prefix == "" && num == "" && occursin("Tier I", course.name))
-                course.passrate = get_gen_tier_I_passrate(university_course_table, ["150", "160"], passing_grades, all_grades, pass_rate)
+                course_passrate, num_passes, num_students_taken = get_gen_tier_I_passrate(university_course_table, ["150", "160"], passing_grades, all_grades, pass_rate)
+                course.passrate = course_passrate
             else
                 course.passrate = pass_rate                      # Hard code the rest of the course to a preset value for now
             end
         else
             course.passrate = num_passes / num_students_taken    # Computer the course pass rate
         end
+        course.metadata["num_students_taken"] = num_students_taken
+        course.metadata["num_students_passes"] = num_passes
     end
 end
 
@@ -82,9 +85,9 @@ function get_gen_tier_I_passrate(university_course_table, nums, passing_grades, 
     num_students_taken = nrow(filter(row -> passrate_filter(row, nums, all_grades), university_course_table))
 
     if (num_students_taken == 0)
-        return pass_rate
+        return pass_rate, 0, 0
     else
-        return num_passes / num_students_taken
+        return num_passes / num_students_taken, num_passes, num_students_taken
     end
 end
 

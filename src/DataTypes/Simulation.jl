@@ -3,6 +3,7 @@ import CurricularAnalytics: DegreePlan
 mutable struct Simulation
     degree_plan::DegreePlan                # The curriculum that is simulated
     duration::Int                           # The number of terms the simulation runs for
+    course_attempt_limit::Int               # The number of times that a course is allowed to take
 
     prediction_model::Module                 # Module that implements the model for predicting student's performance in courses
 
@@ -12,6 +13,7 @@ mutable struct Simulation
     stopout_students::Array{Student}         # Array of students who stopped out
 
     student_progress::Array{Int}             # Indicates wheter students have passed each course
+    student_attemps::Array{Int}              # Number of attemps that students have taken for each course
 
     grad_rate::Float64                       # Graduation rate at the end of the simulation
     term_grad_rates::Array{Float64}           # Array of graduation rates at the end of the simulation

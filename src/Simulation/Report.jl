@@ -1,5 +1,5 @@
 
-function simulation_report(simulation, duration, course_passrate, max_credits)
+function simulation_report(simulation, duration, course_passrate, max_credits, real_passrate)
     println("\n------------ Simulation Report ------------")
 
     println("\n-------- Simulation Statistics --------")
@@ -8,6 +8,9 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
     println(str)
 
     str = "Max Credits per Term: " * string(max_credits)
+    println(str)
+
+    str = "Number of Attempts of a Course: " * string(simulation.course_attempt_limit)
     println(str)
 
     str = "Number of Students: " * string(simulation.num_students)
@@ -41,15 +44,21 @@ function simulation_report(simulation, duration, course_passrate, max_credits)
     println("Term Stop-out Rates: ")
     println(simulation.term_stopout_rates)
 
-    println("\n-------- Pass Rate of Each Course --------")
+    if real_passrate
+        println("\n-------- Pass Rate of Each Course (computed from Student Grades CSV file) --------")
 
-    frame = passrate_table(simulation)
-    println(frame)
+        frame = passrate_table(simulation)
+        println(frame)
+    end
 
     println("\n-------- Course Pass Rates by Term --------")
 
     frame = pass_table(simulation, duration)
     println(frame)
+
+    println("\n-------- Attempts (maximum should equal \"course_attempt_limit\" from the configuration) --------")
+
+    println(simulation.student_attemps)
 
     println("\n-------------------------------------------")
 end
@@ -60,6 +69,8 @@ function passrate_table(simulation)
 
     course_names = []
     passrates = []
+    num_students_taken = []
+    num_students_passes = []
     for course in courses
         course_name = course.name
         course_prefix = course.prefix
@@ -71,8 +82,16 @@ function passrate_table(simulation)
 
         push!(course_names, course_name)
         push!(passrates, string(round(course.passrate * 100, digits=1)) * "%")
+        if course.metadata["num_students_taken"] == 0 && course.metadata["num_students_passes"] == 0
+            push!(num_students_taken, "N/A")
+            push!(num_students_passes, "N/A")
+        else
+            push!(num_students_taken, string(course.metadata["num_students_taken"]))
+            push!(num_students_passes, string(course.metadata["num_students_passes"]))
+        end
+        
     end
-    frame = DataFrame(Courses=course_names, PassRates=passrates)
+    frame = DataFrame(Courses=course_names, Pass_Rates=passrates, Num_Students_Passes=num_students_passes, Num_Students_Taken=num_students_taken)
 
     frame
 end

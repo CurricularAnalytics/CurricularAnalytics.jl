@@ -1,20 +1,21 @@
 using JSON
 using DataFrames
 using LightGraphs
-# using PathDistribution
 
 include("PassRate.jl")
 include("Enrollment.jl")
 include("Report.jl")
 
 # Simulation Function
-function simulate(degree_plan::DegreePlan, students::Array{Student}; performance_model=PassRate, enrollment_model=Enrollment, max_credits=18, duration=8, duration_lock=false, stopouts=false)
+function simulate(degree_plan::DegreePlan, course_attempt_limit::Int, students::Array{Student}; performance_model=PassRate, enrollment_model=Enrollment, max_credits=18, duration=8, duration_lock=false, stopouts=false)
 
     # Create the simulation object
     simulation = Simulation(deepcopy(degree_plan))
 
     # Train the model
     performance_model.train(simulation.degree_plan)
+
+    simulation.course_attempt_limit = course_attempt_limit
 
     # Determine the number of students used in the simulation
     num_students = length(students)
@@ -45,7 +46,7 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
     simulation.student_progress = zeros(num_students, num_courses)
 
     # Matrix to hold the number of attempts a student has made at passing a course
-    attempts = ones(num_students, num_courses)
+    simulation.student_attemps = ones(num_students, num_courses)
 
     # Record number of simulation terms
     simulation.duration = duration
@@ -60,6 +61,7 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
     # Convenience variables
     terms = simulation.degree_plan.terms
     student_progress = simulation.student_progress
+    student_attemps = simulation.student_attemps
 
     # Begin simulation
     for current_term = 1:duration
@@ -92,8 +94,15 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
                         # Recourd the failure
                         course.metadata["failures"] += 1
 
-                        # Increment the attempts
-                        attempts[student.id, course.metadata["id"]] += 1
+                        # Check if the student have reached max attempts for a course
+                        attempts = student_attemps[student.id, course.metadata["id"]]
+                        if attempts == course_attempt_limit
+                            # Student has to stopout
+                            student.stopout = true
+                        else
+                            # Increment the attempts
+                            student_attemps[student.id, course.metadata["id"]] += 1
+                        end
                     end
 
                     # Increment the students credit hours and points
@@ -141,9 +150,10 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
         if stopouts
             stopout_student_ids = []
             for (i, student) in enumerate(simulation.enrolled_students)
-                # Predict stopout
-                # println(simulation.degree_plan["stopout_model"])
-                student.stopout = performance_model.predict_stopout(student, current_term, simulation.degree_plan.metadata["stopout_model"])
+                # Predict stopout for students who haven't decided to stopout
+                if student.stopout == false
+                    student.stopout = performance_model.predict_stopout(student, current_term, simulation.degree_plan.metadata["stopout_model"])
+                end
 
                 if student.stopout
                     # Add to array of stopouts
@@ -177,6 +187,12 @@ function simulate(degree_plan::DegreePlan, students::Array{Student}; performance
 
     # Compute average time to degree 
     simulation.time_to_degree /= length(simulation.graduated_students)
+
+    # println("progress: ")
+    # println(simulation.student_progress)
+
+    # println("Attempts: ")
+    # println(attempts[3,3])
 
     return simulation
 end
