@@ -54,13 +54,13 @@ function simulation_report(simulation, duration, course_passrate, max_credits, r
     println("\n-------- Course Pass Rates by Term --------")
 
     frame = pass_table(simulation, duration)
-    println(frame)
+    show(frame, summary=false, allrows=true, allcols=true, splitcols=true)
 
-    println("\n-------- Attempts (maximum should equal \"course_attempt_limit\" from the configuration) --------")
+    #println("\n-------- Attempts (maximum should equal \"course_attempt_limit\" from the configuration) --------")
 
-    println(simulation.student_attemps)
+    #println(simulation.student_attemps)
 
-    println("\n-------------------------------------------")
+    #println("\n-------------------------------------------")
 end
 
 # Return the real passrate of courses in the simulation as a DataFrame
