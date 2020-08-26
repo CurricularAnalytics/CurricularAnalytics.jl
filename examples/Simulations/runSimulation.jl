@@ -12,13 +12,13 @@ real_passrate = false # Don't modify this here
 
 ########## Basic configuration ##########
 num_students = 10
-course_passrate = 0.5
+course_passrate = 0.9
 
 max_credits = 19
-duration = 10
+duration = 12
 duration_lock = false
 stopouts = true
-course_attempt_limit = 3
+course_attempt_limit = 2
 
 performance_model = PassRate
 enrollment_model = Enrollment
@@ -39,7 +39,7 @@ println("\n $(degree_plan.curriculum.name), $(degree_plan.name)")
 
 # Compute the pass rate using UA student grade records from Spring 2017 to Fall 2019, comment this section if hardcoding passrate
 real_passrate = true
-csv_path = "/Users/jiachengzhang/Desktop/Research/CurricularAnalytics.jl/examples/Simulations/Student_Grades_sp17_to_fall19.csv"
+csv_path = "./Student_Grades_sp17_to_fall19.csv"
 set_passrates_from_csv(courses, csv_path, course_passrate)
 
 ########## Define students ##########

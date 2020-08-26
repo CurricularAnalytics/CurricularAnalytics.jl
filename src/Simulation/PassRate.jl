@@ -54,8 +54,8 @@ function set_passrates_from_csv(courses, csv_path, pass_rate)
     all_grades = ["A", "B", "C", "D", "P", "W", "F", "E", "S", "WS"]
 
     for course in courses
-        prefix = string(course.prefix)
-        num = string(course.num)
+        prefix = string(strip(course.prefix))
+        num = string(strip(course.num))
 
         # Compute the number of student passed the course, and number of student took the course
         num_passes = nrow(filter(row -> passrate_filter(row, prefix, num, passing_grades), university_course_table))
