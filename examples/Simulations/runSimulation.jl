@@ -11,7 +11,7 @@ real_passrate = false # Don't modify this here
 ################### Configuration ###################
 
 ########## Basic configuration ##########
-num_students = 10
+num_students = 10000
 course_passrate = 0.9
 
 max_credits = 19
@@ -41,6 +41,23 @@ println("\n $(degree_plan.curriculum.name), $(degree_plan.name)")
 real_passrate = true
 csv_path = "./Student_Grades_sp17_to_fall19.csv"
 set_passrates_from_csv(courses, csv_path, course_passrate)
+
+
+# Set passrate for a certain course method 1
+passrate = 0.5
+set_passrate_for_course(courses[1], passrate)
+
+# Set passrate for a certain course method 2
+course_prefix = "MATH"
+course_num = "125"
+passrate = 0.5
+if set_passrate_for_course(degree_plan, course_prefix, course_num, passrate)
+    println(" Passrate for course $(course_prefix) $(course_num) is set to $(passrate).")
+else
+    println(" Course $(course_prefix) $(course_num) not found.")
+end
+
+
 
 ########## Define students ##########
 students = simple_students(num_students)    # Create a cohort of students for simulation
