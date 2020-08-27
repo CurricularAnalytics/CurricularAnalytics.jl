@@ -1,6 +1,7 @@
 
 function simulation_report(simulation, duration, course_passrate, max_credits, real_passrate)
-    println("\n------------ Simulation Report ------------")
+    printstyled("\n------------ Simulation Report ------------\n", bold=true)
+    println("$(simulation.degree_plan.curriculum.name), $(simulation.degree_plan.curriculum.degree_type) -- $(simulation.degree_plan.name)")
 
     println("\n-------- Simulation Statistics --------")
 
