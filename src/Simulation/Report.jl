@@ -1,4 +1,3 @@
-
 function simulation_report(simulation, duration, course_passrate, max_credits, real_passrate)
     printstyled("\n------------ Simulation Report ------------\n", bold=true)
     println("$(simulation.degree_plan.curriculum.name), $(simulation.degree_plan.curriculum.degree_type) -- $(simulation.degree_plan.name)")
@@ -11,7 +10,7 @@ function simulation_report(simulation, duration, course_passrate, max_credits, r
     str = "Max Credits per Term: " * string(max_credits)
     println(str)
 
-    str = "Number of Attempts of a Course: " * string(simulation.course_attempt_limit)
+    str = "Max Course Attempts: " * string(simulation.course_attempt_limit)
     println(str)
 
     str = "Number of Students: " * string(simulation.num_students)
@@ -31,37 +30,41 @@ function simulation_report(simulation, duration, course_passrate, max_credits, r
     println("Term Graduation Rates: ")
     println(simulation.term_grad_rates)
 
-    str = "Average time to degree: " * string(round(simulation.time_to_degree, digits=2)) * " terms"
+    str = "Average time to degree: " * string(simulation.time_to_degree) * " terms"
     println(str)
 
     println("\n-------- Stop out Statistics --------")
 
-    str = "Number of Students Stopped Out: " * string(length(simulation.stopout_students))
+    str = "Number of Students Stopped Out (Stopout Model Prediction + Reached Max Attempts): " * string(length(simulation.stopout_students))
     println(str)
 
-    str = "Stop-out Rate: " * string(simulation.stopout_rate * 100) * "%"
+    str = "Number of Students Reaching Max Attempts: " * string(length(simulation.reach_attempts_students))
     println(str)
 
-    println("Term Stop-out Rates: ")
+    str = "Stop-out Rate: " * string(round(simulation.stopout_rate * 100, digits=2)) * "%"
+    println(str)
+
+    println("Cumulative Term Stop-out Rates (including reached max course attempts students): ")
     println(simulation.term_stopout_rates)
 
+    println("\nCumulative Term Stop-out Rates (excluding reaching max course attempts students): ")
+    println(round_array(simulation.term_stopout_rates - simulation.reach_attempts_rates, 3))
+
+    println("\nCumulative Term Reached Max Course Attempts Rates: " )
+    println(simulation.reach_attempts_rates)
+
+
     if real_passrate
-        println("\n-------- Pass Rate of Each Course (computed from Student Grades CSV file) --------")
+        println("\n\n-------- Pass Rate of Each Course (computed from Student Grades CSV file) --------")
 
         frame = passrate_table(simulation)
-        println(frame)
+        show(frame, summary=false, allrows=true, allcols=true, splitcols=false, eltypes=false)
     end
 
-    println("\n-------- Course Pass Rates by Term --------")
+    println("\n\n-------- Course Pass Rates by Term --------")
 
     frame = pass_table(simulation, duration)
-    show(frame, summary=false, allrows=true, allcols=true, splitcols=true)
-
-    #println("\n-------- Attempts (maximum should equal \"course_attempt_limit\" from the configuration) --------")
-
-    #println(simulation.student_attemps)
-
-    #println("\n-------------------------------------------")
+    show(frame, summary=false, allrows=true, allcols=true, splitcols=true, eltypes=false)
 end
 
 # Return the real passrate of courses in the simulation as a DataFrame
@@ -131,4 +134,11 @@ function pass_table(simulation, semesters=-1)
     push!(frame, rates)
 
     frame
+end
+
+function round_array(array, digits)
+    for i=1:length(array)
+        array[i] = round(array[i], digits=digits)
+    end
+    return array
 end

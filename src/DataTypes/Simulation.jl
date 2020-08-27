@@ -10,6 +10,9 @@ mutable struct Simulation
     graduated_students::Array{Student}       # Array of students that have graduated
     stopout_students::Array{Student}         # Array of students who stopped out
 
+    reach_attempts_students::Array{Student} # Array of students who have reached max course attempts
+    reach_attempts_rates::Array{Float64}    # Array of student reaching max course attemps rates
+
     student_progress::Array{Int}             # Indicates wheter students have passed each course
     student_attemps::Array{Int}              # Number of attemps that students have taken for each course
 

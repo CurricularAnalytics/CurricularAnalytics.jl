@@ -126,3 +126,21 @@ function start_with_nums(str, nums)
     end
     return false
 end
+
+# Set passrate for a given course
+function set_passrate_for_course(course::Course, passrate::Float64)
+    course.passrate = passrate
+end
+
+# set passrate based on given course prefix and number
+function set_passrate_for_course(degree_plan::DegreePlan, course_prefix::AbstractString, course_num::AbstractString, passrate::Float64)
+    courses = degree_plan.curriculum.courses
+    course_found = false
+    for course in courses
+        if course.prefix == course_prefix && course.num == course_num
+            course.passrate = passrate
+            course_found = true
+        end
+    end
+    return course_found
+end

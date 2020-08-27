@@ -22,15 +22,17 @@ function simulate(degree_plan::DegreePlan, course_attempt_limit::Int, students::
     simulation.num_students = num_students
 
     # Populate the enrolled students array with all students
-    simulation.enrolled_students = copy(students)
+    simulation.enrolled_students = deepcopy(students)
 
     # Reset simulation object
     simulation.graduated_students = Student[]
     simulation.stopout_students = Student[]
+    simulation.reach_attempts_students = Student[]
     simulation.grad_rate = 0.0
     simulation.term_grad_rates = zeros(duration)
     simulation.stopout_rate = 0.0
     simulation.term_stopout_rates = zeros(duration)
+    simulation.reach_attempts_rates = zeros(duration)
 
     num_courses = simulation.degree_plan.curriculum.num_courses
 
@@ -91,18 +93,18 @@ function simulate(degree_plan::DegreePlan, course_attempt_limit::Int, students::
 
                         student.termpassed[course.metadata["id"]] = current_term
                     else
-                        # Recourd the failure
+                        # Record the failure
                         course.metadata["failures"] += 1
 
                         # Check if the student have reached max attempts for a course
                         attempts = student_attemps[student.id, course.metadata["id"]]
                         if attempts == course_attempt_limit
+                            push!(simulation.reach_attempts_students, student)
                             # Student has to stopout
                             student.stopout = true
-                        else
-                            # Increment the attempts
-                            student_attemps[student.id, course.metadata["id"]] += 1
                         end
+                        # Increment the attempts
+                        student_attemps[student.id, course.metadata["id"]] += 1
                     end
 
                     # Increment the students credit hours and points
@@ -171,10 +173,12 @@ function simulate(degree_plan::DegreePlan, course_attempt_limit::Int, students::
             simulation.term_stopout_rates[current_term] = length(simulation.stopout_students) / num_students
         end
 
+        # Compute reach course max attampts rate of the current term
+        simulation.reach_attempts_rates[current_term] = round(length(simulation.reach_attempts_students) / num_students, digits=3)
+
         # Check to see if all students have graduated
         if length(simulation.enrolled_students) == 0 && !duration_lock
             simulation.duration = current_term
-            simulation.time_to_degree /= num_students
             break  # breaks out of the simulation loop, i.e., stops the simulation
         end
     end
@@ -187,12 +191,6 @@ function simulate(degree_plan::DegreePlan, course_attempt_limit::Int, students::
 
     # Compute average time to degree 
     simulation.time_to_degree /= length(simulation.graduated_students)
-
-    # println("progress: ")
-    # println(simulation.student_progress)
-
-    # println("Attempts: ")
-    # println(attempts[3,3])
 
     return simulation
 end
