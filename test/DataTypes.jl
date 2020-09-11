@@ -86,18 +86,19 @@ CC = CourseCollection("Test Course Collection", 3, [A,B,C,E], institution="ACME 
 @test CC.institution == "ACME State University"
 
 # Test CourseCatalog creation 
-CCat = CourseCatalog("Test Course Catalog", "ACME State University", courses = [A])
+CCat = CourseCatalog("Test Course Catalog", "ACME State University", courses=[A], catalog=Dict([(B.id=>B),C.id=>C]), date_range=(Date(2019,8), Date(2020,7,31)))
 @test CCat.name == "Test Course Catalog"
 @test CCat.institution == "ACME State University"
-@test length(CCat.catalog) == 1
+@test length(CCat.catalog) == 3
 
 # Test add_course! functions
-add_course!(CCat, [B])
-@test length(CCat.catalog) == 2
-add_course!(CCat, [C,D])
+add_course!(CCat, [D])
 @test length(CCat.catalog) == 4
+add_course!(CCat, [E,F])
+@test length(CCat.catalog) == 6
 @test is_duplicate(CCat, A) == true
-@test is_duplicate(CCat, E) == false
+@test is_duplicate(CCat, G) == false
+@test (CCat.date_range[2] - CCat.date_range[1]) == Dates.Day(365)
 
 # Test DegreePlan creation 
 terms = Array{Term}(undef, 4)
