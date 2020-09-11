@@ -11,7 +11,7 @@
 #    (A,C) - pre;  (C,E) -  pre; (B,C) - pre; (D,C) - co; (C,E) - pre; (D,F) - pre
 #
 
-# Test course creation 
+# Test Course creation 
 A = Course("Introduction to Baskets", 3, institution="ACME State University", prefix="BW", num="101", canonical_name="Baskets I")
 @test A.name == "Introduction to Baskets"
 @test A.credit_hours == 3
@@ -20,7 +20,9 @@ A = Course("Introduction to Baskets", 3, institution="ACME State University", pr
 @test A.institution == "ACME State University"
 @test A.canonical_name == "Baskets I"
 
-# Test curriciulum creation 
+# Test course_id function 
+@test course_id(A.prefix, A.num, A.name, A.institution) == convert(Int, mod(hash(A.name * A.prefix * A.num * A.institution), UInt32))
+
 B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education")
 C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I")
 D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory")
@@ -29,12 +31,26 @@ F = Course("Basket Materials & Decoration", 3, institution="ACME State Universit
 G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core")
 H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective")
 
+# Test add_requisite! function
 add_requisite!(A,C,pre)
 add_requisite!(B,C,pre)
 add_requisite!(D,C,co)
 add_requisite!(C,E,pre)
 add_requisite!(D,F,pre)
 
+@test length(A.requisites) == 0
+@test length(B.requisites) == 0
+@test length(C.requisites) == 3
+@test length(D.requisites) == 0
+@test length(E.requisites) == 1
+@test length(F.requisites) == 1
+
+# Test delete_requisite! function
+delete_requisite!(A,C)
+@test length(C.requisites) == 2
+add_requisite!(A,C,pre)
+
+# Test Curriciulum creation 
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786")
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
@@ -44,7 +60,46 @@ curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution=
 @test curric.num_courses == 8
 @test curric.credit_hours == 22
 
-# Test degree plan creation 
+# test the underlying graph
+@test nv(curric.graph) == 8
+@test ne(curric.graph) == 5
+
+mapped_ids = CurricularAnalytics.map_vertex_ids(curric)
+@test requisite_type(curric,mapped_ids[A.id],mapped_ids[C.id]) == pre
+@test requisite_type(curric,mapped_ids[D.id],mapped_ids[C.id]) == co
+
+@test total_credits(curric) == 22
+@test course_from_vertex(curric, 1) in [A,B,C,D,E,F,G,H]
+@test course_from_vertex(curric, 2) in [A,B,C,D,E,F,G,H]
+@test course_from_vertex(curric, 3) in [A,B,C,D,E,F,G,H]
+@test course_from_vertex(curric, 4) in [A,B,C,D,E,F,G,H]
+@test course_from_vertex(curric, 5) in [A,B,C,D,E,F,G,H]
+@test course_from_vertex(curric, 6) in [A,B,C,D,E,F,G,H]
+@test course_from_vertex(curric, 7) in [A,B,C,D,E,F,G,H]
+@test course_from_vertex(curric, 8) in [A,B,C,D,E,F,G,H]
+
+# Test CourseCollection creation 
+CC = CourseCollection("Test Course Collection", 3, [A,B,C,E], institution="ACME State University")
+@test CC.name == "Test Course Collection"
+@test CC.credit_hours == 3
+@test length(CC.courses) == 4
+@test CC.institution == "ACME State University"
+
+# Test CourseCatalog creation 
+CCat = CourseCatalog("Test Course Catalog", "ACME State University", courses = [A])
+@test CCat.name == "Test Course Catalog"
+@test CCat.institution == "ACME State University"
+@test length(CCat.catalog) == 1
+
+# Test add_course! functions
+add_course!(CCat, [B])
+@test length(CCat.catalog) == 2
+add_course!(CCat, [C,D])
+@test length(CCat.catalog) == 4
+@test is_duplicate(CCat, A) == true
+@test is_duplicate(CCat, E) == false
+
+# Test DegreePlan creation 
 terms = Array{Term}(undef, 4)
 terms[1] = Term([A,B])
 terms[2] = Term([C,D])

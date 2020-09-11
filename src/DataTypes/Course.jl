@@ -127,8 +127,14 @@ end
 
 Add course rc as a requisite, of type requisite_type, for target course tc.
 
+# Arguments
+Required:
+- `rc::AbstractCourse` : requisite course.
+- `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+- `requisite_type::Requisite` : requisite type.
+
 # Requisite types
-One of the following requisite types must be specified for `rc`:
+One of the following requisite types must be specified for the `requisite_type`:
 - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
 - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
 - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
@@ -142,8 +148,14 @@ end
 
 Add a collection of requisites to target course tc.
 
+# Arguments
+Required:
+- `rc::Array{AbstractCourse}` : and array of requisite courses.
+- `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+- `requisite_type::Array{Requisite}` : an array of requisite types.
+
 # Requisite types
-The following requisite types may be specified for `rc`:
+The following requisite types may be specified for the `requisite_type`:
 - `pre` : a prerequisite course that must be passed before `tc` can be attempted.
 - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
 - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
@@ -161,11 +173,11 @@ end
 Remove course rc as a requisite for target course tc.  If rc is not an existing requisite for tc, an
 error is thrown.
 
-# Requisite types
-The following requisite types may be specified for `rc`:
-- `pre` : a prerequisite course that must be passed before `tc` can be attempted.
-- `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
-- `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+# Arguments
+Required:
+- `rc::AbstractCourse` : requisite course.
+- `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+
 """
 function delete_requisite!(requisite_course::Course, course::Course)
     #if !haskey(course.requisites, requisite_course.id)
