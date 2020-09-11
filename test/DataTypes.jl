@@ -78,6 +78,12 @@ mapped_ids = CurricularAnalytics.map_vertex_ids(curric)
 @test course_from_vertex(curric, 7) in [A,B,C,D,E,F,G,H]
 @test course_from_vertex(curric, 8) in [A,B,C,D,E,F,G,H]
 
+@test course_from_id(curric, A.id) == A
+@test course(curric, "BW", "101", "Introduction to Baskets", "ACME State University") == A
+id = A.id
+convert_ids(curric) # this should not change the ids, since the curriculum was not created from a CSV file
+A.id == id
+
 # Test CourseCollection creation 
 CC = CourseCollection("Test Course Collection", 3, [A,B,C,E], institution="ACME State University")
 @test CC.name == "Test Course Collection"
@@ -99,6 +105,7 @@ add_course!(CCat, [E,F])
 @test is_duplicate(CCat, A) == true
 @test is_duplicate(CCat, G) == false
 @test (CCat.date_range[2] - CCat.date_range[1]) == Dates.Day(365)
+@test A == course(CCat, "BW", "101", "Introduction to Baskets")
 
 # Test DegreePlan creation 
 terms = Array{Term}(undef, 4)
