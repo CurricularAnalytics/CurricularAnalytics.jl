@@ -26,7 +26,7 @@ A = Course("Introduction to Baskets", 3, institution="ACME State University", pr
 B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education")
 C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I")
 D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory")
-E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="CS", num="300", canonical_name="Baskets II")
+E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="BW", num="300", canonical_name="Baskets II")
 F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials")
 G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core")
 H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective")
@@ -100,10 +100,10 @@ CCat = CourseCatalog("Test Course Catalog", "ACME State University", courses=[A]
 # Test add_course! functions
 add_course!(CCat, [D])
 @test length(CCat.catalog) == 4
-add_course!(CCat, [E,F])
-@test length(CCat.catalog) == 6
+add_course!(CCat, [E,F,G])
+@test length(CCat.catalog) == 7
 @test is_duplicate(CCat, A) == true
-@test is_duplicate(CCat, G) == false
+@test is_duplicate(CCat, H) == false
 @test (CCat.date_range[2] - CCat.date_range[1]) == Dates.Day(365)
 @test A == course(CCat, "BW", "101", "Introduction to Baskets")
 
@@ -118,5 +118,10 @@ dp = DegreePlan("2019 Plan", curric, terms)
 @test dp.curriculum === curric  # tests that they're the same object in memory
 @test dp.num_terms == 4
 @test dp.credit_hours == 22
+
+# Test DegreeRequirements creation 
+# The regex's specified will match all courses with the EGR prefix and any 
+cs = CourseSet("test course set", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex = r".*", double_count=true)
+@test length(cs.course_reqs) == 3
 
 end;

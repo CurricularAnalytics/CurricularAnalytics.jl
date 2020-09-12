@@ -154,8 +154,9 @@ mutable struct CourseSet <: AbstractRequirement
     # Constructor
     # A requirement may involve a set of courses, or a set of requirements, but not both
     function CourseSet(name::AbstractString, credit_hours::Real, course_reqs::Array{Pair{Course,Grade},1}=Array{Pair{Course,Grade},1}(); description::AbstractString="", 
-                   course_catalog::CourseCatalog=CourseCatalog("", ""), prefix_regex::Regex=r".*", num_regex::Regex=r".*", course_regex::Regex=r".*",
+                   course_catalog::CourseCatalog=CourseCatalog("", ""), prefix_regex::Regex=r".^", num_regex::Regex=r".^", course_regex::Regex=r".^",
                    min_grade::Grade=grade("D"), double_count::Bool=false)
+        # r".^" is a regex that matches nothing
         this = new()
         this.name = name
         this.description = description
@@ -168,11 +169,6 @@ mutable struct CourseSet <: AbstractRequirement
         this.double_count = double_count
         for c in course_catalog.catalog  # search the supplied course catalog for courses satisfying both prefix and num regular expressions
             if occursin(prefix_regex, c[2].prefix) && occursin(num_regex, c[2].num)
-                push!(course_reqs, c[2] => min_grade)
-            end
-        end
-        for c in course_catalog.catalog  # search the supplied course catalog for courses course regular expression
-            if occursin(course_regex, c[2].prefix * c[2].num)
                 push!(course_reqs, c[2] => min_grade)
             end
         end
