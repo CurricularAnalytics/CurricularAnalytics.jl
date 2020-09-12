@@ -107,7 +107,7 @@ add_course!(CCat, [E,F])
 @test (CCat.date_range[2] - CCat.date_range[1]) == Dates.Day(365)
 @test A == course(CCat, "BW", "101", "Introduction to Baskets")
 
-# Test DegreePlan creation 
+# Test DegreePlan creation, other degree plan functions tested in ./test/DegreePlanAnalytics.jl
 terms = Array{Term}(undef, 4)
 terms[1] = Term([A,B])
 terms[2] = Term([C,D])
