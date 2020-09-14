@@ -12,7 +12,7 @@
 #
 
 # Test Course creation 
-A = Course("Introduction to Baskets", 3, institution="ACME State University", prefix="BW", num="101", canonical_name="Baskets I")
+A = Course("Introduction to Baskets", 3, institution="ACME State University", prefix="BW", num="101", canonical_name="Baskets I");
 @test A.name == "Introduction to Baskets"
 @test A.credit_hours == 3
 @test A.prefix == "BW"
@@ -23,20 +23,20 @@ A = Course("Introduction to Baskets", 3, institution="ACME State University", pr
 # Test course_id function 
 @test course_id(A.prefix, A.num, A.name, A.institution) == convert(Int, mod(hash(A.name * A.prefix * A.num * A.institution), UInt32))
 
-B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education")
-C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I")
-D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory")
-E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="BW", num="300", canonical_name="Baskets II")
-F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials")
-G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core")
-H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective")
+B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education");
+C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I");
+D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory");
+E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="BW", num="300", canonical_name="Baskets II");
+F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials");
+G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core");
+H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective");
 
 # Test add_requisite! function
-add_requisite!(A,C,pre)
-add_requisite!(B,C,pre)
-add_requisite!(D,C,co)
-add_requisite!(C,E,pre)
-add_requisite!(D,F,pre)
+add_requisite!(A,C,pre);
+add_requisite!(B,C,pre);
+add_requisite!(D,C,co);
+add_requisite!(C,E,pre);
+add_requisite!(D,F,pre);
 
 @test length(A.requisites) == 0
 @test length(B.requisites) == 0
@@ -46,12 +46,12 @@ add_requisite!(D,F,pre)
 @test length(F.requisites) == 1
 
 # Test delete_requisite! function
-delete_requisite!(A,C)
+delete_requisite!(A,C);
 @test length(C.requisites) == 2
-add_requisite!(A,C,pre)
+add_requisite!(A,C,pre);
 
 # Test Curriciulum creation 
-curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786")
+curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786");
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
 @test curric.degree_type == BS
@@ -81,26 +81,26 @@ mapped_ids = CurricularAnalytics.map_vertex_ids(curric)
 @test course_from_id(curric, A.id) == A
 @test course(curric, "BW", "101", "Introduction to Baskets", "ACME State University") == A
 id = A.id
-convert_ids(curric) # this should not change the ids, since the curriculum was not created from a CSV file
-A.id == id
+convert_ids(curric); # this should not change the ids, since the curriculum was not created from a CSV file
+@test A.id == id
 
 # Test CourseCollection creation 
-CC = CourseCollection("Test Course Collection", 3, [A,B,C,E], institution="ACME State University")
+CC = CourseCollection("Test Course Collection", 3, [A,B,C,E], institution="ACME State University");
 @test CC.name == "Test Course Collection"
 @test CC.credit_hours == 3
 @test length(CC.courses) == 4
 @test CC.institution == "ACME State University"
 
 # Test CourseCatalog creation 
-CCat = CourseCatalog("Test Course Catalog", "ACME State University", courses=[A], catalog=Dict([(B.id=>B),C.id=>C]), date_range=(Date(2019,8), Date(2020,7,31)))
+CCat = CourseCatalog("Test Course Catalog", "ACME State University", courses=[A], catalog=Dict([(B.id=>B),C.id=>C]), date_range=(Date(2019,8), Date(2020,7,31)));
 @test CCat.name == "Test Course Catalog"
 @test CCat.institution == "ACME State University"
 @test length(CCat.catalog) == 3
 
 # Test add_course! functions
-add_course!(CCat, [D])
+add_course!(CCat, [D]);
 @test length(CCat.catalog) == 4
-add_course!(CCat, [E,F,G])
+add_course!(CCat, [E,F,G]);
 @test length(CCat.catalog) == 7
 @test is_duplicate(CCat, A) == true
 @test is_duplicate(CCat, H) == false
@@ -108,12 +108,12 @@ add_course!(CCat, [E,F,G])
 @test A == course(CCat, "BW", "101", "Introduction to Baskets")
 
 # Test DegreePlan creation, other degree plan functions tested in ./test/DegreePlanAnalytics.jl
-terms = Array{Term}(undef, 4)
-terms[1] = Term([A,B])
-terms[2] = Term([C,D])
-terms[3] = Term([E,F])
-terms[4] = Term([G,H])
-dp = DegreePlan("2019 Plan", curric, terms)
+terms = Array{Term}(undef, 4);
+terms[1] = Term([A,B]);
+terms[2] = Term([C,D]);
+terms[3] = Term([E,F]);
+terms[4] = Term([G,H]);
+dp = DegreePlan("2019 Plan", curric, terms);
 @test dp.name == "2019 Plan"
 @test dp.curriculum === curric  # tests that they're the same object in memory
 @test dp.num_terms == 4
@@ -121,24 +121,30 @@ dp = DegreePlan("2019 Plan", curric, terms)
 
 # Test DegreeRequirements creation 
 # The regex's specified will match all courses with the EGR prefix and any number
-cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true)
+cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
 @test cs1.name == "Test Course Set 1"
 @test cs1.course_catalog == CCat
 @test cs1.double_count == true
 @test length(cs1.course_reqs) == 3
 # The regex's specified will match all courses with number 111 and any prefix
-cs2 = CourseSet("Test Course Set 2", 3, Array{Pair{Course,Grade},1}(), course_catalog=CCat, prefix_regex=r".*", num_regex=r"^\s*+111\s*+$")
-@test cs1.double_count == false
+cs2 = CourseSet("Test Course Set 2", 3, Array{Pair{Course,Grade},1}(), course_catalog=CCat, prefix_regex=r".*", num_regex=r"^\s*+111\s*+$");
+@test cs2.double_count == false
 @test length(cs2.course_reqs) == 1
 
-req_set = AbstractRequirement[cs1,cs2]
-rs = RequirementSet("Test Requirement Set", 6, req_set)
+req_set = AbstractRequirement[cs1,cs2];
+rs = RequirementSet("Test Requirement Set", 6, req_set);
 @test rs.name == "Test Requirement Set"
 @test rs.credit_hours == 6
 @test rs.satisfy == 2
-rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=1)
+rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=1);
 @test rs.satisfy == 1
-rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=5)
+rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=5);
 @test rs.satisfy == 2
+
+# Test Student creation
+std = Student(1, attributes = Dict("race" => "other", "HS_GPA" => 3.5));
+@test length(std.attributes) == 2
+stds = simple_students(100);
+@test length(stds) == 100 
 
 end;
