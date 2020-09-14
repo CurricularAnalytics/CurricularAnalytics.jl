@@ -141,6 +141,16 @@ rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=1);
 rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=5);
 @test rs.satisfy == 2
 
+# Test StudentRecord creation
+cr1 = CourseRecord(A, grade("C"), "FALL 2020");
+@test cr1.course == A
+@test cr1.grade == 6
+cr2 = CourseRecord(B, UInt64(13), "SPRING 2020");
+@test cr2.grade == grade("A➕")
+std_rec = StudentRecord("A14356", "Patti", "Furniture", "O", [cr1, cr2]);
+@test length(std_rec.transcript) == 2
+
+
 # Test Student creation
 std = Student(1, attributes = Dict("race" => "other", "HS_GPA" => 3.5));
 @test length(std.attributes) == 2
