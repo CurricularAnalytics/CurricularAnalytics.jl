@@ -120,8 +120,25 @@ dp = DegreePlan("2019 Plan", curric, terms)
 @test dp.credit_hours == 22
 
 # Test DegreeRequirements creation 
-# The regex's specified will match all courses with the EGR prefix and any 
-cs = CourseSet("test course set", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex = r".*", double_count=true)
-@test length(cs.course_reqs) == 3
+# The regex's specified will match all courses with the EGR prefix and any number
+cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true)
+@test cs1.name == "Test Course Set 1"
+@test cs1.course_catalog == CCat
+@test cs1.double_count == true
+@test length(cs1.course_reqs) == 3
+# The regex's specified will match all courses with number 111 and any prefix
+cs2 = CourseSet("Test Course Set 2", 3, Array{Pair{Course,Grade},1}(), course_catalog=CCat, prefix_regex=r".*", num_regex=r"^\s*+111\s*+$")
+@test cs1.double_count == false
+@test length(cs2.course_reqs) == 1
+
+req_set = AbstractRequirement[cs1,cs2]
+rs = RequirementSet("Test Requirement Set", 6, req_set)
+@test rs.name == "Test Requirement Set"
+@test rs.credit_hours == 6
+@test rs.satisfy == 2
+rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=1)
+@test rs.satisfy == 1
+rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=5)
+@test rs.satisfy == 2
 
 end;
