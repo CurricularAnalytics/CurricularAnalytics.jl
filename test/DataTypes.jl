@@ -12,11 +12,11 @@
 #
 
 # Test Course creation 
-A = Course("Introduction to Baskets", 3, institution="ACME State University", prefix="BW", num="101", canonical_name="Baskets I");
+A = Course("Introduction to Baskets", 3, institution="ACME State University", prefix="BW", num="110", canonical_name="Baskets I");
 @test A.name == "Introduction to Baskets"
 @test A.credit_hours == 3
 @test A.prefix == "BW"
-@test A.num == "101"
+@test A.num == "110"
 @test A.institution == "ACME State University"
 @test A.canonical_name == "Baskets I"
 
@@ -64,6 +64,17 @@ curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution=
 @test nv(curric.graph) == 8
 @test ne(curric.graph) == 5
 
+lo1 = LearningOutcome("Test learning outcome #1", "students will demonstrate ability to do #1", 12)
+lo2 = LearningOutcome("Test learning outcome #1", "students will demonstrate ability to do #2", 10)
+lo3 = LearningOutcome("Test learning outcome #1", "students will demonstrate ability to do #3", 15)
+lo4 = LearningOutcome("Test learning outcome #1", "students will demonstrate ability to do #3", 7)
+add_lo_requisite!(lo1, lo2, pre)
+add_lo_requisite!([lo2, lo3], lo4, [pre, co])
+@test length(lo1.requisites) == 0
+@test length(lo2.requisites) == 1
+@test length(lo3.requisites) == 0
+@test length(lo4.requisites) == 2
+
 mapped_ids = CurricularAnalytics.map_vertex_ids(curric)
 @test requisite_type(curric,mapped_ids[A.id],mapped_ids[C.id]) == pre
 @test requisite_type(curric,mapped_ids[D.id],mapped_ids[C.id]) == co
@@ -79,7 +90,7 @@ mapped_ids = CurricularAnalytics.map_vertex_ids(curric)
 @test course_from_vertex(curric, 8) in [A,B,C,D,E,F,G,H]
 
 @test course_from_id(curric, A.id) == A
-@test course(curric, "BW", "101", "Introduction to Baskets", "ACME State University") == A
+@test course(curric, "BW", "110", "Introduction to Baskets", "ACME State University") == A
 id = A.id
 convert_ids(curric); # this should not change the ids, since the curriculum was not created from a CSV file
 @test A.id == id
@@ -105,7 +116,7 @@ add_course!(CCat, [E,F,G]);
 @test is_duplicate(CCat, A) == true
 @test is_duplicate(CCat, H) == false
 @test (CCat.date_range[2] - CCat.date_range[1]) == Dates.Day(365)
-@test A == course(CCat, "BW", "101", "Introduction to Baskets")
+@test A == course(CCat, "BW", "110", "Introduction to Baskets")
 
 # Test DegreePlan creation, other degree plan functions tested in ./test/DegreePlanAnalytics.jl
 terms = Array{Term}(undef, 4);
@@ -150,11 +161,19 @@ cr2 = CourseRecord(B, UInt64(13), "SPRING 2020");
 std_rec = StudentRecord("A14356", "Patti", "Furniture", "O", [cr1, cr2]);
 @test length(std_rec.transcript) == 2
 
-
 # Test Student creation
 std = Student(1, attributes = Dict("race" => "other", "HS_GPA" => 3.5));
 @test length(std.attributes) == 2
 stds = simple_students(100);
 @test length(stds) == 100 
+
+# Test TransferArticulation
+XA = Course("Baskets 101", 3, institution="Tri-county Community College", prefix="BW", num="101", canonical_name="Baskets I");
+XCat = CourseCatalog("Another Course Catalog", "Tri-county Community College", courses=[XA], date_range=(Date(2019,8), Date(2020,7,31)));
+#xfer_map = Dict((XCat.id, XA.id) => [A.id])  # this should work, but it fails
+#ta = TransferArticulation("Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat), xfer_map);
+ta = TransferArticulation("Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat));
+add_transfer_course(ta, [A.id], XCat.id, XA.id)
+@test transfer_equiv(ta, XCat.id, XA.id) == [A.id]
 
 end;
