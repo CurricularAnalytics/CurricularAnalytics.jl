@@ -44,7 +44,7 @@ end
 
 #"""
 #add_lo_requisite!(rlo, tlo, requisite_type)
-#Add learning outcome rlo as a requisite, of type requisite_type, for target learning 
+#Add learning outcome rlo as a requisite, of type requisite_type, for target learning outcome tlo 
 #outcome tlo.
 #"""
 function add_lo_requisite!(requisite_lo::LearningOutcome, lo::LearningOutcome, requisite_type::Requisite)

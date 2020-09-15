@@ -23,14 +23,15 @@ include("DegreePlanAnalytics.jl")
 include("DegreePlanCreation.jl")
 include("Simulation/Simulation.jl")
 
-export AA, AAS, AS, BA, BS, Course, CourseCollection, CourseCatalog, Curriculum, Degree, DegreePlan, EdgeClass, LearningOutcome, Requisite, System, Term, add_course!,
-        add_lo_requisite!, add_requisite!, all_paths, basic_metrics, basic_statistics, bin_filling, blocking_factor, centrality, co, compare_curricula, convert_ids,
-        complexity, course, course_from_id, course_from_vertex, course_id, courses_from_vertices, create_degree_plan, dead_ends, delay_factor, delete_requisite!,
-        dfs, extraneous_requisites, find_term, gad, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula,
+export AA, AAS, AS, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, Curriculum, Degree, DegreePlan, EdgeClass, 
+        Enrollment, Grade, LearningOutcome, PassRate, RequirementSet, Requisite, Student, StudentRecord, Simulation, System, Term, TransferArticulation,
+        add_course!, add_lo_requisite!, add_requisite!, add_transfer_catalog, add_transfer_course, all_paths, back_edge, basic_metrics, basic_statistics, 
+        bin_filling, blocking_factor, centrality, co, compare_curricula, convert_ids, complexity, course, course_from_id, course_from_vertex, course_id, 
+        courses_from_vertices, create_degree_plan, cross_edge, dead_ends, delay_factor, delete_requisite!, dfs, extraneous_requisites, find_term, forward_edge, 
+        gad, grade, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
-        requisite_type, semester, similarity, strict_co, topological_sort, total_credits, write_csv, Grade, grade, AbstractRequirement, CourseSet, RequirementSet,
-        CourseRecord, StudentRecord, TransferArticulation, add_transfer_catalog, add_transfer_course, transfer_equiv, PassRate, Enrollment, Simulation, Student, set_passrates,
-        set_passrates_from_csv, simple_students, simulate, simulation_report, pass_table, passrate_table, set_passrate_for_course
+        requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report, 
+        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv
 
 # Check if a curriculum graph has requisite cycles.
 """
