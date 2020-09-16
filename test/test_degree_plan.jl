@@ -7,11 +7,11 @@ F = Course("Basket Materials & Decoration", 3, institution="ACME State Universit
 G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core");
 H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective");
 
-add_requisite!(A,C,pre);
-add_requisite!(B,C,pre);
-add_requisite!(D,C,co);
 add_requisite!(C,E,pre);
 add_requisite!(D,F,pre);
+reqs = Array{AbstractCourse,1}();
+push!(reqs, A,B,D);
+add_requisite!(reqs,C,[pre,pre,co]);
 
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786");
 
