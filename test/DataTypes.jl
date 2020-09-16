@@ -1,5 +1,6 @@
 # DataTypes tests
 
+using Dates
 using LightGraphs
 
 @testset "DataTypes Tests" begin
