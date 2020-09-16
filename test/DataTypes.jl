@@ -1,4 +1,7 @@
 # DataTypes tests
+
+using LightGraphs
+
 @testset "DataTypes Tests" begin
 
 # 8-vertex test curriculum - valid
