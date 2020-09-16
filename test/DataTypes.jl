@@ -167,13 +167,18 @@ std = Student(1, attributes = Dict("race" => "other", "HS_GPA" => 3.5));
 stds = simple_students(100);
 @test length(stds) == 100 
 
-# Test TransferArticulation
+# Test TransferArticulation creation
 XA = Course("Baskets 101", 3, institution="Tri-county Community College", prefix="BW", num="101", canonical_name="Baskets I");
 XCat = CourseCatalog("Another Course Catalog", "Tri-county Community College", courses=[XA], date_range=(Date(2019,8), Date(2020,7,31)));
 #xfer_map = Dict((XCat.id, XA.id) => [A.id])  # this should work, but it fails
 #ta = TransferArticulation("Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat), xfer_map);
-ta = TransferArticulation("Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat));
+ta = TransferArticulation(
+    "Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat));
 add_transfer_course(ta, [A.id], XCat.id, XA.id)
 @test transfer_equiv(ta, XCat.id, XA.id) == [A.id]
+
+# Test Simulation creation 
+sim_obj = Simulation(dp);
+@test sim_obj.degree_plan == dp
 
 end;

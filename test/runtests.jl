@@ -13,3 +13,4 @@ include("GraphAlgs.jl")
 include("DegreePlanAnalytics.jl")
 include("DataHandler.jl")
 include("DegreePlanCreation.jl")
+include("Simulation.jl")  # must appear after DataTypes.jl test, as it uses a degree plan created in those tests
