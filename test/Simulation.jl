@@ -1,8 +1,9 @@
 # Simulation tests
-# Note: this uses the dp DegreePlan created in the DataTypes.jl tests
 
 # Test simulate() function
 @testset "Simulation Tests" begin
+
+include("test_degree_plan.jl")
 
 # nobody can pass any class
 set_passrates(dp.curriculum.courses, 0);

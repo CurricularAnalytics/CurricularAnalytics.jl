@@ -15,8 +15,9 @@ using LightGraphs
 #    (A,C) - pre;  (C,E) -  pre; (B,C) - pre; (D,C) - co; (C,E) - pre; (D,F) - pre
 #
 
+include("test_degree_plan.jl")
+
 # Test Course creation 
-A = Course("Introduction to Baskets", 3, institution="ACME State University", prefix="BW", num="110", canonical_name="Baskets I");
 @test A.name == "Introduction to Baskets"
 @test A.credit_hours == 3
 @test A.prefix == "BW"
@@ -27,21 +28,7 @@ A = Course("Introduction to Baskets", 3, institution="ACME State University", pr
 # Test course_id function 
 @test course_id(A.prefix, A.num, A.name, A.institution) == convert(Int, mod(hash(A.name * A.prefix * A.num * A.institution), UInt32))
 
-B = Course("Swimming", 3, institution="ACME State University", prefix="PE", num="115", canonical_name="Physical Education");
-C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix="BW", num="111", canonical_name="Baskets I");
-D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory");
-E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="BW", num="300", canonical_name="Baskets II");
-F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials");
-G = Course("Humanitites Elective", 3, institution="ACME State University", prefix="EGR", num="101", canonical_name="Humanitites Core");
-H = Course("Technical Elective", 3, institution="ACME State University", prefix="BW", num="3xx", canonical_name="Elective");
-
 # Test add_requisite! function
-add_requisite!(A,C,pre);
-add_requisite!(B,C,pre);
-add_requisite!(D,C,co);
-add_requisite!(C,E,pre);
-add_requisite!(D,F,pre);
-
 @test length(A.requisites) == 0
 @test length(B.requisites) == 0
 @test length(C.requisites) == 3
@@ -55,7 +42,6 @@ delete_requisite!(A,C);
 add_requisite!(A,C,pre);
 
 # Test Curriciulum creation 
-curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786");
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
 @test curric.degree_type == BS
@@ -123,12 +109,6 @@ add_course!(CCat, [E,F,G]);
 @test A == course(CCat, "BW", "110", "Introduction to Baskets")
 
 # Test DegreePlan creation, other degree plan functions tested in ./test/DegreePlanAnalytics.jl
-terms = Array{Term}(undef, 4);
-terms[1] = Term([A,B]);
-terms[2] = Term([C,D]);
-terms[3] = Term([E,F]);
-terms[4] = Term([G,H]);
-dp = DegreePlan("2019 Plan", curric, terms);
 @test dp.name == "2019 Plan"
 @test dp.curriculum === curric  # tests that they're the same object in memory
 @test dp.num_terms == 4
