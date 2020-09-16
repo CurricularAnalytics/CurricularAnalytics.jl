@@ -6,7 +6,7 @@ mutable struct CourseCatalog
     name::AbstractString                # Name of the course catalog
     institution::AbstractString         # Institution offering the courses in the catalog 
     date_range::Tuple                   # range of dates the catalog is applicable over
-    catalog::Dict{Int, Course}       # dictionary of courses in (course_id, course) format
+    catalog::Dict{Int, Course}          # dictionary of courses in (course_id, course) format
 
     # Constructor
     function CourseCatalog(name::AbstractString, institution::AbstractString; courses::Array{Course}=Array{Course,1}(), 

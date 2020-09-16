@@ -33,6 +33,38 @@ terms[1] = Term([A,B])
 terms[2] = Term([C,D])
 terms[3] = Term([E,F])
 dp = DegreePlan("Test Plan", curric, terms)
+@test isvalid_degree_plan(dp) == true
+dp_bad1 = DegreePlan("Bad Plan 1", curric, [terms[1],terms[2]]) # missing some courses
+@test isvalid_degree_plan(dp_bad1) == false
+dp_bad2 = DegreePlan("Bad Plan 2", curric, [terms[2],terms[1],terms[3]]) # out of order requisites
+@test isvalid_degree_plan(dp_bad2) == false
+
+@test find_term(dp, F) == 3
+
+# Test the output of print_plan()
+original_stdout = stdout;
+(read_pipe, write_pipe) = redirect_stdout();
+print_plan(dp)
+@test readline(read_pipe) == ""
+@test readline(read_pipe) == "Degree Plan: Test Plan for BS in Test Curric"
+@test readline(read_pipe) == ""
+@test readline(read_pipe) == " 12 credit hours"
+@test readline(read_pipe) == " Term 1 courses:"
+@test readline(read_pipe) == " A "
+@test readline(read_pipe) == " B "
+@test readline(read_pipe) == ""
+@test readline(read_pipe) == ""
+@test readline(read_pipe) == " Term 2 courses:"
+@test readline(read_pipe) == " C "
+@test readline(read_pipe) == " D "
+@test readline(read_pipe) == ""
+@test readline(read_pipe) == ""
+@test readline(read_pipe) == " Term 3 courses:"
+@test readline(read_pipe) == " E "
+@test readline(read_pipe) == " F "
+redirect_stdout(original_stdout);
+close(write_pipe)
+
 
 # Test requisite_distance(plan, course) and requisite_distance(plan)
 @test requisite_distance(dp, A) == 0

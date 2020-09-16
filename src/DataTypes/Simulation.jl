@@ -1,5 +1,5 @@
 mutable struct Simulation
-    degree_plan::DegreePlan                # The curriculum that is simulated
+    degree_plan::DegreePlan                 # The curriculum that is simulated
     duration::Int                           # The number of terms the simulation runs for
     course_attempt_limit::Int               # The number of times that a course is allowed to take
 
@@ -26,7 +26,6 @@ mutable struct Simulation
         this = new()
 
         this.degree_plan = degree_plan
-
         this.enrolled_students = Student[]
         this.graduated_students = Student[]
         this.stopout_students = Student[]

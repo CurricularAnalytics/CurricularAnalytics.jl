@@ -15,7 +15,7 @@ mutable struct Student
 
 
     # Constructor
-    function Student(id::Int, attributes::Dict)
+    function Student(id::Int; attributes::Dict=Dict())
         this = new()
         this.id = id
         this.termcredits = 0
@@ -33,7 +33,7 @@ end
 function simple_students(number)
     students = Student[]
     for i = 1:number
-        student = Student(i, Dict())
+        student = Student(i)
         student.stopout = false
         push!(students, student)
     end

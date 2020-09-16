@@ -177,18 +177,19 @@ function create_graph!(curriculum::Curriculum)
     end
 end
 
+# find requisite type from vertex ids in a curriculum graph
 function requisite_type(curriculum::Curriculum, src_course_id::Int, dst_course_id::Int)
     src = 0; dst = 0
     for c in curriculum.courses
-        if c.vertex_id == src_course_id
+        if c.vertex_id[curriculum.id] == src_course_id
             src = c
-        elseif c.vertex_id == dst_course_id
+        elseif c.vertex_id[curriculum.id] == dst_course_id
             dst = c
         end
     end
-    if ((src == 0 || dst == 0) || !haskey(dst.requisites, src))
-        error("edge ($src_course_id, $dst_course_id) does not exist")
+    if ((src == 0 || dst == 0) || !haskey(dst.requisites, src.id))
+        error("edge ($src_course_id, $dst_course_id) does not exist in curriculum graph")
     else
-        return dst.requisites[src]
+        return dst.requisites[src.id]
     end
 end
