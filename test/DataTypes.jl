@@ -114,7 +114,26 @@ add_course!(CCat, [E,F,G]);
 @test dp.num_terms == 4
 @test dp.credit_hours == 22
 
-# Test DegreeRequirements creation 
+# Test DegreeRequirements data types
+@test grade("A➕") == grade(grade(convert(Grade,13)))
+@test grade("A") == grade(grade(convert(Grade,12)))
+@test grade("A➖") == grade(grade(convert(Grade,11)))
+@test grade("B➕") == grade(grade(convert(Grade,10)))
+@test grade("B") == grade(grade(convert(Grade,9)))
+@test grade("B➖") == grade(grade(convert(Grade,8)))
+@test grade("C➕") == grade(grade(convert(Grade,7)))
+@test grade("C") == grade(grade(convert(Grade,6)))
+@test grade("C➖") == grade(grade(convert(Grade,5)))
+@test grade("D➕") == grade(grade(convert(Grade,4)))
+@test grade("D") == grade(grade(convert(Grade,3)))
+@test grade("D➖") == grade(grade(convert(Grade,2)))
+@test grade("P") == 0
+@test grade("F") == 0
+@test grade("I") == 0
+@test grade("WP") == 0
+@test grade("W") == 0
+@test grade("WF") == 0
+
 # The regex's specified will match all courses with the EGR prefix and any number
 cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
 @test cs1.name == "Test Course Set 1"
