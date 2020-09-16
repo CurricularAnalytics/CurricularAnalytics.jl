@@ -172,13 +172,18 @@ stds = simple_students(100);
 
 # Test TransferArticulation creation
 XA = Course("Baskets 101", 3, institution="Tri-county Community College", prefix="BW", num="101", canonical_name="Baskets I");
-XCat = CourseCatalog("Another Course Catalog", "Tri-county Community College", courses=[XA], date_range=(Date(2019,8), Date(2020,7,31)));
+XB = Course("Fun w/ Baskets", 3, institution="South Harmon Institute of Technology", prefix="FUN", num="101", canonical_name="Baskets I");
+XCat1 = CourseCatalog("Another Course Catalog", "Tri-county Community College", courses=[XA], date_range=(Date(2019,8), Date(2020,7,31)));
+XCat2 = CourseCatalog("Yet Another Course Catalog", "South Harmon Institute of Technology", courses=[XB], date_range=(Date(2019,8), Date(2020,7,31)));
 #xfer_map = Dict((XCat.id, XA.id) => [A.id])  # this should work, but it fails
 #ta = TransferArticulation("Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat), xfer_map);
-ta = TransferArticulation(
-    "Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat));
-add_transfer_course(ta, [A.id], XCat.id, XA.id)
-@test transfer_equiv(ta, XCat.id, XA.id) == [A.id]
+ta = TransferArticulation("Test Xfer Articulation", "ACME State University", CCat, Dict(XCat1.id => XCat1));
+add_transfer_catalog(ta, XCat2);
+@test length(ta.transfer_catalogs) == 2
+add_transfer_course(ta, [A.id], XCat1.id, XA.id)
+add_transfer_course(ta, [A.id], XCat2.id, XB.id)
+@test transfer_equiv(ta, XCat1.id, XA.id) == [A.id]
+@test transfer_equiv(ta, XCat2.id, XB.id) == [A.id]
 
 # Test Simulation creation 
 sim_obj = Simulation(dp);
