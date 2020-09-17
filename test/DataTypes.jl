@@ -114,7 +114,26 @@ add_course!(CCat, [E,F,G]);
 @test dp.num_terms == 4
 @test dp.credit_hours == 22
 
-# Test DegreeRequirements creation 
+# Test DegreeRequirements data types
+@test grade("A➕") == grade(grade(convert(Grade,13)))
+@test grade("A") == grade(grade(convert(Grade,12)))
+@test grade("A➖") == grade(grade(convert(Grade,11)))
+@test grade("B➕") == grade(grade(convert(Grade,10)))
+@test grade("B") == grade(grade(convert(Grade,9)))
+@test grade("B➖") == grade(grade(convert(Grade,8)))
+@test grade("C➕") == grade(grade(convert(Grade,7)))
+@test grade("C") == grade(grade(convert(Grade,6)))
+@test grade("C➖") == grade(grade(convert(Grade,5)))
+@test grade("D➕") == grade(grade(convert(Grade,4)))
+@test grade("D") == grade(grade(convert(Grade,3)))
+@test grade("D➖") == grade(grade(convert(Grade,2)))
+@test grade("P") == 0
+@test grade("F") == 0
+@test grade("I") == 0
+@test grade("WP") == 0
+@test grade("W") == 0
+@test grade("WF") == 0
+
 # The regex's specified will match all courses with the EGR prefix and any number
 cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
 @test cs1.name == "Test Course Set 1"
@@ -153,13 +172,18 @@ stds = simple_students(100);
 
 # Test TransferArticulation creation
 XA = Course("Baskets 101", 3, institution="Tri-county Community College", prefix="BW", num="101", canonical_name="Baskets I");
-XCat = CourseCatalog("Another Course Catalog", "Tri-county Community College", courses=[XA], date_range=(Date(2019,8), Date(2020,7,31)));
+XB = Course("Fun w/ Baskets", 3, institution="South Harmon Institute of Technology", prefix="FUN", num="101", canonical_name="Baskets I");
+XCat1 = CourseCatalog("Another Course Catalog", "Tri-county Community College", courses=[XA], date_range=(Date(2019,8), Date(2020,7,31)));
+XCat2 = CourseCatalog("Yet Another Course Catalog", "South Harmon Institute of Technology", courses=[XB], date_range=(Date(2019,8), Date(2020,7,31)));
 #xfer_map = Dict((XCat.id, XA.id) => [A.id])  # this should work, but it fails
 #ta = TransferArticulation("Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat), xfer_map);
-ta = TransferArticulation(
-    "Test Xfer Articulation", "ACME State University", CCat, Dict(XCat.id => XCat));
-add_transfer_course(ta, [A.id], XCat.id, XA.id)
-@test transfer_equiv(ta, XCat.id, XA.id) == [A.id]
+ta = TransferArticulation("Test Xfer Articulation", "ACME State University", CCat, Dict(XCat1.id => XCat1));
+add_transfer_catalog(ta, XCat2);
+@test length(ta.transfer_catalogs) == 2
+add_transfer_course(ta, [A.id], XCat1.id, XA.id)
+add_transfer_course(ta, [A.id], XCat2.id, XB.id)
+@test transfer_equiv(ta, XCat1.id, XA.id) == [A.id]
+@test transfer_equiv(ta, XCat2.id, XB.id) == [A.id]
 
 # Test Simulation creation 
 sim_obj = Simulation(dp);
