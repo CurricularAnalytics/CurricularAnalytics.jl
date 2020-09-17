@@ -56,4 +56,20 @@ terms = bin_filling(curric, max_cpt=6)
 @test terms[2].courses[1].name == "C" || terms[2].courses[1].name == "D"
 @test terms[2].courses[2].name == "C" || terms[2].courses[2].name == "D"
 
+dp = create_degree_plan(curric, max_cpt=6)
+@test nv(dp.curriculum.graph) == 4
+@test ne(dp.curriculum.graph) == 2
+for term in dp.terms
+    credits = 0
+    for c in term.courses
+        credits += c.credit_hours
+    end
+    @test credits >= 3 
+    @test credits <= 6
+end
+@test dp.terms[1].courses[1].name == "A" || dp.terms[1].courses[1].name == "B"
+@test dp.terms[1].courses[2].name == "A" || dp.terms[1].courses[2].name == "B"
+@test dp.terms[2].courses[1].name == "C" || dp.terms[2].courses[1].name == "D"
+@test dp.terms[2].courses[2].name == "C" || dp.terms[2].courses[2].name == "D"
+
 end;
