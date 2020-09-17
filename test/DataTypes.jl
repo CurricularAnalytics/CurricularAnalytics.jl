@@ -84,6 +84,9 @@ mapped_ids = CurricularAnalytics.map_vertex_ids(curric)
 id = A.id
 convert_ids(curric); # this should not change the ids, since the curriculum was not created from a CSV file
 @test A.id == id
+test_curric = read_csv("./curriculum.csv")
+convert_ids(test_curric);  # this should change the ids
+@test course(test_curric, "BW", "110", "Introduction to Baskets", "ACME State University").id == convert(Int, mod(hash("Introduction to Baskets" * "BW" * "110" * "ACME State University"), UInt32))
 
 # Test CourseCollection creation 
 CC = CourseCollection("Test Course Collection", 3, [A,B,C,E], institution="ACME State University");
