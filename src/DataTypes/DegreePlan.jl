@@ -60,7 +60,7 @@ julia> DegreePlan("Biology 4-year Degree Plan", curriculum, terms)
 mutable struct DegreePlan
     name::AbstractString                # Name of the degree plan
     curriculum::Curriculum              # Curriculum the degree plan satisfies
-    additional_courses::Array{AbstractCourse}   # Additional (non-required) courses added to the curriculum,
+    additional_courses::Array{AbstractCourse}   # Additional (non-required) courses added to the degree plan,
                                         # e.g., these may be preparatory courses
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure 
                                         # of the degre plan

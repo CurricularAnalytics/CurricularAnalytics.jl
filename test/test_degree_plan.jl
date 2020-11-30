@@ -13,6 +13,9 @@ reqs = Array{AbstractCourse,1}();
 push!(reqs, A,B,D);
 add_requisite!(reqs,C,[pre,pre,co]);
 
+# add some learning outcomes for each of the courses
+# Yiming add code here
+
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786");
 
 terms = Array{Term}(undef, 4);

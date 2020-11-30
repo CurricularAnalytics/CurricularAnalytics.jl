@@ -64,7 +64,7 @@ function simulation_report(simulation, duration, course_passrate, max_credits, r
     println("\n\n-------- Course Pass Rates by Term --------")
 
     frame = pass_table(simulation, duration)
-    show(frame, summary=false, allrows=true, allcols=true, splitcols=true, eltypes=false)
+    show(frame, summary=false, allrows=true, allcols=true, splitcols=false, eltypes=false)
 end
 
 # Return the real passrate of courses in the simulation as a DataFrame

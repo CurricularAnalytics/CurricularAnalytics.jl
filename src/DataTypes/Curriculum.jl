@@ -37,8 +37,10 @@ mutable struct Curriculum
     num_courses::Int                    # Number of required courses in curriculum
     credit_hours::Real                  # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
-                                        # of the curriculum
+                                        # of the curriculum, note: this is a course graph
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the curriculum
+    lo_graph::SimpleDiGraph{Int}        # Directed graph representatin of pre-/co-requisite structure of learning
+                                        # outcomes in the curriculum
     metrics::Dict{String, Any}          # Curriculum-related metrics
     metadata::Dict{String, Any}         # Curriculum-related metadata
 
@@ -74,6 +76,7 @@ mutable struct Curriculum
             printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
             println(String(take!(errors)))
         end
+        # create_lo_graph!(this)   
         return this
     end
 
@@ -175,6 +178,10 @@ function create_graph!(curriculum::Curriculum)
             end
         end
     end
+end
+
+function create__lo_graph!(curriculum::Curriculum)
+    # This is the fucntion that needs to be created
 end
 
 # find requisite type from vertex ids in a curriculum graph
