@@ -119,6 +119,15 @@ function map_vertex_ids(curriculum::Curriculum)
     return mapped_ids
 end
 
+# Map lo IDs to vertex IDs in an underlying curriculum graph.
+function map_lo_vertex_ids(curriculum::Curriculum)
+    mapped_ids = Dict{Int, Int}()
+    for lo in curriculum.learning_outcomes
+        mapped_ids[lo.id] = lo.vertex_id[curriculum.id]
+    end
+    return mapped_ids
+end
+
 # Compute the hash value used to create the id for a course, and return the course if it exists in the curriculum supplied as input
 function course(curric::Curriculum, prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
     hash_val = mod(hash(name * prefix * num * institution), UInt32)
@@ -134,6 +143,15 @@ function course_from_id(curriculum::Curriculum, id::Int)
     for c in curriculum.courses
         if c.id == id
             return c
+        end
+    end
+end
+
+# Return the lo associated with a lo id in a curriculum
+function lo_from_id(curriculum::Curriculum, id::Int)
+    for lo in curriculum.learning_outcomes
+        if lo.id == id
+            return lo
         end
     end
 end
@@ -180,8 +198,32 @@ function create_graph!(curriculum::Curriculum)
     end
 end
 
-function create__lo_graph!(curriculum::Curriculum)
-    # This is the fucntion that needs to be created
+#"""
+#    create_lo_graph!(c::Curriculum)
+#
+#Create a curriculum directed graph from a curriculum specification. The graph is stored as a 
+#LightGraph.jl implemenation within the Curriculum data object.
+#"""
+function create_lo_graph!(curriculum::Curriculum)
+    for (i, lo) in enumerate(curriculum.learning_outcomes)
+        if add_vertex!(curriculum.graph)
+            lo.vertex_id[curriculum.id] = i   # The vertex id of a course w/in the curriculum
+                                              # Lightgraphs orders graph vertices sequentially
+                                              # TODO: make sure course is not alerady in the curriculum   
+        else
+            error("vertex could not be created")
+        end
+    end
+    mapped_vertex_ids = map_lo_vertex_ids(curriculum)
+    for lo in curriculum.learning_outcomes
+        for r in collect(keys(lo.requisites))
+            if add_edge!(curriculum.graph, mapped_vertex_ids[r], lo.vertex_id[curriculum.id])
+            else
+                s = lo_from_id(curriculum, r)
+                error("edge could not be created: ($(s.name), $(c.name))")
+            end
+        end
+    end
 end
 
 # find requisite type from vertex ids in a curriculum graph

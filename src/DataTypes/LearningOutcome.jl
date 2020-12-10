@@ -19,6 +19,8 @@ julia> LearningOutcome("M1", "Learner will demonstrate the ability to ...", 12)
 mutable struct LearningOutcome
     id::Int                             # Unique id for the learning outcome,
                                         # set when the cousrse is added to a graph
+    vertex_id::Dict{Int, Int}           # The vertex id of the learning outcome w/in a curriculum graph, stored as
+                                        # (curriculum_id, vertex_id)
     name::AbstractString                # Name of the learning outcome
     description::AbstractString         # A description of the learning outcome
     hours::Int                          # number of class hours that should be devoted
