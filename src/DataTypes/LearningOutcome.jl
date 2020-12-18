@@ -39,6 +39,7 @@ mutable struct LearningOutcome
         this.requisites = Dict{Int, Requisite}()
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
+        this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id
         return this
     end
 end

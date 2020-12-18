@@ -71,12 +71,13 @@ mutable struct Curriculum
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
+        this.lo_graph = SimpleDiGraph{Int}()
+        create_lo_graph!(this)
         errors = IOBuffer()
         if !(isvalid_curriculum(this, errors))
             printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
             println(String(take!(errors)))
         end
-        # create_lo_graph!(this)   
         return this
     end
 
@@ -206,7 +207,7 @@ end
 #"""
 function create_lo_graph!(curriculum::Curriculum)
     for (i, lo) in enumerate(curriculum.learning_outcomes)
-        if add_vertex!(curriculum.graph)
+        if add_vertex!(curriculum.lo_graph)
             lo.vertex_id[curriculum.id] = i   # The vertex id of a course w/in the curriculum
                                               # Lightgraphs orders graph vertices sequentially
                                               # TODO: make sure course is not alerady in the curriculum   
@@ -217,7 +218,7 @@ function create_lo_graph!(curriculum::Curriculum)
     mapped_vertex_ids = map_lo_vertex_ids(curriculum)
     for lo in curriculum.learning_outcomes
         for r in collect(keys(lo.requisites))
-            if add_edge!(curriculum.graph, mapped_vertex_ids[r], lo.vertex_id[curriculum.id])
+            if add_edge!(curriculum.lo_graph, mapped_vertex_ids[r], lo.vertex_id[curriculum.id])
             else
                 s = lo_from_id(curriculum, r)
                 error("edge could not be created: ($(s.name), $(c.name))")
