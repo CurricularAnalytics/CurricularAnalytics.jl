@@ -1,3 +1,5 @@
+# File: Simulation.jl
+
 using DataFrames
 using LightGraphs
 
@@ -6,6 +8,37 @@ include("Enrollment.jl")
 include("Report.jl")
 
 # Simulation Function
+"""
+simulate(degree_plan, course_attempt_limit, students; <keyword arguments>)
+
+Perform a simulation on a degree plan with given students.
+
+# Arguments
+Required:
+- `degree_plan::DegreePlan` : the degree plan the simulation will be using.
+- `course_attempt_limit::Int` : the maximum number of attampts for each course in the degree plan.
+- `students::Array{Student}` : the cohort will be used through the simulation.
+
+Keywords:
+- `performance_model::PassRate` : the pass rate model of the simulation.
+- `enrollment_model::Enrollment` : the enrollment model of the simulation.
+- `max_credits::Int` : the maximum number of total credits a student can enroll each semester.
+- `duration::Int` : the maximum number of semester allowed. It's ignored if duration_lock is set to false.
+- `duration_lock::Boolean` : whether a student is allowed to stay on the degree plan forever.
+- `stopouts::Boolean` : whether a student will stop during the course of completing the degree plan.
+
+Returns the simulation result that students in the cohort taking courses from the degree plan. For a given student,
+in the simulation process, the student takes courses described in the degree plan at each semester. The simulation results
+the simulated graduation rates (overall and at each term) and stopout rates (overall and at each term).
+The performance of each student depends on the the pass rate model. The likelihood of a student dropping out
+from the degree plan is determined by the stopout model. The pass rates for courses in the degree plan construct
+the pass rate model. By default, if a pass rate for a course is not provided, the pass rate will be 50% (pure random).
+The probabilities of a student dropping out at different semesters are the stopout model.
+
+```julia-repl
+julia> simulation = simulate(degree_plan, course_attempt_limit, students)
+```
+"""
 function simulate(degree_plan::DegreePlan, course_attempt_limit::Int, students::Array{Student}; performance_model=PassRate, enrollment_model=Enrollment, max_credits=18, duration=8, duration_lock=false, stopouts=false)
 
     # Create the simulation object
