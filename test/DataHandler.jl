@@ -19,7 +19,7 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].name == "Introduction to Baskets"
         @test curric.courses[i].credit_hours == 3
         @test curric.courses[i].prefix == "BW"
-        @test curric.courses[i].num == "101"
+        @test curric.courses[i].num == "110"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Baskets I"
         @test length(curric.courses[i].requisites) == 0
@@ -129,7 +129,7 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].name == "Introduction to Baskets"
          @test curric.courses[i].credit_hours == 3
          @test curric.courses[i].prefix == "BW"
-         @test curric.courses[i].num == "101"
+         @test curric.courses[i].num == "110"
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Baskets I"
          @test length(curric.courses[i].requisites) == 0
@@ -301,6 +301,5 @@ dp2 = read_csv("./UBW-degree-plan.csv")
 
 rm("./UBW-degree-plan.csv")
 
-# TODO: add learning outcomes
 
 end;

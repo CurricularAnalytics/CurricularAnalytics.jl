@@ -65,6 +65,10 @@ add_lo_requisite!([lo2, lo3], lo4, [pre, co])
 @test length(lo3.requisites) == 0
 @test length(lo4.requisites) == 2
 
+# test the uderlying learning outcome graph
+#@test nv(curric.graph) == 8
+#@test ne(curric.graph) == 5
+
 mapped_ids = CurricularAnalytics.map_vertex_ids(curric)
 @test requisite_type(curric,mapped_ids[A.id],mapped_ids[C.id]) == pre
 @test requisite_type(curric,mapped_ids[D.id],mapped_ids[C.id]) == co
@@ -84,6 +88,9 @@ mapped_ids = CurricularAnalytics.map_vertex_ids(curric)
 id = A.id
 convert_ids(curric); # this should not change the ids, since the curriculum was not created from a CSV file
 @test A.id == id
+test_curric = read_csv("./curriculum.csv")
+convert_ids(test_curric);  # this should change the ids
+@test course(test_curric, "BW", "110", "Introduction to Baskets", "ACME State University").id == convert(Int, mod(hash("Introduction to Baskets" * "BW" * "110" * "ACME State University"), UInt32))
 
 # Test CourseCollection creation 
 CC = CourseCollection("Test Course Collection", 3, [A,B,C,E], institution="ACME State University");

@@ -211,15 +211,16 @@ function generate_course_lo(df_learning_outcomes::DataFrame)
             println("Learning Outcome ID must be unique")
             return false
         else
-            lo_dict[lo_ID] = LearningOutcome(lo_name, lo_description,lo_Credit)
+            lo_dict[lo_ID] = LearningOutcome(lo_name, lo_description, lo_Credit)
         end
     end
     for row in DataFrames.eachrow(df_learning_outcomes)
         lo_ID = find_cell(row, Symbol("Learning Outcome ID"))
         reqs = find_cell(row, Symbol("Requisites"))
         if typeof(reqs) != Missing
-            for req in reqs
-               add_lo_requisite!(lo_dict[req], lo_dict[lo_ID], pre)
+            for req in req
+                # adds all requisite courses for the learning outcome as prerequisites
+                add_lo_requisite!(lo_dict[req], lo_dict[lo_ID], pre)
             end
         end
     end
