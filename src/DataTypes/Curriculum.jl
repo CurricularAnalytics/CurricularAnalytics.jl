@@ -39,8 +39,10 @@ mutable struct Curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
                                         # of the curriculum, note: this is a course graph
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the curriculum
-    lo_graph::SimpleDiGraph{Int}        # Directed graph representatin of pre-/co-requisite structure of learning
+    learning_outcome_graph::SimpleDiGraph{Int}        # Directed graph representatin of pre-/co-requisite structure of learning
                                         # outcomes in the curriculum
+    course_learning_outcome_graph::MetaDiGraph{Int}  # Directed Int64 metagraph with Float64 weights defined by :weight (default weight 1.0) 
+                                        # This is a course and learning outcome graph                                             
     metrics::Dict{String, Any}          # Curriculum-related metrics
     metadata::Dict{String, Any}         # Curriculum-related metadata
 
@@ -71,8 +73,10 @@ mutable struct Curriculum
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
-        this.lo_graph = SimpleDiGraph{Int}()
-        create_lo_graph!(this)
+        this.learning_outcome_graph = SimpleDiGraph{Int}()
+        create_learning_outcome_graph!(this)
+        this.course_learning_outcome_graph = MetaDiGraph()
+        create_course_learning_outcome_graph!(this)       
         errors = IOBuffer()
         if !(isvalid_curriculum(this, errors))
             printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
@@ -200,14 +204,91 @@ function create_graph!(curriculum::Curriculum)
 end
 
 #"""
-#    create_lo_graph!(c::Curriculum)
+#    create_course_learning_outcome_graph!(c::Curriculum)
+#
+#Create a curriculum directed graph from a curriculum specification. This graph graph contains courses and learning outcomes
+# of the curriculum. The graph is stored as a LightGraph.jl implemenation within the Curriculum data object.
+
+
+#"""
+function create_course_learning_outcome_graph!(curriculum::Curriculum)
+    len_courses = size(curriculum.courses)[1]
+    len_learning_outcomes = size(curriculum.learning_outcomes)[1]
+
+    for (i, c) in enumerate(curriculum.courses)
+        if add_vertex!(curriculum.course_learning_outcome_graph)
+            c.vertex_id[curriculum.id] = i    # The vertex id of a course w/in the curriculum
+                                              # Lightgraphs orders graph vertices sequentially
+                                              # TODO: make sure course is not alerady in the curriculum   
+        else
+            error("vertex could not be created")
+        end
+
+    end
+
+    for (j, lo) in enumerate(curriculum.learning_outcomes)
+        if add_vertex!(curriculum.course_learning_outcome_graph)
+            lo.vertex_id[curriculum.id] = len_courses + j   # The vertex id of a learning outcome w/in the curriculum
+                                                            # Lightgraphs orders graph vertices sequentially
+                                                            # TODO: make sure course is not alerady in the curriculum   
+        else
+            error("vertex could not be created")
+        end
+    end
+
+    mapped_vertex_ids = map_vertex_ids(curriculum)
+    mapped_lo_vertex_ids = map_lo_vertex_ids(curriculum)
+
+
+    # Add edges among courses
+    for c in curriculum.courses
+        for r in collect(keys(c.requisites))
+            if add_edge!(curriculum.course_learning_outcome_graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id])               
+                set_prop!(curriculum.course_learning_outcome_graph, Edge(mapped_vertex_ids[r], c.vertex_id[curriculum.id]), :c_to_c, c.requisites[r])
+
+            else
+                s = course_from_id(curriculum, r)
+                error("edge could not be created: ($(s.name), $(c.name))")
+            end
+        end
+    end
+
+    # Add edges among learning_outcomes
+    for lo in curriculum.learning_outcomes
+        for r in collect(keys(lo.requisites))
+            if add_edge!(curriculum.course_learning_outcome_graph, mapped_lo_vertex_ids[r], lo.vertex_id[curriculum.id])
+                set_prop!(curriculum.course_learning_outcome_graph, Edge(mapped_lo_vertex_ids[r], lo.vertex_id[curriculum.id]), :lo_to_lo, pre)
+            else
+                s = lo_from_id(curriculum, r)
+                error("edge could not be created: ($(s.name), $(c.name))")
+            end
+        end
+    end
+
+    # Add edges between each pair of a course and a learning outcome
+    for c in curriculum.courses
+        for lo in c.learning_outcomes
+            if add_edge!(curriculum.course_learning_outcome_graph, mapped_lo_vertex_ids[lo.id], c.vertex_id[curriculum.id])
+                set_prop!(curriculum.course_learning_outcome_graph, Edge(mapped_lo_vertex_ids[lo.id], c.vertex_id[curriculum.id]), :lo_to_c, belong_to)
+            else
+                s = lo_from_id(curriculum, lo.id)
+                error("edge could not be created: ($(s.name), $(c.name))")
+            end
+        end
+    end
+end
+
+
+
+#"""
+#    create_learning_outcome_graph!(c::Curriculum)
 #
 #Create a curriculum directed graph from a curriculum specification. The graph is stored as a 
 #LightGraph.jl implemenation within the Curriculum data object.
 #"""
-function create_lo_graph!(curriculum::Curriculum)
+function create_learning_outcome_graph!(curriculum::Curriculum)
     for (i, lo) in enumerate(curriculum.learning_outcomes)
-        if add_vertex!(curriculum.lo_graph)
+        if add_vertex!(curriculum.learning_outcome_graph)
             lo.vertex_id[curriculum.id] = i   # The vertex id of a course w/in the curriculum
                                               # Lightgraphs orders graph vertices sequentially
                                               # TODO: make sure course is not alerady in the curriculum   
@@ -218,7 +299,7 @@ function create_lo_graph!(curriculum::Curriculum)
     mapped_vertex_ids = map_lo_vertex_ids(curriculum)
     for lo in curriculum.learning_outcomes
         for r in collect(keys(lo.requisites))
-            if add_edge!(curriculum.lo_graph, mapped_vertex_ids[r], lo.vertex_id[curriculum.id])
+            if add_edge!(curriculum.learning_outcome_graph, mapped_vertex_ids[r], lo.vertex_id[curriculum.id])
             else
                 s = lo_from_id(curriculum, r)
                 error("edge could not be created: ($(s.name), $(c.name))")

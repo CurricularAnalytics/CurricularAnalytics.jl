@@ -15,6 +15,7 @@ using Printf
 using Markdown
 using Documenter
 using Dates
+using MetaGraphs
 
 include("DataTypes/DataTypes.jl")
 include("DataHandler.jl")
