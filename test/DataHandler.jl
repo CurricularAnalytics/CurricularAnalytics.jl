@@ -271,7 +271,6 @@ C = Course("Basic Basket Forms", 3, institution="ACME State University", prefix=
 D = Course("Basic Basket Forms Lab", 1, institution="ACME State University", prefix="BW", num="111L", canonical_name="Baskets I Laboratory")
 E = Course("Advanced Basketry", 3, institution="ACME State University", prefix="CS", num="300", canonical_name="Baskets II")
 F = Course("Basket Materials & Decoration", 3, institution="ACME State University", prefix="BW", num="214", canonical_name="Basket Materials")
-G = Course("Baskets History", 3, institution="ACME State University", prefix="BW", num="100", canonical_name="Baskets History")
 
 add_requisite!(A,C,pre)
 add_requisite!(B,C,pre)
@@ -292,7 +291,7 @@ terms[1] = Term([A,B])
 terms[2] = Term([C,D])
 terms[3] = Term([E,F])
 
-dp1 = DegreePlan("3-term UBW plan", curric1, terms, [G])
+dp1 = DegreePlan("3-term UBW plan", curric1, terms)
 # write degree plan to secondary storage
 @test write_csv(dp1, "UBW-degree-plan.csv") == true
 # read from same location
