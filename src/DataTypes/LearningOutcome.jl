@@ -24,6 +24,8 @@ mutable struct LearningOutcome
     hours::Int                          # number of class hours that should be devoted
                                         # to the learning outcome
     requisites::Dict{Int, Requisite}    # List of requisites, in (requisite_learning_outcome, requisite_type) format
+    affinity::Dict{Int, Real}           # Affinity to other learning outcomes in (LearningOutcome ID, affinity value) format,
+                                        # where affinity is in the interval [0,1].
     metrics::Dict{String, Any}          # Learning outcome-related metrics
     metadata::Dict{String, Any}         # Learning outcome-related metadata
 
