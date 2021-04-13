@@ -3,8 +3,9 @@
 # Enumerated types
 @enum Degree AA AS AAS BA BS
 @enum System semester quarter
-@enum Requisite pre co strict_co custom
+@enum Requisite pre co strict_co custom belong_to
 @enum EdgeClass tree_edge back_edge forward_edge cross_edge
+@enum EdgeType c_to_c lo_to_lo lo_to_c
 
 # fundamental data types for curricular analytics
 include("LearningOutcome.jl")

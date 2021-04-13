@@ -18,7 +18,7 @@ makedocs(
         "Visualizing Curricula & Degree Plans"      => "visualize.md",
         "Metrics"                                   => "metrics.md",
         "Creating Degree Plans"                     => "degreeplans.md",
-        #"Simulating Student Flows"                  => "simulating.md",
+        "Simulating Student Flows"                  => "simulating.md",
         "Graph Algorithms"                          => "graph_algs.md",
         "Contributing"                              => "contributing.md",
         "License Information"                       => "license.md",
