@@ -1,4 +1,20 @@
-# Course-related data DataTypes
+# Course-related data types:
+#
+#                               AbstractCourse
+#                                /          \    
+#                          Course       CourseCollection
+#
+# A requirement may involve a set of courses (CourseSet), or a set of requirements (RequirementSet), but not both.
+"""
+The `AbstractCourse` data type is used to represent the notion of an abstract course that may appear in a curriculum 
+or degree plan. That is, this abstract type serves as a placeholder for a course in a curriculum or degree plan,
+where the abstract course may correspond to a single course, or a set of courses, where only one of the courses in the
+set should be taken at that particular point in the curriculum or degree plan. This allows a user to specify a course
+or a collection of courses as a part part of a curriculum or degree plans. The two possible concrete subtypes of 
+an `AbstractCourse` are:
+ - `Course` : a specific course.
+ - `CourseCollection` : a set of courses, any of which can serve as the required course in a curriculum or degree plan.
+"""
 
 abstract type AbstractCourse end
 
