@@ -32,7 +32,7 @@ export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseC
         gad, grade, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
         requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report, 
-        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv
+        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer
 
 # Check if a curriculum graph has requisite cycles.
 """
@@ -816,6 +816,36 @@ function dead_ends(curric::Curriculum, prefixes::Array{String,1})
         curric.metrics["dead end"] = Dict(prefixes => dead_end_courses)
     end
     return (prefixes, dead_end_courses)
+end
+
+"""
+    knowledge_transfer(dp)
+
+Determine the number of requisites crossing the "cut" in a degree plan that occurs between each term.
+
+# Arguments
+- `dp::DegreePlan` : the degree to analyze.
+
+Returns an array of crossing values between the courses in the first term and the remainder of the degree plan, 
+between the courses in the first two terms in the degree plan, and the remainder of the degree plan, etc.
+The number of values returned will be one less than the number of terms in the degree plan.
+
+```julia-repl
+julia> knowledge_transfer(dp)
+```
+"""
+function knowledge_transfer(dp::DegreePlan)
+    ec_terms = []
+    s = Array{Int64,1}()
+    for term in dp.terms
+        sum = 0
+        for c in term.courses
+            push!(s, c.vertex_id[dp.curriculum.id])
+        end
+        sum += edge_crossings(dp.curriculum.graph, s)
+        push!(ec_terms, sum)
+    end
+    return deleteat!(ec_terms, lastindex(ec_terms)) # the last value will always be zero, so remove it
 end
 
 end # module
