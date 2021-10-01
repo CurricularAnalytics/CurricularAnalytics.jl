@@ -9,7 +9,7 @@ instantiate a `Term` use:
 where c1, c2, ... are `Course` data objects
 """
 mutable struct Term
-    courses::Array{AbstractCourse}              # The courses associated with a term in a degree plan
+    courses::Array{AbstractCourse}      # The courses associated with a term in a degree plan
     num_courses::Int                    # The number of courses in the Term
     credit_hours::Real                  # The number of credit hours associated with the term
     metrics::Dict{String, Any}          # Term-related metrics
