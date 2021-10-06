@@ -21,6 +21,30 @@ errors = IOBuffer()
 @test isvalid_curriculum(curric, errors) == false
 #@test String(take!(errors)) == "\nCurriculum Cycle contains the following requisite cycles:\n(A)\n"
 
+# create unsatisfiable requisites
+#  
+#     (pre)
+#    A---* B
+#   * \  |* (strict_co)
+#      \ |
+#       \|
+#        C
+
+a = Course("A", 3)
+b = Course("B", 3)
+c = Course("C", 3)
+
+add_requisite!(a,b,pre)
+add_requisite!(c,b,strict_co)
+add_requisite!(c,a,pre)  # can be any requisite
+
+curric = Curriculum("Unsatisfiable", [a, b, c], sortby_ID=false)
+errors = IOBuffer()
+@test isvalid_curriculum(curric, errors) == false
+
+curric = read_csv("big_unsatisfiable_curric.csv")
+@test isvalid_curriculum(curric, errors) == false
+
 # Curric1: 4-vertex test curriculum - invalid (contains a extraneous prerequisite)
 #
 #    A --------* C

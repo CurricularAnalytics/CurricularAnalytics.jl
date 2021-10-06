@@ -39,11 +39,10 @@ export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseC
     isvalid_curriculum(c::Curriculum, errors::IOBuffer)
 
 Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e.,
-whether or not it contains a requisite cycle.  Returns  a boolean value, with `true` indicating the
-curriculum is valid, and `false` indicating it is not.
+whether or not it contains a requisite cycle, or requisites that cannot be satisfied.  Returns  
+a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it is not.
 
-If ``G_c`` is not valid, the requisite cycle(s) are written to the `errors` buffer. To view these
-cycles, use:
+If ``G_c`` is not valid, the `errors` buffer. To view these errors, use:
 
 ```julia-repl
 julia> errors = IOBuffer()
@@ -51,15 +50,40 @@ julia> isvalid_curriculum(c, errors)
 julia> println(String(take!(errors)))
 ```
 
-A curriculum graph is not valid if it contains a directed cycle; in this case it is not possible to complete
-the curriculum.
+A curriculum graph is not valid if it contains a directed cycle or unsatisfiable requisites; in this 
+case it is not possible to complete the curriculum. For the case of unsatisfiable requistes, consider
+two courses ``c_1`` and ``c_2``, with ``c_1`` a prerequisite for ``c_2``. If a third course ``c_3`` 
+is a strict corequisite for ``c_2``, as well as a requisite for ``c_1`` (or a requisite for any course 
+on a path leading to ``c_2``), then the set of requisites cannot be satisfied.
 """
 function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
-    g = c.graph
+    g = deepcopy(c.graph)
     validity = true
-    # first check for cycles
+    # First check for simple cycles
     cycles = simplecycles(g)
-    if size(cycles,1) != 0
+    # Next check for cycles that could be created by strict co-requisites.
+    # For every strict-corequisite in the curriculum, add another strict-corequisite between the same two vertices, but in 
+    # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
+    # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
+    for course in c.courses
+        for (k,r) in course.requisites
+            if r == strict_co
+                v_d = course_from_id(c,course.id).vertex_id[c.id] # destination vertex
+                v_s = course_from_id(c,k).vertex_id[c.id] # source vertex
+                add_edge!(g, v_d, v_s)
+            end
+        end
+    end
+    new_cycles = simplecycles(g)
+    idx = []
+    for (i,cyc) in enumerate(new_cycles)  # remove length-2 cycles
+        if length(cyc) == 2
+            push!(idx, i)
+        end
+    end
+    deleteat!(new_cycles, idx)
+    cycles = union(new_cycles, cycles) # remove redundant cycles
+    if length(cycles) != 0
         validity = false
         c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
         write(error_msg, " curriculum \'$(c.name)\' has requisite cycles:\n")
@@ -76,19 +100,6 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     end
     return validity
 end
-
-## refactoring this out of the function above, to reduce warning outputs -- use extraneous_requisites() in its place
-#else # no cycles, can now check for extraneous requisites
-#        extran_errors = IOBuffer()
-#        if extraneous_requisites(c, extran_errors)
-#            validity = false
-#            c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
-#            write(error_msg, " curriculum \'$(c.name)\' has extraneous requisites:\n")
-#            write(error_msg, String(take!(extran_errors)))
-#        end
-#    end
-#    return validity
-#end
 
 """
     extraneous_requisites(c::Curriculum; print=false)
@@ -849,3 +860,28 @@ function knowledge_transfer(dp::DegreePlan)
 end
 
 end # module
+
+
+for cs in c.courses
+    for (k,r) in cs.requisites 
+        v_k = course_from_id(c,k).vertex_id[c.id]
+        if r == strict_co
+            v_set = reachable_to(g, v_k) # no predecessor to k can have r as a requisite (makes curriculum unsatisfiable)
+            # Todo: remove r from reachable set
+            println("checking edges ...\n")
+            for v in v_set
+                if CurricularAnalytics.has_edge(g, v, v_k) # found a possibly unsatisfiable requisite
+                    println("found a edge that needs checking\n")
+                    if v in keys(cs.requisites) # check for one exception: if v is also a co-requsite for cs, no problem 
+                        # map(course_from_id, fill(curric,length(cs.requisites)), keys(cs.requisites))
+                        if cs.requisites[v] == pre # it's not, is a prerequisite
+                            validity = false
+                            println("   setting validity false\n")
+                            write(error_msg, "$(course_from_id(c,r).name) cannot be a strict co-requisite for $(cs.name) as well as a requisite for some predecessor of $(cs.name)\n")
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
