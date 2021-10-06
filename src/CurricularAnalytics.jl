@@ -860,28 +860,3 @@ function knowledge_transfer(dp::DegreePlan)
 end
 
 end # module
-
-
-for cs in c.courses
-    for (k,r) in cs.requisites 
-        v_k = course_from_id(c,k).vertex_id[c.id]
-        if r == strict_co
-            v_set = reachable_to(g, v_k) # no predecessor to k can have r as a requisite (makes curriculum unsatisfiable)
-            # Todo: remove r from reachable set
-            println("checking edges ...\n")
-            for v in v_set
-                if CurricularAnalytics.has_edge(g, v, v_k) # found a possibly unsatisfiable requisite
-                    println("found a edge that needs checking\n")
-                    if v in keys(cs.requisites) # check for one exception: if v is also a co-requsite for cs, no problem 
-                        # map(course_from_id, fill(curric,length(cs.requisites)), keys(cs.requisites))
-                        if cs.requisites[v] == pre # it's not, is a prerequisite
-                            validity = false
-                            println("   setting validity false\n")
-                            write(error_msg, "$(course_from_id(c,r).name) cannot be a strict co-requisite for $(cs.name) as well as a requisite for some predecessor of $(cs.name)\n")
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
