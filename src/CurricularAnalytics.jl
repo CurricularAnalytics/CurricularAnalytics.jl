@@ -31,8 +31,8 @@ export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseC
         courses_from_vertices, create_degree_plan, cross_edge, dead_ends, delay_factor, delete_requisite!, dfs, extraneous_requisites, find_term, forward_edge, 
         gad, grade, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
-        requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report, 
-        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer
+        requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report,
+        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream
 
 # Check if a curriculum graph has requisite cycles.
 """
