@@ -349,7 +349,7 @@ end
 """
     edge_crossing(g, s)
 
-Given a graph ``g=(V,E)``,and a set of vertices ``s \subseteq V``, determine the number of edges  
+Given a graph ``g=(V,E)``,and a set of vertices ``s \\subseteq V``, determine the number of edges  
 crossing the cut determined by the partition ``(s,V-s)``.
 
  # Arguments
