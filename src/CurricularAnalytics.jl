@@ -9,7 +9,7 @@ directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a 
 module CurricularAnalytics
 
 # Dependencies
-using LightGraphs
+using Graphs
 using DataStructures
 using Printf
 using Markdown

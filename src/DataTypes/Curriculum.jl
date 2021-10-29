@@ -185,7 +185,7 @@ function create_graph!(curriculum::Curriculum)
     for (i, c) in enumerate(curriculum.courses)
         if add_vertex!(curriculum.graph)
             c.vertex_id[curriculum.id] = i    # The vertex id of a course w/in the curriculum
-                                              # Lightgraphs orders graph vertices sequentially
+                                              # Graphs.jl orders graph vertices sequentially
                                               # TODO: make sure course is not alerady in the curriculum   
         else
             error("vertex could not be created")
@@ -218,7 +218,7 @@ function create_course_learning_outcome_graph!(curriculum::Curriculum)
     for (i, c) in enumerate(curriculum.courses)
         if add_vertex!(curriculum.course_learning_outcome_graph)
             c.vertex_id[curriculum.id] = i    # The vertex id of a course w/in the curriculum
-                                              # Lightgraphs orders graph vertices sequentially
+                                              # Graphs.jl orders graph vertices sequentially
                                               # TODO: make sure course is not alerady in the curriculum   
         else
             error("vertex could not be created")
@@ -229,7 +229,7 @@ function create_course_learning_outcome_graph!(curriculum::Curriculum)
     for (j, lo) in enumerate(curriculum.learning_outcomes)
         if add_vertex!(curriculum.course_learning_outcome_graph)
             lo.vertex_id[curriculum.id] = len_courses + j   # The vertex id of a learning outcome w/in the curriculum
-                                                            # Lightgraphs orders graph vertices sequentially
+                                                            # Graphs.jl orders graph vertices sequentially
                                                             # TODO: make sure course is not alerady in the curriculum   
         else
             error("vertex could not be created")
@@ -290,7 +290,7 @@ function create_learning_outcome_graph!(curriculum::Curriculum)
     for (i, lo) in enumerate(curriculum.learning_outcomes)
         if add_vertex!(curriculum.learning_outcome_graph)
             lo.vertex_id[curriculum.id] = i   # The vertex id of a course w/in the curriculum
-                                              # Lightgraphs orders graph vertices sequentially
+                                              # Graphs.jl orders graph vertices sequentially
                                               # TODO: make sure course is not alerady in the curriculum   
         else
             error("vertex could not be created")

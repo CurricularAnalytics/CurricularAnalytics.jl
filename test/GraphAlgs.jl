@@ -1,6 +1,6 @@
 # Graph Algs tests
 
-using LightGraphs
+using Graphs
 
 @testset "GraphAlgs Tests" begin
 
