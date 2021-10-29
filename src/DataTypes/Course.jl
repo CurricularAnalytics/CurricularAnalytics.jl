@@ -87,7 +87,8 @@ mutable struct Course <: AbstractCourse
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
-        this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id
+        this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id, note: course may be in multiple curricula
+        
 
         this.passrate = passrate
         return this

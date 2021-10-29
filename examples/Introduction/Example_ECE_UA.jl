@@ -2,7 +2,7 @@
 
 using CurricularAnalytics
 using MetaGraphs
-using LightGraphs
+using Graphs
 
 # # create learning outcomes
 l = Array{LearningOutcome}(undef, 368)

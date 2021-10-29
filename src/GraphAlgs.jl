@@ -343,3 +343,39 @@ function longest_paths(g::AbstractGraph{T}) where T
     end
     return lps
 end
+
+# determine the number of edges crossing a graph cut, where s is the set of vertices on one side of the cut, 
+# and the other side are the remanining vertices in g.
+"""
+    edge_crossing(g, s)
+
+Given a graph ``g=(V,E)``,and a set of vertices ``s \\subseteq V``, determine the number of edges  
+crossing the cut determined by the partition ``(s,V-s)``.
+
+ # Arguments
+Required:
+- `g::AbstractGraph` : acylic graph. 
+- `s::Array{Int}` : array of vertex indicies. 
+
+```julia-repl
+julia> cut_size = edge_crossing(g, s)
+```
+"""
+function edge_crossings(g::AbstractGraph{T}, s::Array{Int,1}) where T
+    total = 0
+    d = convert(Array{Int,1}, vertices(g)) # collect the graph vertex ids in a integer array
+    filter!(x->x ∉ s, d)  # remove the vertex ids in s from d
+    for v in s
+        total += edge_crossings(g, v, d)
+    end
+    return total
+end
+
+# find number of crossing from a single vertex to all vertices in some vertex set d
+function edge_crossings(g::AbstractGraph{T}, s::Int, d::Array{Int,1}) where T
+    total = 0
+    for v in d
+        has_edge(g, s, v) ? total += 1 : nothing
+    end
+    return total
+end

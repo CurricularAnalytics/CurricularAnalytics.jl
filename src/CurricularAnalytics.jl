@@ -9,7 +9,7 @@ directed edge from vertex ``v_i`` to ``v_j`` is in ``E`` if course ``c_i`` is a 
 module CurricularAnalytics
 
 # Dependencies
-using LightGraphs
+using Graphs
 using DataStructures
 using Printf
 using Markdown
@@ -31,19 +31,18 @@ export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseC
         courses_from_vertices, create_degree_plan, cross_edge, dead_ends, delay_factor, delete_requisite!, dfs, extraneous_requisites, find_term, forward_edge, 
         gad, grade, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
-        requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report, 
-        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv
+        requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report,
+        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream
 
 # Check if a curriculum graph has requisite cycles.
 """
     isvalid_curriculum(c::Curriculum, errors::IOBuffer)
 
 Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e.,
-whether or not it contains a requisite cycle.  Returns  a boolean value, with `true` indicating the
-curriculum is valid, and `false` indicating it is not.
+whether or not it contains a requisite cycle, or requisites that cannot be satisfied.  Returns  
+a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it is not.
 
-If ``G_c`` is not valid, the requisite cycle(s) are written to the `errors` buffer. To view these
-cycles, use:
+If ``G_c`` is not valid, the `errors` buffer. To view these errors, use:
 
 ```julia-repl
 julia> errors = IOBuffer()
@@ -51,15 +50,40 @@ julia> isvalid_curriculum(c, errors)
 julia> println(String(take!(errors)))
 ```
 
-A curriculum graph is not valid if it contains a directed cycle; in this case it is not possible to complete
-the curriculum.
+A curriculum graph is not valid if it contains a directed cycle or unsatisfiable requisites; in this 
+case it is not possible to complete the curriculum. For the case of unsatisfiable requistes, consider
+two courses ``c_1`` and ``c_2``, with ``c_1`` a prerequisite for ``c_2``. If a third course ``c_3`` 
+is a strict corequisite for ``c_2``, as well as a requisite for ``c_1`` (or a requisite for any course 
+on a path leading to ``c_2``), then the set of requisites cannot be satisfied.
 """
 function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
-    g = c.graph
+    g = deepcopy(c.graph)
     validity = true
-    # first check for cycles
+    # First check for simple cycles
     cycles = simplecycles(g)
-    if size(cycles,1) != 0
+    # Next check for cycles that could be created by strict co-requisites.
+    # For every strict-corequisite in the curriculum, add another strict-corequisite between the same two vertices, but in 
+    # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
+    # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
+    for course in c.courses
+        for (k,r) in course.requisites
+            if r == strict_co
+                v_d = course_from_id(c,course.id).vertex_id[c.id] # destination vertex
+                v_s = course_from_id(c,k).vertex_id[c.id] # source vertex
+                add_edge!(g, v_d, v_s)
+            end
+        end
+    end
+    new_cycles = simplecycles(g)
+    idx = []
+    for (i,cyc) in enumerate(new_cycles)  # remove length-2 cycles
+        if length(cyc) == 2
+            push!(idx, i)
+        end
+    end
+    deleteat!(new_cycles, idx)
+    cycles = union(new_cycles, cycles) # remove redundant cycles
+    if length(cycles) != 0
         validity = false
         c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
         write(error_msg, " curriculum \'$(c.name)\' has requisite cycles:\n")
@@ -76,19 +100,6 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     end
     return validity
 end
-
-## refactoring this out of the function above, to reduce warning outputs -- use extraneous_requisites() in its place
-#else # no cycles, can now check for extraneous requisites
-#        extran_errors = IOBuffer()
-#        if extraneous_requisites(c, extran_errors)
-#            validity = false
-#            c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
-#            write(error_msg, " curriculum \'$(c.name)\' has extraneous requisites:\n")
-#            write(error_msg, String(take!(extran_errors)))
-#        end
-#    end
-#    return validity
-#end
 
 """
     extraneous_requisites(c::Curriculum; print=false)
@@ -816,6 +827,36 @@ function dead_ends(curric::Curriculum, prefixes::Array{String,1})
         curric.metrics["dead end"] = Dict(prefixes => dead_end_courses)
     end
     return (prefixes, dead_end_courses)
+end
+
+"""
+    knowledge_transfer(dp)
+
+Determine the number of requisites crossing the "cut" in a degree plan that occurs between each term.
+
+# Arguments
+- `dp::DegreePlan` : the degree to analyze.
+
+Returns an array of crossing values between the courses in the first term and the remainder of the degree plan, 
+between the courses in the first two terms in the degree plan, and the remainder of the degree plan, etc.
+The number of values returned will be one less than the number of terms in the degree plan.
+
+```julia-repl
+julia> knowledge_transfer(dp)
+```
+"""
+function knowledge_transfer(dp::DegreePlan)
+    ec_terms = []
+    s = Array{Int64,1}()
+    for term in dp.terms
+        sum = 0
+        for c in term.courses
+            push!(s, c.vertex_id[dp.curriculum.id])
+        end
+        sum += edge_crossings(dp.curriculum.graph, s)
+        push!(ec_terms, sum)
+    end
+    return deleteat!(ec_terms, lastindex(ec_terms)) # the last value will always be zero, so remove it
 end
 
 end # module

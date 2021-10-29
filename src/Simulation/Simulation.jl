@@ -1,7 +1,7 @@
 # File: Simulation.jl
 
 using DataFrames
-using LightGraphs
+using Graphs
 
 include("PassRate.jl")
 include("Enrollment.jl")

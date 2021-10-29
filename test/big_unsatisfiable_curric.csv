@@ -1,0 +1,58 @@
+Curriculum,Chemical Engineering,,,,,,,,,
+Institution,Big Bad U,,,,,,,,,
+Degree Type,BS,,,,,,,,,
+System Type,semester,,,,,,,,,
+CIP,,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,Calculus I,MAT,220,,,,5,Pima CC,Calculus I,1
+2,Gen Chemistry I,CHM,151IN,,,3,4,Pima CC,General Chemsitry I,1
+3,Gen Chemistry I Recitation,CHM,151RC,,,,1,Pima CC,,1
+4,English Composition I,WRT,101,,,,3,Pima CC,English Composition I,1
+5,Problem-Solving and Engineering Design,ENG,102IN,,1,,3,Pima CC,Intro to Engineering,1
+6,AGEC-S Course,,,,,,3,Pima CC,,1
+7,Calculus II,MAT,231,1,,,4,Pima CC,Calculus II,2
+8,Gen Chemistry II,CHM,152IN,2,,9,4,Pima CC,General Chemsitry II,2
+9,Gen Chemistry II Recitation,CHM,152RC,,,,1,Pima CC,,2
+10,Intro Mechanics,PHY,210IN,1,,11,4,Pima CC,,2
+11,Intro Mechanics Recitation,PHY,210RC,,,,1,Pima CC,,2
+12, English Composition II,WRT,102,4,,,3,Pima CC, English Composition,2
+13,Intro to MATLAB I,ENG,105IN,,1,,1,Pima CC,,2
+14,AGEC-S Course,,,,,,3,Pima CC,,3
+15,AGEC-S Course,,,,,,3,Pima CC,,3
+16,Calculus III,MAT,241,7,,,4,Pima CC,Calculus III,3
+17,General Organic Chemistry I,,235IN,8,,18,4,Pima CC,Organic Chemistry I,3
+18,General Organic Chemistry I Recitation,CHM ,235RC,,,,1,Pima CC,,3
+19,AGEC-S Course,,,,,,3,Pima CC,,3
+20,AGEC-S Course,,,,,,3,Pima CC,,4
+21,AGEC-S Course,,,,,,3,Pima CC,,4
+22,Differential Equations,MAT,262,7,,,3,Pima CC,Differential Equations,4
+23,Intro Electricity & Magnetism,PHY,216IN,7;10,,24,4,Pima CC,,4
+24,Intro Electricity & Magnetism,PHY,216RC,,,,1,Pima CC,,4
+25,General Organic Chemistry II,CHM,236IN,17,,26,4,Pima CC,Organic Chemistry II,4
+26,General Organic Chemistry II Recitation,CHM ,236RC,,,,1,Pima CC,,4
+27,Intro to MATLAB II,ENG,205IN,13,,,1,Pima CC,,4
+28,Elements of Chem and Envirn Eng I,CHEE,201,1;5;8;13,27,,3,University of Arizona,,5
+29,Elements of Chem and Envirn Eng I Lab,,201L,1,13,,1,University of Arizona,,5
+30,Physical Chem,CHEM,480A,7;2;23,,,3,University of Arizona,,5
+31,Engineering Elective,,,,,,3,University of Arizona,,5
+32,Engineering Elective,,,,,,3,University of Arizona,,5
+33,Technical Elective,,,,,,3,University of Arizona,,6
+34,Elements of Chem Eng II,CHEE,202,28;29,19,,4,University of Arizona,,6
+35,Chem Eng Heat Xfer & Fluid Flow,CHEE,203,28;10,,,3,University of Arizona,,6
+36,Engineering Elective,,,,,,3,University of Arizona,,6
+37,Technical Elective,,,,,,3,University of Arizona,,6
+38,Chem Eng Mass Xfer,CHEE,303,35,,,3,University of Arizona,,7
+39,Chem Eng Modeling,CHEE,402,22;34,,,3,University of Arizona,,7
+40,Chem Eng Lab I,CHEE,301A,22;34;35,42;43,,1,University of Arizona,,8
+41,Trends in Nanomedicine Eng,CHEE,489,,,,3,University of Arizona,,7
+42,Chem Eng Transport Phenom,CHEE,305,38;39,,,3,University of Arizona,,8
+43,Chem & Phys Equilibrium,CHEE,326,28;30,,,3,University of Arizona,,8
+44,Chem Eng Lab II,CHEE,301B,38;40,,42;43,1,University of Arizona,,9
+45,Chem Reaction Eng,CHEE,420,43,,,3,University of Arizona,,9
+46,Chem Eng Design Principles,CHEE,442,38;43,,45,3,University of Arizona,,9
+47,Chem and Enviorn Eng Lab I,CHEE,401A,44,45,,1,University of Arizona,,10
+48,Physical Chem,CHEM,480B,30,,,3,University of Arizona,,8
+49,Process Control and Simulation,CHEE,413,39,,,3,University of Arizona,,8
+50,Process Dynamics and Control Lab,CHEE,401B,40;44,49,,1,University of Arizona,,10
+51,Chem Eng Plant Design,CHEE,443,46,,,3,University of Arizona,,10
