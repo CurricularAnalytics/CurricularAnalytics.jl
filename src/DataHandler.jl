@@ -245,52 +245,16 @@ The file format used to store curricula is described in [File Format](@ref).
 julia> write_csv(c, "./mydata/UBW_curric.csv")
 ```
 """
-function write_csv(curric::Curriculum, file_path::AbstractString)
-    dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
-    dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
-    open(file_path, "w") do csv_file
-        # Write Curriculum Name
-        curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
-        write(csv_file, curric_name)
-
-        # Write Institution Name
-        curric_ins = "\nInstitution," * string(curric.institution) * ",,,,,,,,,"
-        write(csv_file, curric_ins)
-
-        # Write Degree Type
-        curric_dtype="\nDegree Type," * string(dict_curric_degree_type[curric.degree_type]) * ",,,,,,,,,"
-        write(csv_file, curric_dtype)
-
-        # Write System Type (Semester or Quarter)
-        curric_stype="\nSystem Type," * string(dict_curric_system[curric.system_type]) * ",,,,,,,,,"
-        write(csv_file, curric_stype)
-
-        # Write CIP Code
-        curric_CIP="\nCIP," * string(curric.CIP) * ",,,,,,,,,"
-        write(csv_file, curric_CIP)
-
-        # Define the course header, 10 columns of data for each course
-        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
-        # Write Course Section and Course Header
-        write(csv_file, "\nCourses,,,,,,,,,,") 
-        write(csv_file, course_header) 
-
-        # Define dict to store all course learning outcomes
-        all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
-        # Iterate through each course in the curriculum
-        for course in curric.courses
-            # Write the current course to the CSV
-            write(csv_file, course_line(course,""))
-            # Check if the course has learning outcomes, if it does store them
-            if length(course.learning_outcomes) > 0
-                all_course_lo[course.id] = course.learning_outcomes
-            end
+function write_csv(curric::Curriculum, file_path::AbstractString; iostream=false, metrics=false)
+    if iostream == true
+        csv_file = IOBuffer()
+        write_csv_content(csv_file, curric, false, metrics=metrics)
+    else
+        open(file_path, "w") do csv_file
+            write_csv_content(csv_file, curric, false, metrics=metrics)
         end
-        
-        # Write course and curriculum learning outcomes, if any
-        write_learning_outcomes(curric, csv_file, all_course_lo)
+        return true
     end
-    return true
 end
 
 # TODO - Reduce duplicated code between this and the curriculum version of the function
@@ -310,66 +274,107 @@ The file format used to store degree plans is described in [File Format](@ref).
 julia> write_csv(dp, "./mydata/UBW_plan.csv")
 ```
 """
-function write_csv(original_plan::DegreePlan, file_path::AbstractString)
+function write_csv(original_plan::DegreePlan, file_path::AbstractString; iostream=false, metrics=false)
+    if iostream
+        csv_file = IOBuffer()
+        write_csv_content(csv_file, original_plan, true, metrics=metrics)
+    else  
+        open(file_path, "w") do csv_file
+            write_csv_content(csv_file, original_plan, true, metrics=metrics)
+        end
+        return true
+    end
+end
+
+
+function write_csv_content(csv_file, program, is_degree_plan; metrics=false)
     dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
-    open(file_path, "w") do csv_file
+    # Write Curriculum Name
+    if is_degree_plan
         # Grab a copy of the curriculum
-        curric = original_plan.curriculum
-        
-        # Write Curriculum Name
+        curric = program.curriculum
         curric_name = "Curriculum," * "\""*string(curric.name) *"\""* ",,,,,,,,,"
-        write(csv_file, curric_name)
-        
-        # Write Degree Plan Name
-        dp_name = "\nDegree Plan," * "\""*string(original_plan.name) *"\""* ",,,,,,,,,"
+    else
+        curric = program
+        curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
+    end
+    write(csv_file, curric_name)
+    
+    # Write Degree Plan Name
+    if is_degree_plan
+        dp_name = "\nDegree Plan," * "\""*string(program.name) *"\""* ",,,,,,,,,"
         write(csv_file, dp_name)
+    end
 
-        # Write Institution Name
-        curric_ins = "\nInstitution," * "\""*string(curric.institution) *"\""* ",,,,,,,,,"
-        write(csv_file, curric_ins) 
+    # Write Institution Name
+    curric_ins = "\nInstitution," * "\""*string(curric.institution) *"\""* ",,,,,,,,,"
+    write(csv_file, curric_ins) 
 
-        # Write Degree Type
-        curric_dtype = "\nDegree Type," *"\""* string(dict_curric_degree_type[curric.degree_type]) * "\""*",,,,,,,,,"
-        write(csv_file,curric_dtype) 
+    # Write Degree Type
+    curric_dtype = "\nDegree Type," *"\""* string(dict_curric_degree_type[curric.degree_type]) * "\""*",,,,,,,,,"
+    write(csv_file,curric_dtype) 
 
-        # Write System Type (Semester or Quarter)
-        curric_stype = "\nSystem Type," * "\""*string(dict_curric_system[curric.system_type]) * "\""*",,,,,,,,,"
-        write(csv_file, curric_stype) 
-        
-        # Write CIP Code
-        curric_CIP = "\nCIP," * "\""*string(curric.CIP) * "\""*",,,,,,,,,"
-        write(csv_file, curric_CIP)
+    # Write System Type (Semester or Quarter)
+    curric_stype = "\nSystem Type," * "\""*string(dict_curric_system[curric.system_type]) * "\""*",,,,,,,,,"
+    write(csv_file, curric_stype) 
+    
+    # Write CIP Code
+    curric_CIP = "\nCIP," * "\""*string(curric.CIP) * "\""*",,,,,,,,,"
+    write(csv_file, curric_CIP)
+    
+    # Define course header
+    if is_degree_plan
+        if metrics
+            course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term,Complexity,Blocking,Delay,Centrality"
+        else
+            # 11 cols for degree plans (including term)
+            course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
+        end
+    else
+        if metrics
+            course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Complexity,Blocking,Delay,Centrality"
+        else
+            # 10 cols for curricula (no term)
+            course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
+        end
+    end
+    write(csv_file, "\nCourses,,,,,,,,,,") 
+    write(csv_file, course_header) 
 
-        # Define the course header, 11 columns of data for each course
-        course_header = "\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term"
-        # Write Course Section and Course Header
-        write(csv_file, "\nCourses,,,,,,,,,,") 
-        write(csv_file, course_header) 
+    # Define dict to store all course learning outcomes
+    all_course_lo = Dict{Int, Array{LearningOutcome, 1}}()
+    
+    # if metrics is true ensure that all values are present before writing courses
+    if metrics
+        complexity(curric)
+        blocking_factor(curric)
+        delay_factor(curric)
+        centrality(curric)
+    end
 
+    # write courses (and additional courses for degree plan)
+    if is_degree_plan
         # Iterate through each term and each course in the term and write them to the degree plan
-        for (term_id, term) in enumerate(original_plan.terms)
+        for (term_id, term) in enumerate(program.terms)
             for course in term.courses
-                if !isdefined(original_plan, :additional_courses) || !find_courses(original_plan.additional_courses, course.id)
-                    write(csv_file, course_line(course, term_id)) 
+                if !isdefined(program, :additional_courses) || !find_courses(program.additional_courses, course.id)
+                    write(csv_file, course_line(course, term_id, metrics = metrics)) 
                 end
             end
         end
-
-        # Define dict to store all course learning outcomes
-        all_course_lo = Dict{Int, Array{LearningOutcome, 1}}()
         # Check if the original plan has additional courses defined
-        if isdefined(original_plan, :additional_courses)
+        if isdefined(program, :additional_courses)
             # Write the additional courses section of the CSV
             write(csv_file, "\nAdditional Courses,,,,,,,,,,")
             write(csv_file, course_header) 
             # Iterate through each term
-            for (term_id, term) in enumerate(original_plan.terms)
+            for (term_id, term) in enumerate(program.terms)
                 # Iterate through each course in the current term
                 for course in term.courses
                     # Check if the current course is an additional course, if so, write it here
-                    if find_courses(original_plan.additional_courses, course.id)
-                        write(csv_file, course_line(course, term_id)) 
+                    if find_courses(program.additional_courses, course.id)
+                        write(csv_file, course_line(course, term_id, metrics = metrics)) 
                     end
                     # Check if the current course has learning outcomes, if so store them
                     if length(course.learning_outcomes) > 0
@@ -378,60 +383,74 @@ function write_csv(original_plan::DegreePlan, file_path::AbstractString)
                 end
             end
         end
-
-        # Write course and curriculum learning outcomes, if any
-        write_learning_outcomes(curric, csv_file, all_course_lo)        
-    end
-    return true
-end
-
-# TODO: Implement this functionality / option into the above methods via optional args
-# Write CSV to stream to return via API
-function csv_stream(curric::Curriculum)
-    dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
-    dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
-    csv_file = IOBuffer()
-    # open(io, "w") do csv_file
-        # Write Curriculum Name
-        curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,"
-        write(csv_file, curric_name)
-
-        # Write Institution Name
-        curric_ins = "\nInstitution," * string(curric.institution) * ",,,,,,,,,"
-        write(csv_file, curric_ins)
-
-        # Write Degree Type
-        curric_dtype="\nDegree Type," * string(dict_curric_degree_type[curric.degree_type]) * ",,,,,,,,,"
-        write(csv_file, curric_dtype)
-
-        # Write System Type (Semester or Quarter)
-        curric_stype="\nSystem Type," * string(dict_curric_system[curric.system_type]) * ",,,,,,,,,"
-        write(csv_file, curric_stype)
-
-        # Write CIP Code
-        curric_CIP="\nCIP," * string(curric.CIP) * ",,,,,,,,,"
-        write(csv_file, curric_CIP)
-
-        # Define the course header, 10 columns of data for each course
-        course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name"
-        # Write Course Section and Course Header
-        write(csv_file, "\nCourses,,,,,,,,,,") 
-        write(csv_file, course_header) 
-
-        # Define dict to store all course learning outcomes
-        all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
-        # Iterate through each course in the curriculum
+    else
+    # Iterate through each course in the curriculum
         for course in curric.courses
             # Write the current course to the CSV
-            write(csv_file, course_line(course,""))
+            write(csv_file, course_line(course, "", metrics = metrics))
             # Check if the course has learning outcomes, if it does store them
             if length(course.learning_outcomes) > 0
                 all_course_lo[course.id] = course.learning_outcomes
             end
         end
-        
-        # Write course and curriculum learning outcomes, if any
-        write_learning_outcomes(curric, csv_file, all_course_lo)
+    end
+
+    # Write course and curriculum learning outcomes, if any
+    write_learning_outcomes(curric, csv_file, all_course_lo) 
+end
+
+# TODO: Implement this functionality / option into the above methods via optional args
+# Write CSV to stream to return via API
+function csv_stream(curric::Curriculum; metrics=false)
+    dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
+    dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
+    csv_file = IOBuffer()
+    # open(io, "w") do csv_file
+    # Write Curriculum Name
+    curric_name = "Curriculum," * string(curric.name) * ",,,,,,,,,,,,,"
+    write(csv_file, curric_name)
+
+    # Write Institution Name
+    curric_ins = "\nInstitution," * string(curric.institution) * ",,,,,,,,,,,,,"
+    write(csv_file, curric_ins)
+
+    # Write Degree Type
+    curric_dtype="\nDegree Type," * string(dict_curric_degree_type[curric.degree_type]) * ",,,,,,,,,,,,,"
+    write(csv_file, curric_dtype)
+
+    # Write System Type (Semester or Quarter)
+    curric_stype="\nSystem Type," * string(dict_curric_system[curric.system_type]) * ",,,,,,,,,,,,,"
+    write(csv_file, curric_stype)
+
+    # Write CIP Code
+    curric_CIP="\nCIP," * string(curric.CIP) * ",,,,,,,,,,,,,"
+    write(csv_file, curric_CIP)
+
+    # Define the course header, 10 columns of data for each course
+    course_header="\nCourse ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Complexity,Blocking,Delay,Centrality"
+    # Write Course Section and Course Header
+    write(csv_file, "\nCourses,,,,,,,,,,,,,,") 
+    write(csv_file, course_header) 
+
+    # Define dict to store all course learning outcomes
+    all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
+    # if metrics is true ensure that all values are present
+    complexity(curric)
+    blocking_factor(curric)
+    delay_factor(curric)
+    centrality(curric)
+    # Iterate through each course in the curriculum
+    for course in curric.courses
+        # Write the current course to the CSV
+        write(csv_file, course_line(course, "", metrics = metrics))
+        # Check if the course has learning outcomes, if it does store them
+        if length(course.learning_outcomes) > 0
+            all_course_lo[course.id] = course.learning_outcomes
+        end
+    end
+    
+    # Write course and curriculum learning outcomes, if any
+    write_learning_outcomes(curric, csv_file, all_course_lo)
     # end
     return csv_file
 end
