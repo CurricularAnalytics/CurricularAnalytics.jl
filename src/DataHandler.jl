@@ -64,12 +64,12 @@ function read_csv(file_path::AbstractString)
                 courses_header += 1
             end
             if read_line[1] == "Degree Type"
-                curric_dtype = dict_curric_degree_type[read_line[2]]
+                curric_dtype = dict_curric_degree_type[uppercase(read_line[2])]
                 read_line = csv_line_reader(readline(csv_file), ',')
                 courses_header += 1
             end
             if read_line[1] == "System Type"
-                curric_stype = dict_curric_system[read_line[2]]
+                curric_stype = dict_curric_system[lowercase(read_line[2])]
                 read_line = csv_line_reader(readline(csv_file), ',')
                 courses_header += 1
             end
