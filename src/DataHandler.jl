@@ -249,6 +249,7 @@ function write_csv(curric::Curriculum, file_path::AbstractString; iostream=false
     if iostream == true
         csv_file = IOBuffer()
         write_csv_content(csv_file, curric, false, metrics=metrics)
+        return csv_file
     else
         open(file_path, "w") do csv_file
             write_csv_content(csv_file, curric, false, metrics=metrics)
