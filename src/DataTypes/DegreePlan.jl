@@ -9,7 +9,7 @@ instantiate a `Term` use:
 where c1, c2, ... are `Course` data objects
 """
 mutable struct Term
-    courses::Array{AbstractCourse}              # The courses associated with a term in a degree plan
+    courses::Array{AbstractCourse}      # The courses associated with a term in a degree plan
     num_courses::Int                    # The number of courses in the Term
     credit_hours::Real                  # The number of credit hours associated with the term
     metrics::Dict{String, Any}          # Term-related metrics
@@ -72,7 +72,7 @@ mutable struct DegreePlan
 
     # Constructor
     function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term,1},
-                        additional_courses::Array{AbstractCourse,1}=Array{AbstractCourse,1}())
+                        additional_courses::Array{<:AbstractCourse,1}=Array{AbstractCourse,1}())
         this = new()
         this.name = name
         this.curriculum = curriculum
@@ -92,12 +92,6 @@ mutable struct DegreePlan
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         return this
-    end
-
-    # Generates a warning but is currently needed. 
-    # This SHOULD NOT be needed but for some reason Julia fails to recognize when concrete elements is passed but the method accepts abstract type
-    function DegreePlan(name::AbstractString, curriculum::Curriculum, terms::Array{Term,1}, additional_courses::Array{Course,1}=Array{Course,1}())
-        DegreePlan(name, curriculum, terms, convert(Array{AbstractCourse}, additional_courses))
     end
 end
 
