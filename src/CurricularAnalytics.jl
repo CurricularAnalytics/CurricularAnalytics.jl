@@ -32,7 +32,8 @@ export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseC
         gad, grade, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
         requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report,
-        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream
+        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream, blocking_factor_course, blocking_factor_curriculum,
+        delay_factor_course, delay_factor_curriculum, complexity_curriculum
 
 # Check if a curriculum graph has requisite cycles.
 """
@@ -193,6 +194,13 @@ function blocking_factor(c::Curriculum, course::Int)
     return c.courses[course].metrics["blocking factor"] = b
 end
 
+# Compute the blocking factor of a course.
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function blocking_factor_course(c::Array{Int, 2}, course::Int)
+    b = length(reachable_from(SimpleDiGraph(c), course))
+    return b
+end
+
 # Compute the blocking factor of a curriculum
 """
     blocking_factor(c::Curriculum)
@@ -211,6 +219,18 @@ function blocking_factor(c::Curriculum)
         b += bf[i]
     end
     return c.metrics["blocking factor"] = b, bf
+end
+
+# Compute the blocking factor of a curriculum
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function blocking_factor_curriculum(c::Array{Int, 2})
+    b = 0
+    bf = Array{Int, 1}(undef, size(c,1))
+    for (i, v) in enumerate(vertices(SimpleDiGraph(c)))
+        bf[i] = blocking_factor_course(c, v)
+        b += bf[i]
+    end
+    return b
 end
 
 # Compute the delay factor of a course
@@ -233,6 +253,22 @@ function delay_factor(c::Curriculum, course::Int)
         delay_factor(c)
     end
     return c.courses[course].metrics["delay factor"]
+end
+
+# Compute the delay factor of a course
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function delay_factor_course(c::Array{Int, 2}, course::Int)
+    g = SimpleDiGraph(c)
+    df = 1
+    for path in all_paths(g)
+        if course in path
+          path_length = length(path)  # path_length in terms of # of vertices, not edges
+          if path_length > df
+              df = path_length
+          end
+        end
+    end
+    return df
 end
 
 # Compute the delay factor of a curriculum
@@ -265,6 +301,24 @@ function delay_factor(c::Curriculum)
         d += df[v]
     end
     return c.metrics["delay factor"] = d, df
+end
+
+# Compute the delay factor of a curriculum
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function delay_factor_curriculum(c::Array{Int, 2})
+    g = SimpleDiGraph(c)
+    df = ones(Int,size(c,1))
+    for v in vertices(g)
+        for path in all_paths(g)
+            for vtx in path
+                path_length = length(path)  # path_length in terms of # of vertices, not edges
+                if path_length > df[vtx]
+                    df[vtx] = path_length
+                end
+            end
+        end
+    end
+    return sum(df)
 end
 
 # Compute the centrality of a course
@@ -372,6 +426,12 @@ function complexity(c::Curriculum)
         curric_complexity += course_complexity[v]
     end
     return c.metrics["complexity"] = curric_complexity, course_complexity
+end
+
+# Compute the complexity of a curriculum
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function complexity_curriculum(c::Array{Int, 2})
+    return delay_factor_curriculum(c) + blocking_factor_curriculum(c)
 end
 
 # Find all the longest paths in a curriculum.
