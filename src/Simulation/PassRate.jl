@@ -3,14 +3,15 @@
 
 module PassRate
     # Train the model
-    function train(degree_plan)
+
+    function train(degree_plan; stopout_rates::Array{Number}=Array{Number}([0.0838, 0.1334, 0.0465, 0.0631, 0.0368, 0.0189, 0.0165]))
         for course in degree_plan.curriculum.courses
             model = Dict()
             model[:passrate] = course.passrate
             course.metadata["model"]= model
         end
 
-        degree_plan.metadata["stopout_model"][:rates] = [0.0838, 0.1334, 0.0465, 0.0631, 0.0368, 0.0189, 0.0165] * 100
+        degree_plan.metadata["stopout_model"][:rates] = stopout_rates * 100
     end
 
     # Predict grade
