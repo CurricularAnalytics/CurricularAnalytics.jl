@@ -39,13 +39,17 @@ The probabilities of a student dropping out at different semesters are the stopo
 julia> simulation = simulate(degree_plan, course_attempt_limit, students)
 ```
 """
-function simulate(degree_plan::DegreePlan, course_attempt_limit::Int, students::Array{Student}; performance_model=PassRate, enrollment_model=Enrollment, max_credits=18, duration=8, duration_lock=false, stopouts=false)
+function simulate(degree_plan::DegreePlan, course_attempt_limit::Int, students::Array{Student}; performance_model=PassRate, stopout_rates=Nothing, enrollment_model=Enrollment, max_credits=18, duration=8, duration_lock=false, stopouts=false)
 
     # Create the simulation object
     simulation = Simulation(deepcopy(degree_plan))
 
-    # Train the model
-    performance_model.train(simulation.degree_plan)
+    # Train the model with stopout rates
+    if stopout_rates != Nothing
+        performance_model.train(simulation.degree_plan, stopout_rates)
+    else
+        performance_model.train(simulation.degree_plan)
+    end
 
     simulation.course_attempt_limit = course_attempt_limit
 
