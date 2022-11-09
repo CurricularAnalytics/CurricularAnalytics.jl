@@ -1,7 +1,7 @@
 # file: DataTypes.jl
 
 # Enumerated types
-@enum Degree AA AS AAS BA BAAS BAH BBA BDes BE BED BFA BGS BIS BLA BLS BM BME BMS BMus BPS BRIT BS BSAS BSBA BSBE BSCE BSCH BSCP BSCS BSCYS BSE BSEd BSEE BSEV BSIE BSIS BSIT BSME BSN BSPH BSW BTAS
+# @enum Degree AA AS AAS BA BAAS BAH BBA BDes BE BED BFA BGS BIS BLA BLS BM BME BMS BMus BPS BRIT BS BSAS BSBA BSBE BSCE BSCH BSCP BSCS BSCYS BSE BSEd BSEE BSEV BSIE BSIS BSIT BSME BSN BSPH BSW BTAS
 @enum System semester quarter
 @enum Requisite pre co strict_co custom belong_to
 @enum EdgeClass tree_edge back_edge forward_edge cross_edge

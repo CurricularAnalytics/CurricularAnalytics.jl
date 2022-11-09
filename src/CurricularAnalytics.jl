@@ -24,7 +24,7 @@ include("DegreePlanAnalytics.jl")
 include("DegreePlanCreation.jl")
 include("Simulation/Simulation.jl")
 
-export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, Curriculum, Degree, DegreePlan, 
+export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, Curriculum, DegreePlan, 
         EdgeClass, Enrollment, Grade, LearningOutcome, PassRate, RequirementSet, Requisite, Student, StudentRecord, Simulation, System, Term, TransferArticulation,
         add_course!, add_lo_requisite!, add_requisite!, add_transfer_catalog, add_transfer_course, all_paths, back_edge, basic_metrics, basic_statistics, 
         bin_filling, blocking_factor, centrality, co, compare_curricula, convert_ids, complexity, course, course_from_id, course_from_vertex, course_id, 
@@ -695,7 +695,7 @@ courses must be identical (at the level of memory allocation). Allowable match c
 
 """
 function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, match_criteria::Array{String}=Array{String,1}();
-           learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(), degree_type::Degree=BS, system_type::System=semester,
+           learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(), degree_type::AbstractString=BS, system_type::System=semester,
            institution::AbstractString="", CIP::AbstractString="")
     merged_courses = deepcopy(c1.courses)
     extra_courses = Array{Course,1}()  # courses in c2 but not in c1

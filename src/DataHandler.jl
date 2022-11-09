@@ -26,13 +26,13 @@ function read_csv(file_path::AbstractString)
     if typeof(file_path) == Bool && !file_path
         return false
     end
-    dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
+    # dict_curric_degree_type = Dict("AA"=>AA, "AS"=>AS, "AAS"=>AAS, "BA"=>BA, "BS"=>BS, ""=>BS)
     dict_curric_system = Dict("semester"=>semester, "quarter"=>quarter, ""=>semester)
     dp_name = ""
     dp_add_courses = Array{Course,1}()
     curric_name = ""
     curric_inst = ""
-    curric_dtype = dict_curric_degree_type["BS"]
+    curric_dtype = "BS"
     curric_stype = dict_curric_system["semester"]
     curric_CIP = ""
     courses_header = 1
@@ -64,7 +64,7 @@ function read_csv(file_path::AbstractString)
                 courses_header += 1
             end
             if read_line[1] == "Degree Type"
-                curric_dtype = dict_curric_degree_type[uppercase(read_line[2])]
+                curric_dtype = read_line[2]
                 read_line = csv_line_reader(readline(csv_file), ',')
                 courses_header += 1
             end
@@ -204,7 +204,7 @@ function read_csv(file_path::AbstractString)
             for course in additional_courses
                 push!(ac_arr, course[2])
             end
-            curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+            curric = Curriculum(curric_name, all_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type = curric_dtype,
                                     system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
             terms = read_terms(df_all_courses, all_courses, all_courses_arr)
             #If some courses has term informations but some does not
@@ -221,7 +221,7 @@ function read_csv(file_path::AbstractString)
                 return false
             end
             curric_courses_arr = [course[2] for course in curric_courses] 
-            curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type= curric_dtype,
+            curric = Curriculum(curric_name, curric_courses_arr, learning_outcomes = curric_learning_outcomes, degree_type = curric_dtype,
                                     system_type=curric_stype, institution=curric_inst, CIP=curric_CIP)
             output = curric            
         end
@@ -295,7 +295,7 @@ end
 
 
 function write_csv_content(csv_file, program, is_degree_plan; metrics=false)
-    dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
+    # dict_curric_degree_type = Dict(AA=>"AA", AS=>"AS", AAS=>"AAS", BA=>"BA", BS=>"BS")
     dict_curric_system = Dict(semester=>"semester", quarter=>"quarter")
     # Write Curriculum Name
     if is_degree_plan
@@ -319,7 +319,7 @@ function write_csv_content(csv_file, program, is_degree_plan; metrics=false)
     write(csv_file, curric_ins) 
 
     # Write Degree Type
-    curric_dtype = "\nDegree Type," *"\""* string(dict_curric_degree_type[curric.degree_type]) * "\""*",,,,,,,,,"
+    curric_dtype = "\nDegree Type," *"\""* string(curric.degree_type) * "\""*",,,,,,,,,"
     write(csv_file,curric_dtype) 
 
     # Write System Type (Semester or Quarter)
