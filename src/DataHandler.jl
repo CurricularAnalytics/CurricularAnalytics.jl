@@ -100,7 +100,13 @@ function read_csv(file_path::AbstractString)
 
             # Enforce that each course has an ID
             if length(read_line[1]) == 0
-                println("All courses must have a Course ID")
+                println(read_line)
+                if !any(x -> x != "", read_line)
+                    println("Skipping empty line...")
+                    read_line = csv_line_reader(readline(csv_file), ',')
+                    continue
+                end
+                println("All courses must have a Course ID (1)")
                 return false
             end
 
@@ -123,7 +129,7 @@ function read_csv(file_path::AbstractString)
 
         df_courses = CSV.File(file_path, header = courses_header, limit = course_count - 1, delim = ',', silencewarnings = true) |> DataFrame
         if nrow(df_courses) != nrow(unique(df_courses, Symbol("Course ID")))
-            println("All courses must have a unique Course ID")
+            println("All courses must have a unique Course ID (2)")
             return false
         end
         if !is_dp && Symbol("Term") in names(df_courses)
