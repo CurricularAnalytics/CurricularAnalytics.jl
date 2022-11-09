@@ -100,9 +100,7 @@ function read_csv(file_path::AbstractString)
 
             # Enforce that each course has an ID
             if length(read_line[1]) == 0
-                println(read_line)
                 if !any(x -> x != "", read_line)
-                    println("Skipping empty line...")
                     read_line = csv_line_reader(readline(csv_file), ',')
                     continue
                 end
