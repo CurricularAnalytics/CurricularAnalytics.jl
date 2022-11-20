@@ -17,16 +17,8 @@ Installation is straightforward.  First, install the Julia programming language 
 
 Next, open the Julia application that you just installed. It should look similar to the image below. This interface is referred to as the `Julia REPL`.
 
-![Julia termain](https://s3.amazonaws.com/curricularanalytics.jl/julia-command-line.png)
+<img width="800" alt="Screenshot 2022-11-20 at 12 22 55 PM" src="https://user-images.githubusercontent.com/1368490/202916371-ee5cda31-3f76-42ec-be01-bc5044c33587.png">
 
-Next, enter Pkg mode from within Julia by hitting the `]` key, and then type:
-```julia-repl
-  pkg> add CurricularAnalytics
-```
-This will install the toolbox, along with the other Julia packages needed to run it. To load and use the toolbox, hit the `backspace` key to return to the Julia REPL. Now type:
-```julia-repl
-  julia> using CurricularAnalytics
-```
 The toolbox must be loaded again via `using CurricularAnalytics` every time you restart Julia.
 
 For more information about installing the toolbox, including the steps neccessary to utilize degree plan optimization, please see the [INSTALLING.md](https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/install.html)
