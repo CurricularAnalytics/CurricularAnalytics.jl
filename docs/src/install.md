@@ -42,7 +42,15 @@ This final command, `using Gurobi`, should be run every time you restart Julia. 
 ```julia-repl
   julia> using CurricularAnalytics, Gurobi
 ```
-
+### CurricularVisualization
+If you are planning to locally visualize the curricula made with this package you must install the [CurricularVisualization](https://github.com/CurricularAnalytics/CurricularVisualization.jl) package. To install it, enter Pkg mode from within Julia by hitting the `]` key, and then type:
+```julia-repl
+  pkg> add CurricularVisualization
+```
+This will install the pacakge, along with the other Julia packages needed to run it. To load and use the toolbox, hit the `backspace` key to return to the Julia REPL. Now type:
+```julia-repl
+  julia> using CurricularVisualization
+```
 ## Windows Specific Steps
 If you are using Windows you must add the location of Julia to your PATH environment variable. To do this go to Control Panel -> System -> Advanced System Settings -> Environment Variables -> Path and click edit. Here you must append the file path of the Julia \bin directory.
 
