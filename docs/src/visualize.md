@@ -1,6 +1,6 @@
 # Visualizing Curricula and Degree Plans
 
-In order to visualize curricula and degree plans, you must first install [Blink.jl](http://junolab.org/Blink.jl/latest/). For instructions on how to do this, see the [Installation](@ref) section.
+In order to visualize curricula and degree plans, you must first install [Blink.jl](http://junolab.org/Blink.jl/latest/) and [CurricularVisualization](https://github.com/CurricularAnalytics/CurricularVisualization.jl). For instructions on how to do this, see the [Installation](@ref) section.
 
 ## Visualization Functions
 
