@@ -32,7 +32,7 @@ After installing the Gurobi Solver you must run the following command in Pkg mod
 ```julia-repl
   pkg> add Gurobi
 ```
-Back in the normal Julia REPL, which can be returned to from Pkg mode by hitting `backspace`, you must know run the following:
+Back in the normal Julia REPL, which can be returned to from Pkg mode by hitting `backspace`, you must now run the following:
 ```julia-repl
   julia> using Gurobi
 ```
