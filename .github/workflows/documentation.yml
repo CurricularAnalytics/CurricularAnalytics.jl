@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Print current status
-        run: julia -e 'using Pkg; Pkg.status()'
+        run: julia --project=docs/ -e 'using Pkg; Pkg.status()'
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
