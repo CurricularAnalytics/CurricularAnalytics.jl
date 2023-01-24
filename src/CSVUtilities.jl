@@ -113,6 +113,12 @@ function csv_line_reader(line::AbstractString, delimeter::Char=',')
     if length(item) > 0
         push!(result, item)
     end
+    # check if the bounds o
+    if isassigned(result, 1)
+        if occursin("\ufeff", result[1])
+            result[1] = replace(result[1], "\ufeff" => "")
+        end
+    end
     return result
 end
 
