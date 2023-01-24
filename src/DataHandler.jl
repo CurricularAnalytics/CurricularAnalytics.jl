@@ -47,9 +47,7 @@ function read_csv(file_path::AbstractString)
     output = ""
     # Open the CSV file and read in the basic information such as the type (curric or degreeplan), institution, degree type, etc 
     open(file_path) do csv_file
-        csv_file = transcode(String, read(csv_file))
         read_line = csv_line_reader(readline(csv_file), ',')
-        print(read_line)
         courses_header += 1
         if read_line[1] == "Curriculum"
             curric_name = read_line[2]
@@ -244,15 +242,15 @@ function read_csv_new(file_path::AbstractString)
     header = CSV.File(file_path; header=true, limit=1, ignoreemptylines=true, select=[1,2,3,4,5,6], transpose=true) |> DataFrame
     if names(header)[1] == "Curriculum" && names(header)[2] == "Institution" && names(header)[3] == "Degree Type" && names(header)[4] == "System Type" && names(header)[5] == "CIP"
         name = header[1,1]
-        curric_inst = header[1,2]
+        typeof(header[1,2]) === Missing ? curric_inst = "" : institution = c.Institution
         curric_dtype = header[1,3]
-        curric_stype = header[1,4]
-        curric_cip = header[1,5]
-        println("Curriculum: ", name)
-        println("Institution: ", curric_inst)
-        println("Degree Type: ", curric_dtype)
-        println("System Type: ", curric_stype)
-        println("CIP: ", curric_cip)
+        curric_stype = lowercase(string(header[1,4]))
+        curric_stype = if curric_stype == "quarter"
+            CurricularAnalytics.quarter
+        else
+            CurricularAnalytics.semester
+        end
+        curric_cip = string(header[1,5])
 
         courses = CSV.File(file_path; header=7, silencewarnings=true, normalizenames=true)
         c_courses = Dict{Int, Course}()
@@ -260,7 +258,7 @@ function read_csv_new(file_path::AbstractString)
         # Here we build all of the Course objects and put them into a dictionary with the course id as the key        
         for c in courses
             # println(c)
-            name = c.Course_Name
+            c_name = c.Course_Name
             credit_hours = c.Credit_Hours
             typeof(c.Prefix) === Missing ? prefix = "" : prefix = string(c.Prefix)
             typeof(c.Number) === Missing ? num = "" : num = string(c.Number)
@@ -268,7 +266,7 @@ function read_csv_new(file_path::AbstractString)
             typeof(c.Canonical_Name) === Missing ? canonical_name = "" : canonical_name = c.Canonical_Name
             c_id = c.Course_ID
 
-            course = Course(name, credit_hours, prefix=prefix, num=num, institution=institution, canonical_name=canonical_name, id=c_id)
+            course = Course(c_name, credit_hours, prefix=prefix, num=num, institution=institution, canonical_name=canonical_name, id=c_id)
             c_courses[c_id] = course
         end
 
@@ -315,6 +313,7 @@ function read_csv_new(file_path::AbstractString)
 
         curric = Curriculum(name, c_courses, degree_type=curric_dtype,
                                     system_type=curric_stype, institution=curric_inst, CIP=curric_cip)
+        return curric
     
     elseif names(header)[1] == "Curriculum" && names(header)[2] == "Degree Plan" && names(header)[3] == "Institution" && names(header)[4] == "Degree Type" && names(header)[5] == "System Type" && names(header)[6] == "CIP"
         courses = CSV.File(file_path; header=8, silencewarnings=true) |> DataFrame
