@@ -242,7 +242,7 @@ function read_csv_new(file_path::AbstractString)
     header = CSV.File(file_path; header=true, limit=1, ignoreemptylines=true, select=[1,2,3,4,5,6], transpose=true) |> DataFrame
     if names(header)[1] == "Curriculum" && names(header)[2] == "Institution" && names(header)[3] == "Degree Type" && names(header)[4] == "System Type" && names(header)[5] == "CIP"
         name = header[1,1]
-        typeof(header[1,2]) === Missing ? curric_inst = "" : institution = c.Institution
+        typeof(header[1,2]) === Missing ? curric_inst = "" : curric_inst = header[1,2]
         curric_dtype = header[1,3]
         curric_stype = lowercase(string(header[1,4]))
         curric_stype = if curric_stype == "quarter"
@@ -253,6 +253,7 @@ function read_csv_new(file_path::AbstractString)
         curric_cip = string(header[1,5])
 
         courses = CSV.File(file_path; header=7, silencewarnings=true, normalizenames=true)
+        courses[]
         c_courses = Dict{Int, Course}()
 
         # Here we build all of the Course objects and put them into a dictionary with the course id as the key        
@@ -277,7 +278,11 @@ function read_csv_new(file_path::AbstractString)
                 if typeof(c.Prerequisites) == String
                     prereqs = split(c.Prerequisites, ";") # Split the prerequisites into a list
                     for req in prereqs
-                        add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], pre) # Add the requisite to the course
+                        try
+                            add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], pre) # Add the requisite to the course
+                        catch
+                            ""
+                        end
                     end
                 elseif typeof(c.Prerequisites) == Int
                     add_requisite!(c_courses[c.Prerequisites], c_courses[c.Course_ID], pre)
@@ -288,9 +293,12 @@ function read_csv_new(file_path::AbstractString)
                 if typeof(c.Corequisites) == String
                     coreqs = split(c.Corequisites, ";") # Split the corequisites into a list
                     for req in coreqs
-                        add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], co) # Add the requisite to the course
+                        try
+                            add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], co) # Add the requisite to the course
+                        catch
+                            ""
+                        end
                     end
-                
                 elseif typeof(c.Corequisites) == Int
                     add_requisite!(c_courses[c.Corequisites], c_courses[c.Course_ID], co)
                 end
@@ -300,7 +308,11 @@ function read_csv_new(file_path::AbstractString)
                 if typeof(c.Strict_Corequisites) == String
                     strict_coreqs = split(c.Strict_Corequisites, ";") # Split the strict corequisites into a list
                     for req in strict_coreqs
-                        add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], strict_co) # Add the requisite to the course
+                        try
+                            add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], strict_co) # Add the requisite to the course
+                        catch
+                            ""
+                        end
                     end
                 elseif typeof(c.Strict_Corequisites) == Int
                     add_requisite!(c_courses[c.Strict_Corequisites], c_courses[c.Course_ID], strict_co)
