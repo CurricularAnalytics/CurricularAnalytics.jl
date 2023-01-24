@@ -46,3 +46,13 @@ function course(cc::CourseCatalog, prefix::AbstractString, num::AbstractString, 
         error("Course: $prefix $num: $name at $(cc.institution) does not exist in catalog: $(cc.name)")
     end
 end
+
+# Return a course in a course catalog
+function course(cc::CourseCatalog, prefix::AbstractString, num::AbstractString)
+    hash_val = mod(hash(prefix * num * cc.institution), UInt32)
+    if hash_val in keys(cc.catalog)
+        return cc.catalog[hash_val]
+    else
+        error("Course: $prefix $num at $(cc.institution) does not exist in catalog: $(cc.name)")
+    end
+end

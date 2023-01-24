@@ -46,8 +46,10 @@ function read_csv(file_path::AbstractString)
     part_missing_term=false
     output = ""
     # Open the CSV file and read in the basic information such as the type (curric or degreeplan), institution, degree type, etc 
-    open(file_path) do csv_file        
+    open(file_path) do csv_file
+        csv_file = transcode(String, read(csv_file))
         read_line = csv_line_reader(readline(csv_file), ',')
+        print(read_line)
         courses_header += 1
         if read_line[1] == "Curriculum"
             curric_name = read_line[2]
@@ -231,6 +233,102 @@ function read_csv(file_path::AbstractString)
     end
     return output
 
+end
+
+function read_csv_new(file_path::AbstractString)
+    println("Reading CSV file: ", file_path)
+    # Here we read in the header of the file, which is at most 6 lines long.
+    # The columns are transposed, and they are: Curriculum, (Degree Plan?), Institution, Degree Type, System Type, CIP
+    # Since we transpose, we technically only read in the first row.
+    # We then check if the first 6 columns are the correct header and whether we're dealing with a Curriculum or Degree Plan.
+    header = CSV.File(file_path; header=true, limit=1, ignoreemptylines=true, select=[1,2,3,4,5,6], transpose=true) |> DataFrame
+    if names(header)[1] == "Curriculum" && names(header)[2] == "Institution" && names(header)[3] == "Degree Type" && names(header)[4] == "System Type" && names(header)[5] == "CIP"
+        name = header[1,1]
+        curric_inst = header[1,2]
+        curric_dtype = header[1,3]
+        curric_stype = header[1,4]
+        curric_cip = header[1,5]
+        println("Curriculum: ", name)
+        println("Institution: ", curric_inst)
+        println("Degree Type: ", curric_dtype)
+        println("System Type: ", curric_stype)
+        println("CIP: ", curric_cip)
+
+        courses = CSV.File(file_path; header=7, silencewarnings=true, normalizenames=true)
+        c_courses = Dict{Int, Course}()
+
+        # Here we build all of the Course objects and put them into a dictionary with the course id as the key        
+        for c in courses
+            # println(c)
+            name = c.Course_Name
+            credit_hours = c.Credit_Hours
+            typeof(c.Prefix) === Missing ? prefix = "" : prefix = string(c.Prefix)
+            typeof(c.Number) === Missing ? num = "" : num = string(c.Number)
+            typeof(c.Institution) === Missing ? institution = "" : institution = c.Institution
+            typeof(c.Canonical_Name) === Missing ? canonical_name = "" : canonical_name = c.Canonical_Name
+            c_id = c.Course_ID
+
+            course = Course(name, credit_hours, prefix=prefix, num=num, institution=institution, canonical_name=canonical_name, id=c_id)
+            c_courses[c_id] = course
+        end
+
+        # Next, we need to construct the requisites for each course.
+        for c in courses
+            # Check if the prerequisites column is empty
+            if c.Prerequisites !== missing
+                if typeof(c.Prerequisites) == String
+                    prereqs = split(c.Prerequisites, ";") # Split the prerequisites into a list
+                    for req in prereqs
+                        add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], pre) # Add the requisite to the course
+                    end
+                elseif typeof(c.Prerequisites) == Int
+                    add_requisite!(c_courses[c.Prerequisites], c_courses[c.Course_ID], pre)
+                end
+            end
+            # Check if the corequisites column is empty
+            if c.Corequisites !== missing
+                if typeof(c.Corequisites) == String
+                    coreqs = split(c.Corequisites, ";") # Split the corequisites into a list
+                    for req in coreqs
+                        add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], co) # Add the requisite to the course
+                    end
+                
+                elseif typeof(c.Corequisites) == Int
+                    add_requisite!(c_courses[c.Corequisites], c_courses[c.Course_ID], co)
+                end
+            end
+            # Check if the Strict_Corequisites column is empty
+            if c.Strict_Corequisites !== missing
+                if typeof(c.Strict_Corequisites) == String
+                    strict_coreqs = split(c.Strict_Corequisites, ";") # Split the strict corequisites into a list
+                    for req in strict_coreqs
+                        add_requisite!(c_courses[parse(Int, req)], c_courses[c.Course_ID], strict_co) # Add the requisite to the course
+                    end
+                elseif typeof(c.Strict_Corequisites) == Int
+                    add_requisite!(c_courses[c.Strict_Corequisites], c_courses[c.Course_ID], strict_co)
+                end
+            end
+        end
+
+        # convert the dictionary of courses to a vector of courses
+        c_courses = collect(values(c_courses))
+
+        curric = Curriculum(name, c_courses, degree_type=curric_dtype,
+                                    system_type=curric_stype, institution=curric_inst, CIP=curric_cip)
+    
+    elseif names(header)[1] == "Curriculum" && names(header)[2] == "Degree Plan" && names(header)[3] == "Institution" && names(header)[4] == "Degree Type" && names(header)[5] == "System Type" && names(header)[6] == "CIP"
+        courses = CSV.File(file_path; header=8, silencewarnings=true) |> DataFrame
+        print(courses)
+        if "Additional Courses" in courses[!,1] # If there is an additional courses portion of this degree plan
+            additional_courses_index = findall(occursin.("Additional Courses", courses["Course Name"])) # Get the index of where additional courses start
+            println(additional_courses_index)
+            # Create a new dataframe with only the additional courses (from additional_courses_index[0] to the end of the file)
+        end
+    
+    else
+        error("This is an invalid CSV format. Please see the example file and be sure not to modify the headers.")
+        return false
+    end
 end
 
 """
