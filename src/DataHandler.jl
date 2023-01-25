@@ -49,7 +49,7 @@ function read_csv(file_path::AbstractString)
     open(file_path) do csv_file        
         read_line = csv_line_reader(readline(csv_file), ',')
         courses_header += 1
-        if read_line[1] == "Curriculum"
+        if strip(read_line[1]) == "Curriculum"
             curric_name = read_line[2]
             read_line = csv_line_reader(readline(csv_file), ',')
             is_dp = read_line[1] == "Degree Plan"
