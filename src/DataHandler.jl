@@ -46,7 +46,7 @@ function read_csv(file_path::AbstractString)
     part_missing_term=false
     output = ""
     # Open the CSV file and read in the basic information such as the type (curric or degreeplan), institution, degree type, etc 
-    open(file_path) do csv_file        
+    open(file_path) do csv_file
         read_line = csv_line_reader(readline(csv_file), ',')
         courses_header += 1
         if strip(read_line[1]) == "Curriculum"
@@ -100,7 +100,8 @@ function read_csv(file_path::AbstractString)
 
             # Enforce that each course has an ID
             if length(read_line[1]) == 0
-                if !any(x -> x != "", read_line)
+                # skip blank lines
+                if !any(x -> (x != "" && x != " " && x != ' '), read_line)
                     read_line = csv_line_reader(readline(csv_file), ',')
                     continue
                 end
