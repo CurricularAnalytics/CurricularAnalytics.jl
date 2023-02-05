@@ -214,13 +214,14 @@ mutable struct RequirementSet <: AbstractRequirement
         this.id = mod(hash(this.name * this.description * string(this.credit_hours)), UInt32)
         this.requirements = requirements
         if satisfy < 0
-            error("satisfy cannot be a negative number") 
+            error("RequirementSet $(r.name), satisfy cannot be a negative number") 
         elseif satisfy == 0
             this.satisfy = length(requirements)  # satisfy all requirements
-        elseif satisfy < length(requirements)
+        elseif satisfy <= length(requirements)
             this.satisfy = satisfy
         else
-            this.satisfy = length(requirements) # if trying satisfy more then the # of requirements, just satisfy all
+            # trying to satisfy more then the # of available sub-requirements
+            error("RequirementSet $(r.name), satisfy cannot be greater than the number of available requirements") 
         end
         return this
     end
