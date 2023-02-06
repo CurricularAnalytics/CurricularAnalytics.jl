@@ -141,6 +141,9 @@ add_course!(CCat, [E,F,G]);
 @test grade("W") == 0
 @test grade("WF") == 0
 
+# Test is_valid() on DegreeRequirements
+
+
 # The regex's specified will match all courses with the EGR prefix and any number
 cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
 @test cs1.name == "Test Course Set 1"

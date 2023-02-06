@@ -226,3 +226,55 @@ mutable struct RequirementSet <: AbstractRequirement
         return this
     end
 end
+
+"""
+Determine whether or not a set of requirements contained in a requirements tree rooted at `root` has credit hour 
+constraints that are possible to satisfy.
+
+    is_valid(root::AbstractRequirements, errors::IOBuffer)
+
+```julia-repl
+julia> errors = IOBuffer()
+julia> is_valid(root, errors)
+julia> println(String(take!(errors)))
+```
+
+The credit hour constraints associated with particular set of requirements may be specified in a way that 
+makes them impossible to satsify. This function searches for particular cases of this problem, and if found, 
+reports them in an error message. 
+"""
+function is_valid(
+    root::AbstractRequirement, 
+    error_msg::IOBuffer = IOBuffer()
+)
+    validity = true
+    reqs = preorder_traversal(root)
+    for r in reqs  
+        credit_total = 0
+        if typeof(r) == CourseSet
+            for c in r.course_reqs
+                credit_total += c[1].credit_hours
+            end
+            if r.credit_hours > credit_total 
+                validity = false
+                write(error_msg, "CourseSet: $(r.name) is unsatisfiable:\n\t $(r.credit_hours) credits 
+                are required from courses having only $(credit_total) credit hours.\n")
+            end
+        else # r is a RequirementSet
+            credit_ary = []
+            for child in r.requirements
+                push!(req_array, child.credit_hours)
+            end
+            max_credits = 0
+            for c in combinations(credit_ary, r.satisfy) # find the max. credits possible from r.satisfy number of requirements
+                total = sum(c) > max_credits ? max_credits = total : nothing
+            end
+            if r.credit_hours > max_credits
+                validity = false
+                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable:\n\t $(r.credit_hours) credits 
+                are required from sub-requirements that can provide at most $(max_credits) credit hours.\n")
+            end
+        end
+    end
+    return validity
+end
