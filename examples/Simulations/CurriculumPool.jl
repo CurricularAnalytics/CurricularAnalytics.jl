@@ -22,7 +22,7 @@ function Example_C1()
     curric = Curriculum("Example Curricula c1", c)
 
     errors = IOBuffer()
-    if isvalid_curriculum(curric, errors)
+    if is_valid(curric, errors)
         println("Curriculum $(curric.name) is valid")
         println("  delay factor = $(delay_factor(curric))")
         println("  blocking factor = $(blocking_factor(curric))")
@@ -37,7 +37,7 @@ function Example_C1()
         dp = DegreePlan("Example Curricula c1", curric, terms)
 
         take!(errors) # clear the IO buffer
-        if isvalid_degree_plan(dp, errors)
+        if is_valid(dp, errors)
             println("Degree plan $(dp.name) is valid")
             return c, dp
         else
@@ -75,7 +75,7 @@ function Example_C2()
     curric = Curriculum("Example Curricula C2", c)
 
     errors = IOBuffer()
-    if isvalid_curriculum(curric, errors)
+    if is_valid(curric, errors)
         println("Curriculum $(curric.name) is valid")
         println("  delay factor = $(delay_factor(curric))")
         println("  blocking factor = $(blocking_factor(curric))")
@@ -90,7 +90,7 @@ function Example_C2()
         dp = DegreePlan("Example Curricula c2", curric, terms)
 
         take!(errors) # clear the IO buffer
-        if isvalid_degree_plan(dp, errors)
+        if is_valid(dp, errors)
             println("Degree plan $(dp.name) is valid")
             return c, dp
         else
@@ -220,7 +220,7 @@ function UH_EE_curric()
     curric = Curriculum("University of Houston EE Program", c)
 
     errors = IOBuffer()
-    if isvalid_curriculum(curric, errors)
+    if is_valid(curric, errors)
         println("Curriculum $(curric.name) is valid")
         println("  delay factor = $(delay_factor(curric))")
         println("  blocking factor = $(blocking_factor(curric))")
@@ -240,7 +240,7 @@ function UH_EE_curric()
         dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
 
         take!(errors) # clear the IO buffer
-        if isvalid_degree_plan(dp, errors)
+        if is_valid(dp, errors)
             println("Degree plan $(dp.name) is valid")
             return c, dp
         else
@@ -372,7 +372,7 @@ function UKY_EE_curric()
     curric = Curriculum("University of Kentucky EE Program", c)
 
     errors = IOBuffer()
-    if isvalid_curriculum(curric, errors)
+    if is_valid(curric, errors)
         println("Curriculum $(curric.name) is valid")
         println("  delay factor = $(delay_factor(curric))")
         println("  blocking factor = $(blocking_factor(curric))")
@@ -392,7 +392,7 @@ function UKY_EE_curric()
         dp = DegreePlan("University of Kentucky EE Program 4-year Plan", curric, terms)
 
         take!(errors) # clear the IO buffer
-        if isvalid_degree_plan(dp, errors)
+        if is_valid(dp, errors)
             println("Degree plan $(dp.name) is valid")
             return c, dp
         else

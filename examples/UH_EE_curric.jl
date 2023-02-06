@@ -118,7 +118,7 @@ add_requisite!(c[38],c[44],pre)
 curric = Curriculum("University of Houston EE Program", c)
 
 errors = IOBuffer()
-if isvalid_curriculum(curric, errors)
+if is_valid(curric, errors)
     println("Curriculum $(curric.name) is valid")
     println("  delay factor = $(delay_factor(curric))")
     println("  blocking factor = $(blocking_factor(curric))")
@@ -138,7 +138,7 @@ if isvalid_curriculum(curric, errors)
     dp = DegreePlan("University of Houston EE Program 4-year Plan", curric, terms)
 
     take!(errors) # clear the IO buffer
-    if isvalid_degree_plan(dp, errors)
+    if is_validn(dp, errors)
         println("Degree plan $(dp.name) is valid")
     else
         println("Degree plan $(dp.name) is not valid:")

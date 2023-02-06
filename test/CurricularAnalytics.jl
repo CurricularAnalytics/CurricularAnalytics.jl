@@ -16,9 +16,9 @@ add_requisite!(A,A,pre)
 
 curric = Curriculum("Cycle", [A])
 
-# Test isvalid_curriculum() 
+# Test is_valid() on a curriculum
 errors = IOBuffer()
-@test isvalid_curriculum(curric, errors) == false
+@test is_valid(curric, errors) == false
 #@test String(take!(errors)) == "\nCurriculum Cycle contains the following requisite cycles:\n(A)\n"
 
 # create unsatisfiable requisites
@@ -40,10 +40,10 @@ add_requisite!(c,a,pre)  # can be any requisite
 
 curric = Curriculum("Unsatisfiable", [a, b, c], sortby_ID=false)
 errors = IOBuffer()
-@test isvalid_curriculum(curric, errors) == false
+@test is_valid(curric, errors) == false
 
 curric = read_csv("big_unsatisfiable_curric.csv")
-@test isvalid_curriculum(curric, errors) == false
+@test is_valid(curric, errors) == false
 
 # Curric1: 4-vertex test curriculum - invalid (contains a extraneous prerequisite)
 #
@@ -98,9 +98,9 @@ add_requisite!(D,F,pre)
 
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786",sortby_ID=false)
 
-# Test isvalid_curriculum() and extraneous_requisites()
+# Test is_valid() and extraneous_requisites()
 errors = IOBuffer()
-@test isvalid_curriculum(curric, errors) == true
+@test is_valid(curric, errors) == true
 @test length(extraneous_requisites(curric)) == 0
 
 # Test analytics 
@@ -142,9 +142,9 @@ add_requisite!(G,F,pre)
 
 curric = Curriculum("Postmodern Basket Weaving", [A,B,C,D,E,F,G], sortby_ID=false)
 
-# Test isvalid_curriculum() and extraneous_requisites()
+# Test is_valid() and extraneous_requisites()
 errors = IOBuffer()
-@test isvalid_curriculum(curric, errors) == true
+@test is_valid(curric, errors) == true
 @test length(extraneous_requisites(curric)) == 0
 
 # Test analytics 
@@ -196,9 +196,9 @@ add_requisite!(D,F,pre)
 
 curric = Curriculum("Underwater Basket Weaving", [A,B,C,D,E,F,G,H], institution="ACME State University", CIP="445786",sortby_ID=false)
 
-# Test isvalid_curriculum() and extraneous_requisites()
+# Test is_valid() and extraneous_requisites()
 errors = IOBuffer()
-@test isvalid_curriculum(curric, errors) == true
+@test is_valid(curric, errors) == true
 @test length(extraneous_requisites(curric)) == 0
 
 # Test basic_metrics()

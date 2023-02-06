@@ -76,7 +76,7 @@ add_requisite!(c[19],c[24],pre)
 curric = Curriculum("Cornell University EE Program", c)
 
 errors = IOBuffer()
-if isvalid_curriculum(curric, errors)
+if is_valid(curric, errors)
     println("Curriculum $(curric.name) is valid")
     println("  delay factor = $(delay_factor(curric))")
     println("  blocking factor = $(blocking_factor(curric))")

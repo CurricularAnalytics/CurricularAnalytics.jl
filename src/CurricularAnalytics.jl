@@ -29,77 +29,11 @@ export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseC
         add_course!, add_lo_requisite!, add_requisite!, add_transfer_catalog, add_transfer_course, all_paths, back_edge, basic_metrics, basic_statistics, 
         bin_filling, blocking_factor, centrality, co, compare_curricula, convert_ids, complexity, course, course_from_id, course_from_vertex, course_id, 
         courses_from_vertices, create_degree_plan, cross_edge, dead_ends, delay_factor, delete_requisite!, dfs, extraneous_requisites, find_term, forward_edge, 
-        gad, grade, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
+        gad, grade, homology, is_duplicate, is_valid, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
         pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
         requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report,
         strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream
 
-# Check if a curriculum graph has requisite cycles.
-"""
-    isvalid_curriculum(c::Curriculum, errors::IOBuffer)
-
-Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e.,
-whether or not it contains a requisite cycle, or requisites that cannot be satisfied.  Returns  
-a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it is not.
-
-If ``G_c`` is not valid, the `errors` buffer. To view these errors, use:
-
-```julia-repl
-julia> errors = IOBuffer()
-julia> isvalid_curriculum(c, errors)
-julia> println(String(take!(errors)))
-```
-
-A curriculum graph is not valid if it contains a directed cycle or unsatisfiable requisites; in this 
-case it is not possible to complete the curriculum. For the case of unsatisfiable requistes, consider
-two courses ``c_1`` and ``c_2``, with ``c_1`` a prerequisite for ``c_2``. If a third course ``c_3`` 
-is a strict corequisite for ``c_2``, as well as a requisite for ``c_1`` (or a requisite for any course 
-on a path leading to ``c_2``), then the set of requisites cannot be satisfied.
-"""
-function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
-    g = deepcopy(c.graph)
-    validity = true
-    # First check for simple cycles
-    cycles = simplecycles(g)
-    # Next check for cycles that could be created by strict co-requisites.
-    # For every strict-corequisite in the curriculum, add another strict-corequisite between the same two vertices, but in 
-    # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
-    # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
-    for course in c.courses
-        for (k,r) in course.requisites
-            if r == strict_co
-                v_d = course_from_id(c,course.id).vertex_id[c.id] # destination vertex
-                v_s = course_from_id(c,k).vertex_id[c.id] # source vertex
-                add_edge!(g, v_d, v_s)
-            end
-        end
-    end
-    new_cycles = simplecycles(g)
-    idx = []
-    for (i,cyc) in enumerate(new_cycles)  # remove length-2 cycles
-        if length(cyc) == 2
-            push!(idx, i)
-        end
-    end
-    deleteat!(new_cycles, idx)
-    cycles = union(new_cycles, cycles) # remove redundant cycles
-    if length(cycles) != 0
-        validity = false
-        c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
-        write(error_msg, " curriculum \'$(c.name)\' has requisite cycles:\n")
-        for cyc in cycles
-            write(error_msg, "(")
-            for (i,v) in enumerate(cyc)
-                if i != length(cyc)
-                    write(error_msg, "$(c.courses[v].name), ")
-                else
-                    write(error_msg, "$(c.courses[v].name))\n")
-                end
-            end
-        end
-    end
-    return validity
-end
 
 """
     extraneous_requisites(c::Curriculum; print=false)

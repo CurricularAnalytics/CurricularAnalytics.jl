@@ -582,7 +582,7 @@ curric = Curriculum("Example ECE Department at UA ", c, learning_outcomes = l)
 # print(curric.lo_graph)
 
 errors = IOBuffer()
-if isvalid_curriculum(curric, errors)
+if is_valid(curric, errors)
     println("Curriculum $(curric.name) is valid")
     println("  delay factor = $(delay_factor(curric))")
     println("  blocking factor = $(blocking_factor(curric))")

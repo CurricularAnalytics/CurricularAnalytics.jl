@@ -78,7 +78,7 @@ mutable struct Curriculum
         this.course_learning_outcome_graph = MetaDiGraph()
         create_course_learning_outcome_graph!(this)       
         errors = IOBuffer()
-        if !(isvalid_curriculum(this, errors))
+        if !(is_valid(this, errors))
             printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
             println(String(take!(errors)))
         end
@@ -91,6 +91,73 @@ mutable struct Curriculum
         Curriculum(name, convert(Array{AbstractCourse},courses), learning_outcomes=learning_outcomes, degree_type=degree_type, 
               system_type=system_type, institution=institution, CIP=CIP, id=id, sortby_ID=sortby_ID)
     end
+end
+
+# Check if a curriculum graph has requisite cycles.
+"""
+    is_valid(c::Curriculum, errors::IOBuffer)
+
+Tests whether or not the curriculum graph ``G_c`` associated with curriculum `c` is valid, i.e.,
+whether or not it contains a requisite cycle, or requisites that cannot be satisfied.  Returns  
+a boolean value, with `true` indicating the curriculum is valid, and `false` indicating it is not.
+
+If ``G_c`` is not valid, the `errors` buffer. To view these errors, use:
+
+```julia-repl
+julia> errors = IOBuffer()
+julia> is_valid(c, errors)
+julia> println(String(take!(errors)))
+```
+
+A curriculum graph is not valid if it contains a directed cycle or unsatisfiable requisites; in this 
+case it is not possible to complete the curriculum. For the case of unsatisfiable requistes, consider
+two courses ``c_1`` and ``c_2``, with ``c_1`` a prerequisite for ``c_2``. If a third course ``c_3`` 
+is a strict corequisite for ``c_2``, as well as a requisite for ``c_1`` (or a requisite for any course 
+on a path leading to ``c_2``), then the set of requisites cannot be satisfied.
+"""
+function is_valid(c::Curriculum, error_msg::IOBuffer=IOBuffer())
+    g = deepcopy(c.graph)
+    validity = true
+    # First check for simple cycles
+    cycles = simplecycles(g)
+    # Next check for cycles that could be created by strict co-requisites.
+    # For every strict-corequisite in the curriculum, add another strict-corequisite between the same two vertices, but in 
+    # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
+    # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
+    for course in c.courses
+        for (k,r) in course.requisites
+            if r == strict_co
+                v_d = course_from_id(c,course.id).vertex_id[c.id] # destination vertex
+                v_s = course_from_id(c,k).vertex_id[c.id] # source vertex
+                add_edge!(g, v_d, v_s)
+            end
+        end
+    end
+    new_cycles = simplecycles(g)
+    idx = []
+    for (i,cyc) in enumerate(new_cycles)  # remove length-2 cycles
+        if length(cyc) == 2
+            push!(idx, i)
+        end
+    end
+    deleteat!(new_cycles, idx)
+    cycles = union(new_cycles, cycles) # remove redundant cycles
+    if length(cycles) != 0
+        validity = false
+        c.institution != "" ? write(error_msg, "\n$(c.institution): ") : "\n"
+        write(error_msg, " curriculum \'$(c.name)\' has requisite cycles:\n")
+        for cyc in cycles
+            write(error_msg, "(")
+            for (i,v) in enumerate(cyc)
+                if i != length(cyc)
+                    write(error_msg, "$(c.courses[v].name), ")
+                else
+                    write(error_msg, "$(c.courses[v].name))\n")
+                end
+            end
+        end
+    end
+    return validity
 end
 
 # TODO: update a curriculum graph if requisites have been added/removed or courses have been added/removed
@@ -277,8 +344,6 @@ function create_course_learning_outcome_graph!(curriculum::Curriculum)
         end
     end
 end
-
-
 
 #"""
 #    create_learning_outcome_graph!(c::Curriculum)

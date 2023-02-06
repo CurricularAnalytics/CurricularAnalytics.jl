@@ -89,7 +89,7 @@ c[43] = Course("UK Core - Statistical Inferential Reasoning", 3)
     add_requisite!(c[12],c[13],co)
     add_requisite!(c[12],c[17],pre)
     add_requisite!(c[12],c[26],pre)
-    add_requisite!(c[12],c[28],pre)  # required edge correctly removed by viz, but not caught by isvalid_curric()
+    add_requisite!(c[12],c[28],pre)  # required edge correctly removed by viz, but not caught by is_valid()
     add_requisite!(c[13],c[14],co)
     add_requisite!(c[13],c[15],co)  
     add_requisite!(c[13],c[22],pre)  # required edge being removed by viz 
@@ -117,7 +117,7 @@ add_requisite!(c[33],c[38],pre)
 curric = Curriculum("University of Kentucky EE Program", c)
 
 errors = IOBuffer()
-if isvalid_curriculum(curric, errors)
+if is_valid(curric, errors)
     println("Curriculum $(curric.name) is valid")
     println("  delay factor = $(delay_factor(curric))")
     println("  blocking factor = $(blocking_factor(curric))")
@@ -137,7 +137,7 @@ if isvalid_curriculum(curric, errors)
     dp = DegreePlan("University of Kentucky EE Program 4-year Plan", curric, terms)
 
     take!(errors) # clear the IO buffer
-    if isvalid_degree_plan(dp, errors)
+    if is_valid(dp, errors)
         println("Degree plan $(dp.name) is valid")
     else
         println("Degree plan $(dp.name) is not valid:")
