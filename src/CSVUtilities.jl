@@ -138,8 +138,15 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
         if typeof(c_Number) != String 
             c_Number = string(c_Number) 
         end
-        c_Inst = find_cell(row, Symbol("Institution"))
-        c_col_name = find_cell(row, Symbol("Canonical Name"))
+        c_Inst = ""
+        c_col_name = ""
+        try
+            c_Inst = find_cell(row, Symbol("Institution"))
+            c_col_name = find_cell(row, Symbol("Canonical Name"))
+        catch
+            nothing
+        end
+        
         learning_outcomes = if c_ID in keys(lo_Course) lo_Course[c_ID] else LearningOutcome[] end
         if c_ID in keys(course_dict)
             println("Course IDs must be unique")
