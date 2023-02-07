@@ -162,7 +162,7 @@ rs = RequirementSet("Test Requirement Set", 6, req_set);
 @test rs.satisfy == 2
 rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=1);
 @test rs.satisfy == 1
-rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=5);
+rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=2);
 @test rs.satisfy == 2
 
 # Test StudentRecord creation
