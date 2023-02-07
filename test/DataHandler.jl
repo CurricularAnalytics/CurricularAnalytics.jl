@@ -7,7 +7,7 @@ curric = read_csv("./curriculum.csv")
 
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
-@test curric.degree_type == AA
+@test curric.degree_type == "AA"
 @test curric.system_type == semester
 @test curric.CIP == "445786"
 @test length(curric.courses) == 12
@@ -113,7 +113,7 @@ dp = read_csv("degree_plan.csv")
 @test dp.name == "4-Term Plan"
 @test dp.curriculum.name == "Underwater Basket Weaving"
 @test dp.curriculum.institution == "ACME State University"
-@test dp.curriculum.degree_type == AA
+@test dp.curriculum.degree_type == "AA"
 @test dp.curriculum.system_type == semester
 @test dp.curriculum.CIP == "445786"
 @test length(dp.curriculum.courses)-length(dp.additional_courses) == 12

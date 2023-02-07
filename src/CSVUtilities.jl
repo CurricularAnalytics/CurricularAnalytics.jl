@@ -38,7 +38,7 @@ function find_courses(courses, course_id)
     return false
 end
 
-function course_line(course, term_id)
+function course_line(course, term_id; metrics=false)
     course_ID = course.id
     course_name = course.name
     course_prefix = course.prefix
@@ -72,10 +72,27 @@ function course_line(course, term_id)
     course_inst = course.institution
     course_canName = course.canonical_name
     course_term = typeof(term_id) == Int ? string(term_id) : term_id
-    c_line= "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\""  *
-                   string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
-                   string(course_scoreq) * "," * string(course_chours) *",\""* string(course_inst) * "\",\"" *
-                   string(course_canName) * "\"," * course_term
+    course_term = course_term == "" ? "" : course_term * ","
+    if metrics == false
+        c_line= "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\""  *
+                    string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
+                    string(course_scoreq) * "," * string(course_chours) *",\""* string(course_inst) * "\",\"" *
+                    string(course_canName) * "\"," * course_term
+    else
+        # protect against missing metrics values in course
+        if !haskey(course.metrics, "complexity") || !haskey(course.metrics, "blocking factor") || !haskey(course.metrics, "delay factor") || !haskey(course.metrics, "centrality")
+            error("Cannot call course_line(;metrics=true) if the curriculum's courses do not have complexity, blocking factor, delay factor, and centrality values stored in their metrics dictionary.")
+        end
+        complexity = course.metrics["complexity"]
+        blocking_factor = course.metrics["blocking factor"]
+        delay_factor = course.metrics["delay factor"]
+        centrality = course.metrics["centrality"]
+        c_line= "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\""  *
+                    string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
+                    string(course_scoreq) * "," * string(course_chours) *",\""* string(course_inst) * "\",\"" *
+                    string(course_canName) * "\"," * course_term * string(complexity) * "," * string(blocking_factor) * "," * 
+                    string(delay_factor) * "," * string(centrality)
+    end
     return c_line 
 end
 

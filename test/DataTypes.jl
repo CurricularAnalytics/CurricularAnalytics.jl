@@ -44,7 +44,7 @@ add_requisite!(A,C,pre);
 # Test Curriciulum creation 
 @test curric.name == "Underwater Basket Weaving"
 @test curric.institution == "ACME State University"
-@test curric.degree_type == BS
+@test curric.degree_type == "BS"
 @test curric.system_type == semester
 @test curric.CIP == "445786"
 @test curric.num_courses == 8

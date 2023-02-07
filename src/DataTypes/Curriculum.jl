@@ -13,8 +13,7 @@ Required:
 - `name::AbstractString` : the name of the curriculum.
 - `courses::Array{Course}` : the collection of required courses that comprise the curriculum.
 Keyword:
-- `degree_type::Degree` : the type of degree, allowable 
-    types: `AA`, `AS`, `AAS`, `BA`, `BS` (default).
+- `degree_type::AbstractString` : the type of degree, e.g. BA, BBA, BSc, BEng, etc.
 - `institution:AbstractString` : the name of the institution offering the curriculum.
 - `system_type::System` : the type of system the institution uses, allowable 
     types: `semester` (default), `quarter`.
@@ -30,7 +29,7 @@ mutable struct Curriculum
     id::Int                             # Unique curriculum ID
     name::AbstractString                # Name of the curriculum (can be used as an identifier)
     institution::AbstractString         # Institution offering the curriculum
-    degree_type::Degree                 # Type of degree_type
+    degree_type::AbstractString                 # Type of degree_type
     system_type::System                 # Semester or quarter system
     CIP::AbstractString                 # CIP code associated with the curriculum
     courses::Array{AbstractCourse}              # Array of required courses in curriculum
@@ -48,7 +47,7 @@ mutable struct Curriculum
 
     # Constructor
     function Curriculum(name::AbstractString, courses::Array{AbstractCourse}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
-                        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
+                        degree_type::AbstractString="BS", system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
                         id::Int=0, sortby_ID::Bool=true)
         this = new()
         this.name = name
@@ -86,7 +85,7 @@ mutable struct Curriculum
     end
 
     function Curriculum(name::AbstractString, courses::Array{Course}; learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
-        degree_type::Degree=BS, system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
+        degree_type::AbstractString="BS", system_type::System=semester, institution::AbstractString="", CIP::AbstractString="", 
         id::Int=0, sortby_ID::Bool=true)
         Curriculum(name, convert(Array{AbstractCourse},courses), learning_outcomes=learning_outcomes, degree_type=degree_type, 
               system_type=system_type, institution=institution, CIP=CIP, id=id, sortby_ID=sortby_ID)
