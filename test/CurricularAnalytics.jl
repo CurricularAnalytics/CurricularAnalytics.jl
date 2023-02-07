@@ -238,4 +238,4 @@ de = dead_ends(curric_de, ["BW"])
 @test length(de[2]) == 1
 @test de[2][1] == J
 
-end;
+end

@@ -160,6 +160,12 @@ function is_valid(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     return validity
 end
 
+# TODO: This function should be depracated on next major version release
+function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
+    println("isvalid_curriculum() will be depracated, use is_valid() instead.")
+    return is_valid(c, error_msg)
+end
+
 # TODO: update a curriculum graph if requisites have been added/removed or courses have been added/removed
 #function update_curriculum(curriculum::Curriculum, courses::Array{Course}=())
 #    # if courses array is empty, no new courses were added

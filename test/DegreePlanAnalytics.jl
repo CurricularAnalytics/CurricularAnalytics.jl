@@ -86,4 +86,4 @@ basic_metrics(dp)
 @test dp.metrics["min. credit term"] == 2
 @test dp.metrics["max. credit term"] == 3
 
-end;
+end

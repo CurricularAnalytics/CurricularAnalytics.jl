@@ -1,4 +1,4 @@
-#File DegreePlanAnalytics.jl
+#File: DegreePlanAnalytics.jl
 
 # Basic metrics for a degree plan, based soley on credits
 """

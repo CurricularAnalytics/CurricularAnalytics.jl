@@ -84,4 +84,4 @@ paths = all_paths(g)
 @test longest_path(g, 2) == [2, 6, 10]
 @test longest_paths(g) == [[4, 2, 6, 10]]
 
-end;
+end

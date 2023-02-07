@@ -186,6 +186,12 @@ function is_valid(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
     return validity 
 end
 
+# TODO: This function should be depracated on next major version release
+function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
+    println("isvalid_degree_plan() will be depracated, use is_valid() instead.")
+    return is_valid(plan, error_msg)
+end
+
 """
     find_term(plan::DegreePlan, course::Course)
 

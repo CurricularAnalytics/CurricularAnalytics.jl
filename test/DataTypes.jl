@@ -199,4 +199,4 @@ add_transfer_course(ta, [A.id], XCat2.id, XB.id)
 sim_obj = Simulation(dp);
 @test sim_obj.degree_plan == dp
 
-end;
+end

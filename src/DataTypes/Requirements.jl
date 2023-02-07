@@ -214,14 +214,14 @@ mutable struct RequirementSet <: AbstractRequirement
         this.id = mod(hash(this.name * this.description * string(this.credit_hours)), UInt32)
         this.requirements = requirements
         if satisfy < 0
-            error("RequirementSet $(r.name), satisfy cannot be a negative number") 
+            error("RequirementSet $(this.name), satisfy cannot be a negative number") 
         elseif satisfy == 0
             this.satisfy = length(requirements)  # satisfy all requirements
         elseif satisfy <= length(requirements)
             this.satisfy = satisfy
         else
             # trying to satisfy more then the # of available sub-requirements
-            error("RequirementSet $(r.name), satisfy cannot be greater than the number of available requirements") 
+            error("RequirementSet $(this.name), satisfy cannot be greater than the number of available requirements") 
         end
         return this
     end
@@ -231,7 +231,7 @@ end
 Determine whether or not a set of requirements contained in a requirements tree rooted at `root` has credit hour 
 constraints that are possible to satisfy.
 
-    is_valid(root::AbstractRequirements, errors::IOBuffer)
+    is_valid(root::RequirementSet, errors::IOBuffer)
 
 ```julia-repl
 julia> errors = IOBuffer()
@@ -257,22 +257,20 @@ function is_valid(
             end
             if r.credit_hours > credit_total 
                 validity = false
-                write(error_msg, "CourseSet: $(r.name) is unsatisfiable:\n\t $(r.credit_hours) credits 
-                are required from courses having only $(credit_total) credit hours.\n")
+                write(error_msg, "CourseSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from courses having only $(credit_total) credit hours.\n")
             end
         else # r is a RequirementSet
             credit_ary = []
             for child in r.requirements
-                push!(req_array, child.credit_hours)
+                push!(credit_ary, child.credit_hours)
             end
             max_credits = 0
             for c in combinations(credit_ary, r.satisfy) # find the max. credits possible from r.satisfy number of requirements
-                total = sum(c) > max_credits ? max_credits = total : nothing
+                sum(c) > max_credits ? max_credits = sum(c) : nothing
             end
             if r.credit_hours > max_credits
                 validity = false
-                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable:\n\t $(r.credit_hours) credits 
-                are required from sub-requirements that can provide at most $(max_credits) credit hours.\n")
+                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from sub-requirements that can provide at most $(max_credits) credit hours.\n")
             end
         end
     end
