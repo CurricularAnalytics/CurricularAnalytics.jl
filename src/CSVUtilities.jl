@@ -152,19 +152,19 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
     for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         pre_reqs = find_cell(row, Symbol("Prerequisites"))
-        if pre_reqs != ""
+        if strip(pre_reqs) != ""
             for pre_req in split(string(pre_reqs), ";")
                 add_requisite!(course_dict[parse(Int, pre_req)], course_dict[c_ID], pre)
             end
         end
         co_reqs = find_cell(row, Symbol("Corequisites"))
-        if co_reqs != ""
+        if strip(co_reqs) != ""
             for co_req in split(string(co_reqs), ";")
                 add_requisite!(course_dict[parse(Int, co_req)], course_dict[c_ID], co)
             end
         end
         sco_reqs = find_cell(row, Symbol("Strict-Corequisites"))
-        if sco_reqs != ""
+        if strip(sco_reqs) != ""
             for sco_req in split(string(sco_reqs), ";")
                 add_requisite!(course_dict[parse(Int, sco_req)], course_dict[c_ID], strict_co)
             end
