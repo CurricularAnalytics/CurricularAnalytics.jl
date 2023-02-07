@@ -221,7 +221,7 @@ mutable struct RequirementSet <: AbstractRequirement
             this.satisfy = satisfy
         else
             # trying to satisfy more then the # of available sub-requirements
-            error("RequirementSet $(this.name), satisfy cannot be greater than the number of available requirements") 
+            error("RequirementSet $(this.name), satisfy variable cannot be greater than the number of available requirements") 
         end
         return this
     end
