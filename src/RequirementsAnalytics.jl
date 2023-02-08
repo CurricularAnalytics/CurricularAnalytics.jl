@@ -109,7 +109,7 @@ function show_requirements(
     for req in preorder_traversal(root)
         depth = level(root, req)
         tabs = tab^depth
-        print(io, tabs * " ├─")
+        print(io, tabs * " ├-")
         printstyled(io, "$(req.name) "; bold = true)
         if haskey(satisfied, req.id) 
             if satisfied[req.id][1] == 1 
@@ -134,7 +134,7 @@ function show_requirements(
         else # requirement is a CourseSet
             print(io, "\n")
             for (i, c) in enumerate(req.course_reqs)
-                print(io, tabs * tab * "  ├─")
+                print(io, tabs * tab * "  ├-")
                 if i <= display_limit
                     if (haskey(satisfied, req.id))
                         c[1].id ∈ satisfied[req.id][2] ? color = :green : color = :black 
