@@ -172,9 +172,9 @@ mutable struct CourseSet <: AbstractRequirement
                 push!(course_reqs, c[2] => min_grade)
             end
         end
-        if this.credit_hours # > sum of course credits
-            ## TODO: add this warning if credits are not sufficient
-        end
+        #if this.credit_hours  # > sum of course credits
+        #    ## TODO: add this warning if credits are not sufficient
+        #end
         return this
     end
 end
