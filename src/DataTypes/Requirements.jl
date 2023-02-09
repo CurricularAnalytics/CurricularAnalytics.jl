@@ -172,6 +172,9 @@ mutable struct CourseSet <: AbstractRequirement
                 push!(course_reqs, c[2] => min_grade)
             end
         end
+        if this.credit_hours # > sum of course credits
+            ## TODO: add this warning if credits are not sufficient
+        end
         return this
     end
 end
@@ -214,14 +217,14 @@ mutable struct RequirementSet <: AbstractRequirement
         this.id = mod(hash(this.name * this.description * string(this.credit_hours)), UInt32)
         this.requirements = requirements
         if satisfy < 0
-            error("RequirementSet $(this.name), satisfy cannot be a negative number") 
+            warning("RequirementSet $(this.name), satisfy cannot be a negative number") 
         elseif satisfy == 0
             this.satisfy = length(requirements)  # satisfy all requirements
         elseif satisfy <= length(requirements)
             this.satisfy = satisfy
         else
             # trying to satisfy more then the # of available sub-requirements
-            error("RequirementSet $(this.name), satisfy variable cannot be greater than the number of available requirements") 
+            warning("RequirementSet $(this.name), satisfy variable cannot be greater than the number of available requirements") 
         end
         return this
     end
