@@ -175,6 +175,16 @@ mutable struct CourseSet <: AbstractRequirement
         #if this.credit_hours  # > sum of course credits
         #    ## TODO: add this warning if credits are not sufficient
         #end
+        sum = 0
+        sorted = sort(this.course_reqs; by = x -> x.first.credit_hours, rev = true)
+        for c in sorted
+            sum += c.first.credit_hours
+            sum >= this.credit_hours ? break : nothing 
+        end
+        if (sum - this.credit_hours) < 0
+            error("Course set $(cs.name) is improperly specified, use is_valid() to check a requirement set for specification errors.")
+        end
+
         return this
     end
 end
@@ -217,14 +227,14 @@ mutable struct RequirementSet <: AbstractRequirement
         this.id = mod(hash(this.name * this.description * string(this.credit_hours)), UInt32)
         this.requirements = requirements
         if satisfy < 0
-            warning("RequirementSet $(this.name), satisfy cannot be a negative number") 
+            printstyled("WARNING: RequirementSet $(this.name), satisfy cannot be a negative number\n", color = :yellow) 
         elseif satisfy == 0
             this.satisfy = length(requirements)  # satisfy all requirements
         elseif satisfy <= length(requirements)
             this.satisfy = satisfy
         else
             # trying to satisfy more then the # of available sub-requirements
-            warning("RequirementSet $(this.name), satisfy variable cannot be greater than the number of available requirements") 
+            printstyled("WARNING: RequirementSet $(this.name), satisfy variable cannot be greater than the number of available requirements\n", color = :yellow)
         end
         return this
     end
@@ -258,6 +268,7 @@ function is_valid(
             for c in r.course_reqs
                 credit_total += c[1].credit_hours
             end
+            # credit_total = sum(sum(x)->x, )
             if r.credit_hours > credit_total 
                 validity = false
                 write(error_msg, "CourseSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from courses having only $(credit_total) credit hours.\n")
