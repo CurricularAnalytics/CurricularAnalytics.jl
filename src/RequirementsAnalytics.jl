@@ -129,7 +129,7 @@ function show_requirements(
             if req.satisfy < length(req.requirements)
                 print(io, ", satisfy: $(req.satisfy) of $(length(req.requirements)) subrequirements\n",)
             else
-                print(io, ", satisfy: all subrequirements\n")
+                print(io, ", satisfy: all $(length(req.requirements)) subrequirements\n")
             end
         else # requirement is a CourseSet
             print(io, "\n")

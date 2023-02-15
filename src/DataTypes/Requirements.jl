@@ -232,9 +232,10 @@ mutable struct RequirementSet <: AbstractRequirement
             this.satisfy = length(requirements)  # satisfy all requirements
         elseif satisfy <= length(requirements)
             this.satisfy = satisfy
-        else
+        else # satisfy > length(requirements)
+            this.satisfy = satisfy
             # trying to satisfy more then the # of available sub-requirements
-            printstyled("WARNING: RequirementSet $(this.name), satisfy variable cannot be greater than the number of available requirements\n", color = :yellow)
+            printstyled("WARNING: RequirementSet $(this.name), satisfy variable ($(this.satisfy)) cannot be greater than the number of available requirements ($(length(this.requirements)))\n", color = :yellow)
         end
         return this
     end
@@ -274,17 +275,25 @@ function is_valid(
                 write(error_msg, "CourseSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from courses having only $(credit_total) credit hours.\n")
             end
         else # r is a RequirementSet
-            credit_ary = []
-            for child in r.requirements
-                push!(credit_ary, child.credit_hours)
-            end
-            max_credits = 0
-            for c in combinations(credit_ary, r.satisfy) # find the max. credits possible from r.satisfy number of requirements
-                sum(c) > max_credits ? max_credits = sum(c) : nothing
-            end
-            if r.credit_hours > max_credits
+            if (r.satisfy == 0)
                 validity = false
-                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from sub-requirements that can provide at most $(max_credits) credit hours.\n")
+                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable, cannot satisfy 0 requirments\n")
+            elseif (r.satisfy > length(r.requirements))
+                validity = false
+                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable, satisfy variable cannot be greater than the number of available requirements\n")
+            else # r.satisy <= number of requirements
+                credit_ary = []
+                for child in r.requirements
+                    push!(credit_ary, child.credit_hours)
+                end
+                max_credits = 0
+                for c in combinations(credit_ary, r.satisfy) # find the max. credits possible from r.satisfy number of requirements
+                        sum(c) > max_credits ? max_credits = sum(c) : nothing
+                end
+                if r.credit_hours > max_credits
+                    validity = false
+                    write(error_msg, "RequirementSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from sub-requirements that can provide at most $(max_credits) credit hours.\n")
+                end
             end
         end
     end
