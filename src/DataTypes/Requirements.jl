@@ -172,7 +172,7 @@ mutable struct CourseSet <: AbstractRequirement
                 push!(course_reqs, c[2] => min_grade)
             end
         end
-        #if this.credit_hours  # > sum of course credits
+        #if this.credit_hours > sum of course credits
         #    ## TODO: add this warning if credits are not sufficient
         #end
         sum = 0
@@ -181,8 +181,8 @@ mutable struct CourseSet <: AbstractRequirement
             sum += c.first.credit_hours
             sum >= this.credit_hours ? break : nothing 
         end
-        if (sum - this.credit_hours) < 0
-            error("Course set $(this.name) is improperly specified, use is_valid() to check a requirement set for specification errors.")
+        if (sum - this.credit_hours) < 0  # credits provided by courses are not sufficent to satisfy required number of credit hours for this requirement
+            printstyled("WARNING: Course set $(this.name) is improperly specified, $(this.credit_hours) credits are required, but credits amounting to $sum are available.\nUse is_valid() to check a requirement set for specification errors.\n", color = :yellow)
         end
 
         return this
