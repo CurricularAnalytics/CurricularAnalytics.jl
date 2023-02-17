@@ -182,7 +182,7 @@ mutable struct CourseSet <: AbstractRequirement
             sum >= this.credit_hours ? break : nothing 
         end
         if (sum - this.credit_hours) < 0
-            error("Course set $(cs.name) is improperly specified, use is_valid() to check a requirement set for specification errors.")
+            error("Course set $(this.name) is improperly specified, use is_valid() to check a requirement set for specification errors.")
         end
 
         return this
