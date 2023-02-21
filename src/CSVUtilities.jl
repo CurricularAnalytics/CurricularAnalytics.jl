@@ -71,13 +71,14 @@ function course_line(course, term_id; metrics=false)
     course_chours = course.credit_hours
     course_inst = course.institution
     course_canName = course.canonical_name
+    course_passrate = course.passrate
     course_term = typeof(term_id) == Int ? string(term_id) : term_id
     course_term = course_term == "" ? "" : course_term * ","
     if metrics == false
         c_line = "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\"" *
                  string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
                  string(course_scoreq) * "," * string(course_chours) * ",\"" * string(course_inst) * "\",\"" *
-                 string(course_canName) * "\"," * course_term
+                 string(course_canName) * "\"," * course_term * "," * string(course_passrate)
     else
         # protect against missing metrics values in course
         if !haskey(course.metrics, "complexity") || !haskey(course.metrics, "blocking factor") || !haskey(course.metrics, "delay factor") || !haskey(course.metrics, "centrality")
@@ -91,7 +92,7 @@ function course_line(course, term_id; metrics=false)
                  string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
                  string(course_scoreq) * "," * string(course_chours) * ",\"" * string(course_inst) * "\",\"" *
                  string(course_canName) * "\"," * course_term * string(complexity) * "," * string(blocking_factor) * "," *
-                 string(delay_factor) * "," * string(centrality)
+                 string(delay_factor) * "," * string(centrality) * "," * string(course_passrate)
     end
     return c_line
 end
