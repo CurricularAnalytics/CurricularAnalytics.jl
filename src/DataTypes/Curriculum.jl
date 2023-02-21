@@ -194,7 +194,7 @@ function create_graph!(curriculum::Curriculum)
     mapped_vertex_ids = map_vertex_ids(curriculum)
     for c in curriculum.courses
         for r in collect(keys(c.requisites))
-            if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id], 10)
+            if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id], course_from_id(curriculum, r).passrate) # edge is r to c. Need r's passrate (or fail rate)
             else
                 s = course_from_id(curriculum, r)
                 error("edge could not be created: ($(s.name), $(c.name))")
