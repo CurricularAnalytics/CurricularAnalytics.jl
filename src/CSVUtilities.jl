@@ -1,5 +1,5 @@
 function readfile(file_path)
-    open(file_path) do f 
+    open(file_path) do f
         lines = readlines(f)
         return lines
     end
@@ -12,11 +12,11 @@ function remove_empty_lines(file_path)
     end
     temp_file = file_path[1:end-4] * "_temp.csv"
     file = readfile(file_path)
-    open(temp_file, "w") do f  
+    open(temp_file, "w") do f
         new_file = ""
         for line in file
             line = replace(line, "\r" => "")
-            if length(line) > 0 && !startswith(replace(line,"\""=>""), "#")
+            if length(line) > 0 && !startswith(replace(line, "\"" => ""), "#")
                 line = line * "\n"
                 new_file = new_file * line
             end
@@ -24,7 +24,7 @@ function remove_empty_lines(file_path)
         if length(new_file) > 0
             new_file = chop(new_file)
         end
-        write(f,new_file)
+        write(f, new_file)
     end
     return temp_file
 end
@@ -43,7 +43,7 @@ function course_line(course, term_id; metrics=false)
     course_name = course.name
     course_prefix = course.prefix
     course_num = course.num
-    course_vertex = course.vertex_id 
+    course_vertex = course.vertex_id
     course_prereq = "\""
     course_coreq = "\""
     course_scoreq = "\""
@@ -67,17 +67,17 @@ function course_line(course, term_id; metrics=false)
     course_scoreq = chop(course_scoreq)
     if length(course_scoreq) > 0
         course_scoreq = course_scoreq * "\""
-    end                           
+    end
     course_chours = course.credit_hours
     course_inst = course.institution
     course_canName = course.canonical_name
     course_term = typeof(term_id) == Int ? string(term_id) : term_id
     course_term = course_term == "" ? "" : course_term * ","
     if metrics == false
-        c_line= "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\""  *
-                    string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
-                    string(course_scoreq) * "," * string(course_chours) *",\""* string(course_inst) * "\",\"" *
-                    string(course_canName) * "\"," * course_term
+        c_line = "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\"" *
+                 string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
+                 string(course_scoreq) * "," * string(course_chours) * ",\"" * string(course_inst) * "\",\"" *
+                 string(course_canName) * "\"," * course_term
     else
         # protect against missing metrics values in course
         if !haskey(course.metrics, "complexity") || !haskey(course.metrics, "blocking factor") || !haskey(course.metrics, "delay factor") || !haskey(course.metrics, "centrality")
@@ -87,13 +87,13 @@ function course_line(course, term_id; metrics=false)
         blocking_factor = course.metrics["blocking factor"]
         delay_factor = course.metrics["delay factor"]
         centrality = course.metrics["centrality"]
-        c_line= "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\""  *
-                    string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
-                    string(course_scoreq) * "," * string(course_chours) *",\""* string(course_inst) * "\",\"" *
-                    string(course_canName) * "\"," * course_term * string(complexity) * "," * string(blocking_factor) * "," * 
-                    string(delay_factor) * "," * string(centrality)
+        c_line = "\n" * string(course_ID) * ",\"" * string(course_name) * "\",\"" * string(course_prefix) * "\",\"" *
+                 string(course_num) * "\"," * string(course_prereq) * "," * string(course_coreq) * "," *
+                 string(course_scoreq) * "," * string(course_chours) * ",\"" * string(course_inst) * "\",\"" *
+                 string(course_canName) * "\"," * course_term * string(complexity) * "," * string(blocking_factor) * "," *
+                 string(delay_factor) * "," * string(centrality)
     end
-    return c_line 
+    return c_line
 end
 
 function csv_line_reader(line::AbstractString, delimeter::Char=',')
@@ -104,7 +104,7 @@ function csv_line_reader(line::AbstractString, delimeter::Char=',')
         if ch == '"'
             quotes != quotes
         elseif ch == delimeter && !quotes
-            push!(result,item)
+            push!(result, item)
             item = ""
         else
             item = item * string(ch)
@@ -126,27 +126,32 @@ function find_cell(row, header)
     end
 end
 
-function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{LearningOutcome}}=Dict{Int, Array{LearningOutcome}}())
-    course_dict = Dict{Int, Course}()
+function read_all_courses(df_courses::DataFrame, lo_Course::Dict{Int,Array{LearningOutcome}}=Dict{Int,Array{LearningOutcome}}())
+    course_dict = Dict{Int,Course}()
     for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         c_Name = find_cell(row, Symbol("Course Name"))
-        c_Credit = row[Symbol("Credit Hours")] 
+        c_Credit = row[Symbol("Credit Hours")]
         c_Credit = typeof(c_Credit) == String ? parse(Float64, c_Credit) : c_Credit
         c_Prefix = string(find_cell(row, Symbol("Prefix")))
         c_Number = find_cell(row, Symbol("Number"))
-        if typeof(c_Number) != String 
-            c_Number = string(c_Number) 
+        c_Passrate = find_cell(row, Symbol("Passrate")) == "" ? 0.5 : find_cell(row, Symbol("Passrate"))
+        if typeof(c_Number) != String
+            c_Number = string(c_Number)
         end
         c_Inst = find_cell(row, Symbol("Institution"))
         c_col_name = find_cell(row, Symbol("Canonical Name"))
-        learning_outcomes = if c_ID in keys(lo_Course) lo_Course[c_ID] else LearningOutcome[] end
+        learning_outcomes = if c_ID in keys(lo_Course)
+            lo_Course[c_ID]
+        else
+            LearningOutcome[]
+        end
         if c_ID in keys(course_dict)
             println("Course IDs must be unique")
             return false
         else
             course_dict[c_ID] = Course(c_Name, c_Credit, prefix=c_Prefix, learning_outcomes=learning_outcomes,
-                                       num=c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID)
+                num=c_Number, institution=c_Inst, canonical_name=c_col_name, id=c_ID, passrate=c_Passrate)
         end
     end
     for row in DataFrames.eachrow(df_courses)
@@ -175,7 +180,7 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
 end
 
 function read_courses(df_courses::DataFrame, all_courses::Dict{Int,Course})
-    course_dict = Dict{Int, Course}()
+    course_dict = Dict{Int,Course}()
     for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         course_dict[c_ID] = all_courses[c_ID]
@@ -183,8 +188,8 @@ function read_courses(df_courses::DataFrame, all_courses::Dict{Int,Course})
     return course_dict
 end
 
-function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course}, course_arr::Array{Course,1})
-    terms = Dict{Int, Array{Course}}()
+function read_terms(df_courses::DataFrame, course_dict::Dict{Int,Course}, course_arr::Array{Course,1})
+    terms = Dict{Int,Array{Course}}()
     have_term = Course[]
     not_have_term = Course[]
     for row in DataFrames.eachrow(df_courses)
@@ -195,7 +200,7 @@ function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course}, cours
                 if typeof(row[Symbol("Term")]) != Missing       #operations rather than four if statemnts
                     push!(have_term, course)
                     if term_ID in keys(terms)
-                        push!(terms[term_ID], course) 
+                        push!(terms[term_ID], course)
                     else
                         terms[term_ID] = [course]
                     end
@@ -203,9 +208,9 @@ function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course}, cours
                     push!(not_have_term, course)
                 end
                 break
-            end            
-        end        
-    end  
+            end
+        end
+    end
     terms_arr = Array{Term}(undef, length(terms))
     for term in terms
         terms_arr[term[1]] = Term([class for class in term[2]])
@@ -218,7 +223,7 @@ function read_terms(df_courses::DataFrame, course_dict::Dict{Int, Course}, cours
 end
 
 function generate_course_lo(df_learning_outcomes::DataFrame)
-    lo_dict = Dict{Int, LearningOutcome}()
+    lo_dict = Dict{Int,LearningOutcome}()
     for row in DataFrames.eachrow(df_learning_outcomes)
         lo_ID = find_cell(row, Symbol("Learning Outcome ID"))
         lo_name = find_cell(row, Symbol("Learning Outcome"))
@@ -241,16 +246,16 @@ function generate_course_lo(df_learning_outcomes::DataFrame)
             end
         end
     end
-    lo_Course = Dict{Int, Array{LearningOutcome}}()
+    lo_Course = Dict{Int,Array{LearningOutcome}}()
     for row in DataFrames.eachrow(df_learning_outcomes)
         c_ID = find_cell(row, Symbol("Course ID"))
         lo_ID = find_cell(row, Symbol("Learning Outcome ID"))
         if c_ID in keys(lo_Course)
-            push!(lo_Course[c_ID], lo_dict[lo_ID]) 
+            push!(lo_Course[c_ID], lo_dict[lo_ID])
         else
             lo_Course[c_ID] = [lo_dict[lo_ID]]
         end
-    end    
+    end
     return lo_Course
 end
 
@@ -267,7 +272,7 @@ end
 function gather_learning_outcomes(curric::Curriculum)
     all_course_lo = Dict{Int,Array{LearningOutcome,1}}()
     for course in curric.courses
-        if length(course.learning_outcomes)>0
+        if length(course.learning_outcomes) > 0
             all_course_lo[course.id] = course.learning_outcomes
         end
     end
@@ -276,8 +281,8 @@ end
 
 function write_learning_outcomes(curric::Curriculum, csv_file, all_course_lo)
     if length(all_course_lo) > 0
-        write(csv_file, "\nCourse Learning Outcomes,,,,,,,,,,") 
-        write(csv_file, "\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,") 
+        write(csv_file, "\nCourse Learning Outcomes,,,,,,,,,,")
+        write(csv_file, "\nCourse ID,Learning Outcome ID,Learning Outcome,Description,Requisites,Hours,,,,,")
         for lo_arr in all_course_lo
             for lo in lo_arr[2]
                 course_ID = lo_arr[1]
@@ -286,27 +291,27 @@ function write_learning_outcomes(curric::Curriculum, csv_file, all_course_lo)
                 lo_desc = lo.description
                 lo_prereq = "\""
                 for requesite in lo.requisites
-                    lo_prereq = lo_prereq*string(requesite[1]) * ";"
+                    lo_prereq = lo_prereq * string(requesite[1]) * ";"
                 end
                 lo_prereq = chop(lo_prereq)
                 if length(lo_prereq) > 0
-                   lo_prereq = lo_prereq * "\""
+                    lo_prereq = lo_prereq * "\""
                 end
                 lo_hours = lo.hours
-                lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * ",\"" * string(lo_name) * "\",\"" * 
+                lo_line = "\n" * string(course_ID) * "," * string(lo_ID) * ",\"" * string(lo_name) * "\",\"" *
                           string(lo_desc) * "\",\"" * string(lo_prereq) * "\"," * string(lo_hours) * ",,,,,"
-                write(csv_file, lo_line) 
+                write(csv_file, lo_line)
             end
         end
     end
     if length(curric.learning_outcomes) > 0
-        write(csv_file, "\nCurriculum Learning Outcomes,,,,,,,,,,") 
-        write(csv_file, "\nLearning Outcome,Description,,,,,,,,,") 
+        write(csv_file, "\nCurriculum Learning Outcomes,,,,,,,,,,")
+        write(csv_file, "\nLearning Outcome,Description,,,,,,,,,")
         for lo in curric.learning_outcomes
             lo_name = lo.name
             lo_desc = lo.description
-            lo_line = "\n\"" * string(lo_name) *"\",\""* string(lo_desc) * "\",,,,,,,,,"
-            write(csv_file, lo_line) 
-        end 
+            lo_line = "\n\"" * string(lo_name) * "\",\"" * string(lo_desc) * "\",,,,,,,,,"
+            write(csv_file, lo_line)
+        end
     end
 end
