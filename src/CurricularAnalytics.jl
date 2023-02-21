@@ -10,6 +10,7 @@ module CurricularAnalytics
 
 # Dependencies
 using Graphs
+using SimpleWeightedGraphs
 using DataStructures
 using Printf
 using Markdown
@@ -24,15 +25,15 @@ include("DegreePlanAnalytics.jl")
 include("DegreePlanCreation.jl")
 include("Simulation/Simulation.jl")
 
-export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, Curriculum, DegreePlan, 
-        EdgeClass, Enrollment, Grade, LearningOutcome, PassRate, RequirementSet, Requisite, Student, StudentRecord, Simulation, System, Term, TransferArticulation,
-        add_course!, add_lo_requisite!, add_requisite!, add_transfer_catalog, add_transfer_course, all_paths, back_edge, basic_metrics, basic_statistics, 
-        bin_filling, blocking_factor, centrality, co, compare_curricula, convert_ids, complexity, course, course_from_id, course_from_vertex, course_id, 
-        courses_from_vertices, create_degree_plan, cross_edge, dead_ends, delay_factor, delete_requisite!, dfs, extraneous_requisites, find_term, forward_edge, 
-        gad, grade, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
-        pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
-        requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report,
-        strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream
+export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, Curriculum, DegreePlan,
+    EdgeClass, Enrollment, Grade, LearningOutcome, PassRate, RequirementSet, Requisite, Student, StudentRecord, Simulation, System, Term, TransferArticulation,
+    add_course!, add_lo_requisite!, add_requisite!, add_transfer_catalog, add_transfer_course, all_paths, back_edge, basic_metrics, basic_statistics,
+    bin_filling, blocking_factor, centrality, co, compare_curricula, convert_ids, complexity, course, course_from_id, course_from_vertex, course_id,
+    courses_from_vertices, create_degree_plan, cross_edge, dead_ends, delay_factor, delete_requisite!, dfs, extraneous_requisites, find_term, forward_edge,
+    gad, grade, homology, is_duplicate, isvalid_curriculum, isvalid_degree_plan, longest_path, longest_paths, merge_curricula, pass_table, passrate_table,
+    pre, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, read_csv, requisite_distance,
+    requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, similarity, simple_students, simulate, simulation_report,
+    strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream
 
 # Check if a curriculum graph has requisite cycles.
 """
@@ -66,17 +67,17 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
     # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
     for course in c.courses
-        for (k,r) in course.requisites
+        for (k, r) in course.requisites
             if r == strict_co
-                v_d = course_from_id(c,course.id).vertex_id[c.id] # destination vertex
-                v_s = course_from_id(c,k).vertex_id[c.id] # source vertex
+                v_d = course_from_id(c, course.id).vertex_id[c.id] # destination vertex
+                v_s = course_from_id(c, k).vertex_id[c.id] # source vertex
                 add_edge!(g, v_d, v_s)
             end
         end
     end
     new_cycles = simplecycles(g)
     idx = []
-    for (i,cyc) in enumerate(new_cycles)  # remove length-2 cycles
+    for (i, cyc) in enumerate(new_cycles)  # remove length-2 cycles
         if length(cyc) == 2
             push!(idx, i)
         end
@@ -89,7 +90,7 @@ function isvalid_curriculum(c::Curriculum, error_msg::IOBuffer=IOBuffer())
         write(error_msg, " curriculum \'$(c.name)\' has requisite cycles:\n")
         for cyc in cycles
             write(error_msg, "(")
-            for (i,v) in enumerate(cyc)
+            for (i, v) in enumerate(cyc)
                 if i != length(cyc)
                     write(error_msg, "$(c.courses[v].name), ")
                 else
@@ -125,13 +126,13 @@ function extraneous_requisites(c::Curriculum; print=false)
     for wcc in components
         if length(wcc) > 1  # only consider components with more than one vertex
             for u in wcc
-                nb = neighbors(g,u)
+                nb = neighbors(g, u)
                 for n in nb
                     enqueue!(que, n)
                 end
                 while !isempty(que)
                     x = dequeue!(que)
-                    nnb = neighbors(g,x)
+                    nnb = neighbors(g, x)
                     for n in nnb
                         enqueue!(que, n)
                     end
@@ -205,7 +206,7 @@ where ``G_c = (V,E)`` is the curriculum graph associated with curriculum ``c``.
 """
 function blocking_factor(c::Curriculum)
     b = 0
-    bf = Array{Int, 1}(undef, c.num_courses)
+    bf = Array{Int,1}(undef, c.num_courses)
     for (i, v) in enumerate(vertices(c.graph))
         bf[i] = blocking_factor(c, v)
         b += bf[i]
@@ -287,11 +288,12 @@ q(v_i) = \\sum_{l=1}^{\\left| P_{v_i} \\right|} \\#(p_l).
 where ``\\#(p)`` denotes the number of vertices in the directed path ``p`` in ``G_c``.
 """
 function centrality(c::Curriculum, course::Int)
-    cent = 0; g = c.graph
+    cent = 0
+    g = c.graph
     for path in all_paths(g)
         # conditions: path length is greater than 2, target course must be in the path, the target vertex
         # cannot be the first or last vertex in the path
-        if (in(course,path) && length(path) > 2 && path[1] != course && path[end] != course)
+        if (in(course, path) && length(path) > 2 && path[1] != course && path[end] != course)
             cent += length(path)
         end
     end
@@ -310,7 +312,7 @@ q(c) = \\sum_{v \\in V} q(v).
 """
 function centrality(c::Curriculum)
     cent = 0
-    cf = Array{Int, 1}(undef, c.num_courses)
+    cf = Array{Int,1}(undef, c.num_courses)
     for (i, v) in enumerate(vertices(c.graph))
         cf[i] = centrality(c, v)
         cent += cf[i]
@@ -355,7 +357,7 @@ courses ``v_1`` and ``v_2`` in part (b), which both must be passed before a stud
 ``v_3`` in that curriculum, has a higher combined complexity.
 """
 function complexity(c::Curriculum)
-    course_complexity = Array{Number, 1}(undef, c.num_courses)
+    course_complexity = Array{Number,1}(undef, c.num_courses)
     curric_complexity = 0
     if !haskey(c.metrics, "delay factor")
         delay_factor(c)
@@ -366,7 +368,7 @@ function complexity(c::Curriculum)
     for v in vertices(c.graph)
         c.courses[v].metrics["complexity"] = c.courses[v].metrics["delay factor"] + c.courses[v].metrics["blocking factor"]
         if c.system_type == quarter
-            c.courses[v].metrics["complexity"] = round((c.courses[v].metrics["complexity"] * 2)/3, digits=1)
+            c.courses[v].metrics["complexity"] = round((c.courses[v].metrics["complexity"] * 2) / 3, digits=1)
         end
         course_complexity[v] = c.courses[v].metrics["complexity"]
         curric_complexity += course_complexity[v]
@@ -392,8 +394,8 @@ julia> paths = longest_paths(c)
 function longest_paths(c::Curriculum)
     lps = Array{Array{Course,1},1}()
     for path in longest_paths(c.graph) # longest_paths(), GraphAlgs.jl
-       c_path = courses_from_vertices(c, path)
-       push!(lps, c_path)
+        c_path = courses_from_vertices(c, path)
+        push!(lps, c_path)
     end
     return c.metrics["longest paths"] = lps
 end
@@ -417,9 +419,9 @@ function compare_curricula(c1::Curriculum, c2::Curriculum)
         end
         diff = c1.metrics[k][1] - c2.metrics[k][1]
         if diff > 0
-            @printf(report, "C1 is %.1f units (%.0f%c) larger than C2\n", diff, 100*diff/c2.metrics[k][1], '%')
+            @printf(report, "C1 is %.1f units (%.0f%c) larger than C2\n", diff, 100 * diff / c2.metrics[k][1], '%')
         elseif diff < 0
-            @printf(report, "C1 is %.1f units (%.0f%c) smaller than C2\n", -diff, 100*(-diff)/c2.metrics[k][1], '%')
+            @printf(report, "C1 is %.1f units (%.0f%c) smaller than C2\n", -diff, 100 * (-diff) / c2.metrics[k][1], '%')
         else
             write(report, "C1 and C2 have the same curricular $k\n")
         end
@@ -487,33 +489,39 @@ julia> curriculum.metrics
 function basic_metrics(curric::Curriculum)
     buf = IOBuffer()
     complexity(curric), centrality(curric), longest_paths(curric)  # compute all curricular metrics
-    max_bf = 0; max_df = 0; max_cc = 0; max_cent = 0
-    max_bf_courses = Array{Course,1}(); max_df_courses = Array{Course,1}(); max_cc_courses = Array{Course,1}(); max_cent_courses = Array{Course,1}()
+    max_bf = 0
+    max_df = 0
+    max_cc = 0
+    max_cent = 0
+    max_bf_courses = Array{Course,1}()
+    max_df_courses = Array{Course,1}()
+    max_cc_courses = Array{Course,1}()
+    max_cent_courses = Array{Course,1}()
     for c in curric.courses
         if c.metrics["blocking factor"] == max_bf
             push!(max_bf_courses, c)
-        elseif  c.metrics["blocking factor"] > max_bf
+        elseif c.metrics["blocking factor"] > max_bf
             max_bf = c.metrics["blocking factor"]
             max_bf_courses = Array{Course,1}()
             push!(max_bf_courses, c)
         end
         if c.metrics["delay factor"] == max_df
             push!(max_df_courses, c)
-        elseif  c.metrics["delay factor"] > max_df
+        elseif c.metrics["delay factor"] > max_df
             max_df = c.metrics["delay factor"]
             max_df_courses = Array{Course,1}()
             push!(max_df_courses, c)
         end
         if c.metrics["complexity"] == max_cc
             push!(max_cc_courses, c)
-        elseif  c.metrics["complexity"] > max_cc
+        elseif c.metrics["complexity"] > max_cc
             max_cc = c.metrics["complexity"]
             max_cc_courses = Array{Course,1}()
             push!(max_cc_courses, c)
         end
         if c.metrics["centrality"] == max_cent
             push!(max_cent_courses, c)
-        elseif  c.metrics["centrality"] > max_cent
+        elseif c.metrics["centrality"] > max_cent
             max_cent = c.metrics["centrality"]
             max_cent_courses = Array{Course,1}()
             push!(max_cent_courses, c)
@@ -565,12 +573,15 @@ end
 function basic_statistics(curricula::Array{Curriculum,1}, metric_name::AbstractString)
     buf = IOBuffer()
     # set initial values used to find min and max metric values
-    total_metric = 0; STD_metric = 0
+    total_metric = 0
+    STD_metric = 0
     if haskey(curricula[1].metrics, metric_name)
         if typeof(curricula[1].metrics[metric_name]) == Float64
-            max_metric = curricula[1].metrics[metric_name]; min_metric = curricula[1].metrics[metric_name];
+            max_metric = curricula[1].metrics[metric_name]
+            min_metric = curricula[1].metrics[metric_name]
         elseif typeof(curricula[1].metrics[metric_name]) == Tuple{Float64,Array{Number,1}}
-            max_metric = curricula[1].metrics[metric_name][1]; min_metric = curricula[1].metrics[metric_name][1];  # metric where total curricular metric as well as course-level metrics are stored in an array
+            max_metric = curricula[1].metrics[metric_name][1]
+            min_metric = curricula[1].metrics[metric_name][1]  # metric where total curricular metric as well as course-level metrics are stored in an array
         end
     end
     for c in curricula
@@ -603,17 +614,17 @@ function basic_statistics(curricula::Array{Curriculum,1}, metric_name::AbstractS
     write(buf, "\n  STD = $STD_metric")
     write(buf, "\n  Max. = $max_metric")
     write(buf, "\n  Min. = $min_metric")
-    return(buf)
+    return (buf)
 end
 
 function write_course_names(buf::IOBuffer, courses::Array{Course,1}; separator::String=", ")
     if length(courses) == 1
-      write_course_name(buf, courses[1])
+        write_course_name(buf, courses[1])
     else
-      for c in courses[1:end-1]
-        write_course_name(buf, c)
-        write(buf, separator)
-      end
+        for c in courses[1:end-1]
+            write_course_name(buf, c)
+            write(buf, separator)
+        end
         write_course_name(buf, courses[end])
     end
 end
@@ -649,7 +660,9 @@ function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
     if c2.num_courses == 0
         error("Curriculum $(c2.name) does not have any courses, similarity cannot be computed")
     end
-    if (c1 == c2) return 1 end
+    if (c1 == c2)
+        return 1
+    end
     matches = 0
     if strict == true
         for course in c1.courses
@@ -667,7 +680,7 @@ function similarity(c1::Curriculum, c2::Curriculum; strict::Bool=true)
             end
         end
     end
-    return matches/c2.num_courses
+    return matches / c2.num_courses
 end
 
 """
@@ -695,8 +708,8 @@ courses must be identical (at the level of memory allocation). Allowable match c
 
 """
 function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, match_criteria::Array{String}=Array{String,1}();
-           learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(), degree_type::AbstractString=BS, system_type::System=semester,
-           institution::AbstractString="", CIP::AbstractString="")
+    learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(), degree_type::AbstractString=BS, system_type::System=semester,
+    institution::AbstractString="", CIP::AbstractString="")
     merged_courses = deepcopy(c1.courses)
     extra_courses = Array{Course,1}()  # courses in c2 but not in c1
     new_courses = Array{Course,1}()
@@ -704,8 +717,8 @@ function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, m
         matched = false
         for target_course in c1.courses
             if match(course, target_course, match_criteria) == true
-               matched = true
-               skip
+                matched = true
+                skip
             end
         end
         !matched ? push!(extra_courses, course) : nothing
@@ -714,23 +727,23 @@ function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, m
     for c in extra_courses
         # for each extra course create an indentical coures, but with a new course id
         push!(new_courses, Course(c.name, c.credit_hours; prefix=c.prefix, learning_outcomes=c.learning_outcomes,
-               num=c.num, institution=c.institution, canonical_name=c.canonical_name))
+            num=c.num, institution=c.institution, canonical_name=c.canonical_name))
     end
-    for (j,c) in enumerate(extra_courses)
-    #    print("\n $(c.name): ")
-    #    print("total requisistes = $(length(c.requisites)),")
+    for (j, c) in enumerate(extra_courses)
+        #    print("\n $(c.name): ")
+        #    print("total requisistes = $(length(c.requisites)),")
         for req in keys(c.requisites)
-    #        print(" requisite id: $(req) ")
+            #        print(" requisite id: $(req) ")
             req_course = course_from_id(c2, req)
             if find_match(req_course, merged_courses, match_criteria) != nothing
                 # requisite already exists in c1
-    #            print(" match in c1 - $(course_from_id(c1, req).name) ")
+                #            print(" match in c1 - $(course_from_id(c1, req).name) ")
                 add_requisite!(req_course, new_courses[j], c.requisites[req])
             elseif find_match(req_course, extra_courses, match_criteria) != nothing
                 # requisite is not in c1, but it's in c2 -- use the id of the new course created for it
-    #            print(" match in extra courses, ")
-                i = findfirst(x->x==req_course, extra_courses)
-    #            print(" index of match = $i ")
+                #            print(" match in extra courses, ")
+                i = findfirst(x -> x == req_course, extra_courses)
+                #            print(" index of match = $i ")
                 add_requisite!(new_courses[i], new_courses[j], c.requisites[req])
             else # requisite is neither in c1 or 2 -- this shouldn't happen => error
                 error("requisite error on course: $(c.name)")
@@ -779,8 +792,8 @@ function homology(curricula::Array{Curriculum,1}; strict::Bool=false)
     similarity_matrix = Matrix{Float64}(I, length(curricula), length(curricula))
     for i = 1:length(curricula)
         for j = 1:length(curricula)
-            similarity_matrix[i,j] = similarity(curricula[i], curricula[j], strict=strict)
-            similarity_matrix[j,i] = similarity(curricula[j], curricula[i], strict=strict)
+            similarity_matrix[i, j] = similarity(curricula[i], curricula[j], strict=strict)
+            similarity_matrix[j, i] = similarity(curricula[j], curricula[i], strict=strict)
         end
     end
     return similarity_matrix
