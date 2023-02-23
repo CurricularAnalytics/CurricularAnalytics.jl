@@ -35,7 +35,15 @@ end
 
 function is_duplicate(cc::CourseCatalog, course::Course)
     course.id in keys(cc.catalog) ? true : false
-end 
+end
+
+function course(catalog::CourseCatalog, prefix::AbstractString, num::AbstractString)
+    index = findfirst(c -> c.prefix == prefix && c.num == num, catalog.catalog)
+    if index === nothing
+        return false
+    end
+    return catalog.catalog[index]
+end
 
 # Return a course in a course catalog
 function course(cc::CourseCatalog, prefix::AbstractString, num::AbstractString, name::AbstractString)
