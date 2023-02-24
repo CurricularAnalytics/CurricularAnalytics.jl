@@ -169,7 +169,13 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             if last(pre_reqs, 1) == ";" || last(pre_reqs, 1) == " "
                 pre_reqs = pre_reqs[1:end-1]
             end
-            for pre_req in split(string(pre_reqs), ";")
+            # check if pre_reqs string contains a comma
+            if occursin(",", string(pre_reqs))
+                split_prereqs = split(string(pre_reqs), ",")
+            else
+                split_prereqs = split(string(pre_reqs), ";")
+            end
+            for pre_req in split_prereqs
                 add_requisite!(course_dict[parse(Int, pre_req)], course_dict[c_ID], pre)
             end
         end
@@ -178,7 +184,13 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             if last(co_reqs, 1) == ";" || last(co_reqs, 1) == " "
                 co_reqs = co_reqs[1:end-1]
             end
-            for co_req in split(string(co_reqs), ";")
+            # check if co_reqs string contains a comma
+            if occursin(",", string(co_reqs))
+                split_coreqs = split(string(co_reqs), ",")
+            else
+                split_coreqs = split(string(co_reqs), ";")
+            end
+            for co_req in split_coreqs
                 add_requisite!(course_dict[parse(Int, co_req)], course_dict[c_ID], co)
             end
         end
@@ -187,7 +199,13 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             if last(sco_reqs) == ";"
                 chop(sco_reqs, tail=1)
             end
-            for sco_req in split(string(sco_reqs), ";")
+            # check if sco_reqs string contains a comma
+            if occursin(",", string(sco_reqs))
+                split_scoreqs = split(string(sco_reqs), ",")
+            else
+                split_scoreqs = split(string(sco_reqs), ";")
+            end
+            for sco_req in split_scoreqs
                 add_requisite!(course_dict[parse(Int, sco_req)], course_dict[c_ID], strict_co)
             end
         end
