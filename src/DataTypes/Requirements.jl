@@ -263,13 +263,21 @@ function is_valid(
 )
     validity = true
     reqs = preorder_traversal(root)
-    for r in reqs  
+    dups = nonunique(reqs)
+    if (length(dups) > 0) # the same requirements is being used multiple times, so it's not a requirments tree
+        validity = false
+        write(error_msg, "RequirementSet: $(root.name) is not a tree, it contains duplicate requirements: \n")
+        for d in dups
+            write(error_msg,"\t $(d.name)\n")
+        end
+    end
+    for r in reqs
         credit_total = 0
         if typeof(r) == CourseSet
             for c in r.course_reqs
                 credit_total += c[1].credit_hours
             end
-            # credit_total = sum(sum(x)->x, )
+            # credit_total = sum(sum(x)->x, ... )  # make above code more compact using map-reduce functionality
             if r.credit_hours > credit_total 
                 validity = false
                 write(error_msg, "CourseSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from courses having only $(credit_total) credit hours.\n")
@@ -298,4 +306,18 @@ function is_valid(
         end
     end
     return validity
+end
+
+# helper function for finding the duplicate elements in an array
+function nonunique(x::AbstractArray{T}) where T
+    uniqueset = Set{T}()
+    duplicateset = Set{T}()
+    for i in x
+        if (i in uniqueset)
+            push!(duplicateset, i)
+        else
+            push!(uniqueset, i)
+        end
+    end
+    collect(duplicateset)
 end
