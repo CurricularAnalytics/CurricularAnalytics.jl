@@ -112,11 +112,11 @@ function show_requirements(
         print(io, tabs * " ├-")
         printstyled(io, "$(req.name) "; bold = true)
         if haskey(satisfied, req.id) 
-            if satisfied[req.id][1] == 1 
+            if satisfied[req.id][1] == 2 
                 printstyled(io, "[satisfied] "; color = :green)
             elseif satisfied[req.id][1] == 0
                 printstyled(io, "[not satisfied] "; color = :red)
-            elseif satisfied[req.id][1] == 2
+            elseif satisfied[req.id][1] == 1
                 printstyled(io, "[partially satisfied] "; color = :yellow)
             end
         end 
@@ -137,7 +137,7 @@ function show_requirements(
                 print(io, tabs * tab * "  ├-")
                 if i <= display_limit
                     if (haskey(satisfied, req.id))
-                        c[1].id ∈ satisfied[req.id][2] ? color = :green : color = :black 
+                        c[1].id ∈ satisfied[req.id][1] ? color = :green : color = :black 
                     else # satisfed not passed to the function
                         color = :black 
                     end
