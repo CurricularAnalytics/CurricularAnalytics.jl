@@ -137,7 +137,7 @@ function show_requirements(
                 print(io, tabs * tab * "  ├-")
                 if i <= display_limit
                     if (haskey(satisfied, req.id))
-                        c[1].id ∈ satisfied[req.id][1] ? color = :green : color = :black 
+                        c[1].id ∈ satisfied[req.id][2] ? color = :green : color = :black 
                     else # satisfed not passed to the function
                         color = :black 
                     end
