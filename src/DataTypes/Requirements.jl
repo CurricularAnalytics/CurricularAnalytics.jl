@@ -218,8 +218,8 @@ mutable struct RequirementSet <: AbstractRequirement
     satisfy::Int                         # The number of requirements in the set that must be satisfied.  Default is all.
     
     # Constructor
-        function RequirementSet(name::AbstractString, credit_hours::Real, requirements::Array{AbstractRequirement,1}; 
-            description::AbstractString="", satisfy::Int=0)
+        function RequirementSet(name::AbstractString, credit_hours::Real, requirements::Array{T,1}; 
+            description::AbstractString="", satisfy::Int=0) where T <: AbstractRequirement
         this = new()
         this.name = name
         this.description = description

@@ -42,9 +42,12 @@ function postorder_traversal(root::AbstractRequirement, visit::Function = x -> n
     return reverse(visit_order)
 end
 
-# Determine the level of requirement req in a requirement tree rooted at root.
+# Determine the level of requirement requisite in a requirement tree rooted at root.
 # Uses two queues to search the requirement tree level by level, the count_que keeps track of how many requirements are on a given level.
-function level(root::AbstractRequirement, req::AbstractRequirement)
+# If keyword argument "requisite" is supplied, the level of that requisite is returned; otherwise, a dictionary of requisites levels
+# for the entire tree is returned.
+function level(root::AbstractRequirement; requisite::AbstractRequirement=nothing)
+    level_dict = Dict{Int, Int}()  # dictionary (Requirement ID, level)
     req_que = Queue{AbstractRequirement}()
     enqueue!(req_que, root)
     counter = 1
@@ -53,9 +56,10 @@ function level(root::AbstractRequirement, req::AbstractRequirement)
     while (length(req_que) != 0)
         r = dequeue!(req_que)
         counter = counter - 1
-        if r.id == req.id
+        if !isnothing(requisite) && r.id == requisite.id
             return level
         else
+            level_dict[r.id] = level
             if typeof(r) == RequirementSet
                 enqueue!(count_que, length(r.requirements))
                 for c in r.requirements
@@ -70,7 +74,11 @@ function level(root::AbstractRequirement, req::AbstractRequirement)
             end
         end
     end
-    return nothing
+    if !isnothing(requisite)  # a requirement was supplied, but it's not in the tree, an error
+        error("requirment $(requisite.name) is not in requirement tree $(root.name)")
+    else
+        return level_dict
+    end
 end
 
 """
@@ -107,7 +115,7 @@ function show_requirements(
     display_limit::Int = 500,
 )
     for req in preorder_traversal(root)
-        depth = level(root, req)
+        depth = level(root, requisite=req)
         tabs = tab^depth
         print(io, tabs * " ├-")
         printstyled(io, "$(req.name) "; bold = true)
