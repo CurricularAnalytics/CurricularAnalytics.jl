@@ -257,10 +257,7 @@ The credit hour constraints associated with particular set of requirements may b
 makes them impossible to satsify. This function searches for particular cases of this problem, and if found, 
 reports them in an error message. 
 """
-function is_valid(
-    root::AbstractRequirement, 
-    error_msg::IOBuffer = IOBuffer()
-)
+function is_valid(root::AbstractRequirement, error_msg::IOBuffer = IOBuffer())
     validity = true
     reqs = preorder_traversal(root)
     dups = nonunique(reqs)

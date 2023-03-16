@@ -63,6 +63,25 @@ errors = IOBuffer()
 @test is_valid(program_requirements, errors) == true
 @test is_valid(dr4, errors) == true
 
+# test the level function, using keyword argument
+@test level(program_requirements, requisite=dr10) == 3
+
+# test the level function, not using keyword argument
+lev = level(program_requirements)
+@test lev[1959344883] == 2
+@test lev[4849209]    == 2
+@test lev[2412220715] == 3
+@test lev[4116478941] == 3
+@test lev[92990561]   == 3
+@test lev[2740971372] == 2
+@test lev[2156876807] == 1
+@test lev[1673481468] == 3
+@test lev[3688689608] == 2
+@test lev[1501045150] == 2
+@test lev[3520162671] == 3
+@test lev[2605601572] == 2
+@test lev[2663541090] == 2
+
 bad_program_requirements = RequirementSet("Program Requirements", 41, program_reqs, description="Degree Requirements for the BS Program")
 @test is_valid(bad_program_requirements, errors) == false
 

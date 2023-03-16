@@ -46,7 +46,7 @@ end
 # Uses two queues to search the requirement tree level by level, the count_que keeps track of how many requirements are on a given level.
 # If keyword argument "requisite" is supplied, the level of that requisite is returned; otherwise, a dictionary of requisites levels
 # for the entire tree is returned.
-function level(root::AbstractRequirement; requisite::AbstractRequirement=nothing)
+function level(root::AbstractRequirement; requisite = nothing)
     level_dict = Dict{Int, Int}()  # dictionary (Requirement ID, level)
     req_que = Queue{AbstractRequirement}()
     enqueue!(req_que, root)
@@ -107,13 +107,8 @@ julia> satisfied(program_requirements, coalesce_transcript(transcript), flatten_
 julia> show_requirement(program_requirements, satisfied=is_satisfied)
 ````
 """
-function show_requirements(
-    root::AbstractRequirement;
-    io::IO = stdout,
-    tab = "   ",
-    satisfied::Dict{Int,Tuple{Int,Array{Int,1}}} = Dict{Int,Tuple{Int,Array{Int,1}}}(),
-    display_limit::Int = 500,
-)
+function show_requirements(root::AbstractRequirement; io::IO = stdout, tab = "   ",
+    satisfied::Dict{Int,Tuple{Int,Array{Int,1}}} = Dict{Int,Tuple{Int,Array{Int,1}}}(), display_limit::Int = 500)
     for req in preorder_traversal(root)
         depth = level(root, requisite=req)
         tabs = tab^depth
