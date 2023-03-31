@@ -24,13 +24,13 @@ makedocs(
         "License Information"                       => "license.md",
         "Citing CurricularAnalytics.jl"             => "citing.md"
     ],
-    push_preview = true,
     # Use clean URLs, unless built as a "local" build
 )
 
 deploydocs(
     repo    = "github.com/CurricularAnalytics/CurricularAnalytics.jl.git",
     target  = "build",
+    push_preview = true,
 )
 
 #rm(normpath(@__FILE__, "../src/contributing.md"))
