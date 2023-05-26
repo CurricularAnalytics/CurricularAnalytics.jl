@@ -169,12 +169,14 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             if last(pre_reqs, 1) == ";" || last(pre_reqs, 1) == " "
                 pre_reqs = pre_reqs[1:end-1]
             end
+
+            pre_reqs = string(pre_reqs)
+            # replace all periods, commas, or colons with ";"
+            pre_reqs = replace(pre_reqs, "." => ";")
+            pre_reqs = replace(pre_reqs, "," => ";")
+            pre_reqs = replace(pre_reqs, ":" => ";")
             # check if pre_reqs string contains a comma
-            if occursin(",", string(pre_reqs))
-                split_prereqs = split(string(pre_reqs), ",")
-            else
-                split_prereqs = split(string(pre_reqs), ";")
-            end
+            split_prereqs = split(pre_reqs, ";")
             for pre_req in split_prereqs
                 add_requisite!(course_dict[parse(Int, pre_req)], course_dict[c_ID], pre)
             end
@@ -184,12 +186,12 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             if last(co_reqs, 1) == ";" || last(co_reqs, 1) == " "
                 co_reqs = co_reqs[1:end-1]
             end
-            # check if co_reqs string contains a comma
-            if occursin(",", string(co_reqs))
-                split_coreqs = split(string(co_reqs), ",")
-            else
-                split_coreqs = split(string(co_reqs), ";")
-            end
+            co_reqs = string(co_reqs)
+            # replace all periods, commas, or colons with ";"
+            co_reqs = replace(co_reqs, "." => ";")
+            co_reqs = replace(co_reqs, "," => ";")
+            co_reqs = replace(co_reqs, ":" => ";")
+            split_coreqs = split(string(co_reqs), ";")
             for co_req in split_coreqs
                 add_requisite!(course_dict[parse(Int, co_req)], course_dict[c_ID], co)
             end
@@ -199,12 +201,12 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
             if last(sco_reqs) == ";"
                 chop(sco_reqs, tail=1)
             end
-            # check if sco_reqs string contains a comma
-            if occursin(",", string(sco_reqs))
-                split_scoreqs = split(string(sco_reqs), ",")
-            else
-                split_scoreqs = split(string(sco_reqs), ";")
-            end
+            sco_reqs = string(sco_reqs)
+            # replace all periods, commas, or colons with ";"
+            sco_reqs = replace(sco_reqs, "." => ";")
+            sco_reqs = replace(sco_reqs, "," => ";")
+            sco_reqs = replace(sco_reqs, ":" => ";")
+            split_scoreqs = split(string(sco_reqs), ";")
             for sco_req in split_scoreqs
                 add_requisite!(course_dict[parse(Int, sco_req)], course_dict[c_ID], strict_co)
             end
