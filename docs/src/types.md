@@ -34,7 +34,7 @@ Curriculum
 The following function can be used to ensure that a constructed curriculum is valid.
 
 ```@docs
-isvalid_curriculum
+is_valid
 ```
 
 ## Terms
@@ -54,7 +54,7 @@ DegreePlan
 The following function can be used to ensure that a constructed degree plan is valid.
 
 ```@docs
-isvalid_degree_plan
+is_valid
 ```
 
 To find the term where a given course is located within a degree plan use:

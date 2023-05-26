@@ -33,11 +33,11 @@ terms[1] = Term([A,B])
 terms[2] = Term([C,D])
 terms[3] = Term([E,F])
 dp = DegreePlan("Test Plan", curric, terms)
-@test isvalid_degree_plan(dp) == true
+@test is_valid(dp) == true
 dp_bad1 = DegreePlan("Bad Plan 1", curric, [terms[1],terms[2]]) # missing some courses
-@test isvalid_degree_plan(dp_bad1) == false
+@test is_valid(dp_bad1) == false
 dp_bad2 = DegreePlan("Bad Plan 2", curric, [terms[2],terms[1],terms[3]]) # out of order requisites
-@test isvalid_degree_plan(dp_bad2) == false
+@test is_valid(dp_bad2) == false
 
 @test find_term(dp, F) == 3
 
@@ -86,4 +86,4 @@ basic_metrics(dp)
 @test dp.metrics["min. credit term"] == 2
 @test dp.metrics["max. credit term"] == 3
 
-end;
+end

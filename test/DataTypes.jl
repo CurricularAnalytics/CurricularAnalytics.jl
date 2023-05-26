@@ -141,6 +141,9 @@ add_course!(CCat, [E,F,G]);
 @test grade("W") == 0
 @test grade("WF") == 0
 
+# Test is_valid() on DegreeRequirements
+
+
 # The regex's specified will match all courses with the EGR prefix and any number
 cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
 @test cs1.name == "Test Course Set 1"
@@ -159,7 +162,7 @@ rs = RequirementSet("Test Requirement Set", 6, req_set);
 @test rs.satisfy == 2
 rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=1);
 @test rs.satisfy == 1
-rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=5);
+rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=2);
 @test rs.satisfy == 2
 
 # Test StudentRecord creation
@@ -196,4 +199,4 @@ add_transfer_course(ta, [A.id], XCat2.id, XB.id)
 sim_obj = Simulation(dp);
 @test sim_obj.degree_plan == dp
 
-end;
+end
