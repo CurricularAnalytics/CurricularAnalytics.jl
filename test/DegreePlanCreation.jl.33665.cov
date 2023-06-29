@@ -1,0 +1,75 @@
+        - # DegreePlanCreation tests
+        - 
+        - @testset "DegreePlanCreation Tests" begin
+        - #
+        - # 4-course curriculum - only one possible degree plan w/ max_cpt
+        - #
+        - #    A --------* B 
+        - #               
+        - #               
+        - #    C --------* D
+        - #
+        - #    (A,B) - pre;  (C,D) - pre
+        - 
+        2 A = Course("A", 3, institution="ACME State", prefix="BW", num="101", canonical_name="Baskets I")
+        1 B = Course("B", 3, institution="ACME State", prefix="BW", num="201", canonical_name="Baskets II")
+        1 C = Course("C", 3, institution="ACME State", prefix="BW", num="102", canonical_name="Basket Apps I")
+        1 D = Course("D", 3, institution="ACME State", prefix="BW", num="202", canonical_name="Basket Apps II")
+        - 
+        1 add_requisite!(A,B,pre)
+        1 add_requisite!(C,D,pre)
+        - 
+        4 curric = Curriculum("Basket Weaving", [A,B,C,D], institution="ACME State")
+        - 
+        1 terms = bin_filling(curric, max_cpt=6)
+        - 
+        1 @test terms[1].courses[1].name == "A" || terms[1].courses[1].name == "C"
+        2 @test terms[1].courses[2].name == "A" || terms[1].courses[2].name == "C"
+        1 @test terms[2].courses[1].name == "B" || terms[2].courses[1].name == "D"
+        2 @test terms[2].courses[2].name == "B" || terms[2].courses[2].name == "D"
+        - 
+        - #
+        - # 4-course curriculum - only one possible degree plan w/ max_cpt
+        - #
+        - #    A          C 
+        - #    |          |
+        - #    |          |
+        - #    *          *
+        - #    B          D
+        - #
+        - #    (A,B) - strict_co;  (C,D) - strict_co
+        - 
+        1 A = Course("A", 3, institution="ACME State", prefix="BW", num="101", canonical_name="Baskets I")
+        1 B = Course("B", 3, institution="ACME State", prefix="BW", num="201", canonical_name="Baskets II")
+        1 C = Course("C", 3, institution="ACME State", prefix="BW", num="102", canonical_name="Basket Apps I")
+        1 D = Course("D", 3, institution="ACME State", prefix="BW", num="202", canonical_name="Basket Apps II")
+        - 
+        1 add_requisite!(A,B,strict_co)
+        1 add_requisite!(C,D,strict_co)
+        - 
+        4 curric = Curriculum("Basket Weaving", [A,B,C,D], institution="ACME State")
+        - 
+        1 terms = bin_filling(curric, max_cpt=6)
+        - 
+        1 @test terms[1].courses[1].name == "A" || terms[1].courses[1].name == "B"
+        2 @test terms[1].courses[2].name == "A" || terms[1].courses[2].name == "B"
+        1 @test terms[2].courses[1].name == "C" || terms[2].courses[1].name == "D"
+        2 @test terms[2].courses[2].name == "C" || terms[2].courses[2].name == "D"
+        - 
+        1 dp = create_degree_plan(curric, max_cpt=6)
+        1 @test nv(dp.curriculum.graph) == 4
+        1 @test ne(dp.curriculum.graph) == 2
+        1 for term in dp.terms
+        2     credits = 0
+        2     for c in term.courses
+        4         credits += c.credit_hours
+        -     end
+        2     @test credits >= 3 
+        2     @test credits <= 6
+        - end
+        1 @test dp.terms[1].courses[1].name == "A" || dp.terms[1].courses[1].name == "B"
+        2 @test dp.terms[1].courses[2].name == "A" || dp.terms[1].courses[2].name == "B"
+        1 @test dp.terms[2].courses[1].name == "C" || dp.terms[2].courses[1].name == "D"
+        2 @test dp.terms[2].courses[2].name == "C" || dp.terms[2].courses[2].name == "D"
+        - 
+        - end

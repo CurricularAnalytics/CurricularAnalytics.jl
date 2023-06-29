@@ -172,6 +172,19 @@ mutable struct CourseSet <: AbstractRequirement
                 push!(course_reqs, c[2] => min_grade)
             end
         end
+        #if this.credit_hours > sum of course credits
+        #    ## TODO: add this warning if credits are not sufficient
+        #end
+        sum = 0
+        sorted = sort(this.course_reqs; by = x -> x.first.credit_hours, rev = true)
+        for c in sorted
+            sum += c.first.credit_hours
+            sum >= this.credit_hours ? break : nothing 
+        end
+        if (sum - this.credit_hours) < 0  # credits provided by courses are not sufficent to satisfy required number of credit hours for this requirement
+            printstyled("WARNING: Course set $(this.name) is improperly specified, $(this.credit_hours) credits are required, but credits amounting to $sum are available.\nUse is_valid() to check a requirement set for specification errors.\n", color = :yellow)
+        end
+
         return this
     end
 end
@@ -205,8 +218,8 @@ mutable struct RequirementSet <: AbstractRequirement
     satisfy::Int                         # The number of requirements in the set that must be satisfied.  Default is all.
     
     # Constructor
-        function RequirementSet(name::AbstractString, credit_hours::Real, requirements::Array{AbstractRequirement,1}; 
-            description::AbstractString="", satisfy::Int=0)
+        function RequirementSet(name::AbstractString, credit_hours::Real, requirements::Array{T,1}; 
+            description::AbstractString="", satisfy::Int=0) where T <: AbstractRequirement
         this = new()
         this.name = name
         this.description = description
@@ -214,14 +227,15 @@ mutable struct RequirementSet <: AbstractRequirement
         this.id = mod(hash(this.name * this.description * string(this.credit_hours)), UInt32)
         this.requirements = requirements
         if satisfy < 0
-            error("RequirementSet $(this.name), satisfy cannot be a negative number") 
+            printstyled("WARNING: RequirementSet $(this.name), satisfy cannot be a negative number\n", color = :yellow) 
         elseif satisfy == 0
             this.satisfy = length(requirements)  # satisfy all requirements
         elseif satisfy <= length(requirements)
             this.satisfy = satisfy
-        else
+        else # satisfy > length(requirements)
+            this.satisfy = satisfy
             # trying to satisfy more then the # of available sub-requirements
-            error("RequirementSet $(this.name), satisfy variable cannot be greater than the number of available requirements") 
+            printstyled("WARNING: RequirementSet $(this.name), satisfy variable ($(this.satisfy)) cannot be greater than the number of available requirements ($(length(this.requirements)))\n", color = :yellow)
         end
         return this
     end
@@ -243,36 +257,64 @@ The credit hour constraints associated with particular set of requirements may b
 makes them impossible to satsify. This function searches for particular cases of this problem, and if found, 
 reports them in an error message. 
 """
-function is_valid(
-    root::AbstractRequirement, 
-    error_msg::IOBuffer = IOBuffer()
-)
+function is_valid(root::AbstractRequirement, error_msg::IOBuffer = IOBuffer())
     validity = true
     reqs = preorder_traversal(root)
-    for r in reqs  
+    dups = nonunique(reqs)
+    if (length(dups) > 0) # the same requirements is being used multiple times, so it's not a requirments tree
+        validity = false
+        write(error_msg, "RequirementSet: $(root.name) is not a tree, it contains duplicate requirements: \n")
+        for d in dups
+            write(error_msg,"\t $(d.name)\n")
+        end
+    end
+    for r in reqs
         credit_total = 0
         if typeof(r) == CourseSet
             for c in r.course_reqs
                 credit_total += c[1].credit_hours
             end
+            # credit_total = sum(sum(x)->x, ... )  # make above code more compact using map-reduce functionality
             if r.credit_hours > credit_total 
                 validity = false
                 write(error_msg, "CourseSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from courses having only $(credit_total) credit hours.\n")
             end
         else # r is a RequirementSet
-            credit_ary = []
-            for child in r.requirements
-                push!(credit_ary, child.credit_hours)
-            end
-            max_credits = 0
-            for c in combinations(credit_ary, r.satisfy) # find the max. credits possible from r.satisfy number of requirements
-                sum(c) > max_credits ? max_credits = sum(c) : nothing
-            end
-            if r.credit_hours > max_credits
+            if (r.satisfy == 0)
                 validity = false
-                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from sub-requirements that can provide at most $(max_credits) credit hours.\n")
+                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable, cannot satisfy 0 requirments\n")
+            elseif (r.satisfy > length(r.requirements))
+                validity = false
+                write(error_msg, "RequirementSet: $(r.name) is unsatisfiable, satisfy variable cannot be greater than the number of available requirements\n")
+            else # r.satisy <= number of requirements
+                credit_ary = []
+                for child in r.requirements
+                    push!(credit_ary, child.credit_hours)
+                end
+                max_credits = 0
+                for c in combinations(credit_ary, r.satisfy) # find the max. credits possible from r.satisfy number of requirements
+                        sum(c) > max_credits ? max_credits = sum(c) : nothing
+                end
+                if r.credit_hours > max_credits
+                    validity = false
+                    write(error_msg, "RequirementSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from sub-requirements that can provide at most $(max_credits) credit hours.\n")
+                end
             end
         end
     end
     return validity
+end
+
+# helper function for finding the duplicate elements in an array
+function nonunique(x::AbstractArray{T}) where T
+    uniqueset = Set{T}()
+    duplicateset = Set{T}()
+    for i in x
+        if (i in uniqueset)
+            push!(duplicateset, i)
+        else
+            push!(uniqueset, i)
+        end
+    end
+    collect(duplicateset)
 end

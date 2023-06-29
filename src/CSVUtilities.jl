@@ -113,6 +113,12 @@ function csv_line_reader(line::AbstractString, delimeter::Char=',')
     if length(item) > 0
         push!(result, item)
     end
+    # check if the bounds o
+    if isassigned(result, 1)
+        if occursin("\ufeff", result[1])
+            result[1] = replace(result[1], "\ufeff" => "")
+        end
+    end
     return result
 end
 
@@ -138,8 +144,15 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
         if typeof(c_Number) != String 
             c_Number = string(c_Number) 
         end
-        c_Inst = find_cell(row, Symbol("Institution"))
-        c_col_name = find_cell(row, Symbol("Canonical Name"))
+        c_Inst = ""
+        c_col_name = ""
+        try
+            c_Inst = find_cell(row, Symbol("Institution"))
+            c_col_name = find_cell(row, Symbol("Canonical Name"))
+        catch
+            nothing
+        end
+        
         learning_outcomes = if c_ID in keys(lo_Course) lo_Course[c_ID] else LearningOutcome[] end
         if c_ID in keys(course_dict)
             println("Course IDs must be unique")
@@ -152,20 +165,49 @@ function read_all_courses(df_courses::DataFrame, lo_Course:: Dict{Int, Array{Lea
     for row in DataFrames.eachrow(df_courses)
         c_ID = row[Symbol("Course ID")]
         pre_reqs = find_cell(row, Symbol("Prerequisites"))
-        if pre_reqs != ""
-            for pre_req in split(string(pre_reqs), ";")
+        if pre_reqs != "" && pre_reqs != " " && pre_reqs != ' '
+            if last(pre_reqs, 1) == ";" || last(pre_reqs, 1) == " "
+                pre_reqs = pre_reqs[1:end-1]
+            end
+
+            pre_reqs = string(pre_reqs)
+            # replace all periods, commas, or colons with ";"
+            pre_reqs = replace(pre_reqs, "." => ";")
+            pre_reqs = replace(pre_reqs, "," => ";")
+            pre_reqs = replace(pre_reqs, ":" => ";")
+            # check if pre_reqs string contains a comma
+            split_prereqs = split(pre_reqs, ";")
+            for pre_req in split_prereqs
                 add_requisite!(course_dict[parse(Int, pre_req)], course_dict[c_ID], pre)
             end
         end
         co_reqs = find_cell(row, Symbol("Corequisites"))
-        if co_reqs != ""
-            for co_req in split(string(co_reqs), ";")
+        if co_reqs != "" && co_reqs != " " && co_reqs != ' '
+            if last(co_reqs, 1) == ";" || last(co_reqs, 1) == " "
+                co_reqs = co_reqs[1:end-1]
+            end
+            co_reqs = string(co_reqs)
+            # replace all periods, commas, or colons with ";"
+            co_reqs = replace(co_reqs, "." => ";")
+            co_reqs = replace(co_reqs, "," => ";")
+            co_reqs = replace(co_reqs, ":" => ";")
+            split_coreqs = split(string(co_reqs), ";")
+            for co_req in split_coreqs
                 add_requisite!(course_dict[parse(Int, co_req)], course_dict[c_ID], co)
             end
         end
         sco_reqs = find_cell(row, Symbol("Strict-Corequisites"))
-        if sco_reqs != ""
-            for sco_req in split(string(sco_reqs), ";")
+        if sco_reqs != "" && sco_reqs != " " && sco_reqs != ' '
+            if last(sco_reqs) == ";"
+                chop(sco_reqs, tail=1)
+            end
+            sco_reqs = string(sco_reqs)
+            # replace all periods, commas, or colons with ";"
+            sco_reqs = replace(sco_reqs, "." => ";")
+            sco_reqs = replace(sco_reqs, "," => ";")
+            sco_reqs = replace(sco_reqs, ":" => ";")
+            split_scoreqs = split(string(sco_reqs), ";")
+            for sco_req in split_scoreqs
                 add_requisite!(course_dict[parse(Int, sco_req)], course_dict[c_ID], strict_co)
             end
         end
