@@ -1,0 +1,42 @@
+        - 
+        - # Transfer articulation map for a home (recieving xfer) institution 
+        - mutable struct TransferArticulation
+        -     name::AbstractString                # Name of the transfer articulation data structure
+        -     institution::AbstractString         # Institution receiving the transfer courses (home institution)
+        -     date_range::Tuple                   # Range of dates over which the transfer articulation data is applicable 
+        -     transfer_catalogs::Dict{Int,CourseCatalog}  # Dictionary of transfer institution catalogs, in (CourseCatalog id, catalog) format 
+        -     home_catalog::CourseCatalog         # Course catalog of recieving institution
+        -     transfer_map::Dict{Tuple{Int,Int},Array{Int}}  # Dictionary in ((xfer_catalog_id, xfer_course_id), array of home_course_ids) format
+        - 
+        -     # Constructor
+        3     function TransferArticulation(name::AbstractString, institution::AbstractString, home_catalog::CourseCatalog, 
+        -               transfer_catalogs::Dict{Int,CourseCatalog}=Dict{Int,CourseCatalog}(), 
+        -               transfer_map::Dict{Tuple{Int,Int},Array{Int}}=Dict{Tuple{Int,Int},Array{Int}}(), date_range::Tuple=())
+        3         this = new()
+        1         this.name = name
+        1         this.institution = institution
+        1         this.transfer_catalogs = transfer_catalogs
+        1         this.home_catalog = home_catalog
+        1         this.transfer_map = transfer_map
+        1         return this
+        -     end
+        - end
+        - 
+        1 function add_transfer_catalog(ta::TransferArticulation, transfer_catalog::CourseCatalog)
+        1     ta.transfer_catalogs[transfer_catalog.id] = transfer_catalog
+        - end
+        - 
+        - # A single transfer course may articulate to more than one course at the home institution
+        - # TODO: add the ability for a transfer course to partially satifsfy a home institution course (i.e., some, but not all, course credits)
+        2 function add_transfer_course(ta::TransferArticulation, home_course_ids::Array{Int}, transfer_catalog_id::Int, transfer_course_id::Int)
+        2     ta.transfer_map[(transfer_catalog_id, transfer_course_id)] = []
+        2     for id in home_course_ids
+        2         push!(ta.transfer_map[(transfer_catalog_id, transfer_course_id)], id)
+        -     end
+        - end
+        - 
+        - # Find the course equivalency at a home institution of a course being transfered from another institution
+        - # returns transfer equivalent course, or nothing if there is no transfer equivalency
+        2 function transfer_equiv(ta::TransferArticulation, transfer_catalog_id::Int, transfer_course_id::Int)
+        2     haskey(ta.transfer_map, (transfer_catalog_id, transfer_course_id)) ? ta.transfer_map[(transfer_catalog_id, transfer_course_id)] : nothing
+        - end
