@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         #julia-version: ['1.0', '1', 'nightly']
-        julia-version: ['1.6']
+        julia-version: ['1.7']
         julia-arch: [x64, x86]
         #os: [ubuntu-latest, windows-latest, macOS-latest]
         os: [macOS-latest]
