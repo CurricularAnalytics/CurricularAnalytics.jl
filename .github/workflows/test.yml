@@ -13,9 +13,10 @@ jobs:
     strategy:
       matrix:
         #julia-version: ['1.0', '1', 'nightly']
-        julia-version: ['1.7']
+        julia-version: ['1.6']
         julia-arch: [x64, x86]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        #os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [macOS-latest]
         exclude:
           - os: macOS-latest
             julia-arch: x86
@@ -28,5 +29,5 @@ jobs:
           arch: ${{ matrix.julia-arch }}
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
-        with:
-          annotate: true
+        #with:
+        #  annotate: true
