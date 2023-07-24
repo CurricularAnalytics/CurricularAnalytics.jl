@@ -98,7 +98,7 @@ end
 # Check if a degree plan is valid.
 # Print error_msg using println(String(take!(error_msg))), where error_msg is the buffer returned by this function
 """
-    isvalid_degree_plan(plan::DegreePlan, errors::IOBuffer)
+    is_valid(plan::DegreePlan, errors::IOBuffer)
 
 Tests whether or not the degree plan `plan` is valid.  Returns a boolean value, with `true` indicating the 
 degree plan is valid, and `false` indicating it is not.
@@ -108,18 +108,18 @@ reasons, use:
 
 ```julia-repl
 julia> errors = IOBuffer()
-julia> isvalid_degree_plan(plan, errors)
+julia> is_valid(plan, errors)
 julia> println(String(take!(errors)))
 ```
 
-There are two reasons why a curriculum graph might not be valid:
+There are three reasons why a degree plan might not be valid:
 
 - Requisites not satsified : A prerequisite for a course occurs in a later term than the course itself.
 - Incomplete plan : There are course in the curriculum not included in the degree plan.
 - Redundant plan : The same course appears in the degree plan multiple times. 
 
 """
-function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
+function is_valid(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
     validity = true
     # All requisite relationships are satisfied?
     #  -no backwards pointing requisites 
@@ -184,6 +184,12 @@ function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
         end
     end 
     return validity 
+end
+
+# TODO: This function should be depracated on next major version release
+function isvalid_degree_plan(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
+    println("isvalid_degree_plan() will be depracated, use is_valid() instead.")
+    return is_valid(plan, error_msg)
 end
 
 """

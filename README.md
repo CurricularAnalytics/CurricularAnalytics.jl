@@ -1,7 +1,8 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Build Status](https://travis-ci.org/CurricularAnalytics/CurricularAnalytics.jl.svg?branch=master)](https://travis-ci.org/CurricularAnalytics/CurricularAnalytics.jl)
+[![Documentation Status](https://readthedocs.org/projects/ansicolortags/badge/?version=latest)](https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/)
 [![Coverage Status](https://coveralls.io/repos/github/CurricularAnalytics/CurricularAnalytics.jl/badge.svg?branch=master)](https://coveralls.io/github/CurricularAnalytics/CurricularAnalytics.jl?branch=master)
 [![DOI](https://zenodo.org/badge/147096983.svg)](https://zenodo.org/badge/latestdoi/147096983)
+<!--[![Build Status](https://travis-ci.org/CurricularAnalytics/CurricularAnalytics.jl.svg?branch=master)](https://travis-ci.org/CurricularAnalytics/CurricularAnalytics.jl)-->
 
 # CurricularAnalytics.jl
 **CurricularAnalytics.jl** is a toolbox for studying and analyzing academic program curricula.  The toolbox represents curricula as graphs, allowing various graph-theoretic measures to be applied in order to quantify the complexity of curricula. In addition to analyzing curricular complexity, the toolbox supports the ability to visualize curricula, to compare and contrast curricula, to create optimal degree plans for completing curricula that satisfy particular constraints, and to simulate the impact of various events on student progression through a curriculum.
@@ -19,7 +20,7 @@ Next, open the Julia application that you just installed. It should look similar
 
 <img width="800" alt="Screenshot 2022-11-20 at 12 22 55 PM" src="https://user-images.githubusercontent.com/1368490/202916371-ee5cda31-3f76-42ec-be01-bc5044c33587.png">
 
-The toolbox must be loaded again via `using CurricularAnalytics` every time you restart Julia.
+The toolbox must be loaded via the `using CurricularAnalytics` command every time you restart the Julia REPL.
 
 For more information about installing the toolbox, including the steps neccessary to utilize degree plan optimization, please see the [INSTALLING.md](https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/install.html)
 

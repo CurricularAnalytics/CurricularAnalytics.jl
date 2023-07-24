@@ -7,7 +7,7 @@ cp(normpath(@__FILE__, "../../CITING.md"), normpath(@__FILE__, "../src/citing.md
 
 makedocs(
     modules     = [CurricularAnalytics],
-    format      = Documenter.HTML(prettyurls = false, canonical ="https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/"),
+    format      = Documenter.HTML(prettyurls = false, canonical = "https://curricularanalytics.github.io/CurricularAnalytics.jl/latest/"),
     sitename    = "CurricularAnalytics.jl",
     doctest     = true,
     pages       = Any[
@@ -30,6 +30,7 @@ makedocs(
 deploydocs(
     repo    = "github.com/CurricularAnalytics/CurricularAnalytics.jl.git",
     target  = "build",
+    push_preview = true,
 )
 
 #rm(normpath(@__FILE__, "../src/contributing.md"))
