@@ -18,6 +18,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 CSV = "0.7"
+Combinatorics = "1.0.0"
 DataFrames = "0.21.0"
 DataStructures = "0.18.0"
 Documenter = "0.27"
