@@ -1,6 +1,6 @@
 name = "CurricularAnalytics"
 uuid = "593ffa3d-269e-5d81-88bc-c3b6809c35a6"
-authors = ["Greg Heileman <gregheileman@gmail.com>", "Hayden Free <haydenwfree@gmail.com>", "Orhan Abar <orhan.abar@uky.edu>", "Will Thompson <wgthompson@uky.edu>"]
+authors = ["Greg Heileman <gregheileman@gmail.com>", "Hayden Free <haydenwfree@gmail.com>"]
 version = "1.4.2"
 
 [deps]
@@ -18,10 +18,10 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-CSV = "0.7"
-DataFrames = "0.21.0"
-DataStructures = "0.18.0"
-Documenter = "0.27"
-Graphs = "1.4.0"
-MetaGraphs = "0.7.0"
-julia = "1.3, 1.4, 1.5, 1.6, 1.7"
+CSV = "^0"
+DataFrames = "^1.0"
+DataStructures = "^0.18"
+Documenter = "^0.27"
+Graphs = "^1.4"
+MetaGraphs = "^0"
+julia = "^1.3"
