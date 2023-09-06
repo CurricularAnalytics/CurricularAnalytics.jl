@@ -3,8 +3,8 @@ name: Run tests
 on: 
   push:
     branches:
-      #- master
-      - development
+      - master
+      # - development
   pull_request:
 
 jobs:
@@ -12,8 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #julia-version: ['1.0', '1', 'nightly']
-        julia-version: ['1.7']
+        julia-version: ['1.9']
         julia-arch: [x64, x86]
         #os: [ubuntu-latest, windows-latest, macOS-latest]
         os: [macOS-latest]
