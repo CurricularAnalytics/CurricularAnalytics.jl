@@ -1,0 +1,37 @@
+        - 
+        - # Course record - record of performance in a single course
+        - mutable struct CourseRecord
+        -     course::Course                      # course that was attempted
+        -     grade::Grade                        # grade earned in the course
+        -     term::AbstractString                # term course was attempted
+        - 
+        -     # Constructor
+        2     function CourseRecord(course::Course, grade::Grade, term::AbstractString="")
+        2         this = new()
+        2         this.course = course
+        2         this.grade = grade
+        2         this.term = term
+        2         return this
+        -     end
+        - end
+        - 
+        - # Student record data type, i.e., a transcript
+        - mutable struct StudentRecord
+        -     id::AbstractString                  # unique student id
+        -     first_name::AbstractString          # student's first name
+        -     last_name::AbstractString           # student's last name
+        -     middle_initial::AbstractString      # Student's middle initial or name
+        -     transcript::Array{CourseRecord}     # list of student grades
+        -     GPA::Real                           # student's GPA
+        - 
+        -     # Constructor
+        1     function StudentRecord(id::AbstractString, first_name::AbstractString, last_name::AbstractString, middle_initial::AbstractString,
+        -                          transcript::Array{CourseRecord,1})
+        1         this = new()
+        1         this.first_name = first_name
+        1         this.last_name = last_name
+        1         this.middle_initial = middle_initial
+        1         this.transcript = transcript
+        1         return this
+        -     end
+        - end
