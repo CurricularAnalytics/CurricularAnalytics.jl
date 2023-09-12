@@ -1,0 +1,84 @@
+        - # file: DegreePlanCreation.jl
+        - 
+        5 function create_degree_plan(curric::Curriculum, create_terms::Function=bin_filling, name::AbstractString="", additional_courses::Array{AbstractCourse}=Array{AbstractCourse,1}();
+        -                     min_terms::Int=1, max_terms::Int=10, min_cpt::Int=3, max_cpt::Int=19)
+        5     terms = create_terms(curric, additional_courses; min_terms=min_terms, max_terms=max_terms, min_cpt=min_cpt, max_cpt=max_cpt)
+        1     if terms == false
+        0         println("Unable to create degree plan")
+        0         return
+        -     else
+        1         return DegreePlan(name, curric, terms)
+        -     end
+        - end
+        - 
+        8 function bin_filling(curric::Curriculum, additional_courses::Array{AbstractCourse}=Array{AbstractCourse,1}(); min_terms::Int=2, max_terms::Int=10, min_cpt::Int=3, max_cpt::Int=19)
+        8     terms = Array{Term,1}()
+        3     term_credits = 0
+        3     term_courses = Array{AbstractCourse,1}()
+        3     UC = sort!(deepcopy(curric.courses), by=course_num)  # lower numbered courses will be considered first
+       12     while length(UC) > 0
+       17         if ((c = select_vertex(curric, term_courses, UC)) != nothing)
+       16             deleteat!(UC, findfirst(isequal(c), UC))
+        8             if term_credits + c.credit_hours <= max_cpt
+       12                 append!(term_courses, [c])
+        6                 term_credits = term_credits + c.credit_hours
+        -             else  # exceeded max credits allowed per term
+        2                 append!(terms, [Term(term_courses)])
+        2                 term_courses = AbstractCourse[c] 
+        2                 term_credits = c.credit_hours
+        -             end
+        -             # if c serves as a strict-corequisite for other courses, include them in current term too
+        9             for course in UC 
+       12                 for req in course.requisites
+        9                     if req[1] == c.id  
+        6                         if req[2] == strict_co  
+        8                             deleteat!(UC, findfirst(isequal(course), UC))
+        4                             append!(term_courses, [course])
+       11                             term_credits = term_credits + course.credit_hours
+        -                         end
+        -                     end
+        -                 end
+        -             end
+        -         else  # can't find a course to add to current term, create a new term
+        1             length(term_courses) > 0 ? append!(terms, [Term(term_courses)]) : nothing
+        1             term_courses = AbstractCourse[]
+       10             term_credits = 0
+        -         end
+        -     end
+        3     length(term_courses) > 0 ? append!(terms, [Term(term_courses)]) : nothing
+        3     return terms
+        - end
+        - 
+        9 function select_vertex(curric::Curriculum, term_courses::Array{AbstractCourse,1}, UC::Array{AbstractCourse,1})
+        9     for target in UC
+       10         t_id = target.vertex_id[curric.id]
+       10         UCs = deepcopy(UC)
+       31         deleteat!(UCs, findfirst(c->c.id==target.id, UCs))
+       10         invariant1 = true
+       11         for source in UCs
+       16             s_id = source.vertex_id[curric.id]
+       16             vlist = reachable_from(curric.graph, s_id)
+       16             if t_id in vlist  # target cannot be moved to AC
+        0                 invariant1 = false  # invariant 1 violated
+       16                 break  # try a new target
+        -             end
+        -         end
+       10         if invariant1 == true
+       10             invariant2 = true
+       14             for c in term_courses
+        9                 if c.id in collect(keys(target.requisites)) && target.requisites[c.id] == pre  # AND shortcircuits, otherwise 2nd expression would error
+        2                     invariant2 = false
+        9                     break  # try a new target
+        -                 end
+        -             end
+       10             if invariant2 == true
+        9                 return target
+        -             end
+        -         end
+        -     end
+        1     return nothing
+        - end
+        - 
+       36 function course_num(c::Course)
+       36     c.num != "" ? c.num : c.name
+        - end
