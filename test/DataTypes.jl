@@ -29,16 +29,16 @@ include("test_degree_plan.jl")
 @test course_id(A.prefix, A.num, A.name, A.institution) == convert(Int, mod(hash(A.name * A.prefix * A.num * A.institution), UInt32))
 
 # Test add_requisite! function
-@test length(A.requisites) == 0
-@test length(B.requisites) == 0
-@test length(C.requisites) == 3
-@test length(D.requisites) == 0
-@test length(E.requisites) == 1
-@test length(F.requisites) == 1
+@test length(A.requisites[1]) == 0
+@test length(B.requisites[1]) == 0
+@test length(C.requisites[1]) == 3
+@test length(D.requisites[1]) == 0
+@test length(E.requisites[1]) == 1
+@test length(F.requisites[1]) == 1
 
 # Test delete_requisite! function
 delete_requisite!(A,C);
-@test length(C.requisites) == 2
+@test length(C.requisites[1]) == 2
 add_requisite!(A,C,pre);
 
 # Test Curriciulum creation 

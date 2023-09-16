@@ -16,7 +16,7 @@ module Enrollment
                 for student in simulation.enrolled_students
                     
                     # Get the coreqs of the the course
-                    strict_coreq_ids = [k for (k, v) in course.requisites if v == strict_co]
+                    strict_coreq_ids = [k for (k, v) in course.requisites[1] if v == strict_co]
 
                     # Enroll in strictCoreqs first
                     for strict_coreq_id in strict_coreq_ids
@@ -36,7 +36,7 @@ module Enrollment
                     end
 
                     # Get the coreqs of the the course
-                    coreq_ids = [k for (k, v) in course.requisites if v == co]
+                    coreq_ids = [k for (k, v) in course.requisites[1] if v == co]
 
                     # Enroll in coreqs
                     for coreqId in coreq_ids
@@ -132,7 +132,7 @@ module Enrollment
         reqs = Course[]
         req_ids = []
 
-        req_ids = [k for (k, v) in target_course.requisites if v == req]
+        req_ids = [k for (k, v) in target_course.requisites[1] if v == req]
 
         for req_id in req_ids
             course = get_course_by_id(courses, req_id)

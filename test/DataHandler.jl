@@ -22,7 +22,7 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].num == "110"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Baskets I"
-        @test length(curric.courses[i].requisites) == 0
+        @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 2
         @test curric.courses[i].name == "Swimming"
         @test curric.courses[i].credit_hours == 3
@@ -30,7 +30,7 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].num == "115"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Physical Education"
-        @test length(curric.courses[i].requisites) == 0
+        @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 3
         @test curric.courses[i].name == "Introductory Calculus w/ Basketry Applications"
         @test curric.courses[i].credit_hours == 4
@@ -38,7 +38,7 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].num == "116"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Calculus I"
-        @test length(curric.courses[i].requisites) == 0
+        @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 4
         @test curric.courses[i].name == "Basic Basket Forms"
         @test curric.courses[i].credit_hours == 3
@@ -46,8 +46,8 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].num == "111"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Baskets II"
-        @test curric.courses[i].requisites[1] == pre
-        @test curric.courses[i].requisites[5] == strict_co
+        @test curric.courses[i].requisites[1][1] == pre
+        @test curric.courses[i].requisites[1][5] == strict_co
     elseif c.id == 5
         @test curric.courses[i].name == "Basic Basket Forms Lab"
         @test curric.courses[i].credit_hours == 1
@@ -55,7 +55,7 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].num == "111L"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Baskets II Laboratory"
-        @test length(curric.courses[i].requisites) == 0
+        @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 6
         @test curric.courses[i].name == "Advanced Basketry"
         @test curric.courses[i].credit_hours == 3
@@ -63,9 +63,9 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].num == "201"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Baskets III"
-        @test curric.courses[i].requisites[4] == pre
-        @test curric.courses[i].requisites[5] == pre
-        @test curric.courses[i].requisites[3] == co
+        @test curric.courses[i].requisites[1][4] == pre
+        @test curric.courses[i].requisites[1][5] == pre
+        @test curric.courses[i].requisites[1][3] == co
     elseif c.id == 7
         @test curric.courses[i].name == "Basket Materials & Decoration"
         @test curric.courses[i].credit_hours == 3
@@ -73,7 +73,7 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].num == "214"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Basket Materials"
-        @test curric.courses[i].requisites[1] == pre
+        @test curric.courses[i].requisites[1][1] == pre
     elseif c.id == 8
         @test curric.courses[i].name == "Underwater Weaving"
         @test curric.courses[i].credit_hours == 3
@@ -81,28 +81,28 @@ for (i,c) in enumerate(curric.courses)
         @test curric.courses[i].num == "301"
         @test curric.courses[i].institution == "ACME State University"
         @test curric.courses[i].canonical_name == "Baskets IV"
-        @test curric.courses[i].requisites[2] == pre
-        @test curric.courses[i].requisites[7] == co
+        @test curric.courses[i].requisites[1][2] == pre
+        @test curric.courses[i].requisites[1][7] == co
     elseif c.id == 9
         @test curric.courses[i].name == "Humanitites Elective"
         @test curric.courses[i].credit_hours == 3
         @test curric.courses[i].institution == "ACME State University"
-        @test length(curric.courses[i].requisites) == 0
+        @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 10
         @test curric.courses[i].name == "Social Sciences Elective"
         @test curric.courses[i].credit_hours == 3
         @test curric.courses[i].institution == "ACME State University"
-        @test length(curric.courses[i].requisites) == 0
+        @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 11
         @test curric.courses[i].name == "Technical Elective"
         @test curric.courses[i].credit_hours == 3
         @test curric.courses[i].institution == "ACME State University"
-        @test length(curric.courses[i].requisites) == 0
+        @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 12
         @test curric.courses[i].name == "General Elective"
         @test curric.courses[i].credit_hours == 3
         @test curric.courses[i].institution == "ACME State University"
-        @test length(curric.courses[i].requisites) == 0
+        @test length(curric.courses[i].requisites[1]) == 0
     end
 end
 # TODO: add learning outcomes
@@ -132,7 +132,7 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].num == "110"
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Baskets I"
-         @test length(curric.courses[i].requisites) == 0
+         @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 2
          @test curric.courses[i].name == "Swimming"
          @test curric.courses[i].credit_hours == 3
@@ -140,7 +140,7 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].num == "115"
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Physical Education"
-         @test length(curric.courses[i].requisites) == 0
+         @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 3
          @test curric.courses[i].name == "Introductory Calculus w/ Basketry Applications"
          @test curric.courses[i].credit_hours == 4
@@ -149,7 +149,7 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Calculus I"
          # this is the only difference from above tests
-         @test curric.courses[i].requisites[13] == pre
+         @test curric.courses[i].requisites[1][13] == pre
     elseif c.id == 4
          @test curric.courses[i].name == "Basic Basket Forms"
          @test curric.courses[i].credit_hours == 3
@@ -157,8 +157,8 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].num == "111"
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Baskets II"
-         @test curric.courses[i].requisites[1] == pre
-         @test curric.courses[i].requisites[5] == strict_co
+         @test curric.courses[i].requisites[1][1] == pre
+         @test curric.courses[i].requisites[1][5] == strict_co
     elseif c.id == 5
          @test curric.courses[i].name == "Basic Basket Forms Lab"
          @test curric.courses[i].credit_hours == 1
@@ -166,7 +166,7 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].num == "111L"
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Baskets II Laboratory"
-         @test length(curric.courses[i].requisites) == 0
+         @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 6
          @test curric.courses[i].name == "Advanced Basketry"
          @test curric.courses[i].credit_hours == 3
@@ -174,9 +174,9 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].num == "201"
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Baskets III"
-         @test curric.courses[i].requisites[4] == pre
-         @test curric.courses[i].requisites[5] == pre
-         @test curric.courses[i].requisites[3] == co
+         @test curric.courses[i].requisites[1][4] == pre
+         @test curric.courses[i].requisites[1][5] == pre
+         @test curric.courses[i].requisites[1][3] == co
     elseif c.id == 7
          @test curric.courses[i].name == "Basket Materials & Decoration"
          @test curric.courses[i].credit_hours == 3
@@ -184,7 +184,7 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].num == "214"
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Basket Materials"
-         @test curric.courses[i].requisites[1] == pre
+         @test curric.courses[i].requisites[1][1] == pre
     elseif c.id == 8
          @test curric.courses[i].name == "Underwater Weaving"
          @test curric.courses[i].credit_hours == 3
@@ -192,28 +192,28 @@ for (i,c) in enumerate(curric.courses)
          @test curric.courses[i].num == "301"
          @test curric.courses[i].institution == "ACME State University"
          @test curric.courses[i].canonical_name == "Baskets IV"
-         @test curric.courses[i].requisites[2] == pre
-         @test curric.courses[i].requisites[7] == co
+         @test curric.courses[i].requisites[1][2] == pre
+         @test curric.courses[i].requisites[1][7] == co
     elseif c.id == 9
          @test curric.courses[i].name == "Humanitites Elective"
          @test curric.courses[i].credit_hours == 3
          @test curric.courses[i].institution == "ACME State University"
-         @test length(curric.courses[i].requisites) == 0
+         @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 10
          @test curric.courses[i].name == "Social Sciences Elective"
          @test curric.courses[i].credit_hours == 3
          @test curric.courses[i].institution == "ACME State University"
-         @test length(curric.courses[i].requisites) == 0
+         @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 11
          @test curric.courses[i].name == "Technical Elective"
          @test curric.courses[i].credit_hours == 3
          @test curric.courses[i].institution == "ACME State University"
-         @test length(curric.courses[i].requisites) == 0
+         @test length(curric.courses[i].requisites[1]) == 0
     elseif c.id == 12
          @test curric.courses[i].name == "General Elective"
          @test curric.courses[i].credit_hours == 3
          @test curric.courses[i].institution == "ACME State University"
-         @test length(curric.courses[i].requisites) == 0
+         @test length(curric.courses[i].requisites[1]) == 0
     end
 end
 # test additional courses
@@ -225,7 +225,7 @@ for (i,c) in enumerate(dp.additional_courses)
         @test dp.additional_courses[i].num == "110"
         @test dp.additional_courses[i].institution == "ACME State University"
         @test dp.additional_courses[i].canonical_name == "Precalculus"
-        @test dp.additional_courses[i].requisites[14] == pre
+        @test dp.additional_courses[i].requisites[1][14] == pre
     elseif c.id == 14
         @test dp.additional_courses[i].name == "College Algebra"
         @test dp.additional_courses[i].credit_hours == 3
@@ -233,7 +233,7 @@ for (i,c) in enumerate(dp.additional_courses)
         @test dp.additional_courses[i].num == "102"
         @test dp.additional_courses[i].institution == "ACME State University"
         @test dp.additional_courses[i].canonical_name == "College Algebra"
-        @test dp.additional_courses[i].requisites[15] == strict_co
+        @test dp.additional_courses[i].requisites[1][15] == strict_co
     elseif c.id == 15
         @test dp.additional_courses[i].name == "College Algebra Studio"
         @test dp.additional_courses[i].credit_hours == 1
@@ -241,7 +241,7 @@ for (i,c) in enumerate(dp.additional_courses)
         @test dp.additional_courses[i].num == "102S"
         @test dp.additional_courses[i].institution == "ACME State University"
         @test dp.additional_courses[i].canonical_name == "College Algebra Recitation"
-        @test length(dp.additional_courses[i].requisites) == 0
+        @test length(dp.additional_courses[i].requisites[1]) == 0
     elseif c.id == 16
         @test dp.additional_courses[i].name == "Hemp Baskets"
         @test dp.additional_courses[i].credit_hours == 3
@@ -249,7 +249,7 @@ for (i,c) in enumerate(dp.additional_courses)
         @test dp.additional_courses[i].num == "420"
         @test dp.additional_courses[i].institution == "ACME State University"
         @test dp.additional_courses[i].canonical_name == "College Algebra Recitation"
-        @test dp.additional_courses[i].requisites[6] == co
+        @test dp.additional_courses[i].requisites[1][6] == co
     end
 end
 # TODO: add learning outcomes

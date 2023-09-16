@@ -56,7 +56,7 @@ mutable struct Course <: AbstractCourse
     cross_listed::Array{Course}         # courses that are cross-listed with the course (same as "also offered as")
     canonical_name::AbstractString      # Standard name used to denote the course in the
                                         # discipline, e.g., Psychology I
-    requisites::Dict{Int, Requisite}    # List of requisites, in (requisite_course id, requisite_type) format
+    requisites::Array{Dict{Int, Requisite},1}    # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the course
     metrics::Dict{String, Any}          # Course-related metrics
     metadata::Dict{String, Any}         # Course-related metadata
@@ -82,14 +82,13 @@ mutable struct Course <: AbstractCourse
         this.department = department
         this.cross_listed = cross_listed
         this.canonical_name = canonical_name
-        this.requisites = Dict{Int, Requisite}()
-        #this.requisite_formula
+        this.requisites = Array{Dict{Int, Requisite},1}() 
+        push!(this.requisites, Dict{Int, Requisite}())  # create an empty first clause for requisites
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
         this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id, note: course may be in multiple curricula
         
-
         this.passrate = passrate
         return this
     end
@@ -106,7 +105,7 @@ mutable struct CourseCollection <: AbstractCourse
     college::AbstractString             # College or school (within the institution) offering the course
     department::AbstractString          # Department (within the school or college) offering the course
     canonical_name::AbstractString      # Standard name used to denote the course collection, e.g., math genearl education 
-    requisites::Dict{Int, Requisite}    # List of requisites, in (requisite_course id, requisite_type) format
+    requisites::Array{Dict{Int, Requisite},1}   # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format
     metrics::Dict{String, Any}          # Course-related metrics
     metadata::Dict{String, Any}         # Course-related metadata
 
@@ -126,8 +125,8 @@ mutable struct CourseCollection <: AbstractCourse
         this.college = college
         this.department = department
         this.canonical_name = canonical_name
-        this.requisites = Dict{Int, Requisite}()
-        #this.requisite_formula
+        this.requisites = Array{Dict{Int, Requisite},1}()
+        push!(this.requisites, Dict{Int, Requisite}())  # create an empty first clause for requisites 
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id
@@ -157,7 +156,7 @@ One of the following requisite types must be specified for the `requisite_type`:
 - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
 """
 function add_requisite!(requisite_course::AbstractCourse, course::AbstractCourse, requisite_type::Requisite)
-    course.requisites[requisite_course.id] = requisite_type
+    course.requisites[1][requisite_course.id] = requisite_type
 end
 
 """
@@ -180,9 +179,15 @@ The following requisite types may be specified for the `requisite_type`:
 function add_requisite!(requisite_courses::Array{AbstractCourse}, course::AbstractCourse, requisite_types::Array{Requisite})
     @assert length(requisite_courses) == length(requisite_types)
     for i = 1:length(requisite_courses)
-        course.requisites[requisite_courses[i].id] = requisite_types[i]
+        course.requisites[1][requisite_courses[i].id] = requisite_types[i]
     end
 end
+
+
+function add_requisite!(requisite_course::AbstractCourse, course::AbstractCourse, clause::Int, requisite_type::Requisite)
+
+end
+
 
 """
     delete_requisite!(rc, tc)
@@ -200,5 +205,5 @@ function delete_requisite!(requisite_course::Course, course::Course)
     #if !haskey(course.requisites, requisite_course.id)
     #    error("The requisite you are trying to delete does not exist")
     #end
-    delete!(course.requisites, requisite_course.id)
+    delete!(course.requisites[1], requisite_course.id)
 end

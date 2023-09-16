@@ -127,7 +127,7 @@ function is_valid(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
         for c in plan.terms[i].courses
             for j in i-1:-1:1
                 for k in plan.terms[j].courses
-                    for l in keys(k.requisites) 
+                    for l in keys(k.requisites[1]) 
                         if l == c.id 
                             validity = false
                             write(error_msg, "\n-Invalid requisite: $(c.name) in term $i is a requisite for $(k.name) in term $j")
@@ -143,8 +143,8 @@ function is_valid(plan::DegreePlan, error_msg::IOBuffer=IOBuffer())
             for r in plan.terms[i].courses
                 if c == r
                     continue
-                elseif haskey(c.requisites, r.id) 
-                    if c.requisites[r.id] == pre
+                elseif haskey(c.requisites[1], r.id) 
+                    if c.requisites[1][r.id] == pre
                         validity = false
                         write(error_msg, "\n-Invalid prerequisite: $(r.name) in term $i is a prerequisite for $(c.name) in the same term")
                     end

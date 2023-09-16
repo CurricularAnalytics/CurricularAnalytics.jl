@@ -77,7 +77,7 @@ function extraneous_requisites(c::Curriculum; print=false)
                             remove = true
                             for n in nb  # check for co- or strict_co requisites
                                 if has_path(c.graph, n, v) # is there a path from n to v?
-                                    req_type = c.courses[n].requisites[c.courses[u].id] # the requisite relationship between u and n
+                                    req_type = c.courses[n].requisites[1][c.courses[u].id] # the requisite relationship between u and n
                                     if (req_type == co) || (req_type == strict_co)  # is u a co or strict_co requisite for n?
                                         remove = false # a co or strict_co relationshipo is involved, must keep (u, v)
                                     end
@@ -654,19 +654,19 @@ function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, m
     for (j,c) in enumerate(extra_courses)
     #    print("\n $(c.name): ")
     #    print("total requisistes = $(length(c.requisites)),")
-        for req in keys(c.requisites)
+        for req in keys(c.requisites[1])
     #        print(" requisite id: $(req) ")
             req_course = course_from_id(c2, req)
             if find_match(req_course, merged_courses, match_criteria) != nothing
                 # requisite already exists in c1
     #            print(" match in c1 - $(course_from_id(c1, req).name) ")
-                add_requisite!(req_course, new_courses[j], c.requisites[req])
+                add_requisite!(req_course, new_courses[j], c.requisites[1][req])
             elseif find_match(req_course, extra_courses, match_criteria) != nothing
                 # requisite is not in c1, but it's in c2 -- use the id of the new course created for it
     #            print(" match in extra courses, ")
                 i = findfirst(x->x==req_course, extra_courses)
     #            print(" index of match = $i ")
-                add_requisite!(new_courses[i], new_courses[j], c.requisites[req])
+                add_requisite!(new_courses[i], new_courses[j], c.requisites[1][req])
             else # requisite is neither in c1 or 2 -- this shouldn't happen => error
                 error("requisite error on course: $(c.name)")
             end
