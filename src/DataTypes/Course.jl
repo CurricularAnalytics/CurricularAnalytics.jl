@@ -56,7 +56,7 @@ mutable struct Course <: AbstractCourse
     cross_listed::Array{Course}         # courses that are cross-listed with the course (same as "also offered as")
     canonical_name::AbstractString      # Standard name used to denote the course in the
                                         # discipline, e.g., Psychology I
-    requisites::Array{Dict{Int, Requisite},1}    # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format
+    requisites::Array{Dict{Int, Requisite},1}    # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format is assumed to be clause in a DNF formula.
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the course
     metrics::Dict{String, Any}          # Course-related metrics
     metadata::Dict{String, Any}         # Course-related metadata
