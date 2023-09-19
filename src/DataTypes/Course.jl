@@ -56,7 +56,7 @@ mutable struct Course <: AbstractCourse
     cross_listed::Array{Course}         # courses that are cross-listed with the course (same as "also offered as")
     canonical_name::AbstractString      # Standard name used to denote the course in the
                                         # discipline, e.g., Psychology I
-    requisites::Array{Dict{Int, Requisite},1}    # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format is assumed to be clause in a DNF formula.
+    requisites::Array{Dict{Int, Requisite}, 1}    # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format is assumed to be clause in a DNF formula.
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the course
     metrics::Dict{String, Any}          # Course-related metrics
     metadata::Dict{String, Any}         # Course-related metadata
@@ -82,8 +82,7 @@ mutable struct Course <: AbstractCourse
         this.department = department
         this.cross_listed = cross_listed
         this.canonical_name = canonical_name
-        this.requisites = Array{Dict{Int, Requisite},1}() 
-        push!(this.requisites, Dict{Int, Requisite}())  # create an empty first clause for requisites
+        this.requisites = fill(Dict{Int, Requisite}(), 1) # create an empty first DNF clause for requisites
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
@@ -105,7 +104,7 @@ mutable struct CourseCollection <: AbstractCourse
     college::AbstractString             # College or school (within the institution) offering the course
     department::AbstractString          # Department (within the school or college) offering the course
     canonical_name::AbstractString      # Standard name used to denote the course collection, e.g., math genearl education 
-    requisites::Array{Dict{Int, Requisite},1}   # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format
+    requisites::Array{Dict{Int, Requisite}, 1}   # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format
     metrics::Dict{String, Any}          # Course-related metrics
     metadata::Dict{String, Any}         # Course-related metadata
 
@@ -125,8 +124,7 @@ mutable struct CourseCollection <: AbstractCourse
         this.college = college
         this.department = department
         this.canonical_name = canonical_name
-        this.requisites = Array{Dict{Int, Requisite},1}()
-        push!(this.requisites, Dict{Int, Requisite}())  # create an empty first clause for requisites 
+        this.requisites = fill(Dict{Int, Requisite}(), 1) # create an empty first DNF clause for requisites 
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id

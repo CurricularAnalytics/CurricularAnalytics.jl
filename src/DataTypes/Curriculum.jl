@@ -29,17 +29,17 @@ mutable struct Curriculum
     id::Int                             # Unique curriculum ID
     name::AbstractString                # Name of the curriculum (can be used as an identifier)
     institution::AbstractString         # Institution offering the curriculum
-    degree_type::AbstractString                 # Type of degree_type
+    degree_type::AbstractString         # Type of degree_type
     system_type::System                 # Semester or quarter system
     CIP::AbstractString                 # CIP code associated with the curriculum
-    courses::Array{AbstractCourse}              # Array of required courses in curriculum
+    courses::Array{AbstractCourse}      # Array of required courses in curriculum
+    requisite_clauses::Dict{Course, Int} # Dictionary of the requisite clause that should be applied to each course in the curriculum
     num_courses::Int                    # Number of required courses in curriculum
     credit_hours::Real                  # Total number of credit hours in required curriculum
     graph::SimpleDiGraph{Int}           # Directed graph representation of pre-/co-requisite structure
                                         # of the curriculum, note: this is a course graph
     learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the curriculum
-    learning_outcome_graph::SimpleDiGraph{Int}        # Directed graph representatin of pre-/co-requisite structure of learning
-                                        # outcomes in the curriculum
+    learning_outcome_graph::SimpleDiGraph{Int} # Directed graph representatin of pre-/co-requisite structure of learning outcomes in the curriculum
     course_learning_outcome_graph::MetaDiGraph{Int}  # Directed Int64 metagraph with Float64 weights defined by :weight (default weight 1.0) 
                                         # This is a course and learning outcome graph                                             
     metrics::Dict{String, Any}          # Curriculum-related metrics
@@ -70,18 +70,18 @@ mutable struct Curriculum
         end
         this.num_courses = length(this.courses)
         this.credit_hours = total_credits(this)
-        this.graph = SimpleDiGraph{Int}()
-        create_graph!(this)
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
-        #=
-        requisite_clauses = requisite_clauses
-        if length(requisite_clauses == 0)
-            for c in this.courses
-                requisite_clauses[c] = 1
+        this.requisite_clauses = requisite_clauses
+        for c ∈ this.courses
+            if c ∉ keys(this.requisite_clauses)
+                this.requisite_clauses[c] = 1  # if a requisite clause is not specificed for a course, set it to 1
+            else # a clause was specified, make sure it exists in the course
+                @assert requisite_clauses[c] <= length(c.requisites)
             end
         end
-        =#
+        this.graph = SimpleDiGraph{Int}()
+        create_graph!(this)
         this.learning_outcomes = learning_outcomes
         this.learning_outcome_graph = SimpleDiGraph{Int}()
         create_learning_outcome_graph!(this)
@@ -135,7 +135,7 @@ function is_valid(c::Curriculum, error_msg::IOBuffer=IOBuffer())
     # the opposite direction. If this creates any cycles of length greater than 2 in the modified graph (i.e., involving
     # more than the two courses in the strict-corequisite relationship), then the curriculum is unsatisfiable.
     for course in c.courses
-        for (k,r) in course.requisites[1]
+        for (k,r) in course.requisites[c.requisite_clauses[course]]
             if r == strict_co
                 v_d = course_from_id(c,course.id).vertex_id[c.id] # destination vertex
                 v_s = course_from_id(c,k).vertex_id[c.id] # source vertex
@@ -188,9 +188,9 @@ function convert_ids(curriculum::Curriculum)
         c1.id = mod(hash(c1.name * c1.prefix * c1.num * c1.institution), UInt32)
         if old_id != c1.id 
             for c2 in curriculum.courses
-                if old_id in keys(c2.requisites[1])
-                    add_requisite!(c1, c2, c2.requisites[1][old_id])
-                    delete!(c2.requisites[1], old_id)
+                if old_id in keys(c2.requisites[curriculum.requisite_clauses[c2]])
+                    add_requisite!(c1, c2, c2.requisites[curriculum.requisite_clauses[c2]][old_id])
+                    delete!(c2.requisites[curriculum.requisite_clauses[c2]], old_id)
                 end
             end
         end
@@ -276,7 +276,7 @@ function create_graph!(curriculum::Curriculum)
     end
     mapped_vertex_ids = map_vertex_ids(curriculum)
     for c in curriculum.courses
-        for r in collect(keys(c.requisites[1]))
+        for r in collect(keys(c.requisites[curriculum.requisite_clauses[c]]))
             if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id])
             else
                 s = course_from_id(curriculum, r)
@@ -308,7 +308,6 @@ function create_course_learning_outcome_graph!(curriculum::Curriculum)
         end
 
     end
-
     for (j, lo) in enumerate(curriculum.learning_outcomes)
         if add_vertex!(curriculum.course_learning_outcome_graph)
             lo.vertex_id[curriculum.id] = len_courses + j   # The vertex id of a learning outcome w/in the curriculum
@@ -318,16 +317,13 @@ function create_course_learning_outcome_graph!(curriculum::Curriculum)
             error("vertex could not be created")
         end
     end
-
     mapped_vertex_ids = map_vertex_ids(curriculum)
     mapped_lo_vertex_ids = map_lo_vertex_ids(curriculum)
-
-
     # Add edges among courses
     for c in curriculum.courses
-        for r in collect(keys(c.requisites[1]))
+        for r in collect(keys(c.requisites[curriculum.requisite_clauses[c]]))
             if add_edge!(curriculum.course_learning_outcome_graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id])               
-                set_prop!(curriculum.course_learning_outcome_graph, Edge(mapped_vertex_ids[r], c.vertex_id[curriculum.id]), :c_to_c, c.requisites[1][r])
+                set_prop!(curriculum.course_learning_outcome_graph, Edge(mapped_vertex_ids[r], c.vertex_id[curriculum.id]), :c_to_c, c.requisites[curriculum.requisite_clauses[c]][r])
 
             else
                 s = course_from_id(curriculum, r)
@@ -335,7 +331,6 @@ function create_course_learning_outcome_graph!(curriculum::Curriculum)
             end
         end
     end
-
     # Add edges among learning_outcomes
     for lo in curriculum.learning_outcomes
         for r in collect(keys(lo.requisites))
@@ -347,7 +342,6 @@ function create_course_learning_outcome_graph!(curriculum::Curriculum)
             end
         end
     end
-
     # Add edges between each pair of a course and a learning outcome
     for c in curriculum.courses
         for lo in c.learning_outcomes
@@ -399,9 +393,9 @@ function requisite_type(curriculum::Curriculum, src_course_id::Int, dst_course_i
             dst = c
         end
     end
-    if ((src == 0 || dst == 0) || !haskey(dst.requisites[1], src.id))
+    if ((src == 0 || dst == 0) || !haskey(dst.requisites[curriculum.requisite_clauses[dst]], src.id))
         error("edge ($src_course_id, $dst_course_id) does not exist in curriculum graph")
     else
-        return dst.requisites[1][src.id]
+        return dst.requisites[curriculum.requisite_clauses[dst]][src.id]
     end
 end
