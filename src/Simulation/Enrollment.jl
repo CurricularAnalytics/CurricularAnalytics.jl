@@ -55,8 +55,6 @@ module Enrollment
                         end
                     end
 
-
-
                     # Determine wheter the student can be enrolled in the current course.
                     if canEnroll(student, course, courses, student_progress, max_credits, current_term)
 

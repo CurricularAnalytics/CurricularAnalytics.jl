@@ -77,7 +77,7 @@ function extraneous_requisites(c::Curriculum; print=false)
                             remove = true
                             for n in nb  # check for co- or strict_co requisites
                                 if has_path(c.graph, n, v) # is there a path from n to v?
-                                    req_type = c.courses[n].requisites[1][c.courses[u].id] # the requisite relationship between u and n
+                                    req_type = c.courses[n].requisites[c.requisite_clauses[c.courses[n]]][c.courses[u].id] # the requisite relationship between u and n
                                     if (req_type == co) || (req_type == strict_co)  # is u a co or strict_co requisite for n?
                                         remove = false # a co or strict_co relationshipo is involved, must keep (u, v)
                                     end
@@ -629,6 +629,7 @@ courses must be identical (at the level of memory allocation). Allowable match c
     - `credit hours` : the course credit hours must be indentical.
 
 """
+#TODO Integrate use of requisite_clauses into this function
 function merge_curricula(name::AbstractString, c1::Curriculum, c2::Curriculum, match_criteria::Array{String}=Array{String,1}();
            learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(), degree_type::AbstractString=BS, system_type::System=semester,
            institution::AbstractString="", CIP::AbstractString="")

@@ -102,7 +102,7 @@ The requisite distance metric computed by this function is stored in the associa
 function requisite_distance(plan::DegreePlan, course::Course)
     distance = 0
     term = find_term(plan, course)
-    for req in keys(course.requisites[1])
+    for req in keys(course.requisites[plan.curriculum.requisite_clauses[course]])
         distance = distance + (term - find_term(plan, course_from_id(plan.curriculum, req)))
     end 
     return course.metrics["requisite distance"] = distance

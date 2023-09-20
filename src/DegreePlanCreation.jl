@@ -29,7 +29,7 @@ function bin_filling(curric::Curriculum, additional_courses::Array{AbstractCours
             end
             # if c serves as a strict-corequisite for other courses, include them in current term too
             for course in UC 
-                for req in course.requisites[1]
+                for req in course.requisites[1]  #TODO this does not work using: course.requisites[curric.requisite_clauses[course]]
                     if req[1] == c.id  
                         if req[2] == strict_co  
                             deleteat!(UC, findfirst(isequal(course), UC))
@@ -66,6 +66,7 @@ function select_vertex(curric::Curriculum, term_courses::Array{AbstractCourse,1}
         if invariant1 == true
             invariant2 = true
             for c in term_courses
+                #TODO the line below does not work using: target.requisites[curric.requisite_clauses[target]]
                 if c.id in collect(keys(target.requisites[1])) && target.requisites[1][c.id] == pre  # AND shortcircuits, otherwise 2nd expression would error
                     invariant2 = false
                     break  # try a new target

@@ -38,6 +38,7 @@ function find_courses(courses, course_id)
     return false
 end
 
+#TODO need to pass in a curriculum in order to access the requisite_clauses array
 function course_line(course, term_id; metrics=false)
     course_ID = course.id
     course_name = course.name
