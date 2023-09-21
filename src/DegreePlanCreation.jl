@@ -15,7 +15,7 @@ function bin_filling(curric::Curriculum, additional_courses::Array{AbstractCours
     terms = Array{Term,1}()
     term_credits = 0
     term_courses = Array{AbstractCourse,1}()
-    UC = sort!(deepcopy(curric.courses), by=course_num)  # lower numbered courses will be considered first
+    UC = sort!(deepcopy(curric.courses), by=course_num)  # course_num is a function, lower numbered courses will be considered first
     while length(UC) > 0
         if ((c = select_vertex(curric, term_courses, UC)) != nothing)
             deleteat!(UC, findfirst(isequal(c), UC))

@@ -74,9 +74,9 @@ mutable struct Curriculum
         this.metadata = Dict{String, Any}()
         this.requisite_clauses = requisite_clauses
         for c ∈ this.courses
-            if c ∉ keys(this.requisite_clauses)
+            if c ∉ keys(this.requisite_clauses) 
                 this.requisite_clauses[c] = 1  # if a requisite clause is not specificed for a course, set it to 1
-            else # a clause was specified, make sure it exists in the course
+            else # a clause was specified, make sure it exists in the array of requisite clauses
                 @assert requisite_clauses[c] <= length(c.requisites)
             end
         end
