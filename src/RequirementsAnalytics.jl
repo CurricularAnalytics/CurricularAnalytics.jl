@@ -102,9 +102,8 @@ status of each degree requirement.  Note: the `satisfied` function can be used t
 ```julia-repl
 julia> model = assign_courses(transcript, program_requirements, applied_credits) 
 julia> x = model.obj_dict[:x]
-julia> is_satisfied = Dict{Int,Tuple{Int,Array{Int,1}}}() 
-julia> satisfied(program_requirements, coalesce_transcript(transcript), flatten_requirements(program_requirements), value.(x), is_satisfied)
-julia> show_requirement(program_requirements, satisfied=is_satisfied)
+julia> is_satisfied = satisfied(coalesce_transcript(transcript), flatten_requirements(program_requirements), value.(x), is_satisfied)
+julia> show_requirements(program_requirements, satisfied=is_satisfied)
 ````
 """
 function show_requirements(root::AbstractRequirement; io::IO = stdout, tab = "   ",
