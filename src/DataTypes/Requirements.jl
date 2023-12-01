@@ -279,6 +279,15 @@ function is_valid(root::AbstractRequirement, error_msg::IOBuffer = IOBuffer())
                 validity = false
                 write(error_msg, "CourseSet: $(r.name) is unsatisfiable,\n\t $(r.credit_hours) credits are required from courses having only $(credit_total) credit hours.\n")
             end
+            # make sure the requirement set is not a proper subset of another requirement set
+            for r_comp in reqs
+                if typeof(r_comp) == CourseSet && r != r_comp # r_comp is a CourseSet and it is not r
+                    if r.course_reqs ⊆ r_comp.course_reqs
+                        validity = false
+                        write(error_msg, "CourseSet: $(r.name) is a subset of $(r_comp.name), making $(r_comp.name) unnecessary.\n")
+                    end
+                end
+            end
         else # r is a RequirementSet
             if (r.satisfy == 0)
                 validity = false

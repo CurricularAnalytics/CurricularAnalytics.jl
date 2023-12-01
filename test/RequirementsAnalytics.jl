@@ -82,10 +82,30 @@ lev = level(program_requirements)
 @test lev[2605601572] == 2
 @test lev[2663541090] == 2
 
+# not enough credits in the sub-requirements to meet the 41 CH requirement
 bad_program_requirements = RequirementSet("Program Requirements", 41, program_reqs, description="Degree Requirements for the BS Program")
 @test is_valid(bad_program_requirements, errors) == false
 
+# not enough credits in the collection of courses to meet 6 CHs
 bad_dr3 = CourseSet("Humanities Requirement", 6, humanities_courses, description="General Education Humanities Requirement", double_count = true)
 @test is_valid(bad_dr3, errors) == false
+
+# duplicate requirement sets
+dr_dup = RequirementSet("Another Gen. Ed. Core", 13, gen_ed_reqs, description="Identical General Education Requirements")
+dup_reqs = RequirementSet("Two gen eds that are identical", 13, [dr4, dr_dup], description="Invalid Requirement Set")
+@test is_valid(dup_reqs, errors) == false
+
+# duplication within requirement sets
+gen_ed_reqs_subset = Array{AbstractRequirement,1}()
+push!(gen_ed_reqs_subset, dr1, dr2)
+subset_reqs = RequirementSet("Subset Gen. Ed. Core", 9, gen_ed_reqs_subset, description="Proper Subset")
+bad_reqs_subset = RequirementSet("Overlapping Requirements", 13, [dr4, subset_reqs], description="Gen. Ed. w/ Proper Subset")
+@test is_valid(bad_reqs_subset, errors) == false
+
+subset_courses = CourseSet("Subset Humanities Requirement", 1, [C4 => grade("D")], description="General Education Humanities Requirement subset", double_count = true)
+program_reqs = Array{AbstractRequirement,1}()
+push!(program_reqs, dr4, dr5, dr6, dr7, dr8, dr11, dr12, subset_courses)
+program_requirements = RequirementSet("Program Requirements w/ subset courses", 40, program_reqs, description="Degree Requirements for the BS Program w/ subset courses")
+@test is_valid(program_requirements, errors) == false
 
 end
