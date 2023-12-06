@@ -147,6 +147,12 @@ errors = IOBuffer()
 @test is_valid(curric, errors) == true
 @test length(extraneous_requisites(curric)) == 0
 
+# Test case where the requisite for a course in a curriculum is not itself in the curriculum
+H = Course("H", 3)
+add_requisite!(H,G,pre) # H is a prerequiste to G, but not in the curriculum  
+curric = Curriculum("Postmodern Basket Weaving", [A,B,C,D,E,F,G], sortby_ID=false)
+# this should issue a warning
+
 # Test analytics 
 @test delay_factor(curric) == (33.0, [5.0, 5.0, 5.0, 5.0, 3.0, 5.0, 5.0])
 @test blocking_factor(curric) == (16, [6, 3, 4, 2, 0, 0, 1])

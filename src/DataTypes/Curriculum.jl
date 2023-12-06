@@ -81,9 +81,9 @@ mutable struct Curriculum
         create_graph!(this)
         this.learning_outcomes = learning_outcomes
         this.learning_outcome_graph = SimpleDiGraph{Int}()
-        create_learning_outcome_graph!(this)
+        #create_learning_outcome_graph!(this)
         this.course_learning_outcome_graph = MetaDiGraph()
-        create_course_learning_outcome_graph!(this)       
+        #create_course_learning_outcome_graph!(this)       
         errors = IOBuffer()
         if !(is_valid(this, errors))
             printstyled("WARNING: Curriculum was created, but is invalid due to requisite cycle(s):", color = :yellow)
@@ -276,8 +276,8 @@ function create_graph!(curriculum::Curriculum)
     mapped_vertex_ids = map_vertex_ids(curriculum)
     for c in curriculum.courses
         for r in collect(keys(c.requisites[curriculum.requisite_clauses[c.id]]))
-            if r ∉ mapped_vertex_ids
-                warning("requisite $(r.name), required by $(c.name), is not in curriculum $(c.name)")
+            if r ∉ keys(mapped_vertex_ids)
+                printstyled("WARNING: A requisite for course $(c.name) is not in curriculum $(curriculum.name)\n", color = :yellow)
             else 
                 if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id])
                 else

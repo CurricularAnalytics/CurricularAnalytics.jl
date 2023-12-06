@@ -132,6 +132,7 @@ mutable struct CourseCollection <: AbstractCourse
     end
 end
 
+# create a unique course id for a couse by hashing on the course's prefix, num, name, institution.
 function course_id(prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
     convert(Int, mod(hash(name * prefix * num * institution), UInt32))
 end
