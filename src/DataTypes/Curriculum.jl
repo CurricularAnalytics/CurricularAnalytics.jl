@@ -276,10 +276,14 @@ function create_graph!(curriculum::Curriculum)
     mapped_vertex_ids = map_vertex_ids(curriculum)
     for c in curriculum.courses
         for r in collect(keys(c.requisites[curriculum.requisite_clauses[c.id]]))
-            if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id])
-            else
-                s = course_from_id(curriculum, r)
-                error("edge could not be created: ($(s.name), $(c.name))")
+            if r ∉ mapped_vertex_ids
+                warning("requisite $(r.name), required by $(c.name), is not in curriculum $(c.name)")
+            else 
+                if add_edge!(curriculum.graph, mapped_vertex_ids[r], c.vertex_id[curriculum.id])
+                else
+                    s = course_from_id(curriculum, r)
+                    error("edge could not be created: ($(s.name), $(c.name))")
+                end
             end
         end
     end
@@ -288,8 +292,8 @@ end
 #"""
 #    create_course_learning_outcome_graph!(c::Curriculum)
 #
-#Create a curriculum directed graph from a curriculum specification. This graph graph contains courses and learning outcomes
-# of the curriculum. The graph is stored as a LightGraph.jl implemenation within the Curriculum data object.
+#Create a curriculum directed graph from a curriculum specification. This graph contains courses and learning outcomes
+# of the curriculum. The graph is stored as a Graph.jl implemenation within the Curriculum data object.
 
 
 #"""
