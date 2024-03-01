@@ -128,6 +128,13 @@ function blocking_factor(c::Curriculum, course::Int)
     return c.courses[course].metrics["blocking factor"] = b
 end
 
+# Compute the blocking factor of a course.
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function blocking_factor(c::Array{Int, 2}, course::Int)
+    b = length(reachable_from(SimpleDiGraph(c), course))
+    return b
+end
+
 # Compute the blocking factor of a curriculum
 """
     blocking_factor(c::Curriculum)
@@ -146,6 +153,18 @@ function blocking_factor(c::Curriculum)
         b += bf[i]
     end
     return c.metrics["blocking factor"] = b, bf
+end
+
+# Compute the blocking factor of a curriculum
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function blocking_factor(c::Array{Int, 2})
+    b = 0
+    bf = Array{Int, 1}(undef, size(c,1))
+    for (i, v) in enumerate(vertices(SimpleDiGraph(c)))
+        bf[i] = blocking_factor(c, v)
+        b += bf[i]
+    end
+    return b
 end
 
 # Compute the delay factor of a course
@@ -168,6 +187,22 @@ function delay_factor(c::Curriculum, course::Int)
         delay_factor(c)
     end
     return c.courses[course].metrics["delay factor"]
+end
+
+# Compute the delay factor of a course
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function delay_factor(c::Array{Int, 2}, course::Int)
+    g = SimpleDiGraph(c)
+    df = 1
+    for path in all_paths(g)
+        if course in path
+          path_length = length(path)  # path_length in terms of # of vertices, not edges
+          if path_length > df
+              df = path_length
+          end
+        end
+    end
+    return df
 end
 
 # Compute the delay factor of a curriculum
@@ -200,6 +235,24 @@ function delay_factor(c::Curriculum)
         d += df[v]
     end
     return c.metrics["delay factor"] = d, df
+end
+
+# Compute the delay factor of a curriculum
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function delay_factor(c::Array{Int, 2})
+    g = SimpleDiGraph(c)
+    df = ones(Int,size(c,1))
+    for v in vertices(g)
+        for path in all_paths(g)
+            for vtx in path
+                path_length = length(path)  # path_length in terms of # of vertices, not edges
+                if path_length > df[vtx]
+                    df[vtx] = path_length
+                end
+            end
+        end
+    end
+    return sum(df)
 end
 
 # Compute the centrality of a course
@@ -307,6 +360,12 @@ function complexity(c::Curriculum)
         curric_complexity += course_complexity[v]
     end
     return c.metrics["complexity"] = curric_complexity, course_complexity
+end
+
+# Compute the complexity of a curriculum
+# This function takes the adjacency matrix of the currciulum graph as an input argument
+function complexity(c::Array{Int, 2})
+    return delay_factor(c) + blocking_factor(c)
 end
 
 # Find all the longest paths in a curriculum.
