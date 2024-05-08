@@ -139,3 +139,14 @@ function requisite_distance(plan::DegreePlan)
     end
     return plan.metrics["requisite distance"] = distance
 end
+
+#TODO: write docstring, write tests
+function credit_balance(plan::DegreePlan)
+    bal = 0
+    for i in 1:length(plan.terms)-1
+        for j in i+1:length(plan.terms)
+            bal += abs(plan.terms[i].credit_hours - plan.terms[j].credit_hours)
+        end
+    end
+    return bal
+end
