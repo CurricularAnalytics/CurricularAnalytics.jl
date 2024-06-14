@@ -1,7 +1,7 @@
 name = "CurricularAnalytics"
 uuid = "593ffa3d-269e-5d81-88bc-c3b6809c35a6"
 authors = ["Greg Heileman <gregheileman@gmail.com>", "Hayden Free <haydenwfree@gmail.com>"]
-version = "1.5.1"
+version = "1.5.2"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
