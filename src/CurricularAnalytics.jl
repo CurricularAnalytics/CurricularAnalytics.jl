@@ -26,14 +26,14 @@ include("DegreePlanCreation.jl")
 include("Simulation/Simulation.jl")
 include("RequirementsAnalytics.jl")
 
-export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, Curriculum, DegreePlan, 
+export AA, AAS, AS, AbstractCourse, AbstractRequirement, BA, BS, Course, CourseCollection, CourseCatalog, CourseRecord, CourseSet, credit_balance, Curriculum, DegreePlan, 
         EdgeClass, Enrollment, Grade, LearningOutcome, PassRate, RequirementSet, Requisite, Student, StudentRecord, Simulation, System, Term, TransferArticulation,
         add_course!, add_lo_requisite!, add_requisite!, add_requisite_clause!, add_transfer_catalog, add_transfer_course, all_paths, back_edge, basic_metrics, basic_statistics, 
         bin_filling, blocking_factor, centrality, co, compare_curricula, convert_ids, complexity, course, course_from_id, course_from_vertex, course_id, 
         courses_from_vertices, create_degree_plan, cross_edge, dead_ends, delay_factor, delete_requisite!, dfs, extraneous_requisites, find_term, forward_edge, 
         gad, grade, homology, is_duplicate, is_valid, isvalid_curriculum, isvalid_degree_plan, level, longest_path, longest_paths, merge_curricula, pass_table, passrate_table, 
         pre, postorder_traversal, preorder_traversal, print_plan, quarter, reach, reach_subgraph, reachable_from, reachable_from_subgraph, reachable_to, reachable_to_subgraph, 
-        read_csv, requisite_distance,requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, show_requirements, similarity, simple_students, 
+        read_csv, requisite_distance, requisite_type, semester, set_passrates, set_passrate_for_course, set_passrates_from_csv, show_requirements, similarity, simple_students, 
         simulate, simulation_report, strict_co, topological_sort, total_credits, transfer_equiv, tree_edge, write_csv, knowledge_transfer, csv_stream
 
 """
