@@ -83,7 +83,7 @@ mutable struct DegreePlan
             this.terms[i] = terms[i]
             this.credit_hours += terms[i].credit_hours
         end
-        if isassigned(additional_courses)
+        if !isempty(additional_courses)
             this.additional_courses = Array{AbstractCourse}(undef, length(additional_courses))
             for i = 1:length(additional_courses)
                 this.additional_courses[i] = additional_courses[i]
