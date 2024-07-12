@@ -115,6 +115,15 @@ add_course!(CCat, [E,F,G]);
 @test (CCat.date_range[2] - CCat.date_range[1]) == Dates.Day(365)
 @test A == course(CCat, "BW", "110", "Introduction to Baskets")
 
+# Test remove_course! functions
+remove_course!(CCat, E);
+@test length(CCat.catalog) == 6
+remove_course!(CCat, [F,G]);
+@test length(CCat.catalog) == 4
+
+# add the courses back for later testing
+add_course!(CCat, [E,F,G]);
+
 # Test DegreePlan creation, other degree plan functions tested in ./test/DegreePlanAnalytics.jl
 @test dp.name == "2019 Plan"
 @test dp.curriculum === curric  # tests that they're the same object in memory

@@ -27,9 +27,33 @@ function add_course!(cc::CourseCatalog, course::Course)
     !is_duplicate(cc, course) ? cc.catalog[course.id] = course : nothing
 end
 
+"""
+    remove_course!(cc::CourseCatalog, course::Course)
+
+Remove `course` from the course catalog `cc` if it exists in the catalog.
+Otherwise, do nothing.
+"""
+function remove_course!(cc::CourseCatalog, course::Course)
+    if is_duplicate(cc, course)
+        delete!(cc.catalog, course.id)
+    end
+end
+
 function add_course!(cc::CourseCatalog, courses::Array{Course,1})
     for course in courses
         add_course!(cc, course)
+    end
+end
+
+"""
+    remove_course!(cc::CourseCatalog, courses::Array{Course,1})
+
+Remove all courses in `courses` from the course catalog `cc` if they exist in the catalog.
+Otherwise, do nothing.
+"""
+function remove_course!(cc::CourseCatalog, courses::Array{Course,1})
+    for course in courses
+        remove_course!(cc, course)
     end
 end
 

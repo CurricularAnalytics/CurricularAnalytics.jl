@@ -146,7 +146,7 @@ end
 For a given degree plan `plan`, this function computes and returns the credit balance among the terms in a degree plan.  A 
 score of `0` indicates perfect balance, i.e., each term in the degree plan has the same number of credit hours. As a degree plan
 becomes more imbalanced, in terms of the number of credit hours in each tersm, the credit balance grows larger. If ``t_j`` 
-denotes the number of credit hours in term ``j``, ``j = 1 \ldots m,`` then the credit balance of degree plan `p`, denoted by
+denotes the number of credit hours in term ``j``, ``j = 1 \\ldots m,`` then the credit balance of degree plan `p`, denoted by
 ``cb^p is given by:
 
 ```math
