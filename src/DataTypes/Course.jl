@@ -183,8 +183,25 @@ The following requisite types may be specified for the `requisite_type`:
 - `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
 - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
 """
-function add_requisite!(requisite_courses::Array{AbstractCourse}, course::AbstractCourse, requisite_types::Array{Requisite}; clause::Int=1)
-    @assert clause <= length(course.requisites)
+function add_requisite!(requisite_courses::Array{<:AbstractCourse}, course::AbstractCourse, requisite_types::Array{Requisite}; clause::Int=1)
+    # We don't want someone to create clauses 1, 3, 5, and 7
+    # You should only be able to create clauses in order (1, 2, 3, 4, ...)
+    # Previously, we were asserting that the clause was less than or equal to the length of the requisites array (prevent out of index errors)
+    # @assert clause <= length(course.requisites)
+    if clause > length(course.requisites) && clause == length(course.requisites) + 1
+        # We allow the caluse to be 1 greater than the length of the requisites array, and we will add the clause
+        add_requisite_clause!(course)
+    elseif clause > length(course.requisites)
+        error(
+            """
+            Clause number cannot exceed the number of requisite clauses that exist on the course by more than one.
+            This means you can only add clauses in order. (clause = 1, 2, 3, ...)
+            It should never occur, but should you need to build clauses out of order you can use the add_requisite_clause! function to pad the requisite array with empty clauses.
+            """
+        )
+    elseif clause < 1
+        error("Clause number must be greater than or equal to 1")
+    end
     @assert length(requisite_courses) == length(requisite_types)
     for i = 1:length(requisite_courses)
         course.requisites[clause][requisite_courses[i].id] = requisite_types[i]
