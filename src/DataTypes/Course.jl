@@ -65,7 +65,7 @@ mutable struct Course <: AbstractCourse
 
     # Constructor
     function Course(name::AbstractString, credit_hours::Real; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
-                    num::AbstractString="", institution::AbstractString="", college::AbstractString="", department::AbstractString="",
+                    num::AbstractString="", institution::AbstractString="", college::AbstractString="", department::AbstractString="", requisites::Array{Dict{Int, Requisite}, 1}=fill(Dict{Int, Requisite}(), 1),
                     cross_listed::Array{Course}=Array{Course,1}(), canonical_name::AbstractString="", id::Int=0, passrate::Float64=0.5)
         this = new()
         this.name = name
@@ -82,7 +82,7 @@ mutable struct Course <: AbstractCourse
         this.department = department
         this.cross_listed = cross_listed
         this.canonical_name = canonical_name
-        this.requisites = fill(Dict{Int, Requisite}(), 1) # create an empty first DNF clause for requisites
+        this.requisites = requisites # create an empty first DNF clause for requisites
         this.metrics = Dict{String, Any}()
         this.metadata = Dict{String, Any}()
         this.learning_outcomes = learning_outcomes
