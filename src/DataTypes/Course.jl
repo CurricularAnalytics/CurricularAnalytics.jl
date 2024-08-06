@@ -159,7 +159,20 @@ One of the following requisite types must be specified for the `requisite_type`:
 - `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
 """
 function add_requisite!(requisite_course::AbstractCourse, course::AbstractCourse, requisite_type::Requisite; clause::Int=1)
-    @assert clause <= length(course.requisites)
+    if clause > length(course.requisites) && clause == length(course.requisites) + 1
+        # We allow the caluse to be 1 greater than the length of the requisites array, and we will add the clause
+        add_requisite_clause!(course)
+    elseif clause > length(course.requisites)
+        error(
+            """
+            Clause number cannot exceed the number of requisite clauses that exist on the course by more than one.
+            This means you can only add clauses in order. (clause = 1, 2, 3, ...)
+            It should never occur, but should you need to build clauses out of order you can use the add_requisite_clause! function to pad the requisite array with empty clauses.
+            """
+        )
+    elseif clause < 1
+        error("Clause number must be greater than or equal to 1")
+    end
     course.requisites[clause][requisite_course.id] = requisite_type
 end
 
