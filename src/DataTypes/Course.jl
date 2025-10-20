@@ -222,7 +222,7 @@ function add_requisite!(requisite_courses::Array{<:AbstractCourse}, course::Abst
 end
 
 """
-    delete_requisite!(rc, tc)
+    delete_requisite!(rc, tc, clause)
 
 Remove course rc as a requisite for target course tc.  If rc is not an existing requisite for tc, an
 error is thrown.
@@ -247,7 +247,7 @@ end
 """
     add_requisite_clause!(course::AbstractCourse)
 
-Add a clause to course's requisite formula. The clauses are stored in an array represent the clauses in a DNF expression.
+Add an empty clause to course's requisite formula. The clauses are stored in an array representing the clauses in a DNF expression.
 The clause number (i.e., index) in the requisite array is returned.
 
 # Arguments
