@@ -106,6 +106,7 @@ subset_courses = CourseSet("Subset Humanities Requirement", 1, [C4 => grade("D")
 program_reqs = Array{AbstractRequirement,1}()
 push!(program_reqs, dr4, dr5, dr6, dr7, dr8, dr11, dr12, subset_courses)
 program_requirements = RequirementSet("Program Requirements w/ subset courses", 40, program_reqs, description="Degree Requirements for the BS Program w/ subset courses")
-@test is_valid(program_requirements, errors) == false
+# should be true because we allow duplicate subset requirements (happens in cases like gen ed)
+@test is_valid(program_requirements, errors) == true
 
 end
