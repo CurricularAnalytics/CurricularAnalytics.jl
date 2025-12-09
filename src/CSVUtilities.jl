@@ -38,6 +38,7 @@ function find_courses(courses, course_id)
     return false
 end
 
+#TODO need to pass in a curriculum in order to access the requisite_clauses array
 function course_line(course, term_id; metrics=false)
     course_ID = course.id
     course_name = course.name
@@ -47,7 +48,7 @@ function course_line(course, term_id; metrics=false)
     course_prereq = "\""
     course_coreq = "\""
     course_scoreq = "\""
-    for requesite in course.requisites
+    for requesite in course.requisites[1]
         if requesite[2] == pre
             course_prereq = course_prereq * string(requesite[1]) * ";"
         elseif requesite[2] == co
