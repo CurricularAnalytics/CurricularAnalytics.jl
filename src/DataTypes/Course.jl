@@ -1,0 +1,263 @@
+# Course-related data types:
+#
+#                               AbstractCourse
+#                                /          \    
+#                          Course       CourseCollection
+#
+# A requirement may involve a set of courses (CourseSet), or a set of requirements (RequirementSet), but not both.
+"""
+The `AbstractCourse` data type is used to represent the notion of an abstract course that may appear in a curriculum 
+or degree plan. That is, this abstract type serves as a placeholder for a course in a curriculum or degree plan,
+where the abstract course may correspond to a single course, or a set of courses, where only one of the courses in the
+set should be taken at that particular point in the curriculum or degree plan. This allows a user to specify a course
+or a collection of courses as a part part of a curriculum or degree plans. The two possible concrete subtypes of 
+an `AbstractCourse` are:
+ - `Course` : a specific course.
+ - `CourseCollection` : a set of courses, any of which can serve as the required course in a curriculum or degree plan.
+"""
+
+abstract type AbstractCourse end
+
+##############################################################
+# Course data type
+"""
+The `Course` data type is used to represent a single course consisting of a given number
+of credit hours.  To instantiate a `Course` use:
+
+    Course(name, credit_hours; <keyword arguments>)
+
+# Arguments
+Required:
+- `name::AbstractString` : the name of the course.
+- `credit_hours::int` : the number of credit hours associated with the course.
+Keyword:
+- `prefix::AbstractString` : the prefix associated with the course.
+- `num::AbstractString` : the number associated with the course.
+- `institution:AbstractString` : the name of the institution offering the course.
+- `canonical_name::AbstractString` : the common name used for the course.
+
+# Examples:
+```julia-repl
+julia> Course("Calculus with Applications", 4, prefix="MA", num="112", canonical_name="Calculus I")
+```
+"""
+mutable struct Course <: AbstractCourse
+    id::Int                             # Unique course id
+    vertex_id::Dict{Int, Int}           # The vertex id of the course w/in a curriculum graph, stored as
+                                        # (curriculum_id, vertex_id)
+    name::AbstractString                # Name of the course, e.g., Introduction to Psychology
+    credit_hours::Real                  # Number of credit hours associated with course. For the
+                                        # purpose of analytics, variable credits are not supported
+    prefix::AbstractString              # Typcially a department prefix, e.g., PSY
+    num::AbstractString                 # Course number, e.g., 101, or 302L
+    institution::AbstractString         # Institution offering the course
+    college::AbstractString             # College or school (within the institution) offering the course
+    department::AbstractString          # Department (within the school or college) offering the course
+    cross_listed::Array{Course}         # courses that are cross-listed with the course (same as "also offered as")
+    canonical_name::AbstractString      # Standard name used to denote the course in the
+                                        # discipline, e.g., Psychology I
+    requisites::Array{Dict{Int, Requisite}, 1}    # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format is assumed to be clause in a DNF formula.
+    learning_outcomes::Array{LearningOutcome}  # A list of learning outcomes associated with the course
+    metrics::Dict{String, Any}          # Course-related metrics
+    metadata::Dict{String, Any}         # Course-related metadata
+
+    passrate::Float64                   # Percentage of students that pass the course
+
+    # Constructor
+    function Course(name::AbstractString, credit_hours::Real; prefix::AbstractString="", learning_outcomes::Array{LearningOutcome}=Array{LearningOutcome,1}(),
+                    num::AbstractString="", institution::AbstractString="", college::AbstractString="", department::AbstractString="", requisites::Array{Dict{Int, Requisite}, 1}=fill(Dict{Int, Requisite}(), 1),
+                    cross_listed::Array{Course}=Array{Course,1}(), canonical_name::AbstractString="", id::Int=0, passrate::Float64=0.5)
+        this = new()
+        this.name = name
+        this.credit_hours = credit_hours
+        this.prefix = prefix
+        this.num = num
+        this.institution = institution
+        if id == 0
+            this.id = mod(hash(this.name * this.prefix * this.num * this.institution), UInt32)
+        else
+            this.id = id
+        end
+        this.college = college
+        this.department = department
+        this.cross_listed = cross_listed
+        this.canonical_name = canonical_name
+        this.requisites = requisites # create an empty first DNF clause for requisites
+        this.metrics = Dict{String, Any}()
+        this.metadata = Dict{String, Any}()
+        this.learning_outcomes = learning_outcomes
+        this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id, note: course may be in multiple curricula
+        
+        this.passrate = passrate
+        return this
+    end
+end
+
+mutable struct CourseCollection <: AbstractCourse
+    id::Int                             # Unique course id
+    vertex_id::Dict{Int, Int}           # The vertex id of the course w/in a curriculum graph, stored as 
+                                        # (curriculum_id, vertex_id)
+    courses::Array{Course}              # Courses associated with the collection                                   
+    name::AbstractString                # Name of the course, e.g., Introduction to Psychology
+    credit_hours::Real                  # Number of credit hours associated with a "typcial" course in the collection
+    institution::AbstractString         # Institution offering the course
+    college::AbstractString             # College or school (within the institution) offering the course
+    department::AbstractString          # Department (within the school or college) offering the course
+    canonical_name::AbstractString      # Standard name used to denote the course collection, e.g., math genearl education 
+    requisites::Array{Dict{Int, Requisite}, 1}   # Array of requisite clauses, each clause in (requisite_course id, requisite_type) format
+    metrics::Dict{String, Any}          # Course-related metrics
+    metadata::Dict{String, Any}         # Course-related metadata
+
+    # Constructor
+    function CourseCollection(name::AbstractString, credit_hours::Real, courses::Array{Course,1}; institution::AbstractString="", 
+         college::AbstractString="", department::AbstractString="", canonical_name::AbstractString="", id::Int=0)
+        this = new()
+        this.name = name
+        this.credit_hours = credit_hours
+        this.courses = courses
+        this.institution = institution
+        if id == 0
+            this.id = mod(hash(this.name * this.institution * string(length(courses))), UInt32)
+        else 
+            this.id = id
+        end
+        this.college = college
+        this.department = department
+        this.canonical_name = canonical_name
+        this.requisites = fill(Dict{Int, Requisite}(), 1) # create an empty first DNF clause for requisites 
+        this.metrics = Dict{String, Any}()
+        this.metadata = Dict{String, Any}()
+        this.vertex_id = Dict{Int, Int}()       # curriculum id -> vertex id
+        return this
+    end
+end
+
+# create a unique course id for a couse by hashing on the course's prefix, num, name, institution.
+function course_id(prefix::AbstractString, num::AbstractString, name::AbstractString, institution::AbstractString)
+    convert(Int, mod(hash(name * prefix * num * institution), UInt32))
+end
+
+"""
+    add_requisite!(rc, tc, requisite_type)
+
+Add course rc as a requisite, of type requisite_type, for target course tc.
+
+# Arguments
+Required:
+- `rc::AbstractCourse` : requisite course.
+- `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+- `requisite_type::Requisite` : requisite type.
+
+# Keyword Arguments
+- `clause::Int` : specify the DNF clause the requisite should appear in.
+
+
+# Requisite types
+One of the following requisite types must be specified for the `requisite_type`:
+- `pre` : a prerequisite course that must be passed before `tc` can be attempted.
+- `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
+- `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+"""
+function add_requisite!(requisite_course::AbstractCourse, course::AbstractCourse, requisite_type::Requisite; clause::Int=1)
+    if clause > length(course.requisites) && clause == length(course.requisites) + 1
+        # We allow the caluse to be 1 greater than the length of the requisites array, and we will add the clause
+        add_requisite_clause!(course)
+    elseif clause > length(course.requisites)
+        error(
+            """
+            Clause number cannot exceed the number of requisite clauses that exist on the course by more than one.
+            This means you can only add clauses in order. (clause = 1, 2, 3, ...)
+            It should never occur, but should you need to build clauses out of order you can use the add_requisite_clause! function to pad the requisite array with empty clauses.
+            """
+        )
+    elseif clause < 1
+        error("Clause number must be greater than or equal to 1")
+    end
+    course.requisites[clause][requisite_course.id] = requisite_type
+end
+
+"""
+    add_requisite!([rc1, rc2, ...], tc, [requisite_type1, requisite_type2, ...])
+
+Add a collection of requisites to target course tc.
+
+# Arguments
+Required:
+- `rc::Array{AbstractCourse}` : and array of requisite courses.
+- `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+- `requisite_type::Array{Requisite}` : an array of requisite types.
+
+# Keyword Arguments
+- `clause::Int` : specify the DNF clause the requisites should appear in (default = 1).
+
+# Requisite types
+The following requisite types may be specified for the `requisite_type`:
+- `pre` : a prerequisite course that must be passed before `tc` can be attempted.
+- `co`  : a co-requisite course that may be taken before or at the same time as `tc`.
+- `strict_co` : a strict co-requisite course that must be taken at the same time as `tc`.
+"""
+function add_requisite!(requisite_courses::Array{<:AbstractCourse}, course::AbstractCourse, requisite_types::Array{Requisite}; clause::Int=1)
+    # We don't want someone to create clauses 1, 3, 5, and 7
+    # You should only be able to create clauses in order (1, 2, 3, 4, ...)
+    # Previously, we were asserting that the clause was less than or equal to the length of the requisites array (prevent out of index errors)
+    # @assert clause <= length(course.requisites)
+    if clause > length(course.requisites) && clause == length(course.requisites) + 1
+        # We allow the caluse to be 1 greater than the length of the requisites array, and we will add the clause
+        add_requisite_clause!(course)
+    elseif clause > length(course.requisites)
+        error(
+            """
+            Clause number cannot exceed the number of requisite clauses that exist on the course by more than one.
+            This means you can only add clauses in order. (clause = 1, 2, 3, ...)
+            It should never occur, but should you need to build clauses out of order you can use the add_requisite_clause! function to pad the requisite array with empty clauses.
+            """
+        )
+    elseif clause < 1
+        error("Clause number must be greater than or equal to 1")
+    end
+    @assert length(requisite_courses) == length(requisite_types)
+    for i = 1:length(requisite_courses)
+        course.requisites[clause][requisite_courses[i].id] = requisite_types[i]
+    end
+end
+
+"""
+    delete_requisite!(rc, tc, clause)
+
+Remove course rc as a requisite for target course tc.  If rc is not an existing requisite for tc, an
+error is thrown.
+
+# Arguments
+Required:
+- `rc::AbstractCourse` : requisite course.
+- `tc::AbstractCourse` : target course, i.e., course for which `rc` is a requisite.
+
+# Keyword Arguments
+- `clause::Int` : the DNF clause the requisite should be deleted from (default = 1).
+
+"""
+function delete_requisite!(requisite_course::Course, course::Course; clause::Int=1)
+    #if !haskey(course.requisites, requisite_course.id)
+    #    error("The requisite you are trying to delete does not exist")
+    #end
+    @assert clause <= length(course.requisites)
+    delete!(course.requisites[clause], requisite_course.id)
+end
+
+"""
+    add_requisite_clause!(course::AbstractCourse)
+
+Add an empty clause to course's requisite formula. The clauses are stored in an array representing the clauses in a DNF expression.
+The clause number (i.e., index) in the requisite array is returned.
+
+# Arguments
+Required:
+- `c::AbstractCourse` : target course.
+
+"""
+function add_requisite_clause!(course::AbstractCourse)
+    return length(push!(course.requisites, Dict{Int, Requisite}()))
+end
+
+# TODO: Create a version of add_requisite_clasue! that has an initial set of requisites (similar to add_requisite!)
+# TODO: Add a delete_requisite_clause function.  Issue: how do you specify the clause, by index, or some other search method?
