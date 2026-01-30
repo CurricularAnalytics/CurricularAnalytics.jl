@@ -150,7 +150,7 @@ mutable struct CourseSet <: AbstractRequirement
     num_regex::Regex                    # Regular expression for matching a course number in the course catalog, must satisfy both 
     min_grade::Grade                    # The minimum letter grade that must be earned in courses satisfying the regular expressions
     double_count::Bool                  # Each course in the course set can satisfy any other requirement that has the same course. Default = false
-    no_multi_use::Set{AbstractRequirement} # Each course in this course set can either be assigned to this course set or a course set from the no_multi_use set, but not both
+    no_multi_use::Set{AbstractRequirement} # Each course in the current course set can either be assigned to the course set or a course set from the no_multi_use set, but not both
 
     # Constructor
     # A requirement may involve a set of courses, or a set of requirements, but not both
