@@ -157,12 +157,10 @@ add_course!(CCat, [E,F,G]);
 cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
 @test cs1.name == "Test Course Set 1"
 @test cs1.course_catalog == CCat
-@test cs1.double_count == true
 @test length(cs1.course_reqs) == 3
 @test length(cs1.no_multi_use) == 0
 # The regex's specified will match all courses with number 111 and any prefix
 cs2 = CourseSet("Test Course Set 2", 3, Array{Pair{Course,Grade},1}(), course_catalog=CCat, prefix_regex=r".*", num_regex=r"^\s*+111\s*+$");
-@test cs2.double_count == false
 @test length(cs2.course_reqs) == 1
 
 req_set = AbstractRequirement[cs1,cs2];

@@ -155,7 +155,7 @@ mutable struct CourseSet <: AbstractRequirement
     #TODO: Check that a user cannot include itself in its no_multi_use set, possibly using setproperty!
     function CourseSet(name::AbstractString, credit_hours::Real, course_reqs::Array{Pair{Course,Grade},1}=Array{Pair{Course,Grade},1}(); description::AbstractString="", 
                    course_catalog::CourseCatalog=CourseCatalog("", ""), prefix_regex::Regex=r".^", num_regex::Regex=r".^", course_regex::Regex=r".^",
-                   min_grade::Grade=grade("D"), no_multi_use::Set{AbstractRequirement}=Set{AbstractRequirement}())
+                   min_grade::Grade=grade("D"), double_count::Union{Bool,Nothing}=nothing, no_multi_use::Set{AbstractRequirement}=Set{AbstractRequirement}())
         # r".^" is a regex that matches nothing
         this = new()
         this.name = name
@@ -166,6 +166,9 @@ mutable struct CourseSet <: AbstractRequirement
         this.course_catalog = course_catalog
         this.prefix_regex = prefix_regex
         this.num_regex = num_regex
+        if(!isnothing(double_count))
+            printstyled("WARNING: Use of double_count has been depreciated in lieu of no_multi_use\n", color = :yellow)
+        end
         if(this ∈ no_multi_use)
             printstyled("WARNING: Course set contains itself in the no_multi_use set\n", color = :yellow)
         end
