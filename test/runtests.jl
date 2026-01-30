@@ -8,10 +8,10 @@ using Test
 # pkg> test CurricularAnalytics
 
 include("DataTypes.jl")
-# include("CurricularAnalytics.jl")
-# include("GraphAlgs.jl")
-# include("DegreePlanAnalytics.jl")
-# include("RequirementsAnalytics.jl")
-# include("DataHandler.jl")
-# include("DegreePlanCreation.jl")
-# include("Simulation.jl")  
+include("CurricularAnalytics.jl")
+include("GraphAlgs.jl")
+include("DegreePlanAnalytics.jl")
+include("RequirementsAnalytics.jl")
+include("DataHandler.jl")
+include("DegreePlanCreation.jl")
+include("Simulation.jl")  
