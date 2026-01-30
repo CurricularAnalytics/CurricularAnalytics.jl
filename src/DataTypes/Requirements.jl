@@ -129,8 +129,7 @@ Keyword:
 - `num_regex::Regex` : regular expression for matching a course number in the course catalog. Default is `".*"`, 
     i.e., match any character any number of times. 
 - `min_grade::Grade` : The minimum letter grade that must be earned in courses satisfying the regular expressions.
-- `double_count::Bool` : Specifies whether or not each course in the course set can be used to satisfy other requirements 
-    that contain any of the courses in this `CourseSet`. Default = false
+- `no_multi_use:Set` : The course sets in this set are mutually exclusive with this course set
 
 # Examples:
 ```julia-repl
@@ -149,14 +148,14 @@ mutable struct CourseSet <: AbstractRequirement
     prefix_regex::Regex                 # Regular expression for matching a course prefix in the course catalog.  
     num_regex::Regex                    # Regular expression for matching a course number in the course catalog, must satisfy both 
     min_grade::Grade                    # The minimum letter grade that must be earned in courses satisfying the regular expressions
-    double_count::Bool                  # Each course in the course set can satisfy any other requirement that has the same course. Default = false
-    no_multi_use::Set{AbstractRequirement} # Each course in the current course set can either be assigned to the course set or a course set from the no_multi_use set, but not both
+    no_multi_use::Set{AbstractRequirement} # Each course in this course set object can either be assigned to this course set or to a course set in this set, but not both
 
     # Constructor
     # A requirement may involve a set of courses, or a set of requirements, but not both
+    #TODO: Check that a user cannot include itself in its no_multi_use set, possibly using setproperty!
     function CourseSet(name::AbstractString, credit_hours::Real, course_reqs::Array{Pair{Course,Grade},1}=Array{Pair{Course,Grade},1}(); description::AbstractString="", 
                    course_catalog::CourseCatalog=CourseCatalog("", ""), prefix_regex::Regex=r".^", num_regex::Regex=r".^", course_regex::Regex=r".^",
-                   min_grade::Grade=grade("D"), double_count::Bool=false, no_multi_use::Set{AbstractRequirement}=Set{AbstractRequirement}())
+                   min_grade::Grade=grade("D"), no_multi_use::Set{AbstractRequirement}=Set{AbstractRequirement}())
         # r".^" is a regex that matches nothing
         this = new()
         this.name = name
@@ -167,7 +166,9 @@ mutable struct CourseSet <: AbstractRequirement
         this.course_catalog = course_catalog
         this.prefix_regex = prefix_regex
         this.num_regex = num_regex
-        this.double_count = double_count
+        if(this ∈ no_multi_use)
+            printstyled("WARNING: Course set contains itself in the no_multi_use set\n", color = :yellow)
+        end
         this.no_multi_use = no_multi_use
         for c in course_catalog.catalog  # search the supplied course catalog for courses satisfying both prefix and num regular expressions
             if occursin(prefix_regex, c[2].prefix) && occursin(num_regex, c[2].num)
