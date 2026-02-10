@@ -148,14 +148,14 @@ mutable struct CourseSet <: AbstractRequirement
     prefix_regex::Regex                 # Regular expression for matching a course prefix in the course catalog.  
     num_regex::Regex                    # Regular expression for matching a course number in the course catalog, must satisfy both 
     min_grade::Grade                    # The minimum letter grade that must be earned in courses satisfying the regular expressions
-    no_multi_use::Set{AbstractRequirement} # Each course in this course set object can either be assigned to this course set or to a course set in this set, but not both
+    no_multi_use::Set{CourseSet}        # Each course in this course set object can either be assigned to this course set or to a course set in the no_multi_use set, but not both
 
     # Constructor
     # A requirement may involve a set of courses, or a set of requirements, but not both
-    #TODO: Check that a user cannot include itself in its no_multi_use set, possibly using setproperty!
+    #TODO: Check that a CourseSet cannot include itself in its no_multi_use set, possibly using setproperty!
     function CourseSet(name::AbstractString, credit_hours::Real, course_reqs::Array{Pair{Course,Grade},1}=Array{Pair{Course,Grade},1}(); description::AbstractString="", 
                    course_catalog::CourseCatalog=CourseCatalog("", ""), prefix_regex::Regex=r".^", num_regex::Regex=r".^", course_regex::Regex=r".^",
-                   min_grade::Grade=grade("D"), double_count::Union{Bool,Nothing}=nothing, no_multi_use::Set{AbstractRequirement}=Set{AbstractRequirement}())
+                   min_grade::Grade=grade("D"), double_count::Union{Bool,Nothing}=nothing, no_multi_use::Set{CourseSet}=Set{CourseSet}())
         # r".^" is a regex that matches nothing
         this = new()
         this.name = name
@@ -167,10 +167,7 @@ mutable struct CourseSet <: AbstractRequirement
         this.prefix_regex = prefix_regex
         this.num_regex = num_regex
         if(!isnothing(double_count))
-            printstyled("WARNING: Use of double_count has been depreciated in lieu of no_multi_use\n", color = :yellow)
-        end
-        if(this ∈ no_multi_use)
-            printstyled("WARNING: Course set contains itself in the no_multi_use set\n", color = :yellow)
+            printstyled("WARNING: Use of double_count in course set $(this.name) has been depreciated in lieu of no_multi_use.\n", color = :yellow)
         end
         this.no_multi_use = no_multi_use
         for c in course_catalog.catalog  # search the supplied course catalog for courses satisfying both prefix and num regular expressions
@@ -193,6 +190,32 @@ mutable struct CourseSet <: AbstractRequirement
 
         return this
     end
+end
+
+"""
+Add CourseSets to the `no_multi_use` set in a target Courseset. A set union is performed between the set passed in 
+as the second argument, and the no_multi_use set in the target Courseset,
+
+    add_no_multi_use!(target::CourseSet, course_sets::Set{CourseSet})
+"""
+function add_no_multi_use!(target::CourseSet, course_sets::Set{CourseSet})
+    for cs ∈ course_sets 
+        if cs == target # make sure the target CourseSet is NOT in the set of additioal CourseSets
+            delete!(course_sets, cs) # if it is, then remove it from additional_course_sets
+            printstyled("WARNING: Attempting to add $(cs.name) to its own no_multi_use set. This is a logical error, $(cs.name) will not be added to its no_mulit_use set.\n", color = :yellow)
+        end
+    end
+    target.no_multi_use = union(target.no_multi_use, course_sets)
+end
+
+"""
+Remove CourseSets from the `no_multi_use` set in a target Courseset. A set difference is performed between no_multi_use set 
+in the target Courseset, and the set passed in as the second argument, 
+
+    remove_no_multi_use!(target::CourseSet, course_sets::Set{CourseSet})
+"""
+function remove_no_multi_use!(target::CourseSet, course_sets::Set{CourseSet})
+    target.no_multi_use = setdiff(target.no_multi_use, course_sets) # returns those course sets present in target.no_multi_use but not in course_sets
 end
 
 """
