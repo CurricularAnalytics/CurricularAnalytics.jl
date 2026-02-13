@@ -157,11 +157,9 @@ add_course!(CCat, [E,F,G]);
 cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
 @test cs1.name == "Test Course Set 1"
 @test cs1.course_catalog == CCat
-@test cs1.double_count == true
 @test length(cs1.course_reqs) == 3
 # The regex's specified will match all courses with number 111 and any prefix
 cs2 = CourseSet("Test Course Set 2", 3, Array{Pair{Course,Grade},1}(), course_catalog=CCat, prefix_regex=r".*", num_regex=r"^\s*+111\s*+$");
-@test cs2.double_count == false
 @test length(cs2.course_reqs) == 1
 
 req_set = AbstractRequirement[cs1,cs2];
@@ -208,4 +206,57 @@ add_transfer_course(ta, [A.id], XCat2.id, XB.id)
 sim_obj = Simulation(dp);
 @test sim_obj.degree_plan == dp
 
+# ------------------------------------------------------------
+# no_multi_use cannot contain itself
+# Intent: a CourseSet must never be mutually-exclusive with itself
+# (self-exclusion is meaningless and can create confusing constraints later).
+# ------------------------------------------------------------
+ @testset "no_multi_use cannot contain itself" begin
+     C1 = Course("CourseA", 3)
+
+     # Attempt to incorrectly include cs1 in its own no_multi_use set
+     cs1 = CourseSet(
+         "cs1",
+         3,
+         [C1 => grade("D")],
+         description="",
+         no_multi_use=Set{CourseSet}()  # start empty; we'll add a course set later
+     )
+
+     # User mistake: trying to add course set to its own no_multi_use set
+     add_no_multi_use!(cs1, Set([cs1]))
+
+     # "Proof" expectation: implementation should prevent this (by auto-removing).
+     @test !(cs1 ∈ cs1.no_multi_use)  # must be false if the rule is enforced
+ end
+
+# ------------------------------------------------------------
+# add_no_multi_use! testing 
+# add course sets to the no_multi_use set.
+# ------------------------------------------------------------
+ @testset "add_no_multi_use! and remove_no_multi_use!" begin
+     C1 = Course("CourseA", 3)
+
+     # create two course set
+     cs1 = CourseSet(
+         "cs1",
+         3,
+         [C1 => grade("D")],
+     )
+
+    cs2 = CourseSet(
+         "cs2",
+         3,
+         [C1 => grade("D")],
+     )
+
+     # add a course set
+     add_no_multi_use!(cs1, Set([cs2]))
+     @test cs2 ∈ cs1.no_multi_use  
+
+    # now remove it
+    remove_no_multi_use!(cs1, Set([cs2]))
+    @test !(cs2 ∈ cs1.no_multi_use)  
+ end
+ 
 end
