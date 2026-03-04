@@ -145,7 +145,7 @@ function show_requirements(root::AbstractRequirement; io::IO = stdout, tab = "  
                     end
                     c[1].prefix != "" ? printstyled(io, "$(c[1].prefix) ", color = color) : nothing 
                     c[1].num != "" ? printstyled(io, "$(c[1].num) ", color = color) : nothing 
-                    printstyled(io, "$(c[1].name) ($(c[1].credit_hours) credit hours), minimum grade: $(grade(c[2]))\n", color=color)
+                    printstyled(io, "$(c[1].name) ($(c[1].credit_hours) credit hours), minimum grade: $(c[2].symbol))\n", color=color)
                 else
                     println(io, "Course list truncated to $(display_limit) courses...")
                     break

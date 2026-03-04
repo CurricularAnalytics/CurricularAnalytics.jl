@@ -130,36 +130,73 @@ add_course!(CCat, [E,F,G]);
 @test dp.num_terms == 4
 @test dp.credit_hours == 22
 
-# Test DegreeRequirements data types
-@test grade("A➕") == grade(grade(convert(Grade,13)))
-@test grade("A") == grade(grade(convert(Grade,12)))
-@test grade("A➖") == grade(grade(convert(Grade,11)))
-@test grade("B➕") == grade(grade(convert(Grade,10)))
-@test grade("B") == grade(grade(convert(Grade,9)))
-@test grade("B➖") == grade(grade(convert(Grade,8)))
-@test grade("C➕") == grade(grade(convert(Grade,7)))
-@test grade("C") == grade(grade(convert(Grade,6)))
-@test grade("C➖") == grade(grade(convert(Grade,5)))
-@test grade("D➕") == grade(grade(convert(Grade,4)))
-@test grade("D") == grade(grade(convert(Grade,3)))
-@test grade("D➖") == grade(grade(convert(Grade,2)))
-@test grade("P") == 0
-@test grade("F") == 0
-@test grade("I") == 0
-@test grade("WP") == 0
-@test grade("W") == 0
-@test grade("WF") == 0
+# Test Grade and GradingSystem data types
+@test @isdefined(Grade)
+@test @isdefined(GradingSystem)
+grades = Set{Grade}([
+    Grade("A➕", UInt64(13), 13/3.0),
+    Grade("A",  UInt64(12), 12/3.0),
+    Grade("A➖", UInt64(11), 11/3.0),
+    Grade("B➕", UInt64(10), 10/3.0),
+    Grade("B",  UInt64(9),  9/3.0),
+    Grade("B➖", UInt64(8),  8/3.0),
+    Grade("C➕", UInt64(7),  7/3.0),
+    Grade("C",  UInt64(6),  6/3.0),
+    Grade("C➖", UInt64(5),  5/3.0),
+    Grade("D➕", UInt64(4),  4/3.0),
+    Grade("D",  UInt64(3),  3/3.0),
+    Grade("D➖", UInt64(2),  2/3.0),
+
+    Grade("P",  UInt64(0), 0/3.0),
+    Grade("F",  UInt64(0), 0/3.0),
+    Grade("I",  UInt64(0), 0/3.0),
+    Grade("WP", UInt64(0), 0/3.0),
+    Grade("W",  UInt64(0), 0/3.0),
+    Grade("WF", UInt64(0), 0/3.0),
+])
+gradingSystem = GradingSystem(grades)
+
+expected = Dict(
+        "A➕" => (UInt64(13), 13/3.0),
+        "A"  => (UInt64(12), 12/3.0),
+        "A➖" => (UInt64(11), 11/3.0),
+        "B➕" => (UInt64(10), 10/3.0),
+        "B"  => (UInt64(9),  9/3.0),
+        "B➖" => (UInt64(8),  8/3.0),
+        "C➕" => (UInt64(7),  7/3.0),
+        "C"  => (UInt64(6),  6/3.0),
+        "C➖" => (UInt64(5),  5/3.0),
+        "D➕" => (UInt64(4),  4/3.0),
+        "D"  => (UInt64(3),  3/3.0),
+        "D➖" => (UInt64(2),  2/3.0),
+
+        "P"  => (UInt64(0), 0.0),
+        "F"  => (UInt64(0), 0.0),
+        "I"  => (UInt64(0), 0.0),
+        "WP" => (UInt64(0), 0.0),
+        "W"  => (UInt64(0), 0.0),
+        "WF" => (UInt64(0), 0.0),
+    )
+
+@test length(gradingSystem.grades) == length(expected)
+for g in gradingSystem.grades
+    @test haskey(expected, g.symbol)
+
+    exp_value, exp_credits = expected[g.symbol]
+    @test g.value  == exp_value
+    @test g.credits == exp_credits
+end
 
 # Test is_valid() on DegreeRequirements
 
 
 # The regex's specified will match all courses with the EGR prefix and any number
-cs1 = CourseSet("Test Course Set 1", 3, [(A=>grade("C")), (B=>grade("D"))], course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
+cs1 = CourseSet("Test Course Set 1", 3, Grade("D",  UInt64(3),  3/3.0),[(A=>Grade("C",  UInt64(6),  6/3.0)), (B=>Grade("D",  UInt64(3),  3/3.0))],course_catalog=CCat, prefix_regex=r"^\s*+EGR\s*+$", num_regex=r".*", double_count=true);
 @test cs1.name == "Test Course Set 1"
 @test cs1.course_catalog == CCat
 @test length(cs1.course_reqs) == 3
 # The regex's specified will match all courses with number 111 and any prefix
-cs2 = CourseSet("Test Course Set 2", 3, Array{Pair{Course,Grade},1}(), course_catalog=CCat, prefix_regex=r".*", num_regex=r"^\s*+111\s*+$");
+cs2 = CourseSet("Test Course Set 2", 3, Grade("D",  UInt64(3),  3/3.0), Array{Pair{Course,Grade},1}(), course_catalog=CCat, prefix_regex=r".*", num_regex=r"^\s*+111\s*+$");
 @test length(cs2.course_reqs) == 1
 
 req_set = AbstractRequirement[cs1,cs2];
@@ -173,11 +210,11 @@ rs = RequirementSet("Test Requirement Set", 6, req_set, satisfy=2);
 @test rs.satisfy == 2
 
 # Test StudentRecord creation
-cr1 = CourseRecord(A, grade("C"), "FALL 2020");
+cr1 = CourseRecord(A, Grade("C",  UInt64(6),  6/3.0), "FALL 2020");
 @test cr1.course == A
-@test cr1.grade == 6
-cr2 = CourseRecord(B, UInt64(13), "SPRING 2020");
-@test cr2.grade == grade("A➕")
+@test cr1.grade.value == 6
+cr2 = CourseRecord(B, Grade("A➕", UInt64(13), 13/3.0), "SPRING 2020");
+@test cr2.grade.symbol == "A➕"
 std_rec = StudentRecord("A14356", "Patti", "Furniture", "O", [cr1, cr2]);
 @test length(std_rec.transcript) == 2
 
@@ -218,7 +255,8 @@ sim_obj = Simulation(dp);
      cs1 = CourseSet(
          "cs1",
          3,
-         [C1 => grade("D")],
+         Grade("D",  UInt64(3),  3/3.0),
+         [C1 => Grade("D",  UInt64(3),  3/3.0)],
          description="",
          no_multi_use=Set{CourseSet}()  # start empty; we'll add a course set later
      )
@@ -241,13 +279,15 @@ sim_obj = Simulation(dp);
      cs1 = CourseSet(
          "cs1",
          3,
-         [C1 => grade("D")],
+         Grade("D",  UInt64(3),  3/3.0),
+         [C1 => Grade("D",  UInt64(3),  3/3.0)],
      )
 
     cs2 = CourseSet(
          "cs2",
          3,
-         [C1 => grade("D")],
+         Grade("D",  UInt64(3),  3/3.0),
+         [C1 => Grade("D",  UInt64(3),  3/3.0)],
      )
 
      # add a course set

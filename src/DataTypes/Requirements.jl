@@ -1,82 +1,29 @@
 ##############################################################
 # DegreeRequirement data types
 
-# Create an integer data type called Grade
-Grade = UInt64
+mutable struct Grade
+    value::UInt64
+    symbol::AbstractString
+    credits::Real
 
-# function for converting a letter grade into a integer, divide by 3 to convert to 4-point GPA scale 
-function grade(letter_grade::AbstractString)
-    if letter_grade == "A➕"
-        return convert(Grade, 13) 
-    elseif letter_grade == "A"
-        return convert(Grade, 12) 
-    elseif letter_grade == "A➖"
-        return convert(Grade, 11) 
-    elseif letter_grade == "B➕"
-        return convert(Grade, 10) 
-    elseif letter_grade == "B"
-        return convert(Grade, 9) 
-    elseif letter_grade == "B➖"
-        return convert(Grade, 8) 
-    elseif letter_grade == "C➕"
-        return convert(Grade, 7) 
-    elseif letter_grade == "C"
-        return convert(Grade, 6) 
-    elseif letter_grade == "C➖"
-        return convert(Grade, 5) 
-    elseif letter_grade == "D➕"
-        return convert(Grade, 4) 
-    elseif letter_grade == "D"
-        return convert(Grade, 3) 
-    elseif letter_grade == "D➖"
-        return convert(Grade, 2) 
-    elseif letter_grade == "P"
-        return convert(Grade, 0) 
-    elseif letter_grade == "F"
-        return convert(Grade, 0)  
-    elseif letter_grade == "I" 
-        return convert(Grade, 0)  
-    elseif letter_grade == "WP" 
-        return convert(Grade, 0)  
-    elseif letter_grade == "W" 
-        return convert(Grade, 0)  
-    elseif letter_grade == "WF" 
-        return convert(Grade, 0)  
-    else
-        error("letter grade $letter_grade is not supported")  
+    function Grade(symbol::AbstractString, value::UInt64, credits::Real)
+        this = new()
+        this.symbol = symbol
+        this.value = value
+        this.credits = credits
+
+        return this
     end
 end
 
-# function for converting an integer letter grade, divide by 3 to convert to 4-point GPA scale 
-function grade(int_grade::Grade)
-    if int_grade == 13
-        return "A➕" 
-    elseif int_grade == 12
-        return "A"
-    elseif int_grade == 11
-        return "A➖" 
-    elseif int_grade == 10
-        return "B➕" 
-    elseif int_grade == 9
-        return "B" 
-    elseif int_grade == 8
-        return "B➖"
-    elseif int_grade == 7
-        return "C➕" 
-    elseif int_grade == 6
-        return "C" 
-    elseif int_grade == 5
-        return "C➖" 
-    elseif int_grade == 4
-        return "D➕" 
-    elseif int_grade == 3
-        return "D" 
-    elseif int_grade == 2
-        return "D➖" 
-    elseif int_grade == 0
-        return "F" 
-    else
-        error("grade value $int_grade is not supported")    
+mutable struct GradingSystem
+    grades::Set{Grade}
+
+    function GradingSystem(grades::Set{Grade})
+        this = new()
+        this.grades = grades
+
+        return this
     end
 end
 
@@ -153,9 +100,8 @@ mutable struct CourseSet <: AbstractRequirement
     # Constructor
     # A requirement may involve a set of courses, or a set of requirements, but not both
     #TODO: Check that a CourseSet cannot include itself in its no_multi_use set, possibly using setproperty!
-    function CourseSet(name::AbstractString, credit_hours::Real, course_reqs::Array{Pair{Course,Grade},1}=Array{Pair{Course,Grade},1}(); description::AbstractString="", 
-                   course_catalog::CourseCatalog=CourseCatalog("", ""), prefix_regex::Regex=r".^", num_regex::Regex=r".^", course_regex::Regex=r".^",
-                   min_grade::Grade=grade("D"), double_count::Union{Bool,Nothing}=nothing, no_multi_use::Set{CourseSet}=Set{CourseSet}())
+    function CourseSet(name::AbstractString, credit_hours::Real, min_grade::Grade, course_reqs::Array{Pair{Course,Grade},1}=Array{Pair{Course,Grade},1}(); description::AbstractString="", 
+                   course_catalog::CourseCatalog=CourseCatalog("", ""), prefix_regex::Regex=r".^", num_regex::Regex=r".^", course_regex::Regex=r".^", double_count::Union{Bool,Nothing}=nothing, no_multi_use::Set{CourseSet}=Set{CourseSet}())
         # r".^" is a regex that matches nothing
         this = new()
         this.name = name

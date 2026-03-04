@@ -19,39 +19,39 @@ C13 = Course("Major 7", 3)
 C14 = Course("Major 8", 3)
 
 math_courses = Array{Pair{Course, Grade},1}()
-push!(math_courses, C1 => grade("D"))  # must earn a D or better grade in course C1
-push!(math_courses, C2 => grade("D"))
-dr1 = CourseSet("Math", 6, math_courses, description="General Education Mathematics Requirement", double_count = true) 
+push!(math_courses, C1 => Grade("D",  UInt64(3),  3/3.0))  # must earn a D or better grade in course C1
+push!(math_courses, C2 => Grade("D",  UInt64(3),  3/3.0))
+dr1 = CourseSet("Math", 6, Grade("D",  UInt64(3),  3/3.0), math_courses, description="General Education Mathematics Requirement", double_count = true) 
 
-dr2 = CourseSet("English", 3, [C3 => grade("D")], description="General Education English Requirement", double_count = true)
+dr2 = CourseSet("English", 3, Grade("D",  UInt64(3),  3/3.0), [C3 => Grade("D",  UInt64(3),  3/3.0)], description="General Education English Requirement", double_count = true)
 
 humanities_courses = Array{Pair{Course, Grade},1}()
-push!(humanities_courses, C4 => grade("D"))
-push!(humanities_courses, C5 => grade("D"))
-dr3 = CourseSet("Humanities Requirement", 4, humanities_courses, description="General Education Humanities Requirement", double_count = true)
+push!(humanities_courses, C4 => Grade("D",  UInt64(3),  3/3.0))
+push!(humanities_courses, C5 => Grade("D",  UInt64(3),  3/3.0))
+dr3 = CourseSet("Humanities Requirement", 4, Grade("D",  UInt64(3),  3/3.0), humanities_courses, description="General Education Humanities Requirement", double_count = true)
 
 gen_ed_reqs = Array{AbstractRequirement,1}()
 push!(gen_ed_reqs, dr1, dr2, dr3)
 dr4 = RequirementSet("Gen. Ed. Core", 13, gen_ed_reqs, description="General Education Requirements")
 
-dr5 = CourseSet("Major Requirement #1", 3, [C1 => grade("C")], description="1st Major Requirement")
-dr6 = CourseSet("Major Requirement #2", 3, [C8 => grade("C")], description="2nd Major Requirement")
-dr7 = CourseSet("Major Requirement #3", 3, [C9 => grade("C")], description="3rd Major Requirement")
-dr8 = CourseSet("Major Requirement #4", 3, [C10 => grade("C")], description="4th Major Requirement")
+dr5 = CourseSet("Major Requirement #1", 3, Grade("D",  UInt64(3),  3/3.0), [C1 => Grade("C",  UInt64(6),  6/3.0)], description="1st Major Requirement")
+dr6 = CourseSet("Major Requirement #2", 3, Grade("D",  UInt64(3),  3/3.0), [C8 => Grade("C",  UInt64(6),  6/3.0)], description="2nd Major Requirement")
+dr7 = CourseSet("Major Requirement #3", 3, Grade("D",  UInt64(3),  3/3.0), [C9 => Grade("C",  UInt64(6),  6/3.0)], description="3rd Major Requirement")
+dr8 = CourseSet("Major Requirement #4", 3, Grade("D",  UInt64(3),  3/3.0), [C10 => Grade("C",  UInt64(6),  6/3.0)], description="4th Major Requirement")
 
-dr9 = CourseSet("Track 1", 6, [C11 => grade("C"), C12 => grade("C")])
-dr10 = CourseSet("Track 2", 6, [C13 => grade("C"), C14 => grade("C")])
+dr9 = CourseSet("Track 1", 6, Grade("D",  UInt64(3),  3/3.0), [C11 => Grade("C",  UInt64(6),  6/3.0), C12 => Grade("C",  UInt64(6),  6/3.0)])
+dr10 = CourseSet("Track 2", 6, Grade("D",  UInt64(3),  3/3.0), [C13 => Grade("C",  UInt64(6),  6/3.0), C14 => Grade("C",  UInt64(6),  6/3.0)])
 
 track_reqs = Array{AbstractRequirement,1}()
 push!(track_reqs, dr9, dr10)
 dr11 = RequirementSet("Concentration", 6, track_reqs, description="Concentration Requirements", satisfy=1)
 
 electives = Array{Pair{Course, Grade},1}()
-push!(electives, C11 => grade("D"))
-push!(electives, C12 => grade("D"))
-push!(electives, C13 => grade("D"))
-push!(electives, C14 => grade("D"))
-dr12 = CourseSet("Program Electives", 9, electives, description="Program Electives")
+push!(electives, C11 => Grade("D",  UInt64(3),  3/3.0))
+push!(electives, C12 => Grade("D",  UInt64(3),  3/3.0))
+push!(electives, C13 => Grade("D",  UInt64(3),  3/3.0))
+push!(electives, C14 => Grade("D",  UInt64(3),  3/3.0))
+dr12 = CourseSet("Program Electives", 9, Grade("D",  UInt64(3),  3/3.0), electives, description="Program Electives")
 #dr13 = RequirementSet("No Track Electives/Major Requirement Double Count", 6, [dr11, dr12], satisfy=1)
 
 program_reqs = Array{AbstractRequirement,1}()
@@ -87,7 +87,7 @@ bad_program_requirements = RequirementSet("Program Requirements", 41, program_re
 @test is_valid(bad_program_requirements, errors) == false
 
 # not enough credits in the collection of courses to meet 6 CHs
-bad_dr3 = CourseSet("Humanities Requirement", 6, humanities_courses, description="General Education Humanities Requirement", double_count = true)
+bad_dr3 = CourseSet("Humanities Requirement", 6, Grade("D",  UInt64(3),  3/3.0), humanities_courses, description="General Education Humanities Requirement", double_count = true)
 @test is_valid(bad_dr3, errors) == false
 
 # duplicate requirement sets
@@ -102,7 +102,7 @@ subset_reqs = RequirementSet("Subset Gen. Ed. Core", 9, gen_ed_reqs_subset, desc
 bad_reqs_subset = RequirementSet("Overlapping Requirements", 13, [dr4, subset_reqs], description="Gen. Ed. w/ Proper Subset")
 @test is_valid(bad_reqs_subset, errors) == false
 
-subset_courses = CourseSet("Subset Humanities Requirement", 1, [C4 => grade("D")], description="General Education Humanities Requirement subset", double_count = true)
+subset_courses = CourseSet("Subset Humanities Requirement", 1, Grade("D",  UInt64(3),  3/3.0), [C4 => Grade("D",  UInt64(3),  3/3.0)], description="General Education Humanities Requirement subset", double_count = true)
 program_reqs = Array{AbstractRequirement,1}()
 push!(program_reqs, dr4, dr5, dr6, dr7, dr8, dr11, dr12, subset_courses)
 program_requirements = RequirementSet("Program Requirements w/ subset courses", 40, program_reqs, description="Degree Requirements for the BS Program w/ subset courses")
