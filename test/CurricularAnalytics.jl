@@ -244,4 +244,35 @@ de = dead_ends(curric_de, ["BW"])
 @test length(de[2]) == 1
 @test de[2][1] == J
 
+###################################################
+# Test requisite clause selection in curricula with multiple DNF clauses
+# Create a simple curriculum where one course has two requisite clauses,
+# and ensure that the clause specified in the curriculum is the one used
+# to build the curriculum graph.
+A = Course("DNF-A", 3)
+B = Course("DNF-B", 3)
+X = Course("DNF-Target", 3)
+
+# Clause 1: A is a prerequisite for X
+add_requisite!(A, X, pre, clause=1)
+# Clause 2: B is a prerequisite for X
+add_requisite!(B, X, pre, clause=2)
+
+curric_dnf = Curriculum("DNF Clause Selection", [A, B, X])
+
+@test curric_dnf.requisite_clauses[X.id] == 1
+
+requisite_clauses = Dict{Int, Int}(X.id => 2)
+curric_dnf2 = Curriculum("DNF 2 Clause Selection", [A, B, X], requisite_clauses=requisite_clauses, sortby_ID=false)
+
+@test curric_dnf2.requisite_clauses[X.id] == 2
+
+vA = A.vertex_id[curric_dnf2.id]
+vB = B.vertex_id[curric_dnf2.id]
+vX = X.vertex_id[curric_dnf2.id]
+
+# Only the selected clause (clause 2) should produce an edge in the curriculum graph
+@test !Graphs.has_edge(curric_dnf2.graph, vA, vX)
+@test Graphs.has_edge(curric_dnf2.graph, vB, vX)
+
 end
