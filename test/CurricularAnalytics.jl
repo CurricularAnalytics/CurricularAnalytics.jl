@@ -275,4 +275,21 @@ vX = X.vertex_id[curric_dnf2.id]
 @test !Graphs.has_edge(curric_dnf2.graph, vA, vX)
 @test Graphs.has_edge(curric_dnf2.graph, vB, vX)
 
+###################################################
+# Test infeasibility when there is a cycle in co-requisites
+# Create two courses that are co-requisites of each other and verify
+# that the curriculum is invalid and inspect the curriculum.
+C1 = Course("CoReq-1", 3)
+C2 = Course("CoReq-2", 3)
+
+add_requisite!(C1, C2, co)
+add_requisite!(C2, C1, co)
+
+curric_coreq_cycle = Curriculum("Co-req Cycle", [C1, C2], sortby_ID=false)
+errors = IOBuffer()
+@test is_valid(curric_coreq_cycle, errors) == false
+
+println(curric_coreq_cycle)
+println(String(take!(errors)))
+
 end
