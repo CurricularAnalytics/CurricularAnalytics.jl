@@ -1,12 +1,14 @@
 ##############################################################
 # DegreeRequirement data types
 
-mutable struct Grade
+abstract type Grade end
+
+mutable struct LetterGrade <: Grade
     value::UInt64
     symbol::AbstractString
     credits::Real
 
-    function Grade(symbol::AbstractString, value::UInt64, credits::Real)
+    function LetterGrade(symbol::AbstractString, value::UInt64, credits::Real)
         this = new()
         this.symbol = symbol
         this.value = value
@@ -14,16 +16,18 @@ mutable struct Grade
 
         return this
     end
-end
 
-mutable struct GradingSystem
-    grades::Set{Grade}
+    """
+        Compares this letter-grade with the letter-grade supplied as argument. Returns -1 if this grade is lower, 0 if they are equal and 1 if this grade is higher.
+    """
+    function compareWith(otherGrade::LetterGrade)
+        if(value < otherGrade.value)
+            return -1
+        elseif (value == otherGrade.value)
+            return 0
+        end
 
-    function GradingSystem(grades::Set{Grade})
-        this = new()
-        this.grades = grades
-
-        return this
+        return 1
     end
 end
 
