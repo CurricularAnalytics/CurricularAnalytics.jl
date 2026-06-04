@@ -166,6 +166,9 @@ mutable struct CourseSet <: AbstractRequirement
         this.course_catalog = course_catalog
         this.prefix_regex = prefix_regex
         this.num_regex = num_regex
+        if(!isnothing(double_count))
+            printstyled("WARNING: Use of double_count in course set $(this.name) has been depreciated in lieu of no_multi_use.\n", color = :yellow)
+        end
         this.no_multi_use = no_multi_use
         for c in course_catalog.catalog  # search the supplied course catalog for courses satisfying both prefix and num regular expressions
             if occursin(prefix_regex, c[2].prefix) && occursin(num_regex, c[2].num)
